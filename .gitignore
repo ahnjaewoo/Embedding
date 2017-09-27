@@ -41,3 +41,4 @@ $tf*/
 *.ipch
 #ignore thumbnails created by windows
 #Ignore files build by Visual Studio
+worker.cpython-36.pyc
