@@ -21,7 +21,7 @@ relation_id = {relation: int(relation_id[i]) for i, relation in enumerate(relati
 entities_initialized = r.mget([entity+'_v' for entity in entities])
 entities_initialized = [pickle.loads(v) for v in entities_initialized]
 
-relations_initialzied = r.mget([relation+'_v' for relation in relations])
+relations_initialized = r.mget([relation+'_v' for relation in relations])
 relations_initialized = [pickle.loads(v) for v in relations_initialized]
 
 # 파일로 저장, c에서 불러와야!
