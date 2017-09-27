@@ -13,10 +13,10 @@ entities = pickle.loads(r.get('entities'))
 relations = pickle.loads(r.get('relations'))
 
 entity_id = r.mget(entities)
-entity_id = {entity: int(entity_id[i]) for i, entity in entities}
+entity_id = {entity: int(entity_id[i]) for i, entity in enumerate(entities)}
 
 relation_id = r.mget(relations)
-relation_id = {relation: int(relation_id[i]) for i, relation in relations}
+relation_id = {relation: int(relation_id[i]) for i, relation in enumerate(relations)}
 
 entities_initialized = r.mget([entity+'_v' for entity in entities])
 entities_initialized = [pickle.loads(v) for v in entities_initialized]

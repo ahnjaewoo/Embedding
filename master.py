@@ -50,16 +50,25 @@ r.mset({relation+'_v': pickle.dumps(relations_initialized[i]) for i, relation in
 print("distributed...")
 client = Client('163.152.20.66:8786', asynchronous=True)
 
+def install():
+    import os
+    os.system("pip install redis")  # or pip
+
+
 def work(i):
     proc = Popen(["python", "worker.py"])
     proc.wait()
     return "process {}: finished".format(i)
 
+
+# install redis
+client.run(install)
+
 # 작업 배정
 results = []
 for i in range(10):
     # worker.py 호출
-    results.append(client.submit(work, i, pure=False))
+    results.append(client.submit(work, i))
 
 print("aa")
 # max-min cut 실행
