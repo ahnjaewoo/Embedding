@@ -29,7 +29,7 @@ relations_initialized = [pickle.loads(v) for v in relations_initialized]
 print(time()-t)
 
 print("save file...")
-print(time())
+t = time()
 # 파일로 저장, c에서 불러와야!
 with open(f"tmp/entity_vectors.txt", 'w') as f:
     for i, vector in enumerate(entities_initialized):
@@ -52,3 +52,4 @@ command = "bash test.sh"
 args = shlex.split(command)
 proc = Popen(args)
 proc.wait()
+"""
