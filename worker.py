@@ -28,12 +28,12 @@ relations_initialized = [pickle.loads(v) for v in relations_initialized]
 with open(f"tmp/entity_vectors.txt", 'w') as f:
     for i, vector in enumerate(entities_initialized):
         f.write(str(entities[i])+f"\t")
-        f.write(" ".join(vector)+'\n')
+        f.write(" ".join(vector.tolist())+'\n')
 
 with open(f"tmp/relation_vectors.txt", 'w') as f:
     for i, relation in enumerate(relations_initialized):
         f.write(str(relations[i])+f"\t")
-        f.write(" ".join(vector)+'\n')
+        f.write(" ".join(vector.tolist())+'\n')
 
 print("finished!")
 
