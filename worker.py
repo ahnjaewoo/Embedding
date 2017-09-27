@@ -37,9 +37,10 @@ with open(f"tmp/entity_vectors.txt", 'w') as f:
         f.write(" ".join([str(v) for v in vector])+'\n')
 
 with open(f"tmp/relation_vectors.txt", 'w') as f:
-    for i, relation in enumerate(relations_initialized):
+    for i, vector in enumerate(relations_initialized):
         f.write(str(relations[i])+f"\t")
         f.write(" ".join([str(v) for v in vector])+'\n')
+
 print(time()-t)
 
 print("finished!")
