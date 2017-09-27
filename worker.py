@@ -35,6 +35,8 @@ with open(f"tmp/relation_vectors.txt", 'w') as f:
         f.write(str(relations[i])+f"\t")
         f.write(" ".join(vector)+'\n')
 
+print("finished!")
+
 
 """
 # c 프로그램 호출

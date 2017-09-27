@@ -3,7 +3,6 @@
 from distributed import Client
 from sklearn.preprocessing import normalize
 from subprocess import Popen
-from worker import work
 import numpy as np
 import redis
 import pickle
@@ -18,6 +17,7 @@ data_files = ['train.txt', 'dev.txt', 'test.txt']
 entities = set()
 relations = set()
 
+print("read files")
 for file in data_files:
     with open(root+file, 'r') as f:
         for line in f:
@@ -32,7 +32,7 @@ relations = sorted(relations)
 relation_id = {r: i for i, r in enumerate(relations)}
 
 
-
+print("redis...")
 r = redis.StrictRedis(host='163.152.20.66', port=6379, db=0, password='davian!')
 
 r.mset(entity_id)
@@ -47,18 +47,19 @@ r.mset({entity+'_v': pickle.dumps(entities_initialized[i]) for i, entity in enum
 r.mset({relation+'_v': pickle.dumps(relations_initialized[i]) for i, relation in enumerate(relations)})
 
 
+print("distributed...")
 client = Client('163.152.20.66:8786', asynchronous=True)
 
-def work():
+def work(i):
     proc = Popen(["python", "worker.py"])
     proc.wait()
-    return True
+    return "process {}: finished".format(i)
 
 # 작업 배정
 results = []
 for i in range(10):
     # worker.py 호출
-    results.append(client.submit(work, i))
+    results.append(client.submit(work, i, pure=False))
 
 print("aa")
 # max-min cut 실행
