@@ -20,7 +20,7 @@ relations = set()
 for file in data_files:
     with open(root+file, 'r') as f:
         for line in f:
-            head, relation, tail = line[-1].split("\t")
+            head, relation, tail = line[:-1].split("\t")
             entities.add(head)
             entities.add(tail)
             relations.add(relation)
