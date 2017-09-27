@@ -26,12 +26,12 @@ def work(worker_id):
     relations_initialized = [pickle.loads(v) for v in relations_initialized]
     
     # 파일로 저장, c에서 불러와야!
-    with open(f"entity_vectors_{worker_id}.txt", 'w') as f:
+    with open(f"tmp/entity_vectors_{worker_id}.txt", 'w') as f:
         for i, vector in enumerate(entities_initialized):
             f.write(str(entities[i])+f"\t")
             f.write(" ".join(vector)+'\n')
 
-    with open(f"relation_vectors_{worker_id}.txt", 'w') as f:
+    with open(f"tmp/relation_vectors_{worker_id}.txt", 'w') as f:
         for i, relation in enumerate(relations_initialized):
             f.write(str(relations[i])+f"\t")
             f.write(" ".join(vector)+'\n')
