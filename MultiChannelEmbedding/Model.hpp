@@ -528,23 +528,19 @@ public:
 	}
 
 public:
-	virtual void save(const string& filename)
-	{
-		cout << "BAD";
-	}
+	virtual void save(const string& filename) = 0;
 
-	virtual void load(const string& filename)
-	{
-		cout << "BAD";
-	}
+	virtual void load(const string& filename) = 0;
 
 	virtual vec entity_representation(int entity_id) const
 	{
 		cout << "BAD";
+		return NULL;
 	}
 
 	virtual vec relation_representation(int relation_id) const
 	{
 		cout << "BAD";
+		return NULL;
 	}
 };
