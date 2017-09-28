@@ -4,14 +4,18 @@ from subprocess import Popen
 from time import time
 import redis
 import pickle
-import shlex
+import sys
 
 
-r = redis.StrictRedis(host='163.152.20.66', port=6379, db=0, password='davian!')
+worker_id = sys.argv[1]
+cur_epoch = sys.argv[2]
+
 
 # redis에서 embedding vector들 받아오기
 print("redis...")
 t = time()
+r = redis.StrictRedis(host='163.152.20.66', port=6379, db=0, password='davian!')
+
 entities = pickle.loads(r.get('entities'))
 relations = pickle.loads(r.get('relations'))
 
@@ -28,28 +32,47 @@ relations_initialized = r.mget([relation+'_v' for relation in relations])
 relations_initialized = [pickle.loads(v) for v in relations_initialized]
 print(time()-t)
 
+
 print("save file...")
 t = time()
 # 파일로 저장, c에서 불러와야!
-with open(f"tmp/entity_vectors.txt", 'w') as f:
+with open("tmp/entity_vectors.txt", 'w') as f:
     for i, vector in enumerate(entities_initialized):
-        f.write(str(entities[i])+f"\t")
-        f.write(" ".join([str(v) for v in vector])+'\n')
+        f.write(str(entities[i]) + "\t")
+        f.write(" ".join([str(v) for v in vector]) + '\n')
 
-with open(f"tmp/relation_vectors.txt", 'w') as f:
-    for i, vector in enumerate(relations_initialized):
-        f.write(str(relations[i])+f"\t")
-        f.write(" ".join([str(v) for v in vector])+'\n')
+with open("tmp/relation_vectors.txt", 'w') as f:
+    for i, relation in enumerate(relations_initialized):
+        f.write(str(relations[i]) + "\t")
+        f.write(" ".join([str(v) for v in relation]) + '\n')
 
 print(time()-t)
 
-print("finished!")
+del entities_initialized
+del relations_initialized
 
 
 """
-# c 프로그램 호출
-command = "bash test.sh"
-args = shlex.split(command)
-proc = Popen(args)
+# 여기서 C++ 프로그램 호출
+proc = Popen(["bash", "test.sh"])
 proc.wait()
+
+
+entity_vectors = {}
+with open("tmp/entity_vectors_updated", 'r') as f:
+    for line in f:
+        line = line[:-1].split()
+        entity_vectors[line[0]] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
+
+r.mset(entity_vectors)
+
+relation_vectors = {}
+with open("tmp/relation_vectors_updated", 'r') as f:
+    for line in f:
+        line = line[:-1].split()
+        relation_vectors[line[0]] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
+
+r.mset(relation_vectors)
 """
+
+print("finished!")

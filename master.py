@@ -7,14 +7,12 @@ from time import time
 import numpy as np
 import redis
 import pickle
+import os
 
-
-# master node에 redis db 실행해야함
-# master에서 dask-scheduler 실행
-# 각 worker pc에서는 dask-worker <마스터 ip>:8786
 
 root = 'fb15k/'
 data_files = ['train.txt', 'dev.txt', 'test.txt']
+epoch = 1
 
 entities = set()
 relations = set()
@@ -35,6 +33,7 @@ relations = sorted(relations)
 relation_id = {r: i for i, r in enumerate(relations)}
 print(time()-t)
 
+
 print("redis...")
 t = time()
 r = redis.StrictRedis(host='163.152.20.66', port=6379, db=0, password='davian!')
@@ -44,39 +43,49 @@ r.mset(relation_id)
 r.set('entities', pickle.dumps(entities, protocol=pickle.HIGHEST_PROTOCOL))
 r.set('relations', pickle.dumps(relations, protocol=pickle.HIGHEST_PROTOCOL))
 
-entities_initialized = normalize(np.random.random((len(entities), 300)))
-relations_initialized = normalize(np.random.random((len(relations), 300)))
+entities_initialized = normalize(np.random.randn(len(entities), 300))
+relations_initialized = normalize(np.random.randn(len(relations), 300))
 
-r.mset({entity+'_v': pickle.dumps(entities_initialized[i], protocol=pickle.HIGHEST_PROTOCOL) for i, entity in enumerate(entities)})
-r.mset({relation+'_v': pickle.dumps(relations_initialized[i], protocol=pickle.HIGHEST_PROTOCOL) for i, relation in enumerate(relations)})
+r.mset({
+    entity+'_v': pickle.dumps(
+        entities_initialized[i],
+        protocol=pickle.HIGHEST_PROTOCOL) for i, entity in enumerate(entities)})
+r.mset({
+    relation+'_v': pickle.dumps(
+        relations_initialized[i],
+        protocol=pickle.HIGHEST_PROTOCOL) for i, relation in enumerate(relations)})
+
 print(time()-t)
 
 print("distributed...")
-client = Client('163.152.20.66:8786', asynchronous=True)
+client = Client('163.152.20.66:8786', asynchronous=True, name='Embedding')
+
 
 def install():
-    import os
-    os.system("pip install redis")  # or pip
+    # install redis in worker machine
+    os.system("pip install redis")
 
 
-def work(i):
-    proc = Popen(["python", "worker.py"])
+def work(worker_id, cur_epoch):
+    proc = Popen(["python", "worker.py", str(worker_id), str(cur_epoch)])
     proc.wait()
-    return "process {}: finished".format(i)
+    return "process {}: finished".format(worker_id)
 
 
 # install redis
 client.run(install)
 
-# 작업 배정
-results = []
-for i in range(10):
-    # worker.py 호출
-    results.append(client.submit(work, i))
+for e in range(epoch):
+    # 작업 배정
+    results = []
+    for worker_id in range(10):
+        # worker.py 호출
+        results.append(client.submit(work, worker_id, e))
 
-print("aa")
-# max-min cut 실행
 
-# worker들 작업 끝나면 anchor 등 재분배
-for result in results:
-    print(result.result())
+    # max-min cut 실행, anchor 등 재분배
+    print("aa")
+
+
+    for result in results:
+        print(result.result())
