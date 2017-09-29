@@ -64,6 +64,7 @@ client = Client('163.152.20.66:8786', asynchronous=True, name='Embedding')
 def install():
     # install redis in worker machine
     os.system("pip install redis")
+    os.system("pip install hiredis")
 
 
 def work(worker_id, cur_epoch):
