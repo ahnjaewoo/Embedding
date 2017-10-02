@@ -35,7 +35,8 @@ print(time()-t)
 
 print("save file...")
 t = time()
-# 파일로 저장, c에서 불러와야!
+
+# 좀 더 빨리 처리 하는 법 찾기
 with open("tmp/entity_vectors.txt", 'w') as f:
     for i, vector in enumerate(entities_initialized):
         f.write(str(entities[i]) + "\t")
