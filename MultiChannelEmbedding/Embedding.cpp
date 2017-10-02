@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 
 	Model* model = nullptr;
 
-	model = new TransE(FB15K, LinkPredictionTail, report_path, 300, 0.01, 2);
+	model = new TransE(FB15K, LinkPredictionTail, report_path, 20, 0.01, 2);
 
 	//first read the txt file
 	model->load("output.txt");

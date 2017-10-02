@@ -49,7 +49,7 @@ public:
 	map<int, map<int, vector<int> > >     rel_heads;
 	map<int, map<int, vector<int> > >     rel_tails;
 	map<pair<int, int>, int>		     rel_finder;
-	
+
 public:
 	int zeroshot_pointer;
 
@@ -59,24 +59,24 @@ public:
 		load_training(dataset.base_dir + dataset.training);
 		relation_hpt.resize(set_relation.size());
 		relation_tph.resize(set_relation.size());
-		for(auto i=0; i!=set_relation.size(); ++i)
+		for (auto i = 0; i != set_relation.size(); ++i)
 		{
 			double sum = 0;
 			double total = 0;
-			for(auto ds=rel_heads[i].begin(); ds!=rel_heads[i].end(); ++ds)
+			for (auto ds = rel_heads[i].begin(); ds != rel_heads[i].end(); ++ds)
 			{
-				++ sum;
+				++sum;
 				total += ds->second.size();
 			}
 			relation_tph[i] = total / sum;
 		}
-		for(auto i=0; i!=set_relation.size(); ++i)
+		for (auto i = 0; i != set_relation.size(); ++i)
 		{
 			double sum = 0;
 			double total = 0;
-			for(auto ds=rel_tails[i].begin(); ds!=rel_tails[i].end(); ++ds)
+			for (auto ds = rel_tails[i].begin(); ds != rel_tails[i].end(); ++ds)
 			{
-				++ sum;
+				++sum;
 				total += ds->second.size();
 			}
 			relation_hpt[i] = total / sum;
@@ -85,18 +85,19 @@ public:
 		zeroshot_pointer = set_entity.size();
 		load_testing(dataset.base_dir + dataset.developing, data_dev_true, data_dev_false, dataset.self_false_sampling);
 		load_testing(dataset.base_dir + dataset.testing, data_test_true, data_test_false, dataset.self_false_sampling);
-		
+
+
 		set_relation_head.resize(set_entity.size());
 		set_relation_tail.resize(set_relation.size());
 		prob_head.resize(set_entity.size());
 		prob_tail.resize(set_entity.size());
-		for(auto i=data_train.begin(); i!=data_train.end(); ++i)
+		for (auto i = data_train.begin(); i != data_train.end(); ++i)
 		{
-			++ prob_head[i->first.first];
-			++ prob_tail[i->first.second];
+			++prob_head[i->first.first];
+			++prob_tail[i->first.second];
 
-			++ tails[i->second][i->first.first];
-			++ heads[i->second][i->first.second];
+			++tails[i->second][i->first.first];
+			++heads[i->second][i->first.second];
 
 			set_relation_head[i->second].insert(i->first.first);
 			set_relation_tail[i->second].insert(i->first.second);
@@ -119,7 +120,7 @@ public:
 		double threshold = 1.5;
 		relation_type.resize(set_relation.size());
 
- 		for(auto i=0; i<set_relation.size(); ++i)
+		for (auto i = 0; i<set_relation.size(); ++i)
 		{
 			if (relation_tph[i]<threshold && relation_hpt[i]<threshold)
 			{
@@ -129,7 +130,7 @@ public:
 			{
 				relation_type[i] = 2;
 			}
-			else if (relation_hpt[i] >=threshold && relation_tph[i] < threshold)
+			else if (relation_hpt[i] >= threshold && relation_tph[i] < threshold)
 			{
 				relation_type[i] = 3;
 			}
@@ -226,10 +227,12 @@ public:
 	void load_training(const string& filename)
 	{
 		fstream fin(filename.c_str());
-		while(!fin.eof())
+		while (!fin.eof())
 		{
 			string head, tail, relation;
-			fin>>head>>relation>>tail;
+			fin >> head >> relation >> tail;
+
+			if (head == "" && relation == "" && tail == "") break;
 
 			if (entity_name_to_id.find(head) == entity_name_to_id.end())
 			{
@@ -264,8 +267,8 @@ public:
 			set_entity.insert(tail);
 			set_relation.insert(relation);
 
-			++ count_entity[head];
-			++ count_entity[tail];
+			++count_entity[head];
+			++count_entity[tail];
 
 			rel_heads[relation_name_to_id[relation]][entity_name_to_id[head]]
 				.push_back(entity_name_to_id[tail]);
@@ -274,26 +277,27 @@ public:
 			rel_finder[make_pair(entity_name_to_id[head], entity_name_to_id[tail])]
 				= relation_name_to_id[relation];
 		}
-
 		fin.close();
 	}
 
-	void load_testing(	
-		const string& filename, 
-		vector<pair<pair<int, int>,int>>& vin_true,
-		vector<pair<pair<int, int>,int>>& vin_false,
+	void load_testing(
+		const string& filename,
+		vector<pair<pair<int, int>, int>>& vin_true,
+		vector<pair<pair<int, int>, int>>& vin_false,
 		bool self_sampling = false)
 	{
 		fstream fin(filename.c_str());
 		if (self_sampling == false)
 		{
-			while(!fin.eof())
+			while (!fin.eof())
 			{
 				string head, tail, relation;
 				int flag_true;
 
-				fin>>head>>relation>>tail;
-				fin>>flag_true;
+				fin >> head >> relation >> tail;
+				fin >> flag_true;
+
+				if (head == "" && relation == "" && tail == "") break;
 
 				if (entity_name_to_id.find(head) == entity_name_to_id.end())
 				{
@@ -325,17 +329,19 @@ public:
 					relation_name_to_id[relation]));
 
 				check_data_all.insert(make_pair(make_pair(entity_name_to_id[head], entity_name_to_id[tail]),
-					relation_name_to_id[relation])); 
+					relation_name_to_id[relation]));
 			}
 		}
 		else
 		{
-			while(!fin.eof())
+			while (!fin.eof())
 			{
 				string head, tail, relation;
 				pair<pair<int, int>, int>	sample_false;
 
-				fin>>head>>relation>>tail;
+				fin >> head >> relation >> tail;
+
+				if (head == "" && relation == "" && tail == "") break;
 
 				if (entity_name_to_id.find(head) == entity_name_to_id.end())
 				{
@@ -364,7 +370,7 @@ public:
 
 				vin_true.push_back(make_pair(make_pair(entity_name_to_id[head], entity_name_to_id[tail]),
 					relation_name_to_id[relation]));
-				vin_false.push_back(sample_false); 
+				vin_false.push_back(sample_false);
 
 				check_data_all.insert(make_pair(make_pair(entity_name_to_id[head], entity_name_to_id[tail]),
 					relation_name_to_id[relation]));
@@ -374,23 +380,23 @@ public:
 		fin.close();
 	}
 
-	void sample_false_triplet(	
-		const pair<pair<int,int>,int>& origin,
-		pair<pair<int,int>,int>& triplet) const
+	void sample_false_triplet(
+		const pair<pair<int, int>, int>& origin,
+		pair<pair<int, int>, int>& triplet) const
 	{
 
-		double prob = relation_hpt[origin.second]/(relation_hpt[origin.second] + relation_tph[origin.second]);
+		double prob = relation_hpt[origin.second] / (relation_hpt[origin.second] + relation_tph[origin.second]);
 
 		triplet = origin;
-		while(true)
+		while (true)
 		{
-			if(rand()%1000 < 1000 * prob)
+			if (rand() % 1000 < 1000 * prob)
 			{
-				triplet.first.second = rand()%set_entity.size();
+				triplet.first.second = rand() % set_entity.size();
 			}
 			else
 			{
-				triplet.first.first = rand()%set_entity.size();
+				triplet.first.first = rand() % set_entity.size();
 			}
 
 			if (check_data_train.find(triplet) == check_data_train.end())
@@ -398,18 +404,18 @@ public:
 		}
 	}
 
-	void sample_false_triplet_relation(	
-		const pair<pair<int,int>,int>& origin,
-		pair<pair<int,int>,int>& triplet) const
+	void sample_false_triplet_relation(
+		const pair<pair<int, int>, int>& origin,
+		pair<pair<int, int>, int>& triplet) const
 	{
 
-		double prob = relation_hpt[origin.second]/(relation_hpt[origin.second] + relation_tph[origin.second]);
+		double prob = relation_hpt[origin.second] / (relation_hpt[origin.second] + relation_tph[origin.second]);
 
 		triplet = origin;
-		while(true)
+		while (true)
 		{
-			if (rand()%100 < 50)
-				triplet.second = rand()%set_relation.size();
+			if (rand() % 100 < 50)
+				triplet.second = rand() % set_relation.size();
 			else if (rand() % 1000 < 1000 * prob)
 			{
 				triplet.first.second = rand() % set_entity.size();

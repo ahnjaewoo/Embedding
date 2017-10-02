@@ -268,77 +268,81 @@ public:
 
 	virtual void save(const string& filename) override
 	{
-		ofstream fout(filename, ios::binary);
-		//storage_vmat<double>::save(embedding_entity, fout);
-		//storage_vmat<double>::save(embedding_relation, fout);
+		string real_filename;
+		if (filename.find(".txt") != string::npos) real_filename = filename.substr(0, filename.find(".txt"));
+
+		ofstream fout_entity(real_filename + "_entity.txt", ios::binary);
+		ofstream fout_relation(real_filename + "_relation.txt", ios::binary);
 
 		for (int i = 0; i < count_entity(); i++)
 		{
-			//fout << data_model.entity_id_to_name[i] << '\t';
-			fout << i << '\t';
+			fout_entity << data_model.entity_id_to_name[i] << '\t';
 			for (int j = 0; j < dim; j++)
 			{
-				fout << embedding_entity[i](j) << " ";
+				fout_entity << embedding_entity[i](j) << " ";
 			}
-			fout << '\n';
+			fout_entity << '\n';
 		}
 
 		for (int i = 0; i < count_relation(); i++)
 		{
-			//fout << data_model.relation_id_to_name[i] << '\t';
-			fout << i << '\t';
+			fout_relation << data_model.relation_id_to_name[i] << '\t';
 			for (int j = 0; j < dim; j++)
 			{
-				fout << embedding_relation[i](j) << " ";
+				fout_relation << embedding_relation[i](j) << " ";
 			}
-			fout << '\n';
+			fout_relation << '\n';
 		}
 
-		fout.close();
+		fout_entity.close();
+		fout_relation.close();
 	}
 
 	virtual void load(const string& filename) override
 	{
-		ifstream fin(filename, ios::binary);
-		//storage_vmat<double>::load(embedding_entity, fin);
-		//storage_vmat<double>::load(embedding_relation, fin);
-		//string key;
-		int key;
+		string real_filename;
+		if (filename.find(".txt") != string::npos) real_filename = filename.substr(0, filename.find(".txt"));
+
+		ifstream fin_entity(real_filename + "_entity.txt", ios::binary);
+		ifstream fin_relation(real_filename + "_relation.txt", ios::binary);
+
+		string key;
+
 
 		for (int i = 0; i < count_entity(); i++)
 		{
-			fin >> key;
-			/*if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
+			fin_entity >> key;
+			if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
 			{
-			cout << "entity key does not exist! entity number : " << i << endl;
-			return;
+				cout << "entity key does not exist! entity number : " << i << endl;
+				return;
 			}
-			int entity_id = data_model.entity_name_to_id.at(key);*/
-
+			int entity_id = data_model.entity_name_to_id.at(key);
 
 			for (int j = 0; j < dim; j++)
 			{
-				fin >> embedding_entity[key](j);
+				fin_entity >> embedding_entity[entity_id](j);
 			}
 		}
 
 		for (int i = 0; i < count_relation(); i++)
 		{
-			fin >> key;
-			/*if (data_model.relation_name_to_id.find(key) == data_model.relation_name_to_id.end())
+			fin_relation >> key;
+			if (data_model.relation_name_to_id.find(key) == data_model.relation_name_to_id.end())
 			{
-			cout << "relation key does not exist!" << endl;
-			return;
+				cout << "relation key does not exist!" << endl;
+				return;
 			}
-			int relation_id = data_model.relation_name_to_id.at(key);*/
+			int relation_id = data_model.relation_name_to_id.at(key);
 
 			for (int j = 0; j < dim; j++)
 			{
-				fin >> embedding_entity[key](j);
+				fin_relation >> embedding_entity[relation_id](j);
 			}
 		}
 
-		fin.close();
+		fin_entity.close();
+		fin_relation.close();
 	}
 };
 
