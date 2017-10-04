@@ -13,6 +13,7 @@ import os
 root = 'fb15k/'
 data_files = ['train.txt', 'dev.txt', 'test.txt']
 epoch = 1
+n_dim = 20
 
 entities = set()
 relations = set()
@@ -43,8 +44,8 @@ r.mset(relation_id)
 r.set('entities', pickle.dumps(entities, protocol=pickle.HIGHEST_PROTOCOL))
 r.set('relations', pickle.dumps(relations, protocol=pickle.HIGHEST_PROTOCOL))
 
-entities_initialized = normalize(np.random.randn(len(entities), 300))
-relations_initialized = normalize(np.random.randn(len(relations), 300))
+entities_initialized = normalize(np.random.randn(len(entities), n_dim))
+relations_initialized = normalize(np.random.randn(len(relations), n_dim))
 
 r.mset({
     entity+'_v': pickle.dumps(
