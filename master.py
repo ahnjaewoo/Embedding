@@ -37,7 +37,7 @@ print(time()-t)
 
 print("redis...")
 t = time()
-r = redis.StrictRedis(host='163.152.20.66', port=6379, db=0, password='davian!')
+r = redis.StrictRedis(host='163.152.20.66', port=6379, db=0)
 
 r.mset(entity_id)
 r.mset(relation_id)
@@ -69,7 +69,7 @@ def install():
 
 
 def work(worker_id, cur_epoch):
-    proc = Popen(["python", "worker.py", str(worker_id), str(cur_epoch)])
+    proc = Popen(["python", "/home/rudvlf0413/distributedKGE/Embedding/worker.py", str(worker_id), str(cur_epoch)])
     proc.wait()
     return "process {}: finished".format(worker_id)
 

@@ -14,7 +14,7 @@ cur_epoch = sys.argv[2]
 # redis에서 embedding vector들 받아오기
 print("redis...")
 t = time()
-r = redis.StrictRedis(host='163.152.20.66', port=6379, db=0, password='davian!')
+r = redis.StrictRedis(host='163.152.20.66', port=6379, db=0)
 
 entities = pickle.loads(r.get('entities'))
 relations = pickle.loads(r.get('relations'))
@@ -53,9 +53,8 @@ del entities_initialized
 del relations_initialized
 
 
-"""
 # 여기서 C++ 프로그램 호출
-proc = Popen(["bash", "test.sh"])
+proc = Popen(["/home/rudvlf0413/distributedKGE/Embedding/MultiChannelEmbedding/a.out"])
 proc.wait()
 
 
@@ -74,6 +73,6 @@ with open("tmp/relation_vectors_updated", 'r') as f:
         relation_vectors[line[0]] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
 
 r.mset(relation_vectors)
-"""
+
 
 print("finished!")
