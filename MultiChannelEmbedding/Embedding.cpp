@@ -1,6 +1,6 @@
 #include "Import.hpp"
 #include "DetailedConfig.hpp"
-#include "LatentModel.hpp"
+//#include "LatentModel.hpp"
 #include "OrbitModel.hpp"
 #include "Task.hpp"
 #include <omp.h>
