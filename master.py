@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from distributed import Client
+from distributed.client import as_completed
 from sklearn.preprocessing import normalize
 from subprocess import Popen
 from time import time
@@ -58,9 +59,6 @@ r.mset({
 
 print(time()-t)
 
-print("distributed...")
-client = Client('163.152.20.66:8786', asynchronous=True, name='Embedding')
-
 
 def install():
     # install redis in worker machine
@@ -69,10 +67,14 @@ def install():
 
 
 def work(worker_id, cur_epoch):
+    # worker.py 호출
     proc = Popen(["python", "/home/rudvlf0413/distributedKGE/Embedding/worker.py", str(worker_id), str(cur_epoch)])
     proc.wait()
     return "process {}: finished".format(worker_id)
 
+
+print("distributed...")
+client = Client('163.152.20.66:8786', asynchronous=True, name='Embedding')
 
 # install redis
 client.run(install)
@@ -81,13 +83,10 @@ for e in range(epoch):
     # 작업 배정
     results = []
     for worker_id in range(10):
-        # worker.py 호출
         results.append(client.submit(work, worker_id, e))
-
 
     # max-min cut 실행, anchor 등 재분배
     print("aa")
 
-
-    for result in results:
+    for result in as_completed(results)  :
         print(result.result())
