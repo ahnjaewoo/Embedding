@@ -12,17 +12,20 @@ protected:
 	vector<vec>	embedding_relation;
 
 public:
-	const int	dim;
-	const double	alpha;
-	const double	training_threshold;
+	int	dim;
+	double	alpha;
+	double	training_threshold;
 
 public:
 	/*
-	TransE(const string& filename):Model(~~~)
+	TransE(const string& filename):Model()
 	{
-
+	dim = 20;
+	alpha = 0.01;
+	training_threshold = 2;
 	}
 	*/
+
 	TransE(const Dataset& dataset,
 		const TaskType& task_type,
 		const string& logging_base_path,
@@ -338,7 +341,7 @@ public:
 
 			for (int j = 0; j < dim; j++)
 			{
-				fin_relation >> embedding_entity[relation_id](j);
+				fin_relation >> embedding_relation[relation_id](j);
 			}
 		}
 
