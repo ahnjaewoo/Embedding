@@ -17,6 +17,12 @@ public:
 	const double	training_threshold;
 
 public:
+	/*
+	TransE(const string& filename):Model(~~~)
+	{
+
+	}
+	*/
 	TransE(const Dataset& dataset,
 		const TaskType& task_type,
 		const string& logging_base_path,
@@ -268,11 +274,9 @@ public:
 
 	virtual void save(const string& filename) override
 	{
-		string real_filename;
-		if (filename.find(".txt") != string::npos) real_filename = filename.substr(0, filename.find(".txt"));
 
-		ofstream fout_entity(real_filename + "_entity.txt", ios::binary);
-		ofstream fout_relation(real_filename + "_relation.txt", ios::binary);
+		ofstream fout_entity("../tmp/entity_vectors_updated.txt", ios::binary);
+		ofstream fout_relation("../tmp/relation_vectors_updated.txt", ios::binary);
 
 		for (int i = 0; i < count_entity(); i++)
 		{
@@ -300,11 +304,8 @@ public:
 
 	virtual void load(const string& filename) override
 	{
-		string real_filename;
-		if (filename.find(".txt") != string::npos) real_filename = filename.substr(0, filename.find(".txt"));
-
-		ifstream fin_entity(real_filename + "_entity.txt", ios::binary);
-		ifstream fin_relation(real_filename + "_relation.txt", ios::binary);
+		ifstream fin_entity("../tmp/entity_vectors.txt", ios::binary);
+		ifstream fin_relation("../tmp/relation_vectors.txt", ios::binary);
 
 		string key;
 

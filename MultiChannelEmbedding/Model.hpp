@@ -528,9 +528,17 @@ public:
 	}
 
 public:
-	virtual void save(const string& filename) = 0;
+	virtual void save(const string& filename)
+	{
+		cout << "BAD" << endl;
+		return;
+	}
 
-	virtual void load(const string& filename) = 0;
+	virtual void load(const string& filename)
+	{
+		cout << "BAD!" << endl;
+		return;
+	}
 
 	virtual vec entity_representation(int entity_id) const
 	{
