@@ -63,16 +63,15 @@ entity_vectors = {}
 with open("./tmp/entity_vectors_updated.txt", 'r') as f:
     for line in f:
         line = line[:-1].split()
-        entity_vectors[line[0]] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
+        entity_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
 
-print(entity_vectors)
 r.mset(entity_vectors)
 
 relation_vectors = {}
 with open("./tmp/relation_vectors_updated.txt", 'r') as f:
     for line in f:
         line = line[:-1].split()
-        relation_vectors[line[0]] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
+        relation_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
 
 r.mset(relation_vectors)
 
