@@ -2,6 +2,7 @@
 
 from subprocess import Popen
 from time import time
+import numpy as np
 import redis
 import pickle
 import sys
@@ -37,12 +38,12 @@ print("save file...")
 t = time()
 
 # 좀 더 빨리 처리 하는 법 찾기
-with open("tmp/entity_vectors.txt", 'w') as f:
+with open("./tmp/entity_vectors.txt", 'w') as f:
     for i, vector in enumerate(entities_initialized):
         f.write(str(entities[i]) + "\t")
         f.write(" ".join([str(v) for v in vector]) + '\n')
 
-with open("tmp/relation_vectors.txt", 'w') as f:
+with open("./tmp/relation_vectors.txt", 'w') as f:
     for i, relation in enumerate(relations_initialized):
         f.write(str(relations[i]) + "\t")
         f.write(" ".join([str(v) for v in relation]) + '\n')
@@ -59,18 +60,18 @@ proc.wait()
 
 
 entity_vectors = {}
-with open("tmp/entity_vectors_updated.txt", 'r') as f:
+with open("./tmp/entity_vectors_updated.txt", 'r') as f:
     for line in f:
         line = line[:-1].split()
-        entity_vectors[line[0]] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
+        entity_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
 
 r.mset(entity_vectors)
 
 relation_vectors = {}
-with open("tmp/relation_vectors_updated.txt", 'r') as f:
+with open("./tmp/relation_vectors_updated.txt", 'r') as f:
     for line in f:
         line = line[:-1].split()
-        relation_vectors[line[0]] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
+        relation_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
 
 r.mset(relation_vectors)
 
