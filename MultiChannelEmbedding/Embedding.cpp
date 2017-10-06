@@ -12,10 +12,11 @@ int main(int argc, char* argv[])
 	//omp_set_num_threads(6);
 
 	Model* model = nullptr;
-	model = new TransE(FB15K, LinkPredictionTail, report_path, 20, 0.01, 2);
 
-	//first read the txt file
-	model->load("");
+	//first read the txt file and load the model
+
+	//model = new TransE(FB15K, LinkPredictionTail, report_path, 20, 0.01, 2, false);
+	model = new TransE(FB15K, LinkPredictionTail, report_path, 20, 0.01, 2, true);
 
 	model->run(1);
 
@@ -25,16 +26,6 @@ int main(int argc, char* argv[])
 	model->test();
 
 	delete model;
-
-	/*
-	Model* model = nullptr;
-	model = new TransE(FB15K, LinkPredictionTail, report_path, 20, 0.01, 2);
-	model->load("TransE.20-0.01-2.model");
-	model->run(1);
-	model->save("TransE.20-0.01.-2.updated.model");
-	model->test();
-	delete model;
-	*/
 
 	return 0;
 }

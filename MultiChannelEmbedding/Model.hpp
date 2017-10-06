@@ -13,6 +13,7 @@ public:
 	const DataModel&	data_model;
 	const TaskType		task_type;
 	const bool			be_deleted_data_model;
+	const bool			is_preprocessed;
 
 public:
 	ModelLogging&		logging;
@@ -23,10 +24,11 @@ public:
 public:
 	Model(const Dataset& dataset,
 		const TaskType& task_type,
-		const string& logging_base_path)
-		:data_model(*(new DataModel(dataset))), task_type(task_type),
+		const string& logging_base_path,
+		const bool is_preprocessed)
+		:data_model(*(new DataModel(dataset, is_preprocessed))), task_type(task_type),
 		logging(*(new ModelLogging(logging_base_path))),
-		be_deleted_data_model(true)
+		be_deleted_data_model(true), is_preprocessed(is_preprocessed)
 	{
 		epos = 0;
 		best_triplet_result = 0;
@@ -39,10 +41,11 @@ public:
 	Model(const Dataset& dataset,
 		const string& file_zero_shot,
 		const TaskType& task_type,
-		const string& logging_base_path)
-		:data_model(*(new DataModel(dataset))), task_type(task_type),
+		const string& logging_base_path,
+		const bool is_preprocessed = false)
+		:data_model(*(new DataModel(dataset, is_preprocessed))), task_type(task_type),
 		logging(*(new ModelLogging(logging_base_path))),
-		be_deleted_data_model(true)
+		be_deleted_data_model(true), is_preprocessed(is_preprocessed)
 	{
 		epos = 0;
 		best_triplet_result = 0;
@@ -56,7 +59,7 @@ public:
 		const TaskType& task_type,
 		ModelLogging* logging)
 		:data_model(*data_model), logging(*logging), task_type(task_type),
-		be_deleted_data_model(false)
+		be_deleted_data_model(false), is_preprocessed(true)
 	{
 		epos = 0;
 		best_triplet_result = 0;

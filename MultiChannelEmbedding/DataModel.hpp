@@ -1,6 +1,16 @@
 #pragma once
 #include "Import.hpp"
 #include "ModelConfig.hpp"
+#include <boost/archive/xml_oarchive.hpp> 
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/set.hpp>
+#include <iostream> 
+#include <fstream> 
+#include <algorithm>
+#include <iterator>
 
 class DataModel
 {
@@ -16,8 +26,8 @@ public:
 	vector<pair<pair<int, int>, int> >	data_test_false;
 
 public:
-	set<int>			set_tail;
-	set<int>			set_head;
+	//set<int>			set_tail;
+	//set<int>			set_head;
 	set<string>			set_entity;
 	set<string>			set_relation;
 
@@ -54,94 +64,164 @@ public:
 	int zeroshot_pointer;
 
 public:
-	DataModel(const Dataset& dataset)
+	DataModel(const Dataset& dataset, const bool is_preprocessed)
 	{
-		load_training(dataset.base_dir + dataset.training);
-		relation_hpt.resize(set_relation.size());
-		relation_tph.resize(set_relation.size());
-		for (auto i = 0; i != set_relation.size(); ++i)
+		if (is_preprocessed)
 		{
-			double sum = 0;
-			double total = 0;
-			for (auto ds = rel_heads[i].begin(); ds != rel_heads[i].end(); ++ds)
+			ifstream input("../tmp/data_model.xml");
+			boost::archive::xml_iarchive ia(input);
+
+			ia & BOOST_SERIALIZATION_NVP(entity_name_to_id);
+			ia & BOOST_SERIALIZATION_NVP(entity_id_to_name);
+			ia & BOOST_SERIALIZATION_NVP(relation_name_to_id);
+			ia & BOOST_SERIALIZATION_NVP(relation_id_to_name);
+			ia & BOOST_SERIALIZATION_NVP(data_train);
+			ia & BOOST_SERIALIZATION_NVP(data_dev_true);
+			ia & BOOST_SERIALIZATION_NVP(data_dev_false);
+			ia & BOOST_SERIALIZATION_NVP(data_test_true);
+			ia & BOOST_SERIALIZATION_NVP(data_test_false);
+			ia & BOOST_SERIALIZATION_NVP(check_data_train);
+			ia & BOOST_SERIALIZATION_NVP(check_data_all);
+			ia & BOOST_SERIALIZATION_NVP(set_entity);
+			ia & BOOST_SERIALIZATION_NVP(set_relation);
+			ia & BOOST_SERIALIZATION_NVP(count_entity);
+			ia & BOOST_SERIALIZATION_NVP(rel_heads);
+			ia & BOOST_SERIALIZATION_NVP(rel_tails);
+			ia & BOOST_SERIALIZATION_NVP(rel_finder);
+			ia & BOOST_SERIALIZATION_NVP(relation_tph);
+			ia & BOOST_SERIALIZATION_NVP(relation_hpt);
+			ia & BOOST_SERIALIZATION_NVP(set_relation_head);
+			ia & BOOST_SERIALIZATION_NVP(set_relation_tail);
+			ia & BOOST_SERIALIZATION_NVP(prob_head);
+			ia & BOOST_SERIALIZATION_NVP(prob_tail);
+			ia & BOOST_SERIALIZATION_NVP(tails);
+			ia & BOOST_SERIALIZATION_NVP(heads);
+			ia & BOOST_SERIALIZATION_NVP(relation_type);
+
+			input.close();
+		}
+		else
+		{
+			ofstream output("../tmp/data_model_updated.xml");
+			boost::archive::xml_oarchive oa(output);
+
+			load_training(dataset.base_dir + dataset.training);
+
+			relation_hpt.resize(set_relation.size());
+			relation_tph.resize(set_relation.size());
+			for (auto i = 0; i != set_relation.size(); ++i)
 			{
-				++sum;
-				total += ds->second.size();
+				double sum = 0;
+				double total = 0;
+				for (auto ds = rel_heads[i].begin(); ds != rel_heads[i].end(); ++ds)
+				{
+					++sum;
+					total += ds->second.size();
+				}
+				relation_tph[i] = total / sum;
 			}
-			relation_tph[i] = total / sum;
-		}
-		for (auto i = 0; i != set_relation.size(); ++i)
-		{
-			double sum = 0;
-			double total = 0;
-			for (auto ds = rel_tails[i].begin(); ds != rel_tails[i].end(); ++ds)
+			for (auto i = 0; i != set_relation.size(); ++i)
 			{
-				++sum;
-				total += ds->second.size();
+				double sum = 0;
+				double total = 0;
+				for (auto ds = rel_tails[i].begin(); ds != rel_tails[i].end(); ++ds)
+				{
+					++sum;
+					total += ds->second.size();
+				}
+				relation_hpt[i] = total / sum;
 			}
-			relation_hpt[i] = total / sum;
-		}
 
-		zeroshot_pointer = set_entity.size();
-		load_testing(dataset.base_dir + dataset.developing, data_dev_true, data_dev_false, dataset.self_false_sampling);
-		load_testing(dataset.base_dir + dataset.testing, data_test_true, data_test_false, dataset.self_false_sampling);
+			zeroshot_pointer = set_entity.size();
+			load_testing(dataset.base_dir + dataset.developing, data_dev_true, data_dev_false, dataset.self_false_sampling);
+			load_testing(dataset.base_dir + dataset.testing, data_test_true, data_test_false, dataset.self_false_sampling);
 
 
-		set_relation_head.resize(set_entity.size());
-		set_relation_tail.resize(set_relation.size());
-		prob_head.resize(set_entity.size());
-		prob_tail.resize(set_entity.size());
-		for (auto i = data_train.begin(); i != data_train.end(); ++i)
-		{
-			++prob_head[i->first.first];
-			++prob_tail[i->first.second];
+			set_relation_head.resize(set_entity.size());
+			set_relation_tail.resize(set_relation.size());
+			prob_head.resize(set_entity.size());
+			prob_tail.resize(set_entity.size());
+			for (auto i = data_train.begin(); i != data_train.end(); ++i)
+			{
+				++prob_head[i->first.first];
+				++prob_tail[i->first.second];
 
-			++tails[i->second][i->first.first];
-			++heads[i->second][i->first.second];
+				++tails[i->second][i->first.first];
+				++heads[i->second][i->first.second];
 
-			set_relation_head[i->second].insert(i->first.first);
-			set_relation_tail[i->second].insert(i->first.second);
-		}
+				set_relation_head[i->second].insert(i->first.first);
+				set_relation_tail[i->second].insert(i->first.second);
+			}
 
 #pragma omp parallel for
 #pragma ivdep
-		for (auto elem = prob_head.begin(); elem != prob_head.end(); ++elem)
-		{
-			*elem /= data_train.size();
-		}
+			for (auto elem = prob_head.begin(); elem != prob_head.end(); ++elem)
+			{
+				*elem /= data_train.size();
+			}
 
 #pragma omp parallel for
 #pragma ivdep
-		for (auto elem = prob_tail.begin(); elem != prob_tail.end(); ++elem)
-		{
-			*elem /= data_train.size();
-		}
+			for (auto elem = prob_tail.begin(); elem != prob_tail.end(); ++elem)
+			{
+				*elem /= data_train.size();
+			}
 
-		double threshold = 1.5;
-		relation_type.resize(set_relation.size());
+			double threshold = 1.5;
+			relation_type.resize(set_relation.size());
 
-		for (auto i = 0; i<set_relation.size(); ++i)
-		{
-			if (relation_tph[i]<threshold && relation_hpt[i]<threshold)
+			for (auto i = 0; i<set_relation.size(); ++i)
 			{
-				relation_type[i] = 1;
+				if (relation_tph[i]<threshold && relation_hpt[i]<threshold)
+				{
+					relation_type[i] = 1;
+				}
+				else if (relation_hpt[i] <threshold && relation_tph[i] >= threshold)
+				{
+					relation_type[i] = 2;
+				}
+				else if (relation_hpt[i] >= threshold && relation_tph[i] < threshold)
+				{
+					relation_type[i] = 3;
+				}
+				else
+				{
+					relation_type[i] = 4;
+				}
 			}
-			else if (relation_hpt[i] <threshold && relation_tph[i] >= threshold)
-			{
-				relation_type[i] = 2;
-			}
-			else if (relation_hpt[i] >= threshold && relation_tph[i] < threshold)
-			{
-				relation_type[i] = 3;
-			}
-			else
-			{
-				relation_type[i] = 4;
-			}
+
+			oa & BOOST_SERIALIZATION_NVP(entity_name_to_id);
+			oa & BOOST_SERIALIZATION_NVP(entity_id_to_name);
+			oa & BOOST_SERIALIZATION_NVP(relation_name_to_id);
+			oa & BOOST_SERIALIZATION_NVP(relation_id_to_name);
+			oa & BOOST_SERIALIZATION_NVP(data_train);
+			oa & BOOST_SERIALIZATION_NVP(data_dev_true);
+			oa & BOOST_SERIALIZATION_NVP(data_dev_false);
+			oa & BOOST_SERIALIZATION_NVP(data_test_true);
+			oa & BOOST_SERIALIZATION_NVP(data_test_false);
+			oa & BOOST_SERIALIZATION_NVP(check_data_train);
+			oa & BOOST_SERIALIZATION_NVP(check_data_all);
+			oa & BOOST_SERIALIZATION_NVP(set_entity);
+			oa & BOOST_SERIALIZATION_NVP(set_relation);
+			oa & BOOST_SERIALIZATION_NVP(count_entity);
+			oa & BOOST_SERIALIZATION_NVP(rel_heads);
+			oa & BOOST_SERIALIZATION_NVP(rel_tails);
+			oa & BOOST_SERIALIZATION_NVP(rel_finder);
+			oa & BOOST_SERIALIZATION_NVP(relation_tph);
+			oa & BOOST_SERIALIZATION_NVP(relation_hpt);
+			oa & BOOST_SERIALIZATION_NVP(set_relation_head);
+			oa & BOOST_SERIALIZATION_NVP(set_relation_tail);
+			oa & BOOST_SERIALIZATION_NVP(prob_head);
+			oa & BOOST_SERIALIZATION_NVP(prob_tail);
+			oa & BOOST_SERIALIZATION_NVP(tails);
+			oa & BOOST_SERIALIZATION_NVP(heads);
+			oa & BOOST_SERIALIZATION_NVP(relation_type);
+
+			output.close();
 		}
 	}
 
-	DataModel(const Dataset& dataset, const string& file_zero_shot)
+	DataModel(const Dataset& dataset, const string& file_zero_shot, const bool is_preprocessed)
 	{
 		load_training(dataset.base_dir + dataset.training);
 
