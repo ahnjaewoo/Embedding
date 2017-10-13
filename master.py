@@ -18,6 +18,7 @@ n_dim = 20
 
 entities = set()
 relations = set()
+entity_graph = []
 
 print("read files")
 t = time()
@@ -28,6 +29,8 @@ for file in data_files:
             entities.add(head)
             entities.add(tail)
             relations.add(relation)
+
+            entity_graph.append((head, tail))
 
 entities = sorted(entities)
 entity_id = {e: i for i, e in enumerate(entities)}
