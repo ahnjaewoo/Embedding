@@ -55,7 +55,7 @@ del relations_initialized
 
 
 # 여기서 C++ 프로그램 호출
-proc = Popen(["/home/rudvlf0413/distributedKGE/Embedding/MultiChannelEmbedding/a.out"])
+proc = Popen(["/home/rudvlf0413/distributedKGE/Embedding/MultiChannelEmbedding/Embedding.out"])
 proc.wait()
 
 
