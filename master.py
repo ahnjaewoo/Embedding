@@ -4,13 +4,14 @@ from distributed import Client
 from distributed.client import as_completed
 from sklearn.preprocessing import normalize
 from subprocess import Popen
-from time import time
 import numpy as np
 import redis
 import pickle
 import os
+import sys
 
 
+num_worker = int(sys.argv[1])
 root = 'fb15k/'
 data_files = ['train.txt', 'dev.txt', 'test.txt']
 epoch = 1
@@ -18,9 +19,17 @@ n_dim = 20
 
 entities = set()
 relations = set()
+entity_graph = []
+
+# 여기서 전처리 C++ 프로그램 비동기 호출
+# 조금 시간 걸림
+print("Preprocessing start...")
+proc = Popen(
+    "/home/rudvlf0413/distributedKGE/Embedding/preprocess/preprocess.out",
+    cwd='/home/rudvlf0413/distributedKGE/Embedding/preprocess/')
+
 
 print("read files")
-t = time()
 for file in data_files:
     with open(root+file, 'r') as f:
         for line in f:
@@ -29,15 +38,15 @@ for file in data_files:
             entities.add(tail)
             relations.add(relation)
 
+            entity_graph.append((head, tail))
+
 entities = sorted(entities)
 entity_id = {e: i for i, e in enumerate(entities)}
 relations = sorted(relations)
 relation_id = {r: i for i, r in enumerate(relations)}
-print(time()-t)
 
 
 print("redis...")
-t = time()
 r = redis.StrictRedis(host='163.152.20.66', port=6379, db=0)
 
 r.mset(entity_id)
@@ -57,8 +66,6 @@ r.mset({
         relations_initialized[i],
         protocol=pickle.HIGHEST_PROTOCOL) for i, relation in enumerate(relations)})
 
-print(time()-t)
-
 
 def install():
     # install redis in worker machine
@@ -67,26 +74,49 @@ def install():
 
 
 def work(worker_id, cur_epoch):
-    # worker.py 호출
     proc = Popen(["python", "/home/rudvlf0413/distributedKGE/Embedding/worker.py", str(worker_id), str(cur_epoch)])
     proc.wait()
     return "process {}: finished".format(worker_id)
 
 
-print("distributed...")
-client = Client('163.152.20.66:8786', asynchronous=True, name='Embedding')
+def savePreprocessedData(worker_id):
+    print("bb")
+    with open(f"/home/rudvlf0413/distributedKGE/Embedding/tmp/data_model_{worker_id}.bin", "wb") as f:
+        f.write(r.get('prep_data'))
 
-# install redis
+    return f"{worker_id} finish saving file!"
+
+
+# 전처리 끝날때까지 대기
+proc.wait()
+print("Finished preocessing!")
+with open("/home/rudvlf0413/distributedKGE/Embedding/tmp/data_model.bin", 'rb') as f:
+    r.set('prep_data', f.read())
+
+
+client = Client('163.152.20.66:8786', asynchronous=True, name='Embedding')
+# install libraries
 client.run(install)
+
+
+results = []
+for i in range(num_worker):
+    worker_id = 'worker-%02d' % (i+1)
+    results.append(client.submit(savePreprocessedData, worker_id, workers=[worker_id]))
+
+for result in as_completed(results):
+    print(result.result())
+
 
 for e in range(epoch):
     # 작업 배정
     results = []
-    for worker_id in range(10):
-        results.append(client.submit(work, worker_id, e))
+    for i in range(num_worker):
+        worker_id = 'worker-%02d' % (i+1)
+        results.append(client.submit(work, worker_id, e, workers=[worker_id]))
 
     # max-min cut 실행, anchor 등 재분배
     print("aa")
 
-    for result in as_completed(results)  :
+    for result in as_completed(results):
         print(result.result())
