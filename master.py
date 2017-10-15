@@ -1,21 +1,29 @@
 # coding: utf-8
-
 from distributed import Client
 from distributed.client import as_completed
 from sklearn.preprocessing import normalize
 from subprocess import Popen
+from argparse import ArgumentParser
 import numpy as np
 import redis
 import pickle
-import os
-import sys
 
 
-num_worker = int(sys.argv[1])
-root = 'fb15k/'
-data_files = ['train.txt', 'dev.txt', 'test.txt']
-epoch = 1
-n_dim = 20
+parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
+parser.add_argument('--num_worker', type=int, default=2, help='number of workers')
+parser.add_argument('--data_root', type=str, default='./fb15k', help='root directory of data')
+parser.add_argument('--epoch', type=int, default=1, help='total number of training epochs')
+parser.add_argument('--install', default=False, help='install libraries in each worker')
+parser.add_argument('--ndim', type=int, default=20, help='dimension of embeddings')
+args = parser.parse_args()
+
+install = args.install
+data_root = args.data_root
+data_files = ['/train.txt', '/dev.txt', '/test.txt']
+num_worker = args.num_worker
+epoch = args.epoch
+n_dim = parser.ndim
+
 
 entities = set()
 relations = set()
@@ -31,7 +39,7 @@ proc = Popen(
 
 print("read files")
 for file in data_files:
-    with open(root+file, 'r') as f:
+    with open(data_root+file, 'r') as f:
         for line in f:
             head, relation, tail = line[:-1].split("\t")
             entities.add(head)
@@ -68,6 +76,7 @@ r.mset({
 
 
 def install():
+    import os
     # install redis in worker machine
     os.system("pip install redis")
     os.system("pip install hiredis")
@@ -79,30 +88,35 @@ def work(worker_id, cur_epoch):
     return "process {}: finished".format(worker_id)
 
 
-def savePreprocessedData(worker_id):
-    print("bb")
-    with open(f"/home/rudvlf0413/distributedKGE/Embedding/tmp/data_model_{worker_id}.bin", "wb") as f:
-        f.write(r.get('prep_data'))
+def savePreprocessedData(data, worker_id):
+    from threading import Thread
+    
+    def saveFile(data):
+        with open(f"/home/rudvlf0413/distributedKGE/Embedding/tmp/data_model_{worker_id}.bin", 'wb') as f:
+            f.write(data)
+
+    thread = Thread(target=saveFile, args=(data, ))
+    thread.start()
+    thread.join()
 
     return f"{worker_id} finish saving file!"
 
 
+client = Client('163.152.20.66:8786', asynchronous=True, name='Embedding')
+if install:
+    client.run(install)
+
+
 # 전처리 끝날때까지 대기
 proc.wait()
-print("Finished preocessing!")
 with open("/home/rudvlf0413/distributedKGE/Embedding/tmp/data_model.bin", 'rb') as f:
-    r.set('prep_data', f.read())
-
-
-client = Client('163.152.20.66:8786', asynchronous=True, name='Embedding')
-# install libraries
-client.run(install)
+    data = f.read()
 
 
 results = []
 for i in range(num_worker):
-    worker_id = 'worker-%02d' % (i+1)
-    results.append(client.submit(savePreprocessedData, worker_id, workers=[worker_id]))
+    worker_id = f'worker-{i}'
+    results.append(client.submit(savePreprocessedData, data, worker_id))
 
 for result in as_completed(results):
     print(result.result())
@@ -112,8 +126,8 @@ for e in range(epoch):
     # 작업 배정
     results = []
     for i in range(num_worker):
-        worker_id = 'worker-%02d' % (i+1)
-        results.append(client.submit(work, worker_id, e, workers=[worker_id]))
+        worker_id = f'worker-{i}'
+        results.append(client.submit(work, worker_id, e))
 
     # max-min cut 실행, anchor 등 재분배
     print("aa")

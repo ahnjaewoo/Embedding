@@ -1,7 +1,5 @@
 # coding: utf-8
-
 from subprocess import Popen
-from time import time
 import numpy as np
 import redis
 import pickle
@@ -14,7 +12,6 @@ cur_epoch = sys.argv[2]
 
 # redis에서 embedding vector들 받아오기
 print("redis...")
-t = time()
 r = redis.StrictRedis(host='163.152.20.66', port=6379, db=0)
 
 entities = pickle.loads(r.get('entities'))
@@ -31,13 +28,10 @@ entities_initialized = [pickle.loads(v) for v in entities_initialized]
 
 relations_initialized = r.mget([relation+'_v' for relation in relations])
 relations_initialized = [pickle.loads(v) for v in relations_initialized]
-print(time()-t)
 
 
 print("save file...")
-t = time()
-
-# 좀 더 빨리 처리 하는 법 찾기
+# 좀 더 빨리 처리 하는 법 찾기!
 with open("./tmp/entity_vectors.txt", 'w') as f:
     for i, vector in enumerate(entities_initialized):
         f.write(str(entities[i]) + "\t")
@@ -48,14 +42,15 @@ with open("./tmp/relation_vectors.txt", 'w') as f:
         f.write(str(relations[i]) + "\t")
         f.write(" ".join([str(v) for v in relation]) + '\n')
 
-print(time()-t)
 
 del entities_initialized
 del relations_initialized
 
 
 # 여기서 C++ 프로그램 호출
-proc = Popen("/home/rudvlf0413/distributedKGE/Embedding/MultiChannelEmbedding/Embedding.out")
+proc = Popen(
+    "/home/rudvlf0413/distributedKGE/Embedding/MultiChannelEmbedding/Embedding.out",
+    cwd='/home/rudvlf0413/distributedKGE/Embedding/preprocess/')
 proc.wait()
 
 
