@@ -4,12 +4,10 @@
 # 웬만하면 pypy에서 구현할 수 있도록!
 
 import networkx as nx
-import metis
+import nxmetis
 import numpy as np
-import redis
 import pickle
 import os
-import sys
 from random import randint
 
 root = 'fb15k/'
@@ -123,7 +121,28 @@ split_num = 3
 if split_num <= 1:
 	print("split number error!")
 G.add_edges_from(non_anchor_edge_list)
-(edgecuts, parts) = metis.part_graph(G, nparts=split_num, objtype='vol', niter=10, ncuts=1)
+
+options = nxmetis.MetisOptions()
+options.ptype = -1
+options.objtype = 1 # vol
+options.ctype = -1
+options.iptype = -1
+options.rtype = -1
+options.ncuts = -1
+options.nseps = -1
+options.numbering = -1
+options.niter = -1
+options.seed = -1
+options.minconn = -1
+options.no2hop = -1
+options.contig = -1
+options.compress = -1
+options.ccorder = -1
+options.pfactor = -1
+options.ufactor = -1
+options.dbglvl = -1
+
+(edgecuts, parts) = nxmetis.partition(G, nparts=split_num)
 
 	# len(non_anchor) = 14941
 	# non_anchor_edge_list에 포함된 #vertex = 14897
