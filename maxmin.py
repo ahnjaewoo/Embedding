@@ -12,11 +12,9 @@ from random import randint
 
 root = 'fb15k/'
 tmp = 'tmp/'
-#data_files = ['train.txt', 'dev.txt', 'test.txt']
 data_files = ['train.txt']
 output_file = 'maxmin_output.txt'
-epoch = 1
-n_dim = 20
+partition_num = 20
 k = 10
 
 # initial graph settings
@@ -117,7 +115,7 @@ for (hd,tl) in non_anchor_edge_list:
 
 # constructing nx.Graph and using metis in order to get min-cut partition
 G = nx.Graph()
-split_num = 3
+split_num = partition_num
 if split_num <= 1:
 	print("split number error!")
 G.add_edges_from(non_anchor_edge_list)
@@ -145,27 +143,23 @@ options.dbglvl = -1
 (edgecuts, parts) = nxmetis.partition(G, nparts=split_num)
 
 	# len(non_anchor) = 14941
-	# non_anchor_edge_list에 포함된 #vertex = 14897
+	# non_anchor_edge_list contained #vertex = 14897
 	# edgecuts = 14242, len(parts) = 14897
 
-	# 1. vertex sorting from non anchor edge
-non_anchor_edge_included_vertex_list = sorted(non_anchor_edge_included_vertex)
-	# 2. grouping by partition index
-parts_set = [set() for _ in range(split_num)]
-for i in range(len(parts)):
-	parts_set[parts[i]].add(non_anchor_edge_included_vertex_list[i])
-	# 3. putting residue randomly into non anchor set
+	# 1. putting residue randomly into non anchor set
 residue = non_anchor_id.difference(non_anchor_edge_included_vertex)
 for v in residue:
-	parts_set[randint(0,split_num - 1)].add(v)
+	parts[randint(0,split_num - 1)].append(v)
 	
-	# 4. writing output file
+	# 2. writing output file
 fwrite = open(tmp+output_file, "w")
 for v in anchor:
 	fwrite.write("%s " % (v))
 fwrite.write("\n")
-for nas in parts_set:
+for nas in parts:
 	for v in nas:
 		fwrite.write("%s " % (id2entity[v]))
 	fwrite.write("\n")
 fwrite.close()
+
+print("Created anchor & non anchor sets by max-min cut algorithm successfully!")
