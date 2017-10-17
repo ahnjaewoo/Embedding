@@ -5,6 +5,8 @@
 #include "Task.hpp"
 #include <omp.h>
 
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold);
+
 // 400s for each experiment.
 int main(int argc, char* argv[])
 {
@@ -14,9 +16,14 @@ int main(int argc, char* argv[])
 	Model* model = nullptr;
 
 	//first read the txt file and load the model
+		//read dimension, LR, margin for parameters
+	int dim = 20;
+	double alpha = 0.01;
+	double training_threshold = 2;
+	getParams(argc, argv, dim, alpha, training_threshold);
 
-	//model = new TransE(FB15K, LinkPredictionTail, report_path, 20, 0.01, 2, false);
-	model = new TransE(FB15K, LinkPredictionTail, report_path, 20, 0.01, 2, true);
+	//model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, false);
+	model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true);
 
 	model->run(1);
 
@@ -28,4 +35,23 @@ int main(int argc, char* argv[])
 	delete model;
 
 	return 0;
+}
+
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold)
+{
+	if (argc == 2)
+	{
+		dim = atoi(argv[1]);
+	}
+	if (argc == 3)
+	{
+		dim = atoi(argv[1]);
+		alpha = atof(argv[2]);	
+	}
+	if (argc == 4)
+	{
+		dim = atoi(argv[1]);
+		alpha = atof(argv[2]);
+		training_threshold = atof(argv[3]);
+	}
 }
