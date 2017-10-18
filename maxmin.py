@@ -2,7 +2,6 @@
 
 import networkx as nx
 import nxmetis
-import os
 from random import randint
 from collections import defaultdict
 from time import time
@@ -20,7 +19,6 @@ entity_graph = []
 edge_list = []
 connected_entity = defaultdict(set)
 anchor = set()
-old_anchor = set()
 non_anchor_edge_included_vertex = set()
 
 with open(data_file, 'r') as f:
@@ -40,10 +38,12 @@ for (hd, tl) in entity_graph:
     edge_list.append((entity2id[hd], entity2id[tl]))
 
 # select anchor via max-cut bipartition, read old_anchor.txt if it exists
-if os.path.exists(old_anchor_file):
+try:
     with open(old_anchor_file, 'r') as f:
         for line in f:
             old_anchor = set(entities_list[int(i)] for i in line[:-1].split(" "))
+except:
+    old_anchor = set()
 
 # while len(anchor) < k:
 for i in range(k):
