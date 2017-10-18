@@ -22,7 +22,7 @@ anchor = set()
 non_anchor_edge_included_vertex = set()
 
 with open(data_file, 'r') as f:
-    for (idx,line) in enumerate(f):
+    for line in f:
         head, relation, tail = line[:-1].split("\t")
         entities.add(head)
         entities.add(tail)
@@ -33,7 +33,6 @@ with open(data_file, 'r') as f:
 
 entities_list = sorted(entities)
 entity2id = {e: i for i, e in enumerate(entities_list)}
-id2entity = {i: e for i, e in enumerate(entities_list)}
 entities_id = {entity2id[v] for v in entities}
 
 for (hd, tl) in entity_graph:
@@ -53,10 +52,10 @@ for i in range(k):
     best_score = 0
     for vertex in entities_id.difference(anchor.union(old_anchor)):
         # getting degree(v)
-        if len(connected_entity[id2entity[vertex]]) <= best_score:
+        if len(connected_entity[entities_list[vertex]]) <= best_score:
             continue
 
-        score = len(connected_entity[id2entity[vertex]].difference(anchor))
+        score = len(connected_entity[entities_list[vertex]].difference(anchor))
         if score > best_score:
             best = vertex
             best_score = score
@@ -68,7 +67,6 @@ for i in range(k):
 
 with open(old_anchor_file, 'w') as fwrite:
     fwrite.write(" ".join([str(i) for i in anchor]))
-fwrite.close()
 
 # solve the min-cut partition problem of A~, finding A~ and edges
 non_anchor = entities.difference(anchor)
@@ -82,8 +80,7 @@ for (h, t) in non_anchor_edge_list:
 G = nx.Graph()
 G.add_edges_from(non_anchor_edge_list)
 
-options = nxmetis.MetisOptions(
-    # objtype=1 => vol
+options = nxmetis.MetisOptions(     # objtype=1 => vol
     ptype=-1, objtype=1, ctype=-1, iptype=-1, rtype=-1, ncuts=-1,
     nseps=-1, numbering=-1, niter=-1, seed=-1, minconn=-1, no2hop=-1,
     contig=-1, compress=-1, ccorder=-1, pfactor=-1, ufactor=-1, dbglvl=-1)
@@ -104,7 +101,6 @@ with open(output_file, "w") as fwrite:
     fwrite.write(" ".join([str(i) for i in anchor])+"\n")
     for nas in parts:
         fwrite.write(" ".join([str(i) for i in nas])+"\n")
-fwrite.close()
 
 print("Created anchor & non anchor sets by max-min cut algorithm successfully!")
 print(time()-t_)
