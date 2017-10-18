@@ -5,13 +5,13 @@ import nxmetis
 import os
 from random import randint
 from collections import defaultdict
+from time import time
 
+t = time()
 
-data_root = 'fb15k/'
-tmp = 'tmp/'
-data_file = 'train.txt'
-output_file = 'maxmin_output.txt'
-old_anchor_file = 'old_anchor.txt'
+data_file = 'fb15k/train.txt'
+output_file = 'tmp/maxmin_output.txt'
+old_anchor_file = 'tmp/old_anchor.txt'
 partition_num = 20
 split_num = partition_num
 k = 10
@@ -25,7 +25,7 @@ old_anchor = set()
 non_anchor_edge_included_vertex = set()
 
 # read training files
-with open(data_root+data_file, 'r') as f:
+with open(data_file, 'r') as f:
     for line in f:
         head, relation, tail = line[:-1].split("\t")
         entities.add(head)
@@ -43,8 +43,8 @@ for (hd,tl) in entity_graph:
 
 # selecting anchor via max-cut bipartition
 # read old_anchor.txt if it exists
-if os.path.exists(tmp+old_anchor_file):
-    with open(tmp+old_anchor_file, 'r') as f:
+if os.path.exists(old_anchor_file):
+    with open(old_anchor_file, 'r') as f:
         for line in f:
             old_anchor = set(entities_list[int(i)] for i in line[:-1].split(" "))
 
@@ -67,7 +67,7 @@ for i in range(k):
         anchor.add(best)
 
 # writing old_anchor_file
-with open(tmp+old_anchor_file, "w") as fwrite:
+with open(old_anchor_file, "w") as fwrite:
     fwrite.write(" ".join([str(i) for i in anchor]))
 
 # solving the min-cut partition problem of A~
@@ -115,9 +115,10 @@ for v in residue:
     parts[randint(0,split_num - 1)].append(v)
     
 # 2. writing output file
-with open(tmp+output_file, "w") as fwrite:
+with open(output_file, "w") as fwrite:
     fwrite.write(" ".join([str(i) for i in anchor])+"\n")
     for nas in parts:
         fwrite.write(" ".join([str(i) for i in nas])+"\n")
 
 print("Created anchor & non anchor sets by max-min cut algorithm successfully!")
+print(time()-t)
