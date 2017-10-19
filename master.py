@@ -12,29 +12,26 @@ import pickle
 parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
 parser.add_argument('--num_worker', type=int, default=2, help='number of workers')
 parser.add_argument('--data_root', type=str, default='./fb15k', help='root directory of data')
-parser.add_argument('--epoch', type=int, default=1, help='total number of training epochs')
+parser.add_argument('--iterations', type=int, default=1, help='total number of training iterations')
 parser.add_argument('--install', default=False, help='install libraries in each worker')
 parser.add_argument('--ndim', type=int, default=20, help='dimension of embeddings')
 args = parser.parse_args()
 
 install = args.install
 data_root = args.data_root
+root_dir = "/home/rudvlf0413/distributedKGE/Embedding"
 data_files = ['/train.txt', '/dev.txt', '/test.txt']
 num_worker = args.num_worker
-epoch = args.epoch
-n_dim = parser.ndim
+iterations = args.iterations
+n_dim = args.ndim
 
 
 entities = set()
 relations = set()
-entity_graph = []
 
 # 여기서 전처리 C++ 프로그램 비동기 호출
-# 조금 시간 걸림
 print("Preprocessing start...")
-proc = Popen(
-    "/home/rudvlf0413/distributedKGE/Embedding/preprocess/preprocess.out",
-    cwd='/home/rudvlf0413/distributedKGE/Embedding/preprocess/')
+proc = Popen(f"{root_dir}/preprocess/preprocess.out", cwd=f'{root_dir}/preprocess/')
 
 
 print("read files")
@@ -45,8 +42,6 @@ for file in data_files:
             entities.add(head)
             entities.add(tail)
             relations.add(relation)
-
-            entity_graph.append((head, tail))
 
 entities = sorted(entities)
 entity_id = {e: i for i, e in enumerate(entities)}
@@ -75,15 +70,14 @@ r.mset({
         protocol=pickle.HIGHEST_PROTOCOL) for i, relation in enumerate(relations)})
 
 
-def install():
+def install_libs():
     import os
-    # install redis in worker machine
     os.system("pip install redis")
     os.system("pip install hiredis")
 
 
-def work(worker_id, cur_epoch):
-    proc = Popen(["python", "/home/rudvlf0413/distributedKGE/Embedding/worker.py", str(worker_id), str(cur_epoch)])
+def work(chunk_data, worker_id, cur_iter):
+    proc = Popen(["python", f"{root_dir}/worker.py", chunk_data, str(worker_id), str(cur_iter)])
     proc.wait()
     return "process {}: finished".format(worker_id)
 
@@ -92,7 +86,7 @@ def savePreprocessedData(data, worker_id):
     from threading import Thread
     
     def saveFile(data):
-        with open(f"/home/rudvlf0413/distributedKGE/Embedding/tmp/data_model_{worker_id}.bin", 'wb') as f:
+        with open(f"{root_dir}/tmp/data_model_{worker_id}.bin", 'wb') as f:
             f.write(data)
 
     thread = Thread(target=saveFile, args=(data, ))
@@ -104,33 +98,46 @@ def savePreprocessedData(data, worker_id):
 
 client = Client('163.152.20.66:8786', asynchronous=True, name='Embedding')
 if install:
-    client.run(install)
+    client.run(install_libs)
 
 
 # 전처리 끝날때까지 대기
 proc.wait()
-with open("/home/rudvlf0413/distributedKGE/Embedding/tmp/data_model.bin", 'rb') as f:
+with open(f"{root_dir}/tmp/data_model.bin", 'rb') as f:
     data = f.read()
 
 
-results = []
+workers = []
 for i in range(num_worker):
     worker_id = f'worker-{i}'
-    results.append(client.submit(savePreprocessedData, data, worker_id))
+    workers.append(client.submit(savePreprocessedData, data, worker_id))
 
-for result in as_completed(results):
-    print(result.result())
+for worker in as_completed(workers):
+    print(worker.result())
 
 
-for e in range(epoch):
+# max-min cut 실행, anchor 분배
+proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker)])
+proc.wait()
+with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
+    lines = f.read().splitlines()
+    anchors, chunks = lines[0], lines[1:]
+
+for cur_iter in range(iterations):
     # 작업 배정
-    results = []
+    workers = []
     for i in range(num_worker):
-        worker_id = f'worker-{i}'
-        results.append(client.submit(work, worker_id, e))
+        worker_id = f'worker_{i}'
+        chunk_data = "{}\n{}".format(anchors, chunks[i])
+        workers.append(client.submit(work, chunk_data, worker_id, cur_iter))
 
     # max-min cut 실행, anchor 등 재분배
-    print("aa")
+    proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker)])
+    proc.wait()
 
-    for result in as_completed(results):
-        print(result.result())
+    with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
+        lines = f.read().splitlines()
+        anchors, chunks = lines[0], lines[1:]
+
+    for worker in as_completed(workers):
+        print(worker.result())

@@ -1,10 +1,10 @@
 # coding: utf-8
-
 import networkx as nx
-import nxmetis
 from random import randint
 from collections import defaultdict
 from time import time
+import nxmetis
+import sys
 
 
 t_ = time()
@@ -12,7 +12,7 @@ root = 'fb15k'
 data_files = ['/train.txt','/dev.txt', '/test.txt']
 output_file = 'tmp/maxmin_output.txt'
 old_anchor_file = 'tmp/old_anchor.txt'
-partition_num = 20
+partition_num = int(sys.argv[1])
 k = 10
 
 entities = set()
@@ -95,10 +95,6 @@ options = nxmetis.MetisOptions(     # objtype=1 => vol
 
 (edgecuts, parts) = nxmetis.partition(G, nparts=partition_num)
 
-# len(non_anchor) = 14941
-# non_anchor_edge_list contained #vertex = 14897
-# edgecuts = 14242, len(parts) = 14897
-
 # putting residue randomly into non anchor set
 residue = non_anchor_id.difference(non_anchor_edge_included_vertex)
 for v in residue:
@@ -110,6 +106,4 @@ with open(output_file, "w") as fwrite:
     for nas in parts:
         fwrite.write(" ".join([str(i) for i in nas])+"\n")
 
-print("Created anchor & non anchor sets by max-min cut algorithm successfully!")
-print(time()-t_)
-
+print("max-min cut finished - max-min time: {}".format((time()-t_)))

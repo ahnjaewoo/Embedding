@@ -6,8 +6,13 @@ import pickle
 import sys
 
 
-worker_id = sys.argv[1]
-cur_epoch = sys.argv[2]
+chunk_data = sys.argv[1]
+worker_id = sys.argv[2]
+cur_iter = sys.argv[3]
+root_dir = "/home/rudvlf0413/distributedKGE/Embedding"
+
+with open(f"{root_dir}/tmp/maxmin_{worker_id}.txt", 'w') as f:
+    f.write(chunk_data)
 
 
 # redis에서 embedding vector들 받아오기
@@ -48,14 +53,12 @@ del relations_initialized
 
 
 # 여기서 C++ 프로그램 호출
-proc = Popen(
-    "/home/rudvlf0413/distributedKGE/Embedding/MultiChannelEmbedding/Embedding.out",
-    cwd='/home/rudvlf0413/distributedKGE/Embedding/preprocess/')
+proc = Popen(f"{root_dir}/MultiChannelEmbedding/Embedding.out", cwd=f'{root_dir}/preprocess/')
 proc.wait()
 
 
 entity_vectors = {}
-with open("./tmp/entity_vectors_updated.txt", 'r') as f:
+with open(f"{root_dir}/tmp/entity_vectors_updated.txt", 'r') as f:
     for line in f:
         line = line[:-1].split()
         entity_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
@@ -63,12 +66,11 @@ with open("./tmp/entity_vectors_updated.txt", 'r') as f:
 r.mset(entity_vectors)
 
 relation_vectors = {}
-with open("./tmp/relation_vectors_updated.txt", 'r') as f:
+with open(f"{root_dir}/tmp/relation_vectors_updated.txt", 'r') as f:
     for line in f:
         line = line[:-1].split()
         relation_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
 
 r.mset(relation_vectors)
-
 
 print("finished!")
