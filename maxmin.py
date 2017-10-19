@@ -8,7 +8,8 @@ from time import time
 
 
 t_ = time()
-data_file = 'fb15k/train.txt'
+root = 'fb15k'
+data_files = ['/train.txt','/dev.txt', '/test.txt']
 output_file = 'tmp/maxmin_output.txt'
 old_anchor_file = 'tmp/old_anchor.txt'
 partition_num = 20
@@ -17,22 +18,29 @@ k = 10
 entities = set()
 entity_graph = []
 edge_list = []
+entity2id = dict()
 connected_entity = defaultdict(set)
 anchor = set()
 non_anchor_edge_included_vertex = set()
+entity_cnt = 0
 
-with open(data_file, 'r') as f:
-    for line in f:
-        head, relation, tail = line[:-1].split("\t")
-        entities.add(head)
-        entities.add(tail)
-        entity_graph.append((head, tail))
+for file in data_files:
+	with open(root+file, 'r') as f:
+	    for line in f:
+        	head, relation, tail = line[:-1].split("\t")
+        	entities.add(head)
+        	entities.add(tail)
+        	entity_graph.append((head, tail))
+        	if head not in entity2id:
+	            	entity2id[head] = entity_cnt
+	            	entity_cnt += 1
+        	if tail not in entity2id:
+	            	entity2id[tail] = entity_cnt
+	            	entity_cnt += 1
 
-        connected_entity[head].add(tail)
-        connected_entity[tail].add(head)
+        	connected_entity[entity2id[head]].add(entity2id[tail])
+        	connected_entity[entity2id[tail]].add(entity2id[head])
 
-entities_list = sorted(entities)
-entity2id = {e: i for i, e in enumerate(entities_list)}
 entities_id = {entity2id[v] for v in entities}
 
 for (hd, tl) in entity_graph:
@@ -52,10 +60,10 @@ for i in range(k):
     best_score = 0
     for vertex in entities_id.difference(anchor.union(old_anchor)):
         # getting degree(v)
-        if len(connected_entity[entities_list[vertex]]) <= best_score:
+        if len(connected_entity[vertex]) <= best_score:
             continue
 
-        score = len(connected_entity[entities_list[vertex]].difference(anchor))
+        score = len(connected_entity[vertex].difference(anchor))
         if score > best_score:
             best = vertex
             best_score = score
@@ -104,3 +112,4 @@ with open(output_file, "w") as fwrite:
 
 print("Created anchor & non anchor sets by max-min cut algorithm successfully!")
 print(time()-t_)
+
