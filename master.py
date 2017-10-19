@@ -12,7 +12,7 @@ import pickle
 parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
 parser.add_argument('--num_worker', type=int, default=2, help='number of workers')
 parser.add_argument('--data_root', type=str, default='./fb15k', help='root directory of data')
-parser.add_argument('--iterations', type=int, default=1, help='total number of training iterations')
+parser.add_argument('--niter', type=int, default=1, help='total number of training iterations')
 parser.add_argument('--install', default=False, help='install libraries in each worker')
 parser.add_argument('--ndim', type=int, default=20, help='dimension of embeddings')
 args = parser.parse_args()
@@ -22,7 +22,7 @@ data_root = args.data_root
 root_dir = "/home/rudvlf0413/distributedKGE/Embedding"
 data_files = ['/train.txt', '/dev.txt', '/test.txt']
 num_worker = args.num_worker
-iterations = args.iterations
+niter = args.niter
 n_dim = args.ndim
 
 
@@ -123,7 +123,7 @@ with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
     lines = f.read().splitlines()
     anchors, chunks = lines[0], lines[1:]
 
-for cur_iter in range(iterations):
+for cur_iter in range(niter):
     # 작업 배정
     workers = []
     for i in range(num_worker):
