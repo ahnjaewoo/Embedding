@@ -248,6 +248,56 @@ public:
 			tail_f = normalise(tail_f);
 	}
 
+	virtual void train_triplet_parts(const pair<pair<int, int>, int>& triplet, map<int, bool>& check_anchor)
+        {
+                int head_id = triplet.first.first;
+                int tail_id = triplet.first.second;
+                int relation_id = triplet.second;
+
+                vec& head = embedding_entity[triplet.first.first];
+                vec& tail = embedding_entity[triplet.first.second];
+                vec& relation = embedding_relation[triplet.second];
+
+                pair<pair<int, int>, int> triplet_f;
+                data_model.sample_false_triplet(triplet, triplet_f);
+
+                if (prob_triplets(triplet) - prob_triplets(triplet_f) > training_threshold)
+                        return;
+
+                int head_f_id = triplet_f.first.first;
+                int tail_f_id = triplet_f.first.second;
+                int relation_f_id = triplet_f.second;
+                vec& head_f = embedding_entity[triplet_f.first.first];
+                vec& tail_f = embedding_entity[triplet_f.first.second];
+                vec& relation_f = embedding_relation[triplet_f.second];
+
+                if (check_anchor.find(head_id) == check_anchor.end())
+                        head -= alpha * sign(head + relation - tail);
+		if (check_anchor.find(tail_id) == check_anchor.end())
+                        tail += alpha * sign(head + relation - tail);
+                //relation -= alpha * sign(head + relation - tail);
+		if (check_anchor.find(head_f_id) == check_anchor.end())
+                        head_f += alpha * sign(head_f + relation_f - tail_f);
+		if (check_anchor.find(tail_f_id) == check_anchor.end())
+                        tail_f -= alpha * sign(head_f + relation_f - tail_f);
+                //relation_f += alpha * sign(head_f + relation_f - tail_f);
+
+                if (norm_L2(head) > 1.0 && check_anchor.find(head_id) == check_anchor.end())
+                        head = normalise(head);
+
+                if (norm_L2(tail) > 1.0 && check_anchor.find(tail_id) == check_anchor.end())
+                        tail = normalise(tail);
+
+                //if (norm_L2(relation) > 1.0)
+                //        relation = normalise(relation);
+
+                if (norm_L2(head_f) > 1.0 && check_anchor.find(head_f_id) == check_anchor.end())
+                        head_f = normalise(head_f);
+
+                if (norm_L2(tail_f) > 1.0 && check_anchor.find(tail_f_id) == check_anchor.end())
+                        tail_f = normalise(tail_f);
+        }
+
 	virtual void relation_reg(int i, int j, double factor)
 	{
 		if (i == j)
