@@ -5,7 +5,7 @@
 #include "Task.hpp"
 #include <omp.h>
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold);
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch);
 
 // 400s for each experiment.
 int main(int argc, char* argv[])
@@ -20,10 +20,12 @@ int main(int argc, char* argv[])
 	int dim = 20;
 	double alpha = 0.01;
 	double training_threshold = 2;
-	getParams(argc, argv, dim, alpha, training_threshold);
+	int worker_num = 0;
+	int master_epoch = 0;
+	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch);
 
 	//model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, false);
-	model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true);
+	model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch);
 
 	model->run(1);
 
@@ -37,21 +39,37 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold)
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch)
 {
 	if (argc == 2)
 	{
-		dim = atoi(argv[1]);
+		worker_num = atoi(argv[1]);
 	}
 	if (argc == 3)
 	{
-		dim = atoi(argv[1]);
-		alpha = atof(argv[2]);	
+		worker_num = atoi(argv[1]);
+		master_epoch = atoi(argv[2]);
 	}
 	if (argc == 4)
 	{
-		dim = atoi(argv[1]);
-		alpha = atof(argv[2]);
-		training_threshold = atof(argv[3]);
+		worker_num = atoi(argv[1]);
+		master_epoch = atoi(argv[2]);
+		dim = atoi(argv[3]);
+	}
+	if (argc == 5)
+	{
+		worker_num = atoi(argv[1]);
+		master_epoch = atoi(argv[2]);
+		dim = atoi(argv[3]);
+		alpha = atof(argv[4]);
+	}
+	if (argc == 6)
+	{
+		worker_num = atoi(argv[1]);
+		master_epoch = atoi(argv[2]);
+		dim = atoi(argv[3]);
+		alpha = atof(argv[4]);
+		training_threshold = atof(argv[5]);
 	}
 }
+ 

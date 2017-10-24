@@ -16,6 +16,8 @@ public:
 	const TaskType		task_type;
 	const bool			be_deleted_data_model;
 	const bool			is_preprocessed;
+	const int				worker_num;
+	const int				master_epoch;
 
 public:
 	ModelLogging&		logging;
@@ -27,10 +29,12 @@ public:
 	Model(const Dataset& dataset,
 		const TaskType& task_type,
 		const string& logging_base_path,
-		const bool is_preprocessed)
+		const bool is_preprocessed = false,
+		const int worker_num = 0,
+		const int master_epoch = 0)
 		:data_model(*(new DataModel(dataset, is_preprocessed))), task_type(task_type),
-		logging(*(new ModelLogging(logging_base_path))),
-		be_deleted_data_model(true), is_preprocessed(is_preprocessed)
+		logging(*(new ModelLogging(logging_base_path))),be_deleted_data_model(true),
+		is_preprocessed(is_preprocessed), worker_num(worker_num), master_epoch(master_epoch)
 	{
 		epos = 0;
 		best_triplet_result = 0;
@@ -44,10 +48,12 @@ public:
 		const string& file_zero_shot,
 		const TaskType& task_type,
 		const string& logging_base_path,
-		const bool is_preprocessed = false)
+		const bool is_preprocessed = false,
+		const int worker_num = 0,
+		const int master_epoch = 0)
 		:data_model(*(new DataModel(dataset, is_preprocessed))), task_type(task_type),
-		logging(*(new ModelLogging(logging_base_path))),
-		be_deleted_data_model(true), is_preprocessed(is_preprocessed)
+		logging(*(new ModelLogging(logging_base_path))), be_deleted_data_model(true),
+		is_preprocessed(is_preprocessed), worker_num(worker_num), master_epoch(master_epoch)
 	{
 		epos = 0;
 		best_triplet_result = 0;
@@ -55,16 +61,6 @@ public:
 
 		logging.record() << "\t[Dataset]\t" << dataset.name;
 		logging.record() << TaskTypeName(task_type);
-	}
-
-	Model(const DataModel* data_model,
-		const TaskType& task_type,
-		ModelLogging* logging)
-		:data_model(*data_model), logging(*logging), task_type(task_type),
-		be_deleted_data_model(false), is_preprocessed(true)
-	{
-		epos = 0;
-		best_triplet_result = 0;
 	}
 
 public:
@@ -103,24 +99,43 @@ public:
 		get_entity_parts(check_anchor, data_train_parts);
 
 		logging.record() << "\t[Epos]\t" << total_epos;
-
-		--total_epos;
-		boost::progress_display	cons_bar(total_epos);
-		while (total_epos-- > 0)
+		//epoch is an odd : entity by anchor
+		if (master_epoch % 2 == 1)
 		{
-			++cons_bar;
-			train_parts(check_anchor, data_train_parts);
+			--total_epos;
+			boost::progress_display	cons_bar(total_epos);
+			while (total_epos-- > 0)
+			{
+				++cons_bar;
+				train_parts(check_anchor, data_train_parts);
 
-			if (task_type == TripletClassification)
-				test_triplet_classification();
+				if (task_type == TripletClassification)
+					test_triplet_classification();
+			}
+
+			train_parts(check_anchor, data_train_parts, true);
 		}
+		//epoch is an even : relation
+		else
+		{
+			--total_epos;
+			boost::progress_display	cons_bar(total_epos);
+			while (total_epos-- > 0)
+			{
+				++cons_bar;
+				train();
 
-		train_parts(check_anchor, data_train_parts, true);
+				if (task_type == TripletClassification)
+					test_triplet_classification();
+			}
+
+			train(true);
+		}
 	}
-	
+
 	void get_entity_parts(map<int,bool>& check_anchor, vector<pair<pair<int, int>, int>>& data_train_parts)
 	{
-		ifstream input("../tmp/maxmin_worker-0.txt");
+		ifstream input("../tmp/maxmin_worker-"+ to_string(worker_num) + ".txt");
 		string str;
 		set<int> set_entity_parts;
 		vector<string> anchor;
@@ -135,7 +150,7 @@ public:
 			check_parts[stoi(e)] = true;
 		}
 
-		while (!input.eof()) 
+		while (!input.eof())
 		{
 			input >> str;
 			set_entity_parts.insert(stoi(str));
@@ -143,13 +158,13 @@ public:
 		}
 
 		for (auto i = data_model.data_train.begin(); i != data_model.data_train.end(); ++i)
-                {
-                        int head = (*i).first.first;
+		{
+			int head = (*i).first.first;
 			int tail = (*i).first.second;
 			if (check_parts.find(head) != check_parts.end() && check_parts.find(tail) != check_parts.end()){
 				data_train_parts.push_back(*i);
 			}
-                }
+		}
 
 	}
 
@@ -620,3 +635,4 @@ public:
 		return NULL;
 	}
 };
+ 
