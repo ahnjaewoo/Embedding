@@ -25,21 +25,23 @@ non_anchor_edge_included_vertex = set()
 entity_cnt = 0
 
 for file in data_files:
-	with open(root+file, 'r') as f:
-	    for line in f:
-        	head, relation, tail = line[:-1].split("\t")
-        	entities.add(head)
-        	entities.add(tail)
-        	entity_graph.append((head, tail))
-        	if head not in entity2id:
-	            	entity2id[head] = entity_cnt
-	            	entity_cnt += 1
-        	if tail not in entity2id:
-	            	entity2id[tail] = entity_cnt
-	            	entity_cnt += 1
+    with open(root+file, 'r') as f:
+        for line in f:
+            head, relation, tail = line[:-1].split("\t")
+            entities.add(head)
+            entities.add(tail)
+            if head not in entity2id:
+                entity2id[head] = entity_cnt
+                entity_cnt += 1
+            if tail not in entity2id:
+                entity2id[tail] = entity_cnt
+                entity_cnt += 1
 
-        	connected_entity[entity2id[head]].add(entity2id[tail])
-        	connected_entity[entity2id[tail]].add(entity2id[head])
+with open(root+data_files[0], 'r') as f:
+    for line in f:
+        entity_graph.append((head, tail))
+        connected_entity[entity2id[head]].add(entity2id[tail])
+        connected_entity[entity2id[tail]].add(entity2id[head])
 
 entities_id = {entity2id[v] for v in entities}
 

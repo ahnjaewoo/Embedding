@@ -35,18 +35,35 @@ proc = Popen(f"{root_dir}/preprocess/preprocess.out", cwd=f'{root_dir}/preproces
 
 
 print("read files")
+entities = set()
+relations = set()
+entity2id = dict()
+relations2id = dict()
+train_graph = []
+entity_cnt = 0
+relations_cnt = 0
+
 for file in data_files:
-    with open(data_root+file, 'r') as f:
+    with open(root+file, 'r') as f:
         for line in f:
             head, relation, tail = line[:-1].split("\t")
             entities.add(head)
             entities.add(tail)
-            relations.add(relation)
+            relations.add(relations)
+            if head not in entity2id:
+                entity2id[head] = entity_cnt
+                entity_cnt += 1
+            if tail not in entity2id:
+                entity2id[tail] = entity_cnt
+                entity_cnt += 1
+            if relation not in relations2id:
+                relations2id[relation] = relations_cnt
+                relations_cnt += 1
 
-entities = sorted(entities)
-entity_id = {e: i for i, e in enumerate(entities)}
-relations = sorted(relations)
-relation_id = {r: i for i, r in enumerate(relations)}
+with open(root+data_files[0], 'r') as f:
+    for line in f:
+        head, relation, tail = line[:-1].split("\t")
+        train_graph.add((entity2id[head], relations2id[relation], entity2id[tail]))
 
 
 print("redis...")
