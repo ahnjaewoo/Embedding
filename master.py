@@ -4,6 +4,7 @@ from distributed.client import as_completed
 from sklearn.preprocessing import normalize
 from subprocess import Popen
 from argparse import ArgumentParser
+from random import shuffle
 import numpy as np
 import redis
 import pickle
@@ -22,7 +23,7 @@ args = parser.parse_args()
 install = args.install
 data_root = args.data_root
 root_dir = "/home/rudvlf0413/distributedKGE/Embedding"
-data_files = ['/train.txt', '/dev.txt', '/test.txt']
+data_files = ['/fb15k/train.txt', '/fb15k/dev.txt', '/fb15k/test.txt']
 num_worker = args.num_worker
 niter = args.niter
 n_dim = args.ndim
@@ -39,39 +40,40 @@ print("read files")
 entities = set()
 relations = set()
 entity2id = dict()
-relations2id = dict()
+relation2id = dict()
 train_graph = []
 entity_cnt = 0
 relations_cnt = 0
 
 for file in data_files:
-    with open(root+file, 'r') as f:
+    with open(root_dir+file, 'r') as f:
         for line in f:
             head, relation, tail = line[:-1].split("\t")
             entities.add(head)
             entities.add(tail)
-            relations.add(relations)
+            relations.add(relation)
             if head not in entity2id:
                 entity2id[head] = entity_cnt
                 entity_cnt += 1
             if tail not in entity2id:
                 entity2id[tail] = entity_cnt
                 entity_cnt += 1
-            if relation not in relations2id:
-                relations2id[relation] = relations_cnt
+            if relation not in relation2id:
+                relation2id[relation] = relations_cnt
                 relations_cnt += 1
 
-with open(root+data_files[0], 'r') as f:
+with open(root_dir+data_files[0], 'r') as f:
     for line in f:
         head, relation, tail = line[:-1].split("\t")
-        train_graph.add((entity2id[head], relations2id[relation], entity2id[tail]))
+        train_graph.append((entity2id[head], relation2id[relation], entity2id[tail]))
 
 chunk_num = int(len(train_graph)/num_worker)
 
-
+entities = list(entities)
+relations = list(relations)
 r = redis.StrictRedis(host='163.152.20.66', port=6379, db=0)
-r.mset(entity_id)
-r.mset(relation_id)
+r.mset(entity2id)
+r.mset(relation2id)
 r.set('entities', pickle.dumps(entities, protocol=pickle.HIGHEST_PROTOCOL))
 r.set('relations', pickle.dumps(relations, protocol=pickle.HIGHEST_PROTOCOL))
 
@@ -149,7 +151,7 @@ for cur_iter in range(niter):
     for i in range(num_worker):
         worker_id = f'worker_{i}'
         chunk_data = "{}\n{}".format(anchors, chunks[i])
-        workers.append(client.submit(work, chunk_data, worker_id, cur_iter, lr, margin))
+        workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin))
 
 
     if cur_iter % 2 == 1:
@@ -177,4 +179,4 @@ for cur_iter in range(niter):
     for worker in as_completed(workers):
         print(worker.result())
 
-"Totally finished!"
+print("Totally finished!")
