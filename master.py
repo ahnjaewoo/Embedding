@@ -15,6 +15,8 @@ parser.add_argument('--data_root', type=str, default='./fb15k', help='root direc
 parser.add_argument('--niter', type=int, default=1, help='total number of training iterations')
 parser.add_argument('--install', default=False, help='install libraries in each worker')
 parser.add_argument('--ndim', type=int, default=20, help='dimension of embeddings')
+parser.add_argument('--lr', type=int, default=0.1, help='learning rate')
+parser.add_argument('--margin', type=int, default=2, help='margin')
 args = parser.parse_args()
 
 install = args.install
@@ -24,10 +26,9 @@ data_files = ['/train.txt', '/dev.txt', '/test.txt']
 num_worker = args.num_worker
 niter = args.niter
 n_dim = args.ndim
+lr = args.lr
+margin = args.margin
 
-
-entities = set()
-relations = set()
 
 # 여기서 전처리 C++ 프로그램 비동기 호출
 print("Preprocessing start...")
@@ -65,10 +66,10 @@ with open(root+data_files[0], 'r') as f:
         head, relation, tail = line[:-1].split("\t")
         train_graph.add((entity2id[head], relations2id[relation], entity2id[tail]))
 
+chunk_num = int(len(train_graph)/num_worker)
 
-print("redis...")
+
 r = redis.StrictRedis(host='163.152.20.66', port=6379, db=0)
-
 r.mset(entity_id)
 r.mset(relation_id)
 r.set('entities', pickle.dumps(entities, protocol=pickle.HIGHEST_PROTOCOL))
@@ -93,8 +94,10 @@ def install_libs():
     os.system("pip install hiredis")
 
 
-def work(chunk_data, worker_id, cur_iter):
-    proc = Popen(["python", f"{root_dir}/worker.py", chunk_data, str(worker_id), str(cur_iter)])
+def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin):
+    proc = Popen([
+        "python", f"{root_dir}/worker.py", chunk_data,
+        str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin)])
     proc.wait()
     return "process {}: finished".format(worker_id)
 
@@ -146,15 +149,32 @@ for cur_iter in range(niter):
     for i in range(num_worker):
         worker_id = f'worker_{i}'
         chunk_data = "{}\n{}".format(anchors, chunks[i])
-        workers.append(client.submit(work, chunk_data, worker_id, cur_iter))
+        workers.append(client.submit(work, chunk_data, worker_id, cur_iter, lr, margin))
 
-    # max-min cut 실행, anchor 등 재분배
-    proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker)])
-    proc.wait()
 
-    with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
-        lines = f.read().splitlines()
-        anchors, chunks = lines[0], lines[1:]
+    if cur_iter % 2 == 1:
+        # entity partitioning: max-min cut 실행, anchor 등 재분배
+        proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker)])
+        proc.wait()
+
+        with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
+            lines = f.read().splitlines()
+            anchors, chunks = lines[0], lines[1:]
+    else:
+        # relation partitioning
+        chunk_data = ''
+        shuffle(train_graph)
+
+        sub_graphs = {}
+        for c in range(num_worker-1):
+            sub_graphs[f'sub_graph_worker_{c}'] = pickle.dumps(
+                train_graph[c*chunk_num:(c+1)*chunk_num])
+        sub_graphs[f'sub_graph_worker_{num_worker-1}'] = pickle.dumps(
+            train_graph[(num_worker-1)*chunk_num:])
+        
+        r.mset(sub_graphs)
 
     for worker in as_completed(workers):
         print(worker.result())
+
+"Totally finished!"
