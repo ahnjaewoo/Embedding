@@ -35,8 +35,8 @@ if int(cur_iter) % 2 == 0:
     with open(f"{root_dir}/tmp/maxmin_{worker_id}.txt", 'w') as f:
         f.write(chunk_data)
 else:
-    sub_graphs = pickle.loads(redis.get(f'sub_graph_{worker_id}'))
-    with open("sub_graph_{worker_id}.txt", 'w') as f:
+    sub_graphs = pickle.loads(r.get(f'sub_graph_{worker_id}'))
+    with open(f"{root_dir}/tmp/sub_graph_{worker_id}.txt", 'w') as f:
         for (head_id, relation_id, tail_id) in sub_graphs:
             f.write(f"{head_id} {relation_id} {tail_id}\n")
 
