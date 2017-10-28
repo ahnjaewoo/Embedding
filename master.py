@@ -101,7 +101,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin):
         "python", f"{root_dir}/worker.py", chunk_data,
         str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin)])
     proc.wait()
-    return "process {}: finished".format(worker_id)
+    return f"{worker_id}: {cur_iter} iteration finished"
 
 
 def savePreprocessedData(data, worker_id):
@@ -139,7 +139,7 @@ for worker in as_completed(workers):
 
 
 # max-min cut 실행, anchor 분배
-proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker)])
+proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0'])
 proc.wait()
 with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
     lines = f.read().splitlines()
@@ -156,7 +156,7 @@ for cur_iter in range(niter):
 
     if cur_iter % 2 == 1:
         # entity partitioning: max-min cut 실행, anchor 등 재분배
-        proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker)])
+        proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), str(i)])
         proc.wait()
 
         with open(f"{root_dir}/tmp/maxmin_output.txt") as f:

@@ -13,6 +13,7 @@ data_files = ['/train.txt','/dev.txt', '/test.txt']
 output_file = 'tmp/maxmin_output.txt'
 old_anchor_file = 'tmp/old_anchor.txt'
 partition_num = int(sys.argv[1])
+cur_iter = int(sys.argv[2])
 k = 10
 
 entities = set()
@@ -92,7 +93,7 @@ G.add_edges_from(non_anchor_edge_list)
 
 options = nxmetis.MetisOptions(     # objtype=1 => vol
     ptype=-1, objtype=1, ctype=-1, iptype=-1, rtype=-1, ncuts=-1,
-    nseps=-1, numbering=-1, niter=-1, seed=-1, minconn=-1, no2hop=-1,
+    nseps=-1, numbering=-1, niter=cur_iter, seed=-1, minconn=-1, no2hop=-1,
     contig=-1, compress=-1, ccorder=-1, pfactor=-1, ufactor=-1, dbglvl=-1)
 
 (edgecuts, parts) = nxmetis.partition(G, nparts=partition_num)

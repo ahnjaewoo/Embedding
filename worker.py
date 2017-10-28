@@ -81,4 +81,4 @@ with open(f"{root_dir}/tmp/relation_vectors_updated.txt", 'r') as f:
 
 r.mset(relation_vectors)
 
-print("finished!")
+print(f"{worker_id}: {cur_iter} iteration finished!")
