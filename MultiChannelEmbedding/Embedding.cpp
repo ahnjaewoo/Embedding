@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 	//model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, false);
 	model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch);
 
-	model->run(1);
+	model->run(250);
 
 	//after training, put entities and relations into txt file
 	model->save("");

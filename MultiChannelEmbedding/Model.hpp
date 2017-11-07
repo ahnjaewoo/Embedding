@@ -4,7 +4,6 @@
 #include "DataModel.hpp"
 #include <boost/progress.hpp>
 #include <fstream>
-#include <sstream>
 
 using namespace std;
 using namespace arma;
@@ -32,7 +31,7 @@ public:
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
 		const int master_epoch = 0)
-		:data_model(*(new DataModel(dataset, is_preprocessed))), task_type(task_type),
+		:data_model(*(new DataModel(dataset, is_preprocessed, worker_num, master_epoch))), task_type(task_type),
 		logging(*(new ModelLogging(logging_base_path))),be_deleted_data_model(true),
 		is_preprocessed(is_preprocessed), worker_num(worker_num), master_epoch(master_epoch)
 	{
@@ -51,7 +50,7 @@ public:
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
 		const int master_epoch = 0)
-		:data_model(*(new DataModel(dataset, is_preprocessed))), task_type(task_type),
+		:data_model(*(new DataModel(dataset, is_preprocessed, worker_num, master_epoch))), task_type(task_type),
 		logging(*(new ModelLogging(logging_base_path))), be_deleted_data_model(true),
 		is_preprocessed(is_preprocessed), worker_num(worker_num), master_epoch(master_epoch)
 	{
@@ -66,7 +65,8 @@ public:
 public:
 	virtual double prob_triplets(const pair<pair<int, int>, int>& triplet) = 0;
 	virtual void train_triplet(const pair<pair<int, int>, int>& triplet) = 0;
-	virtual void train_triplet_parts(const pair<pair<int, int>, int>& triplet, map<int,bool>& check_anchor) = 0;
+	virtual void train_triplet_parts(const pair<pair<int, int>, int>& triplet) = 0;
+	virtual void train_triplet_parts_relation(const pair<pair<int, int>, int>& triplet) = 0;
 
 public:
 	virtual void train(bool last_time = false)
@@ -80,103 +80,67 @@ public:
 		}
 	}
 
-	virtual void train_parts(map<int,bool>& check_anchor, vector<pair<pair<int, int>, int>>& data_train_parts, bool last_time = false)
+	virtual void train_parts(bool last_time = false)
 	{
 		++epos;
 
 #pragma omp parallel for
-		for (auto i = data_train_parts.begin(); i != data_train_parts.end(); ++i)
+		for (auto i = data_model.data_train_parts.begin(); i != data_model.data_train_parts.end(); ++i)
 		{
-			train_triplet_parts(*i, check_anchor);
+			train_triplet_parts(*i);
+		}
+	}
+
+	virtual void train_parts_relation(bool last_time = false)
+	{
+		++epos;
+
+#pragma omp parallel for
+		for (auto i = data_model.data_train_parts.begin(); i != data_model.data_train_parts.end(); ++i)
+		{
+			train_triplet_parts_relation(*i);
 		}
 	}
 
 	void run(int total_epos)
 	{
-		//reading entities from maxmin_worker.txt file
-		map<int, bool> check_anchor;
-		vector<pair<pair<int, int>, int>> data_train_parts;
-		get_entity_parts(check_anchor, data_train_parts);
-
-		logging.record() << "\t[Epos]\t" << total_epos;
-		//epoch is an odd : entity by anchor
-		if (master_epoch % 2 == 1)
+		//epoch is an even : entity by anchor
+		if (master_epoch % 2 == 0)
 		{
+			logging.record() << "\t[Epos]\t" << total_epos;
+			cout << "entity training let's get it" << endl;
 			--total_epos;
 			boost::progress_display	cons_bar(total_epos);
 			while (total_epos-- > 0)
 			{
 				++cons_bar;
-				train_parts(check_anchor, data_train_parts);
+				train_parts();
 
 				if (task_type == TripletClassification)
 					test_triplet_classification();
 			}
 
-			train_parts(check_anchor, data_train_parts, true);
+			train_parts(true);
 		}
-		//epoch is an even : relation
+		//epoch is an odd : relation
 		else
 		{
+			logging.record() << "\t[Epos]\t" << total_epos;
+			cout << "relation training let's get it" << endl;
 			--total_epos;
 			boost::progress_display	cons_bar(total_epos);
 			while (total_epos-- > 0)
 			{
 				++cons_bar;
-				train();
+				//train();
+				train_parts_relation();
 
 				if (task_type == TripletClassification)
 					test_triplet_classification();
 			}
-
-			train(true);
+			//train(true);
+			train_parts_relation(true);
 		}
-	}
-
-	void get_entity_parts(map<int,bool>& check_anchor, vector<pair<pair<int, int>, int>>& data_train_parts)
-	{
-		ifstream input("../tmp/maxmin_worker-"+ to_string(worker_num) + ".txt");
-		string str;
-		set<int> set_entity_parts;
-		vector<string> anchor;
-		map<int, bool> check_parts;
-
-		getline(input, str);
-		anchor = split(str, ' ');
-
-		for (string e : anchor)
-		{
-			check_anchor[stoi(e)] = true;
-			check_parts[stoi(e)] = true;
-		}
-
-		while (!input.eof())
-		{
-			input >> str;
-			set_entity_parts.insert(stoi(str));
-			check_parts[stoi(str)] = true;
-		}
-
-		for (auto i = data_model.data_train.begin(); i != data_model.data_train.end(); ++i)
-		{
-			int head = (*i).first.first;
-			int tail = (*i).first.second;
-			if (check_parts.find(head) != check_parts.end() && check_parts.find(tail) != check_parts.end()){
-				data_train_parts.push_back(*i);
-			}
-		}
-
-	}
-
-	vector<string> split(const string &s, char delim)
-	{
-		stringstream ss(s);
-		string item;
-		vector<string> tokens;
-		while (getline(ss, item, delim)) {
-			tokens.push_back(item);
-		}
-		return tokens;
 	}
 
 public:

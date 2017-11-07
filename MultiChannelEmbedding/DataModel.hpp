@@ -1,18 +1,19 @@
 #pragma once
 #include "Import.hpp"
 #include "ModelConfig.hpp"
-//#include <boost/archive/xml_oarchive.hpp> 
+//#include <boost/archive/xml_oarchive.hpp>
 //#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp> 
+#include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/set.hpp>
-#include <iostream> 
-#include <fstream> 
+#include <iostream>
+#include <fstream>
 #include <algorithm>
 #include <iterator>
+#include <sstream>
 
 class DataModel
 {
@@ -22,6 +23,7 @@ public:
 
 public:
     vector<pair<pair<int, int>, int> >  data_train;
+    vector<pair<pair<int, int>, int> >  data_train_parts;
     vector<pair<pair<int, int>, int> >  data_dev_true;
     vector<pair<pair<int, int>, int> >  data_dev_false;
     vector<pair<pair<int, int>, int> >  data_test_true;
@@ -30,6 +32,10 @@ public:
 public:
     set<int>            set_tail;
     set<int>            set_head;
+    set<int>            set_entity_parts;
+    vector<int>         vector_entity_parts;
+    set<int>            set_relation_parts;
+    vector<int>         vector_relation_parts;
     set<string>         set_entity;
     set<string>         set_relation;
 
@@ -52,6 +58,7 @@ public:
     vector<double>      relation_tph;
     vector<double>      relation_hpt;
     map<string, int>    count_entity;
+    map<int, bool>      check_anchor;
 
 public:
     map<int, map<int, int> >    tails;
@@ -66,41 +73,39 @@ public:
     int zeroshot_pointer;
 
 public:
-    DataModel(const Dataset& dataset, const bool is_preprocessed)
-    {   
+    DataModel(const Dataset& dataset, const bool is_preprocessed, const int worker_num, const int master_epoch)
+    {
     	if (is_preprocessed)
     	{
     		ifstream input("../tmp/data_model.bin", ios_base::binary);
-        	boost::archive::binary_iarchive ia(input);
-		
-		ia >> entity_name_to_id;
-            	ia >> entity_id_to_name;
-            	ia >> relation_id_to_name;
-            	ia >> relation_name_to_id;
-            	ia >> data_train;
-            	ia >> data_dev_true;
-            	ia >> data_dev_false;
-		ia >> data_test_true;
-		ia >> data_test_false;
-            	ia >> check_data_train;
-            	ia >> check_data_all;
-            	ia >> set_entity;
-            	ia >> set_relation;
-            	ia >> count_entity;
-            	ia >> rel_heads;
-            	ia >> rel_tails;
-            	ia >> rel_finder;
-            	ia >> relation_tph;
-            	ia >> relation_hpt;
-            	ia >> set_relation_head;
-            	ia >> set_relation_tail;
-            	ia >> prob_head;
-            	ia >> prob_tail;
-            	ia >> tails;
-            	ia >> heads;
-            	ia >> relation_type;
-
-	        input.close();
+        boost::archive::binary_iarchive ia(input);
+        ia >> entity_name_to_id;
+        ia >> entity_id_to_name;
+        ia >> relation_id_to_name;
+        ia >> relation_name_to_id;
+        ia >> data_train;
+        ia >> data_dev_true;
+        ia >> data_dev_false;
+        ia >> data_test_true;
+        ia >> data_test_false;
+        ia >> check_data_train;
+        ia >> check_data_all;
+        ia >> set_entity;
+        ia >> set_relation;
+        ia >> count_entity;
+        ia >> rel_heads;
+        ia >> rel_tails;
+        ia >> rel_finder;
+        ia >> relation_tph;
+        ia >> relation_hpt;
+        ia >> set_relation_head;
+        ia >> set_relation_tail;
+        ia >> prob_head;
+        ia >> prob_tail;
+        ia >> tails;
+        ia >> heads;
+        ia >> relation_type;
+	      input.close();
     	}
     	else
     	{
@@ -191,7 +196,7 @@ public:
 	                relation_type[i] = 4;
 	            }
 	        }
-            
+
                  oa << entity_name_to_id;
                  oa << entity_id_to_name;
                  oa << relation_id_to_name;
@@ -218,13 +223,75 @@ public:
                  oa << tails;
                  oa << heads;
 		 oa << relation_type;
-	
+
 
 	        output.close();
     	}
+      if (master_epoch % 2 == 0)
+      {
+        //entity
+        ifstream input("../tmp/maxmin_worker_"+ to_string(worker_num) + ".txt");
+    		string str;
+    		vector<string> anchor;
+        map<int, bool> check_parts;
+
+    		getline(input, str);
+    		anchor = split(str, ' ');
+
+    		for (string e : anchor)
+    		{
+    			set_entity_parts.insert(stoi(e));
+    			check_anchor[stoi(e)] = true;
+    			check_parts[stoi(e)] = true;
+    		}
+
+    		while (!input.eof())
+    		{
+    			input >> str;
+    			set_entity_parts.insert(stoi(str));
+    			check_parts[stoi(str)] = true;
+    		}
+
+    		for (auto i = data_train.begin(); i != data_train.end(); ++i)
+    		{
+    			int head = (*i).first.first;
+    			int tail = (*i).first.second;
+    			if (check_parts.find(head) != check_parts.end() && check_parts.find(tail) != check_parts.end()){
+    				data_train_parts.push_back(*i);
+    			}
+    		}
+
+        cout << "entity preprocesing let's get it!" << endl;
+      }
+      else
+      {
+        //relation
+        ifstream input("../tmp/sub_graph_worker_"+ to_string(worker_num) + ".txt");
+    		string str;
+    		pair<pair<int,int>, int> tmp;
+
+    		while (!input.eof())
+    		{
+          string head, tail, relation;
+          input >> head >> relation >> tail;
+          if (head == "" && relation == "" && tail == "") break;
+
+          set_entity_parts.insert(stoi(head));
+          set_entity_parts.insert(stoi(tail));
+          set_relation_parts.insert(stoi(relation));
+    			tmp.first.first = stoi(head);
+    			tmp.second = stoi(relation);
+    			tmp.first.second = stoi(tail);
+    			data_train_parts.push_back(tmp);
+    		}
+
+        cout << "relation preprocessing let's get it!" << endl;
+      }
+      vector_entity_parts.assign(set_entity_parts.begin(), set_entity_parts.end());
+      vector_relation_parts.assign(set_relation_parts.begin(), set_relation_parts.end());
     }
 
-    DataModel(const Dataset& dataset, const string& file_zero_shot, const bool is_preprocessed)
+    DataModel(const Dataset& dataset, const string& file_zero_shot, const bool is_preprocessed, const int worker_num, const int master_epoch)
     {
         load_training(dataset.base_dir + dataset.training);
 
@@ -490,6 +557,30 @@ public:
         }
     }
 
+    void sample_false_triplet_parts(
+        const pair<pair<int, int>, int>& origin,
+        pair<pair<int, int>, int>& triplet) const
+    {
+
+        double prob = relation_hpt[origin.second] / (relation_hpt[origin.second] + relation_tph[origin.second]);
+
+        triplet = origin;
+        while (true)
+        {
+            if (rand() % 1000 < 1000 * prob)
+            {
+                triplet.first.second = vector_entity_parts[rand() % vector_entity_parts.size()];
+            }
+            else
+            {
+                triplet.first.first = vector_entity_parts[rand() % vector_entity_parts.size()];
+            }
+
+            if (check_data_train.find(triplet) == check_data_train.end())
+                return;
+        }
+    }
+
     void sample_false_triplet_relation(
         const pair<pair<int, int>, int>& origin,
         pair<pair<int, int>, int>& triplet) const
@@ -515,5 +606,42 @@ public:
                 return;
         }
     }
-};
 
+    void sample_false_triplet_relation_parts(
+        const pair<pair<int, int>, int>& origin,
+        pair<pair<int, int>, int>& triplet) const
+    {
+
+        double prob = relation_hpt[origin.second] / (relation_hpt[origin.second] + relation_tph[origin.second]);
+
+        triplet = origin;
+        while (true)
+        {
+            if (rand() % 100 < 50)
+                triplet.second = vector_relation_parts[rand() % vector_relation_parts.size()];
+            else if (rand() % 1000 < 1000 * prob)
+            {
+                triplet.first.second = vector_entity_parts[rand() % vector_entity_parts.size()];
+            }
+            else
+            {
+                triplet.first.first = vector_entity_parts[rand() % vector_entity_parts.size()];
+            }
+
+            if (check_data_train.find(triplet) == check_data_train.end())
+                return;
+        }
+    }
+
+    vector<string> split(const string &s, char delim)
+  	{
+  		stringstream ss(s);
+  		string item;
+  		vector<string> tokens;
+  		while (getline(ss, item, delim)) {
+  			tokens.push_back(item);
+  		}
+  		return tokens;
+  	}
+};
+ 

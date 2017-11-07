@@ -13,6 +13,7 @@ data_files = ['/train.txt','/dev.txt', '/test.txt']
 output_file = 'tmp/maxmin_output.txt'
 old_anchor_file = 'tmp/old_anchor.txt'
 partition_num = int(sys.argv[1])
+cur_iter = int(sys.argv[2])
 k = 10
 
 entities = set()
@@ -25,21 +26,24 @@ non_anchor_edge_included_vertex = set()
 entity_cnt = 0
 
 for file in data_files:
-	with open(root+file, 'r') as f:
-	    for line in f:
-        	head, relation, tail = line[:-1].split("\t")
-        	entities.add(head)
-        	entities.add(tail)
-        	entity_graph.append((head, tail))
-        	if head not in entity2id:
-	            	entity2id[head] = entity_cnt
-	            	entity_cnt += 1
-        	if tail not in entity2id:
-	            	entity2id[tail] = entity_cnt
-	            	entity_cnt += 1
+    with open(root+file, 'r') as f:
+        for line in f:
+            head, relation, tail = line[:-1].split("\t")
+            entities.add(head)
+            entities.add(tail)
+            if head not in entity2id:
+                entity2id[head] = entity_cnt
+                entity_cnt += 1
+            if tail not in entity2id:
+                entity2id[tail] = entity_cnt
+                entity_cnt += 1
 
-        	connected_entity[entity2id[head]].add(entity2id[tail])
-        	connected_entity[entity2id[tail]].add(entity2id[head])
+with open(root+data_files[0], 'r') as f:
+    for line in f:
+        head, relation, tail = line[:-1].split("\t")
+        entity_graph.append((head, tail))
+        connected_entity[entity2id[head]].add(entity2id[tail])
+        connected_entity[entity2id[tail]].add(entity2id[head])
 
 entities_id = {entity2id[v] for v in entities}
 
@@ -90,7 +94,7 @@ G.add_edges_from(non_anchor_edge_list)
 
 options = nxmetis.MetisOptions(     # objtype=1 => vol
     ptype=-1, objtype=1, ctype=-1, iptype=-1, rtype=-1, ncuts=-1,
-    nseps=-1, numbering=-1, niter=-1, seed=-1, minconn=-1, no2hop=-1,
+    nseps=-1, numbering=-1, niter=cur_iter, seed=-1, minconn=-1, no2hop=-1,
     contig=-1, compress=-1, ccorder=-1, pfactor=-1, ufactor=-1, dbglvl=-1)
 
 (edgecuts, parts) = nxmetis.partition(G, nparts=partition_num)
