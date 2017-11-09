@@ -1,5 +1,8 @@
 # coding: utf-8
 
+from multiprocessing import Process
+from multiprocessing import Manager
+
 
 num_worker = 10
 relation_triple_nums = [] # 각 relation이 있는 트리플 갯수
@@ -9,6 +12,7 @@ partitioned_relations = [[] for _ in range(num_worker)]
 
 current_best = 1e30
 memo = dict() # concurrent hashmap으로 바꿔야!
+
 
 def relation_partition(relation_id, relation_triple_nums, relation_triples, worker_relation_num, partitioned_relations):
     b1 = worker_relation_num[0][1]
@@ -25,10 +29,12 @@ def relation_partition(relation_id, relation_triple_nums, relation_triples, work
         else:
             min_val = 1e30
             min_worker = None
+            
             # should be parallelized
             for i in num_worker:
                 worker_relation_num_ = worker_relation_num.copy()
                 worker_relation_num_[i] += relation_triple_nums[relation_id]
+                
                 # sorting should be changed
                 worker_relation_num_ = sorted(worker_relation_num_, key=lambda x: x[1], reverse=True)
 
@@ -45,3 +51,5 @@ def relation_partition(relation_id, relation_triple_nums, relation_triples, work
             return min_val
 
 # Question) 언제 triple들을 워커에 할당하지?!
+# Question) 그럼 항상 relation partition들은 고정되는거 아닌가?
+# https://stackoverflow.com/questions/3009146/splitting-values-into-groups-evenly
