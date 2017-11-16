@@ -16,7 +16,7 @@ parser.add_argument('--data_root', type=str, default='./fb15k', help='root direc
 parser.add_argument('--niter', type=int, default=1, help='total number of training iterations')
 parser.add_argument('--install', default=False, help='install libraries in each worker')
 parser.add_argument('--ndim', type=int, default=20, help='dimension of embeddings')
-parser.add_argument('--lr', type=int, default=0.1, help='learning rate')
+parser.add_argument('--lr', type=float, default=0.1, help='learning rate')
 parser.add_argument('--margin', type=int, default=2, help='margin')
 args = parser.parse_args()
 
