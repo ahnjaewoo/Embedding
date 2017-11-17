@@ -16,7 +16,7 @@ root_dir = "/home/rudvlf0413/distributedKGE/Embedding"
 
 
 # redis에서 embedding vector들 받아오기
-r = redis.StrictRedis(host='163.152.20.66', port=6379, db=0)
+r = redis.StrictRedis(host='163.152.29.73', port=6379, db=0)
 entities = pickle.loads(r.get('entities'))
 relations = pickle.loads(r.get('relations'))
 entity_id = r.mget(entities)

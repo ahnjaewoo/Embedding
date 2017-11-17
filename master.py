@@ -5,6 +5,7 @@ from sklearn.preprocessing import normalize
 from subprocess import Popen
 from argparse import ArgumentParser
 from random import shuffle
+from collections import defaultdict
 import numpy as np
 import redis
 import pickle
@@ -13,7 +14,7 @@ import pickle
 parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
 parser.add_argument('--num_worker', type=int, default=2, help='number of workers')
 parser.add_argument('--data_root', type=str, default='./fb15k', help='root directory of data')
-parser.add_argument('--niter', type=int, default=1, help='total number of training iterations')
+parser.add_argument('--niter', type=int, default=2, help='total number of training iterations')
 parser.add_argument('--install', default=False, help='install libraries in each worker')
 parser.add_argument('--ndim', type=int, default=20, help='dimension of embeddings')
 parser.add_argument('--lr', type=float, default=0.1, help='learning rate')
@@ -41,7 +42,6 @@ entities = set()
 relations = set()
 entity2id = dict()
 relation2id = dict()
-train_graph = []
 entity_cnt = 0
 relations_cnt = 0
 
@@ -62,16 +62,43 @@ for file in data_files:
                 relation2id[relation] = relations_cnt
                 relations_cnt += 1
 
+
+relation_triples = defaultdict(list)
 with open(root_dir+data_files[0], 'r') as f:
     for line in f:
         head, relation, tail = line[:-1].split("\t")
-        train_graph.append((entity2id[head], relation2id[relation], entity2id[tail]))
+        head, relation, tail = entity2id[head], relation2id[relation], entity2id[tail]
+        relation_triples[relation].append((head, tail))
 
-chunk_num = int(len(train_graph)/num_worker)
+relation_each_num = [(k, len(v)) for k, v in relation_triples.items()]
+relation_each_num = sorted(relation_each_num, key=lambda x: x[1])
+allocated_relation_worker = [[[], 0] for i in range(num_worker)]
+for i, (relation, num) in enumerate(relation_each_num):
+    allocated_relation_worker = sorted(allocated_relation_worker, key=lambda x: x[1])
+    allocated_relation_worker[0][0].append(relation)
+    allocated_relation_worker[0][1] += num
+
+sub_graphs = {}
+for c, (relation_list, num) in enumerate(allocated_relation_worker):
+    g = []
+    for relation in relation_list:
+        g.append((head, relation, tail))
+
+    sub_graphs[f'sub_graph_worker_{c}'] = pickle.dumps(g, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+r = redis.StrictRedis(host='163.152.29.73', port=6379, db=0)
+r.mset(sub_graphs)
+
+del relation_each_num
+del relation_triples
+del allocated_relation_worker
+del sub_graphs
+
 
 entities = list(entities)
 relations = list(relations)
-r = redis.StrictRedis(host='163.152.20.66', port=6379, db=0)
+
 r.mset(entity2id)
 r.mset(relation2id)
 r.set('entities', pickle.dumps(entities, protocol=pickle.HIGHEST_PROTOCOL))
@@ -118,16 +145,14 @@ def savePreprocessedData(data, worker_id):
     return f"{worker_id} finish saving file!"
 
 
-client = Client('163.152.20.66:8786', asynchronous=True, name='Embedding')
+client = Client('163.152.29.73:8786', asynchronous=True, name='Embedding')
 if install:
     client.run(install_libs)
-
 
 # 전처리 끝날때까지 대기
 proc.wait()
 with open(f"{root_dir}/tmp/data_model.bin", 'rb') as f:
     data = f.read()
-
 
 workers = []
 for i in range(num_worker):
@@ -165,16 +190,7 @@ for cur_iter in range(niter):
     else:
         # relation partitioning
         chunk_data = ''
-        shuffle(train_graph)
-
-        sub_graphs = {}
-        for c in range(num_worker-1):
-            sub_graphs[f'sub_graph_worker_{c}'] = pickle.dumps(
-                train_graph[c*chunk_num:(c+1)*chunk_num])
-        sub_graphs[f'sub_graph_worker_{num_worker-1}'] = pickle.dumps(
-            train_graph[(num_worker-1)*chunk_num:])
         
-        r.mset(sub_graphs)
 
     for worker in as_completed(workers):
         print(worker.result())

@@ -12,7 +12,7 @@ worker_relation_num = [(0, i) for i in range(num_worker)] # [(num, id)]
 # current best를 가장 작은 워커에 대해서 초기화 (?)
 current_best = 1e30
 manager = multiprocessing.Manager()
-return_list = manager.list([None for i in range(10)])
+return_list = manager.list([None for i in range(num_worker)])
 memo = manager.dict()
 
 
