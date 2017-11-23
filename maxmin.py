@@ -5,7 +5,7 @@ from collections import defaultdict
 from time import time
 import nxmetis
 import sys
-
+import random
 
 t_ = time()
 root = 'fb15k'
@@ -14,7 +14,10 @@ output_file = 'tmp/maxmin_output.txt'
 old_anchor_file = 'tmp/old_anchor.txt'
 partition_num = int(sys.argv[1])
 cur_iter = int(sys.argv[2])
-k = 10
+anchor_num = 10
+anchor_interval = 5
+anchor_dict = {}
+old_anchor = set()
 
 entities = set()
 entity_graph = []
@@ -52,14 +55,25 @@ for (hd, tl) in entity_graph:
 
 # select anchor via max-cut bipartition, read old_anchor.txt if it exists
 try:
-    with open(old_anchor_file, 'r') as f:
-        for line in f:
-            old_anchor = set(int(i) for i in line.split(" "))
-except:
-    old_anchor = set()
+    # if current iteration is 0, then initialize old_anchor.txt as empty space
+    if cur_iter == 0:
+        with open(old_anchor_file, 'w') as fwrite:
+            fwrite.write("")
 
-# while len(anchor) < k:
-for i in range(k):
+    #read as old anchor set
+    with open(old_anchor_file, 'r') as f:
+        for it,line in enumerate(f):
+            if line not in ['\n', '\r\n']:
+                anchor_dict[it] = set(int(i) for i in line.split(" "))
+    for it in range(anchor_interval):
+        if it in anchor_dict.keys():
+            for a in anchor_dict[it]:
+                old_anchor.add(a)
+except:
+    anchor_dict = {}
+
+# while len(anchor) < anchor_num:
+for i in range(anchor_num):
     best = None
     best_score = 0
     for vertex in entities_id.difference(anchor.union(old_anchor)):
@@ -68,7 +82,7 @@ for i in range(k):
             continue
 
         score = len(connected_entity[vertex].difference(anchor))
-        if score > best_score:
+        if score > best_score or (score == best_score and random.choice([True, False])):
             best = vertex
             best_score = score
 
@@ -76,9 +90,12 @@ for i in range(k):
         print("no vertex added to anchor")
     else:
         anchor.add(best)
-
+#writing anchor to old anchor file
+anchor_dict[cur_iter % anchor_interval] = anchor
 with open(old_anchor_file, 'w') as fwrite:
-    fwrite.write(" ".join([str(i) for i in anchor]))
+    for it in range(anchor_interval):
+        if it in anchor_dict.keys():
+            fwrite.write(" ".join([str(i) for i in anchor_dict[it]])+"\n")
 
 # solve the min-cut partition problem of A~, finding A~ and edges
 non_anchor = entities.difference(anchor)
