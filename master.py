@@ -9,7 +9,9 @@ from collections import defaultdict
 import numpy as np
 import redis
 import pickle
+from time import time
 
+t_ = time()
 
 parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
 parser.add_argument('--num_worker', type=int, default=2, help='number of workers')
@@ -195,4 +197,4 @@ for cur_iter in range(niter):
     for worker in as_completed(workers):
         print(worker.result())
 
-print("Totally finished!")
+print("Totally finished! - Elapsed time: {}".format((time()-t_)))
