@@ -13,8 +13,8 @@ data_files = ['/train.txt','/dev.txt', '/test.txt']
 output_file = 'tmp/maxmin_output.txt'
 old_anchor_file = 'tmp/old_anchor.txt'
 partition_num = int(sys.argv[1])
-cur_iter = int(sys.argv[2])
-anchor_num = 10
+cur_iter = (int(sys.argv[2]) + 1) // 2
+anchor_num = 5
 anchor_interval = 5
 anchor_dict = {}
 old_anchor = set()
@@ -127,4 +127,4 @@ with open(output_file, "w") as fwrite:
     for nas in parts:
         fwrite.write(" ".join([str(i) for i in nas])+"\n")
 
-print("max-min cut finished - max-min time: {}".format((time()-t_)))
+print("max-min cut finished - max-min time: {}".format((time()-t_))) 

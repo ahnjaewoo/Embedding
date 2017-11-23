@@ -183,7 +183,7 @@ for cur_iter in range(niter):
 
     if cur_iter % 2 == 1:
         # entity partitioning: max-min cut 실행, anchor 등 재분배
-        proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), str(i)])
+        proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), str(cur_iter)])
         proc.wait()
 
         with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
