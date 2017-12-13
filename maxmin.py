@@ -14,8 +14,8 @@ output_file = 'tmp/maxmin_output.txt'
 old_anchor_file = 'tmp/old_anchor.txt'
 partition_num = int(sys.argv[1])
 cur_iter = (int(sys.argv[2]) + 1) // 2
-anchor_num = 5
-anchor_interval = 5
+anchor_num = 2500
+anchor_interval = 4
 anchor_dict = {}
 old_anchor = set()
 
@@ -98,12 +98,11 @@ with open(old_anchor_file, 'w') as fwrite:
             fwrite.write(" ".join([str(i) for i in anchor_dict[it]])+"\n")
 
 # solve the min-cut partition problem of A~, finding A~ and edges
-non_anchor = entities.difference(anchor)
-non_anchor_id = {entity2id[v] for v in non_anchor}
+non_anchor_id = entities_id.difference(anchor)
 non_anchor_edge_list = [(h, t) for (h, t) in edge_list if h in non_anchor_id and t in non_anchor_id]
 for (h, t) in non_anchor_edge_list:
     non_anchor_edge_included_vertex.add(h)
-    non_anchor_edge_included_vertex.add(t)
+    non_anchor_edge_included_vertex.add(t) 
 
 # constructing nx.Graph and using metis in order to get min-cut partition
 G = nx.Graph()

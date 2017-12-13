@@ -355,8 +355,8 @@ public:
 	virtual void save(const string& filename) override
 	{
 
-		ofstream fout_entity("../tmp/entity_vectors_updated.txt", ios::binary);
-		ofstream fout_relation("../tmp/relation_vectors_updated.txt", ios::binary);
+		ofstream fout_entity("../tmp/entity_vectors_updated_" + filename + ".txt", ios::binary);
+		ofstream fout_relation("../tmp/relation_vectors_updated_" + filename + ".txt", ios::binary);
 
 		for (int i = 0; i < count_entity(); i++)
 		{

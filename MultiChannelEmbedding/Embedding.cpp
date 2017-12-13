@@ -27,10 +27,10 @@ int main(int argc, char* argv[])
 	//model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, false);
 	model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch);
 
-	model->run(250);
+	model->run(100);
 
 	//after training, put entities and relations into txt file
-	model->save("");
+	model->save(to_string(worker_num));
 
 	model->test();
 
@@ -43,29 +43,34 @@ void getParams(int argc, char* argv[], int& dim, double& alpha, double& training
 {
 	if (argc == 2)
 	{
-		worker_num = atoi(argv[1]);
+		string worker = argv[1];
+		worker_num = worker.back() - '0';
 	}
 	if (argc == 3)
 	{
-		worker_num = atoi(argv[1]);
+		string worker = argv[1];
+                worker_num = worker.back() - '0';
 		master_epoch = atoi(argv[2]);
 	}
 	if (argc == 4)
 	{
-		worker_num = atoi(argv[1]);
+		string worker = argv[1];
+                worker_num = worker.back() - '0';
 		master_epoch = atoi(argv[2]);
 		dim = atoi(argv[3]);
 	}
 	if (argc == 5)
 	{
-		worker_num = atoi(argv[1]);
+		string worker = argv[1];
+                worker_num = worker.back() - '0';
 		master_epoch = atoi(argv[2]);
 		dim = atoi(argv[3]);
 		alpha = atof(argv[4]);
 	}
 	if (argc == 6)
 	{
-		worker_num = atoi(argv[1]);
+		string worker = argv[1];
+                worker_num = worker.back() - '0';
 		master_epoch = atoi(argv[2]);
 		dim = atoi(argv[3]);
 		alpha = atof(argv[4]);

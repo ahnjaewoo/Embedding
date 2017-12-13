@@ -155,7 +155,7 @@ with open(f"{root_dir}/tmp/data_model.bin", 'rb') as f:
 
 workers = []
 for i in range(num_worker):
-    worker_id = f'worker-{i}'
+    worker_id = f'worker_{i}'
     workers.append(client.submit(savePreprocessedData, data, worker_id))
 
 for worker in as_completed(workers):
