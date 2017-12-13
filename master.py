@@ -40,8 +40,8 @@ proc = Popen(f"{root_dir}/preprocess/preprocess.out", cwd=f'{root_dir}/preproces
 
 
 print("read files")
-entities = set()
-relations = set()
+entities = list()
+relations = list()
 entity2id = dict()
 relation2id = dict()
 entity_cnt = 0
@@ -51,18 +51,18 @@ for file in data_files:
     with open(root_dir+file, 'r') as f:
         for line in f:
             head, relation, tail = line[:-1].split("\t")
-            entities.add(head)
-            entities.add(tail)
-            relations.add(relation)
             if head not in entity2id:
-                entity2id[head] = entity_cnt
-                entity_cnt += 1
+            	entities.append(head)
+            	entity2id[head] = entity_cnt
+            	entity_cnt += 1
             if tail not in entity2id:
-                entity2id[tail] = entity_cnt
-                entity_cnt += 1
+            	entities.append(tail)
+            	entity2id[tail] = entity_cnt
+            	entity_cnt += 1
             if relation not in relation2id:
-                relation2id[relation] = relations_cnt
-                relations_cnt += 1
+            	relations.append(relation)
+            	relation2id[relation] = relations_cnt
+            	relations_cnt += 1
 
 
 relation_triples = defaultdict(list)
@@ -97,9 +97,6 @@ del relation_triples
 del allocated_relation_worker
 del sub_graphs
 
-
-entities = list(entities)
-relations = list(relations)
 
 r.mset(entity2id)
 r.mset(relation2id)
@@ -192,7 +189,6 @@ for cur_iter in range(niter):
     else:
         # relation partitioning
         chunk_data = ''
-        
 
     for worker in as_completed(workers):
         print(worker.result())
