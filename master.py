@@ -73,7 +73,7 @@ with open(root_dir+data_files[0], 'r') as f:
         relation_triples[relation].append((head, tail))
 
 relation_each_num = [(k, len(v)) for k, v in relation_triples.items()]
-relation_each_num = sorted(relation_each_num, key=lambda x: x[1])
+relation_each_num = sorted(relation_each_num, key=lambda x: x[1], reverse=True)
 allocated_relation_worker = [[[], 0] for i in range(num_worker)]
 for i, (relation, num) in enumerate(relation_each_num):
     allocated_relation_worker = sorted(allocated_relation_worker, key=lambda x: x[1])
@@ -192,7 +192,6 @@ for cur_iter in range(niter):
     else:
         # relation partitioning
         chunk_data = ''
-        
 
     for worker in as_completed(workers):
         print(worker.result())
