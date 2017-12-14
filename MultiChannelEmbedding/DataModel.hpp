@@ -59,6 +59,7 @@ public:
     vector<double>      relation_hpt;
     map<string, int>    count_entity;
     map<int, bool>      check_anchor;
+    map<int, bool> 	check_parts;
 
 public:
     map<int, map<int, int> >    tails;
@@ -233,7 +234,6 @@ public:
         ifstream input("../tmp/maxmin_worker_"+ to_string(worker_num) + ".txt");
     		string str;
     		vector<string> anchor;
-        map<int, bool> check_parts;
 
     		getline(input, str);
     		anchor = split(str, ' ');

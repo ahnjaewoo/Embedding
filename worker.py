@@ -64,21 +64,20 @@ proc = Popen([
     cwd=f'{root_dir}/preprocess/')
 proc.wait()
 
-
-entity_vectors = {}
-with open(f"{root_dir}/tmp/entity_vectors_updated.txt", 'r') as f:
-    for line in f:
-        line = line[:-1].split()
-        entity_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
-
-r.mset(entity_vectors)
-
-relation_vectors = {}
-with open(f"{root_dir}/tmp/relation_vectors_updated.txt", 'r') as f:
-    for line in f:
-        line = line[:-1].split()
-        relation_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
-
-r.mset(relation_vectors)
+w_id = worker_id.split('_')[1]
+if int(cur_iter) % 2 == 0:
+    entity_vectors = {}
+    with open(f"{root_dir}/tmp/entity_vectors_updated_{w_id}.txt", 'r') as f:
+        for line in f:
+            line = line[:-1].split()
+            entity_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
+    r.mset(entity_vectors)
+else:
+    relation_vectors = {}
+    with open(f"{root_dir}/tmp/relation_vectors_updated_{w_id}.txt", 'r') as f:
+        for line in f:
+            line = line[:-1].split()
+            relation_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
+    r.mset(relation_vectors)
 
 print(f"{worker_id}: {cur_iter} iteration finished!")

@@ -15,6 +15,7 @@ public:
 	const int		dim;
 	const double	alpha;
 	const double	training_threshold;
+	const int	master_epoch;
 
 public:
 	TransE(const Dataset& dataset,
@@ -27,7 +28,7 @@ public:
 		const int worker_num = 0,
 		const int master_epoch = 0)
 		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch),
-		dim(dim), alpha(alpha), training_threshold(training_threshold)
+		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
 	{
 		logging.record() << "\t[Name]\tTransE";
 		logging.record() << "\t[Dimension]\t" << dim;
@@ -62,7 +63,7 @@ public:
 		const int worker_num = 0,
 		const int master_epoch = 0)
 		:Model(dataset, file_zero_shot, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch),
-		dim(dim), alpha(alpha), training_threshold(training_threshold)
+		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
 	{
 		logging.record() << "\t[Name]\tTransE";
 		logging.record() << "\t[Dimension]\t" << dim;
@@ -354,32 +355,43 @@ public:
 
 	virtual void save(const string& filename) override
 	{
-
-		ofstream fout_entity("../tmp/entity_vectors_updated_" + filename + ".txt", ios::binary);
-		ofstream fout_relation("../tmp/relation_vectors_updated_" + filename + ".txt", ios::binary);
-
-		for (int i = 0; i < count_entity(); i++)
+		// master_epoch이 짝수일 때 (entity embedding ㄱㄱ)
+		if (master_epoch % 2 == 0)
 		{
-			fout_entity << data_model.entity_id_to_name[i] << '\t';
-			for (int j = 0; j < dim; j++)
+			ofstream fout_entity("../tmp/entity_vectors_updated_" + filename + ".txt", ios::binary);
+			for (int i = 0; i < count_entity(); i++)
 			{
-				fout_entity << embedding_entity[i](j) << " ";
+				if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+				&& data_model.check_parts.find(i) != data_model.check_parts.end())
+				{
+					fout_entity << data_model.entity_id_to_name[i] << '\t';
+					for (int j =0; j < dim; j++)
+					{
+						fout_entity << embedding_entity[i](j) << " ";
+					}
+					fout_entity << '\n';
+				}
 			}
-			fout_entity << '\n';
+			fout_entity.close();
 		}
-
-		for (int i = 0; i < count_relation(); i++)
+		// master_epoch이 홀수일 때 (relation embedding ㄱㄱ)
+		else
 		{
-			fout_relation << data_model.relation_id_to_name[i] << '\t';
-			for (int j = 0; j < dim; j++)
+			ofstream fout_relation("../tmp/relation_vectors_updated_" + filename + ".txt", ios::binary);
+			for (int i = 0; i < count_relation(); i++)
 			{
-				fout_relation << embedding_relation[i](j) << " ";
+				if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end())
+				{
+					fout_relation << data_model.relation_id_to_name[i] << '\t';
+					for (int j = 0; j < dim; j++)
+					{
+						fout_relation << embedding_relation[i](j) << " ";
+					}
+					fout_relation << '\n';
+				}
 			}
-			fout_relation << '\n';
+			fout_relation.close();
 		}
-
-		fout_entity.close();
-		fout_relation.close();
 	}
 
 	virtual void load(const string& filename) override
