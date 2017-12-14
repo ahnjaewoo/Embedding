@@ -73,7 +73,7 @@ with open(root_dir+data_files[0], 'r') as f:
         relation_triples[relation].append((head, tail))
 
 relation_each_num = [(k, len(v)) for k, v in relation_triples.items()]
-relation_each_num = sorted(relation_each_num, key=lambda x: x[1])
+relation_each_num = sorted(relation_each_num, key=lambda x: x[1], reverse=True)
 allocated_relation_worker = [[[], 0] for i in range(num_worker)]
 for i, (relation, num) in enumerate(relation_each_num):
     allocated_relation_worker = sorted(allocated_relation_worker, key=lambda x: x[1])
@@ -84,10 +84,9 @@ sub_graphs = {}
 for c, (relation_list, num) in enumerate(allocated_relation_worker):
     g = []
     for relation in relation_list:
-        g.append((head, relation, tail))
-
+        for (head, tail) in relation_triples[relation]:
+            g.append((head, relation, tail))
     sub_graphs[f'sub_graph_worker_{c}'] = pickle.dumps(g, protocol=pickle.HIGHEST_PROTOCOL)
-
 
 r = redis.StrictRedis(host='163.152.29.73', port=6379, db=0)
 r.mset(sub_graphs)
