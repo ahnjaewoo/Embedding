@@ -21,6 +21,8 @@ parser.add_argument('--install', default=False, help='install libraries in each 
 parser.add_argument('--ndim', type=int, default=20, help='dimension of embeddings')
 parser.add_argument('--lr', type=float, default=0.1, help='learning rate')
 parser.add_argument('--margin', type=int, default=2, help='margin')
+parser.add_argument('--anchor_num', type=int, default=5, help='number of anchor during entity training')
+parser.add_argument('--anchor_interval', type=int, default=6, help='number of epoch that anchors can rest as non-anchor')
 args = parser.parse_args()
 
 install = args.install
@@ -32,7 +34,8 @@ niter = args.niter
 n_dim = args.ndim
 lr = args.lr
 margin = args.margin
-
+anchor_num = args.anchor_num
+anchor_interval = args.anchor_interval
 
 # 여기서 전처리 C++ 프로그램 비동기 호출
 print("Preprocessing start...")
@@ -162,7 +165,7 @@ for worker in as_completed(workers):
 
 
 # max-min cut 실행, anchor 분배
-proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0'])
+proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
 proc.wait()
 with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
     lines = f.read().splitlines()
@@ -179,7 +182,7 @@ for cur_iter in range(niter):
 
     if cur_iter % 2 == 1:
         # entity partitioning: max-min cut 실행, anchor 등 재분배
-        proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), str(cur_iter)])
+        proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), str(cur_iter), str(anchor_num), str(anchor_interval)])
         proc.wait()
 
         with open(f"{root_dir}/tmp/maxmin_output.txt") as f:

@@ -4,6 +4,7 @@
 // #include "OrbitModel.hpp"
 #include "Task.hpp"
 #include <omp.h>
+#include <time.h>
 
 void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch);
 
@@ -27,7 +28,15 @@ int main(int argc, char* argv[])
 	//model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, false);
 	model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch);
 
-	model->run(100);
+
+	//calculating training time
+	clock_t before, after;
+	before = clock();
+
+	model->run(1000);
+
+	after = clock();
+	cout << "training training_data time :  " << (double)(after - before) / CLOCKS_PER_SEC << "seconds" << endl;
 
 	//after training, put entities and relations into txt file
 	model->save(to_string(worker_num));

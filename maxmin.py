@@ -14,8 +14,8 @@ output_file = 'tmp/maxmin_output.txt'
 old_anchor_file = 'tmp/old_anchor.txt'
 partition_num = int(sys.argv[1])
 cur_iter = (int(sys.argv[2]) + 1) // 2
-anchor_num = 2500
-anchor_interval = 4
+anchor_num = int(sys.argv[3])
+anchor_interval = int(sys.argv[4])
 anchor_dict = {}
 old_anchor = set()
 
