@@ -164,6 +164,40 @@ for worker in as_completed(workers):
     print(worker.result())
 
 
+# max-min process 실행, socket 연결
+# maxmin.cpp 가 server
+# master.py 는 client
+if False:
+
+    import socket # 임시로 여기에 위치
+    proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
+    
+    maxmin_addr = ''
+    maxmin_port ''
+    maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    maxmin_sock.connect((maxmin_addr, maxmin_port))
+
+# max-min process 의 socket 으로 anchor 분배, 실행
+if False:
+
+    # try 가 들어가야 함 line 184 ~ 239 까지를 감쌈
+
+    maxmin_sock.send(str(num_worker))
+    maxmin_sock.send(str(cur_iter))     # 이 부분은 첫 send 에서는 "0" 으로 교체
+    maxmin_sock.send(str(anchor_num))
+    maxmin_sock.send(str(anchor_interval))
+
+    # 원래 maxmin_output.txt 로 받았던 결과를 socket 으로 다시 받을 수 있음, socket 과 파일의 결과 전달 속도를 비교할 필요가 있음
+    # socket 으로 결과를 전달한다면 list type 을 string 으로 바꿔 보내고 recv 후 eval 하면 됨
+    # recv 의 인자로 들어가는 수는 read 할 데이터 길이, byte 단위
+    # 그리고 recv 에서의 길이에 주의, 결과를 담은 문자열의 길이가 얼마나 될 지 모름
+    # 만약 이것이 너무 길다면, 여러 번에 걸쳐서 나눠 받고 합쳐서 사용해야 함
+    # 하지만 master.py 가 maxmin.py 에 보내는 인자의 문자열 길이는 짧아서 괜찮음
+    # anchors = eval(maxmin_sock.recv(1024))
+    # chuncks = eval(maxmin_sock.recv(1024))
+
+
+# line 201 ~ 205 을 line 181 ~ 196 의 socket 통신으로 대체
 # max-min cut 실행, anchor 분배
 proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
 proc.wait()
@@ -177,10 +211,19 @@ for cur_iter in range(niter):
     for i in range(num_worker):
         worker_id = f'worker_{i}'
         chunk_data = "{}\n{}".format(anchors, chunks[i])
+
+        # work 함수가 mapping 되어 실행될 때, worker.py 프로세스를 새로 실행
+        # worker.py 는 다시 embedding.cpp 프로세스를 새로 실행
+        # embedding.cpp 프로세스가 새로 실행되던 걸 개선하더라도 worker.py 가 계속 바뀌므로 socket 을 새로 연결하는 오버헤드가 있음
+        # 또한 이 상태에선 embedding.cpp 프로세스를 생성하는 주체가 master 가 되어야 하는데, 연결하는 주체는 worker.py 이므로 애매함이 좀 있음
+        # 일단 수정을 보류
+        # worker.py 와 embedding.cpp 간의 socket 에 관한 addr, port 를 관리해야 함
         workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin))
 
-
     if cur_iter % 2 == 1:
+
+        # line 227 ~ 233 을 line 181 ~ 193 의 socket 통신으로 대체
+
         # entity partitioning: max-min cut 실행, anchor 등 재분배
         proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), str(cur_iter), str(anchor_num), str(anchor_interval)])
         proc.wait()
@@ -194,5 +237,13 @@ for cur_iter in range(niter):
 
     for worker in as_completed(workers):
         print(worker.result())
+
+# except KeyboardInterrupt:
+#   maxmin_sock.close()
+
+# maxmin.py 과의 socket 을 close
+# socket 을 사용하는 코드 전체를 try except 로 감싸고 close 를 한 번 더 사용해줘야 함 (비정상 종료 때문)
+# finally:
+maxmin_sock.close()
 
 print("Totally finished! - Elapsed time: {}".format((time()-t_)))
