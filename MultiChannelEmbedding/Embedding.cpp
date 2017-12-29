@@ -4,7 +4,7 @@
 // #include "OrbitModel.hpp"
 #include "Task.hpp"
 #include <omp.h>
-#include <time.h>
+#include <sys/time.h>
 
 
 #include <stdio.h>
@@ -17,7 +17,7 @@
 #include <unistd.h>
 
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch);
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& is_final);
 
 // 400s for each experiment.
 int main(int argc, char* argv[])
@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 	double training_threshold = 2;
 	int worker_num = 0;
 	int master_epoch = 0;
-
+	int is_final = 0;
 
 	/*
 
@@ -102,25 +102,25 @@ int main(int argc, char* argv[])
 	*/
 
 	// Model* model = nullptr;
-	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch);
+	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, is_final);
 
 	//model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, false);
 	model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch);
 
 
 	//calculating training time
-	clock_t before, after;
-	before = clock();
+	struct timeval after, before;
+	gettimeofday(&before, NULL);
 
 	model->run(1000);
 
-	after = clock();
-	cout << "training training_data time :  " << (double)(after - before) / CLOCKS_PER_SEC << "seconds" << endl;
+	gettimeofday(&after, NULL);
+	cout << "training training_data time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
 
 	//after training, put entities and relations into txt file
 	model->save(to_string(worker_num));
 
-	model->test();
+	if (is_final) model->test();
 
 	delete model;
 
@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch)
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& is_final)
 {
 	if (argc == 2)
 	{
@@ -169,6 +169,16 @@ void getParams(int argc, char* argv[], int& dim, double& alpha, double& training
 		dim = atoi(argv[3]);
 		alpha = atof(argv[4]);
 		training_threshold = atof(argv[5]);
+	}
+	if (argc == 7)
+	{
+		string worker = argv[1];
+                worker_num = worker.back() - '0';
+                master_epoch = atoi(argv[2]);
+                dim = atoi(argv[3]);
+                alpha = atof(argv[4]);
+                training_threshold = atof(argv[5]);
+		is_final = atoi(argv[6]);
 	}
 }
  

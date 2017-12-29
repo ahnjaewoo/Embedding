@@ -124,10 +124,10 @@ def install_libs():
     os.system("pip install hiredis")
 
 
-def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin):
+def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, is_final):
     proc = Popen([
         "python", f"{root_dir}/worker.py", chunk_data,
-        str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin)])
+        str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(is_final)])
     proc.wait()
     return f"{worker_id}: {cur_iter} iteration finished"
 
@@ -242,7 +242,10 @@ for cur_iter in range(niter):
         # 또한 이 상태에선 embedding.cpp 프로세스를 생성하는 주체가 master 가 되어야 하는데, 연결하는 주체는 worker.py 이므로 애매함이 좀 있음
         # 일단 수정을 보류
         # worker.py 와 embedding.cpp 간의 socket 에 관한 addr, port 를 관리해야 함
-        workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin))
+        if cur_iter < niter - 1:
+            workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin, 0))
+        else:
+            workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin, 1))
 
     if cur_iter % 2 == 1:
 

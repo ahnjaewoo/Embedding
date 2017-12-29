@@ -13,15 +13,10 @@ cur_iter = sys.argv[3]
 embedding_dim = sys.argv[4]
 learning_rate = sys.argv[5]
 margin = sys.argv[6]
+is_final = sys.argv[7]
 
-
-
-
-
-
-#embedding_ip = sys.argv[7]
-#embedding_port = sys.argv[8]
-
+#embedding_ip = sys.argv[8]
+#embedding_port = sys.argv[9]
 
 
 
@@ -102,7 +97,7 @@ if False:
 t_ = time()
 proc = Popen([
     f"{root_dir}/MultiChannelEmbedding/Embedding.out", 
-    worker_id, cur_iter, embedding_dim, learning_rate, margin],
+    worker_id, cur_iter, embedding_dim, learning_rate, margin, is_final],
     cwd=f'{root_dir}/preprocess/')
 proc.wait()
 print("embedding time: %f" % (time()-t_))
