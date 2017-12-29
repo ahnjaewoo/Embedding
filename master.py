@@ -124,10 +124,10 @@ def install_libs():
     os.system("pip install hiredis")
 
 
-def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, is_final, embedding_ip, embedding_port):
+def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, is_final):
     proc = Popen([
         "python", f"{root_dir}/worker.py", chunk_data,
-        str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(is_final), str(embedding_ip), str(embedding_port)])
+        str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(is_final)])
     proc.wait()
     return f"{worker_id}: {cur_iter} iteration finished"
 

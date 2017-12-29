@@ -278,25 +278,25 @@ public:
 		vec& relation_f = embedding_relation[triplet_f.second];
 
 		if (data_model.check_anchor.find(head_id) == data_model.check_anchor.end())
+		{
 			head -= alpha * sign(head + relation - tail);
+			if (norm_L2(head) > 1.0) head = normalise(head);
+		}
 		if (data_model.check_anchor.find(tail_id) == data_model.check_anchor.end())
+		{
 			tail += alpha * sign(head + relation - tail);
+			if (norm_L2(tail) > 1.0) tail = normalise(tail);
+		}
 		if (data_model.check_anchor.find(head_f_id) == data_model.check_anchor.end())
+		{
 			head_f += alpha * sign(head_f + relation_f - tail_f);
+			if (norm_L2(head_f) > 1.0) head_f = normalise(head_f);
+		}
 		if (data_model.check_anchor.find(tail_f_id) == data_model.check_anchor.end())
+		{
 			tail_f -= alpha * sign(head_f + relation_f - tail_f);
-
-		if (norm_L2(head) > 1.0 && data_model.check_anchor.find(head_id) == data_model.check_anchor.end())
-			head = normalise(head);
-
-		if (norm_L2(tail) > 1.0 && data_model.check_anchor.find(tail_id) == data_model.check_anchor.end())
-			tail = normalise(tail);
-
-		if (norm_L2(head_f) > 1.0 && data_model.check_anchor.find(head_f_id) == data_model.check_anchor.end())
-			head_f = normalise(head_f);
-
-		if (norm_L2(tail_f) > 1.0 && data_model.check_anchor.find(tail_f_id) == data_model.check_anchor.end())
-			tail_f = normalise(tail_f);
+			if (norm_L2(tail_f) > 1.0) tail_f = normalise(tail_f);
+		}
 	}
 
  virtual void train_triplet_parts_relation(const pair<pair<int, int>, int>& triplet)
