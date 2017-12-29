@@ -250,4 +250,4 @@ for cur_iter in range(niter):
 # maxmin.py 과의 socket 을 close
 # socket 을 사용하는 코드 전체를 try except 로 감싸고 close 를 한 번 더 사용해줘야 함 (비정상 종료 때문)
 # finally:
-maxmin_sock.close()
+# maxmin_sock.close()
