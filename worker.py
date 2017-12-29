@@ -62,6 +62,12 @@ del entities_initialized
 del relations_initialized
 
 
+# embedding.cpp 와 socket 통신
+# worker 가 처음 실행될 때에는 socket connection 을 만들어줌
+# 그 이후에는 계속 recv send 로 통신
+
+
+
 # 여기서 C++ 프로그램 호출
 t_ = time()
 proc = Popen([
