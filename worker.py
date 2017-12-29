@@ -84,11 +84,12 @@ if False:
     embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     embedding_sock.connect((embedding_addr, embedding_port))
 
-    embedding_sock.send()
-
-
-
-
+    embedding_sock.send(str(worker_id))
+    embedding_sock.send(str(cur_iter))
+    embedding_sock.send(str(embedding_dim))
+    embedding_sock.send(str(learning_rate))
+    embedding_sock.send(str(margin))
+    embedding_sock.send(str(is_final))
 
 
 
@@ -104,6 +105,9 @@ proc = Popen([
 proc.wait()
 print("embedding time: %f" % (time()-t_))
 
+
+# 이 부분을 socket 통신으로 대체할 필요가 있음
+# 현재 embeding.cpp 자체에서는 못하고, 그 코드를 타고 들어가야 가능함
 w_id = worker_id.split('_')[1]
 t_ = time()
 if int(cur_iter) % 2 == 0:
