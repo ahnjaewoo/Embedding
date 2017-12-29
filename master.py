@@ -124,10 +124,10 @@ def install_libs():
     os.system("pip install hiredis")
 
 
-def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, is_final):
+def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, is_final, embedding_ip, embedding_port):
     proc = Popen([
         "python", f"{root_dir}/worker.py", chunk_data,
-        str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(is_final)])
+        str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(is_final), str(embedding_ip), str(embedding_port)])
     proc.wait()
     return f"{worker_id}: {cur_iter} iteration finished"
 
@@ -183,21 +183,15 @@ if False:
 # embedding.cpp 는 생성된 후 socket server 로 연결을 대기
 if False:
 
+    embedding_sock_setting = list()
+
     for i in range(num_worker):
 
         embedding_ip = ''
         embedding_port = ''               # port 가 각 프로세스 별로 변경되어야 함~!@#$%
         proc = Popen([f"{root_dir}/MultiChannelEmbedding/Embedding.out", worker_id, \
-            cur_iter, embedding_dim, learning_rate, margin, embedding_ip, embedding_port], cwd=f'{root_dir}/preprocess/')
-
-
-
-
-
-
-
-
-
+            cur_iter, embedding_dim, learning_rate, margin, is_final, embedding_ip, embedding_port], cwd=f'{root_dir}/preprocess/')
+        embedding_sock_setting.append((embedding_ip, embedding_port))
 
 # max-min process 의 socket 으로 anchor 분배, 실행
 if False:
@@ -240,12 +234,16 @@ for cur_iter in range(niter):
         # worker.py 는 다시 embedding.cpp 프로세스를 새로 실행
         # embedding.cpp 프로세스가 새로 실행되던 걸 개선하더라도 worker.py 가 계속 바뀌므로 socket 을 새로 연결하는 오버헤드가 있음
         # 또한 이 상태에선 embedding.cpp 프로세스를 생성하는 주체가 master 가 되어야 하는데, 연결하는 주체는 worker.py 이므로 애매함이 좀 있음
-        # 일단 수정을 보류
         # worker.py 와 embedding.cpp 간의 socket 에 관한 addr, port 를 관리해야 함
+
+
+        # embedding_sock_setting[i] 를 함께 전달
         if cur_iter < niter - 1:
             workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin, 0))
+            #workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin, 0, embedding_sock_setting[i][0], embedding_sock_setting[i][1]))
         else:
             workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin, 1))
+            #workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin, 1, embedding_sock_setting[i][0], embedding_sock_setting[i][1]))
 
     if cur_iter % 2 == 1:
 

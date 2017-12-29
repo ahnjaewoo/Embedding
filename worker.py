@@ -79,10 +79,12 @@ if False:
 
     import socket # 임시로 여기에 위치
 
-    embedding_addr = ''
-    embedding_port = ''
+    embedding_addr = ''  # 인자로 받아옴
+    embedding_port = ''  # 인자로 받아옴
     embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     embedding_sock.connect((embedding_addr, embedding_port))
+
+    embedding_sock.send()
 
 
 

@@ -90,13 +90,23 @@ int main(int argc, char* argv[])
 		//after training, put entities and relations into txt file
 		model->save(to_string(worker_num));
 
-		delete model;
+		if (is_final){
+	
+			model->test();
+			delete model;
+			close(worker_sock);
+			
+			break;
+		}
+		else {
+	
+			delete model;
 
-		// reconnect to worker.py
-		close(worker_sock);
+			// reconnect to worker.py
+			close(worker_sock);
 		
-
-		// TODO : model->save using socket communication
+			// TODO : model->save using socket communication
+		}
 	}
 
 	*/
