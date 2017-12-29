@@ -16,7 +16,7 @@ if False:
     import socket # 임시로 여기에 위치
 
     maxmin_addr = ''
-    maxmin_port ''
+    maxmin_port = ''
     maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     maxmin_sock.bind((maxmin_addr, maxmin_port))
     maxmin_sock.listen(1)
@@ -175,4 +175,4 @@ with open(output_file, "w") as fwrite:
     for nas in parts:
         fwrite.write(" ".join([str(i) for i in nas])+"\n")
 
-print("max-min cut finished - max-min time: {}".format((time()-t_))) 
+print("max-min cut finished - max-min time: {}".format((time()-t_)))

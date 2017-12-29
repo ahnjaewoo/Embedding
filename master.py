@@ -175,7 +175,7 @@ if False:
     proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
     
     maxmin_addr = ''
-    maxmin_port ''
+    maxmin_port = ''
     maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     maxmin_sock.connect((maxmin_addr, maxmin_port))
 
