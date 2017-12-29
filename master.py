@@ -188,6 +188,7 @@ if False:
         worker_ip = ''
         worker_port = '' + i                # port 가 각 프로세스 별로 변경되어야 함
         proc = Popen([f"{root_dir}/MultiChannelEmbedding/Embedding.out", worker_id, \
+            cur_iter, embedding_dim, learning_rate, margin, worker_ip, worker_port], cwd=f'{root_dir}/preprocess/')
 
 
 
