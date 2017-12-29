@@ -23,13 +23,6 @@ int main(int argc, char* argv[])
 	double training_threshold = 2;
 	int worker_num = 0;
 	int master_epoch = 0;
-
-
-
-	//----------- socket while start
-	// while(1){}
-
-	// Model* model = nullptr;
 	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch);
 
 	//model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, false);
@@ -51,12 +44,6 @@ int main(int argc, char* argv[])
 	model->test();
 
 	delete model;
-
-
-
-	//------------ socket while end
-
-
 
 	return 0;
 }
