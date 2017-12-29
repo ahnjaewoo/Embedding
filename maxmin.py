@@ -7,6 +7,55 @@ import nxmetis
 import sys
 import random
 
+
+# max-min process 실행, socket 연결
+# maxmin.cpp 가 server
+# master.py 는 client
+if False:
+
+    import socket # 임시로 여기에 위치
+
+    maxmin_addr = ''
+    maxmin_port ''
+    maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    maxmin_sock.bind((maxmin_addr, maxmin_port))
+    maxmin_sock.listen(1)
+
+    master_sock, master_addr = maxmin_sock.accept()
+
+    try:
+
+        while True:
+
+            partition_num = int(master_sock.recv(1024))
+            cur_iter = (int(master_sock.recv(1024)) + 1) // 2
+            anchor_num = int(master_sock.recv(1024))
+            anchor_interval = int(master_sock.recv(1024))
+
+            if not (partition_num and cur_iter and anchor_num and anchor_interval):
+
+                maxmin_sock.close()
+
+            # 작업을 실행
+            # 기존의 코드에서는 이전 iteration 의 상태를 파일로 저장했는데, 그 부분을 변경해야 함
+
+
+
+            # 작업 결과를 전송
+            # 현재 anchor 와 nas 의 type 이 어찌된 지 몰라서 임시로 작성
+            # string(anchor), string(nas) 를 socket 으로 전송 후 eval 해서 복구
+            # anchor 와 nas 를 string 으로 바꾸었을 때, 글자 수가 길다면 분할해서 전송해야 함
+            # 분할 전송을 하는 경우, anchor 와 nas 를 전송할 때 사용하는 규칙이 필요
+            master_sock.send(string(anchor))
+            master_sock.send(string(nas))
+
+    except KeyboardInterrupt:
+
+        maxmin_sock.close()
+
+
+
+
 t_ = time()
 root = 'fb15k'
 data_files = ['/train.txt','/dev.txt', '/test.txt']
@@ -14,8 +63,8 @@ output_file = 'tmp/maxmin_output.txt'
 old_anchor_file = 'tmp/old_anchor.txt'
 partition_num = int(sys.argv[1])
 cur_iter = (int(sys.argv[2]) + 1) // 2
-anchor_num = 2500
-anchor_interval = 4
+anchor_num = int(sys.argv[3])
+anchor_interval = int(sys.argv[4])
 anchor_dict = {}
 old_anchor = set()
 
