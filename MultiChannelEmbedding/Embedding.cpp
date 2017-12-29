@@ -6,6 +6,17 @@
 #include <omp.h>
 #include <time.h>
 
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+
 void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch);
 
 // 400s for each experiment.
@@ -17,14 +28,48 @@ int main(int argc, char* argv[])
 	Model* model = nullptr;
 
 	//first read the txt file and load the model
-		//read dimension, LR, margin for parameters
+	//read dimension, LR, margin for parameters
 	int dim = 20;
 	double alpha = 0.01;
 	double training_threshold = 2;
 	int worker_num = 0;
 	int master_epoch = 0;
 
+	// embedding.cpp is server
+	// worker.ph is client
+	int len;
+	struct sockaddr_in embedding_addr;
+	struct sockaddr_in worker_addr;
+	bzero((char *)&embedding_addr, sizeof(embedding_addr));
+	embedding_addr.sin_family = AF_INET;
+	embedding_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	embedding_addr.sin_port = htons(47500);
 
+	// create socket and check it is valid
+	if ((embedding_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
+
+		return -1;
+	}
+
+	if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
+
+		return -1;
+	}
+
+	if (listen(embedding_sock, 1) < 0){
+
+		return -1;
+	}
+
+	while(1){
+
+		if ((worker_sock = accept(embedding_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
+
+			return -1;
+		}
+
+		send(worker_sock, buffer, len, 0);
+	}
 
 	//----------- socket while start
 	// while(1){}
