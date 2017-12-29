@@ -11,7 +11,6 @@ import redis
 import pickle
 from time import time
 
-t_ = time()
 
 parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
 parser.add_argument('--num_worker', type=int, default=2, help='number of workers')
@@ -36,6 +35,7 @@ margin = args.margin
 
 # 여기서 전처리 C++ 프로그램 비동기 호출
 print("Preprocessing start...")
+t_ = time()
 proc = Popen(f"{root_dir}/preprocess/preprocess.out", cwd=f'{root_dir}/preprocess/')
 
 
@@ -162,6 +162,8 @@ for worker in as_completed(workers):
     print(worker.result())
 
 
+print("preprocessing time: %f" % time()-t_)
+
 # max-min cut 실행, anchor 분배
 proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0'])
 proc.wait()
@@ -170,6 +172,8 @@ with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
     anchors, chunks = lines[0], lines[1:]
 
 for cur_iter in range(niter):
+    t_ = time()
+
     # 작업 배정
     workers = []
     for i in range(num_worker):
@@ -193,4 +197,4 @@ for cur_iter in range(niter):
     for worker in as_completed(workers):
         print(worker.result())
 
-print("Totally finished! - Elapsed time: {}".format((time()-t_)))
+    print("iteration time: %f" % time()-t_)
