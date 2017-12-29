@@ -179,6 +179,30 @@ if False:
     maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     maxmin_sock.connect((maxmin_addr, maxmin_port))
 
+# embedding.cpp 를 num_worker 개수만큼 생성
+# embedding.cpp 는 생성된 후 socket server 로 연결을 대기
+if False:
+
+    for i in range(num_worker):
+
+        worker_ip = ''
+        worker_port = '' + i                # port 가 각 프로세스 별로 변경되어야 함
+        proc = Popen([f"{root_dir}/MultiChannelEmbedding/Embedding.out", worker_id, \
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # max-min process 의 socket 으로 anchor 분배, 실행
 if False:
 

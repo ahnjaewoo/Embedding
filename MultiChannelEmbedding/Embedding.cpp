@@ -35,8 +35,12 @@ int main(int argc, char* argv[])
 	int worker_num = 0;
 	int master_epoch = 0;
 
+
+	/*
+
 	// embedding.cpp is server
 	// worker.ph is client
+	// IP addr / port are from master.py
 	int len;
 	struct sockaddr_in embedding_addr;
 	struct sockaddr_in worker_addr;
@@ -68,11 +72,34 @@ int main(int argc, char* argv[])
 			return -1;
 		}
 
-		send(worker_sock, buffer, len, 0);
+		// get args, to be modified
+		msg_len = recv(worker_sock, buff, len, 0);
+
+
+		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch);
+
+			//calculating training time
+		clock_t before, after;
+		before = clock();
+
+		model->run(1000);
+
+		after = clock();
+		cout << "training training_data time :  " << (double)(after - before) / CLOCKS_PER_SEC << "seconds" << endl;
+
+		//after training, put entities and relations into txt file
+		model->save(to_string(worker_num));
+
+		delete model;
+
+		// reconnect to worker.py
+		close(worker_sock);
+		
+
+		// TODO : model->save using socket communication
 	}
 
-	//----------- socket while start
-	// while(1){}
+	*/
 
 	// Model* model = nullptr;
 	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch);

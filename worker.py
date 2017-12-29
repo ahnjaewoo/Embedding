@@ -13,6 +13,20 @@ cur_iter = sys.argv[3]
 embedding_dim = sys.argv[4]
 learning_rate = sys.argv[5]
 margin = sys.argv[6]
+
+
+
+
+
+
+#worker_ip = sys.argv[7]
+#worker_port = sys.argv[8]
+
+
+
+
+
+
 root_dir = "/home/rudvlf0413/distributedKGE/Embedding"
 
 
@@ -63,11 +77,26 @@ del relations_initialized
 
 
 # embedding.cpp 와 socket 통신
-# worker 가 처음 실행될 때에는 socket connection 을 만들어줌
-# 그 이후에는 계속 recv send 로 통신
+# master 에서 embedding.cpp 를 실행해놓고, worker 는 접속만 함
+# worker 는 client, embedding 은 server
+if False:
+
+    import socket # 임시로 여기에 위치
+
+    embedding_addr = ''
+    embedding_port = ''
+    embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    embedding_sock.connect((embedding_addr, embedding_port))
 
 
 
+
+
+
+
+
+
+# 이 부분은 호출 대신 socket 통신으로 대체
 # 여기서 C++ 프로그램 호출
 t_ = time()
 proc = Popen([
