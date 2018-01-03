@@ -88,7 +88,7 @@ print('# of relations per each partitions: [',end='')
 for c, (relation_list, num) in enumerate(allocated_relation_worker):
     print(len(relation_list), end=' ')
 else:
-    print(])
+    print(']')
 
 sub_graphs = {}
 for c, (relation_list, num) in enumerate(allocated_relation_worker):
