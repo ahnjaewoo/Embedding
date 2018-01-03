@@ -181,8 +181,8 @@ if False:
     import socket # 임시로 여기에 위치
     proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
     
-    maxmin_addr = ''
-    maxmin_port = ''
+    maxmin_addr = '127.0.0.1'
+    maxmin_port = '7847'
     maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     maxmin_sock.connect((maxmin_addr, maxmin_port))
 
@@ -205,6 +205,7 @@ if False:
 
     # try 가 들어가야 함 line 184 ~ 239 까지를 감쌈
 
+    maxmin_sock.send('work')
     maxmin_sock.send(str(num_worker))
     maxmin_sock.send(str(cur_iter))     # 이 부분은 첫 send 에서는 "0" 으로 교체
     maxmin_sock.send(str(anchor_num))
@@ -222,11 +223,18 @@ if False:
 
 # line 201 ~ 205 을 line 181 ~ 196 의 socket 통신으로 대체
 # max-min cut 실행, anchor 분배
-proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
-proc.wait()
-with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
-    lines = f.read().splitlines()
-    anchors, chunks = lines[0], lines[1:]
+if True:
+
+    proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
+    maxmin_iter_end = maxmin_sock.recv(1024)
+
+    #if maxmin_iter_end == 'iterend':
+
+
+
+    with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
+        lines = f.read().splitlines()
+        anchors, chunks = lines[0], lines[1:]
 
 for cur_iter in range(niter):
     t_ = time()
@@ -255,14 +263,15 @@ for cur_iter in range(niter):
     if cur_iter % 2 == 1:
 
         # line 227 ~ 233 을 line 181 ~ 193 의 socket 통신으로 대체
-
         # entity partitioning: max-min cut 실행, anchor 등 재분배
-        proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), str(cur_iter), str(anchor_num), str(anchor_interval)])
-        proc.wait()
+        if True:
 
-        with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
-            lines = f.read().splitlines()
-            anchors, chunks = lines[0], lines[1:]
+            proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), str(cur_iter), str(anchor_num), str(anchor_interval)])
+            proc.wait()
+
+            with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
+                lines = f.read().splitlines()
+                anchors, chunks = lines[0], lines[1:]
     else:
         # relation partitioning
         chunk_data = ''
@@ -279,3 +288,8 @@ for cur_iter in range(niter):
 # socket 을 사용하는 코드 전체를 try except 로 감싸고 close 를 한 번 더 사용해줘야 함 (비정상 종료 때문)
 # finally:
 # maxmin_sock.close()
+
+if False:
+
+    maxmin_sock.send('close')
+    maxmin_sock.close()
