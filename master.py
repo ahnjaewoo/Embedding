@@ -173,15 +173,19 @@ for worker in as_completed(workers):
     print(worker.result())
 
 
+
+use_socket = True
+
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
 # master.py 는 client
-if False:
+if use_socket:
 
     import socket # 임시로 여기에 위치
-    import time
+    import time as tt
+    import struct
     proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
-    time.sleep(3)
+    tt.sleep(3)
 
     maxmin_addr = '127.0.0.1'
     maxmin_port = 7847
@@ -203,15 +207,15 @@ if False:
         embedding_sock_setting.append((embedding_ip, embedding_port))
 
 # max-min process 의 socket 으로 anchor 분배, 실행
-if False:
+if use_socket:
 
     # try 가 들어가야 함 line 184 ~ 239 까지를 감쌈
 
-    maxmin_sock.send(b'work')
-    maxmin_sock.send(str(num_worker).encode())
-    maxmin_sock.send(b'0')     # 이 부분은 첫 send 에서는 "0" 으로 교체
-    maxmin_sock.send(str(anchor_num).encode())
-    maxmin_sock.send(str(anchor_interval).encode())
+    maxmin_sock.send(b'0')
+    maxmin_sock.send(struct.pack('!i', num_worker))
+    maxmin_sock.send(struct.pack('!i', 0))     # 이 부분은 첫 send 에서는 "0" 으로 교체
+    maxmin_sock.send(struct.pack('!i', anchor_num))
+    maxmin_sock.send(struct.pack('!i', anchor_interval))
 
     # 원래 maxmin_output.txt 로 받았던 결과를 socket 으로 다시 받을 수 있음, socket 과 파일의 결과 전달 속도를 비교할 필요가 있음
     # socket 으로 결과를 전달한다면 list type 을 string 으로 바꿔 보내고 recv 후 eval 하면 됨
@@ -222,10 +226,18 @@ if False:
     # anchors = eval(maxmin_sock.recv(1024))
     # chuncks = eval(maxmin_sock.recv(1024))
 
+    maxmin_iter_end = maxmin_sock.recv(1).decode()
+
+    #if maxmin_iter_end == '0':
+
+    with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
+        lines = f.read().splitlines()
+        anchors, chunks = lines[0], lines[1:]
+
 
 # line 201 ~ 205 을 line 181 ~ 196 의 socket 통신으로 대체
 # max-min cut 실행, anchor 분배
-if True:
+if not use_socket:
 
     proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
     proc.wait()
@@ -262,7 +274,7 @@ for cur_iter in range(niter):
 
         # line 227 ~ 233 을 line 181 ~ 193 의 socket 통신으로 대체
         # entity partitioning: max-min cut 실행, anchor 등 재분배
-        if True:
+        if not use_socket:
 
             proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), str(cur_iter), str(anchor_num), str(anchor_interval)])
             proc.wait()
@@ -273,15 +285,19 @@ for cur_iter in range(niter):
 
         else:
 
-            maxmin_sock.send(b'work')
-            maxmin_sock.send(str(num_worker).encode())
-            maxmin_sock.send(str(cur_iter).encode())     # 이 부분은 첫 send 에서는 "0" 으로 교체
-            maxmin_sock.send(str(anchor_num).encode())
-            maxmin_sock.send(str(anchor_interval).encode())
+            maxmin_sock.send(b'0')
+            maxmin_sock.send(struct.pack('!i', num_worker))
+            maxmin_sock.send(struct.pack('!i', cur_iter))     # 이 부분은 첫 send 에서는 "0" 으로 교체
+            maxmin_sock.send(struct.pack('!i', anchor_num))
+            maxmin_sock.send(struct.pack('!i', anchor_interval))
 
-            maxmin_iter_end = maxmin_sock.recv(1024).decode()
+            maxmin_iter_end = maxmin_sock.recv(1).decode()
 
-            #if maxmin_iter_end == 'iterend':
+            #if maxmin_iter_end == '0':
+
+            with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
+                lines = f.read().splitlines()
+                anchors, chunks = lines[0], lines[1:]
 
 
     else:
@@ -301,7 +317,7 @@ for cur_iter in range(niter):
 # finally:
 # maxmin_sock.close()
 
-if False:
+if use_socket:
 
-    maxmin_sock.send('close')
+    maxmin_sock.send('1')
     maxmin_sock.close()

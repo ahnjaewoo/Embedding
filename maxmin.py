@@ -7,11 +7,15 @@ import nxmetis
 import sys
 import random
 import socket
+import struct
+
+
+use_socket = True
 
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
 # master.py 는 client
-if False:
+if use_socket:
 
     # master 와 maxmin 은 같은 ip 상에서 작동, 포트를 임의로 7847 로 지정
     maxmin_addr = '127.0.0.1'
@@ -72,22 +76,18 @@ if False:
 
         while True:
 
-            master_status = master_sock.recv(1024)
+            master_status = master_sock.recv(1).decode()
 
-            if master_status == 'close':
+            if master_status == '1':
 
                 # 연결을 끊음
                 maxmin_sock.close()
                 sys.exit(0)
 
-            partition_num = int(master_sock.recv(1024).decode())
-            cur_iter = (int(master_sock.recv(1024).decode()) + 1) // 2
-            anchor_num = int(master_sock.recv(1024).decode())
-            anchor_interval = int(master_sock.recv(1024).decode())
-
-            if not (partition_num and cur_iter and anchor_num and anchor_interval):
-
-                print('error : socket between master.py and maxmin.py')
+            partition_num = struct.unpack('!i', master_sock.recv(4))[0]
+            cur_iter = (struct.unpack('!i', master_sock.recv(4))[0] + 1) // 2
+            anchor_num = struct.unpack('!i', master_sock.recv(4))[0]
+            anchor_interval = struct.unpack('!i', master_sock.recv(4))[0]
 
             if cur_iter == 0:
 
@@ -166,7 +166,7 @@ if False:
 
             print("max-min cut finished - max-min time: {}".format((time()-t_)))
 
-            master_sock.send(b'iterend')
+            master_sock.send(b'0')
 
             # 작업 결과를 전송
             # 현재 anchor 와 nas 의 type 이 어찌된 지 몰라서 임시로 작성
