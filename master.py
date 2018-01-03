@@ -179,10 +179,12 @@ for worker in as_completed(workers):
 if False:
 
     import socket # 임시로 여기에 위치
+    import time
     proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
-    
+    time.sleep(3)
+
     maxmin_addr = '127.0.0.1'
-    maxmin_port = '7847'
+    maxmin_port = 7847
     maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     maxmin_sock.connect((maxmin_addr, maxmin_port))
 
@@ -205,11 +207,11 @@ if False:
 
     # try 가 들어가야 함 line 184 ~ 239 까지를 감쌈
 
-    maxmin_sock.send('work')
-    maxmin_sock.send(str(num_worker))
-    maxmin_sock.send(str(cur_iter))     # 이 부분은 첫 send 에서는 "0" 으로 교체
-    maxmin_sock.send(str(anchor_num))
-    maxmin_sock.send(str(anchor_interval))
+    maxmin_sock.send(b'work')
+    maxmin_sock.send(str(num_worker).encode())
+    maxmin_sock.send(b'0')     # 이 부분은 첫 send 에서는 "0" 으로 교체
+    maxmin_sock.send(str(anchor_num).encode())
+    maxmin_sock.send(str(anchor_interval).encode())
 
     # 원래 maxmin_output.txt 로 받았던 결과를 socket 으로 다시 받을 수 있음, socket 과 파일의 결과 전달 속도를 비교할 필요가 있음
     # socket 으로 결과를 전달한다면 list type 을 string 으로 바꿔 보내고 recv 후 eval 하면 됨
@@ -226,11 +228,7 @@ if False:
 if True:
 
     proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
-    maxmin_iter_end = maxmin_sock.recv(1024)
-
-    #if maxmin_iter_end == 'iterend':
-
-
+    proc.wait()
 
     with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
         lines = f.read().splitlines()
@@ -272,6 +270,20 @@ for cur_iter in range(niter):
             with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
                 lines = f.read().splitlines()
                 anchors, chunks = lines[0], lines[1:]
+
+        else:
+
+            maxmin_sock.send(b'work')
+            maxmin_sock.send(str(num_worker).encode())
+            maxmin_sock.send(str(cur_iter).encode())     # 이 부분은 첫 send 에서는 "0" 으로 교체
+            maxmin_sock.send(str(anchor_num).encode())
+            maxmin_sock.send(str(anchor_interval).encode())
+
+            maxmin_iter_end = maxmin_sock.recv(1024).decode()
+
+            #if maxmin_iter_end == 'iterend':
+
+
     else:
         # relation partitioning
         chunk_data = ''

@@ -15,7 +15,7 @@ if False:
 
     # master 와 maxmin 은 같은 ip 상에서 작동, 포트를 임의로 7847 로 지정
     maxmin_addr = '127.0.0.1'
-    maxmin_port = '7847'
+    maxmin_port = 7847
     maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     maxmin_sock.bind((maxmin_addr, maxmin_port))
     maxmin_sock.listen(1)
@@ -80,10 +80,10 @@ if False:
                 maxmin_sock.close()
                 sys.exit(0)
 
-            partition_num = int(master_sock.recv(1024))
-            cur_iter = (int(master_sock.recv(1024)) + 1) // 2
-            anchor_num = int(master_sock.recv(1024))
-            anchor_interval = int(master_sock.recv(1024))
+            partition_num = int(master_sock.recv(1024).decode())
+            cur_iter = (int(master_sock.recv(1024).decode()) + 1) // 2
+            anchor_num = int(master_sock.recv(1024).decode())
+            anchor_interval = int(master_sock.recv(1024).decode())
 
             if not (partition_num and cur_iter and anchor_num and anchor_interval):
 
@@ -166,7 +166,7 @@ if False:
 
             print("max-min cut finished - max-min time: {}".format((time()-t_)))
 
-            master_sock.send('iterend')
+            master_sock.send(b'iterend')
 
             # 작업 결과를 전송
             # 현재 anchor 와 nas 의 type 이 어찌된 지 몰라서 임시로 작성
