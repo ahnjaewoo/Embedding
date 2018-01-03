@@ -169,6 +169,13 @@ residue = non_anchor_id.difference(non_anchor_edge_included_vertex)
 for v in residue:
     parts[randint(0, partition_num - 1)].append(v)
 
+# printing the number of entities in each paritions
+print('# of entities in each partitions: [', end='')
+for i in range(partition_num):
+    print(len(parts[i]),end=' ',flush=True)
+else:
+    print(']')
+
 # writing output file
 with open(output_file, "w") as fwrite:
     fwrite.write(" ".join([str(i) for i in anchor])+"\n")
