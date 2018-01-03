@@ -319,5 +319,5 @@ for cur_iter in range(niter):
 
 if use_socket:
 
-    maxmin_sock.send('1')
+    maxmin_sock.send(b'1')
     maxmin_sock.close()
