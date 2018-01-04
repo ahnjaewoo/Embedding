@@ -16,7 +16,6 @@ use_socket = True
 # maxmin.cpp 가 server
 # master.py 는 client
 if use_socket:
-
     # master 와 maxmin 은 같은 ip 상에서 작동, 포트를 임의로 7847 로 지정
     maxmin_addr = '127.0.0.1'
     maxmin_port = 7847
@@ -73,13 +72,10 @@ if use_socket:
         edge_list.append((entity2id[hd], entity2id[tl]))
 
     try:
-
         while True:
-
             master_status = master_sock.recv(1).decode()
 
             if master_status == '1':
-
                 # 연결을 끊음
                 maxmin_sock.close()
                 sys.exit(0)
@@ -90,11 +86,9 @@ if use_socket:
             anchor_interval = struct.unpack('!i', master_sock.recv(4))[0]
 
             if cur_iter == 0:
-
                 anchor_dict = dict()
 
             else:
-
                 anchor_dict = old_anchor_dict
 
                 for it in range(anchor_interval):
@@ -148,12 +142,7 @@ if use_socket:
                 parts[randint(0, partition_num - 1)].append(v)
 
             # printing the number of entities in each paritions
-            print('# of entities in each partitions: [', end='')
-            for i in range(partition_num):
-                print(len(parts[i]),end=' ',flush=True)
-            else:
-                print(']')
-
+            print('# of entities in each partitions: [%s]', " ".join([len(p) for p in parts]))
 
 
             # writing output file
@@ -177,11 +166,9 @@ if use_socket:
             #master_sock.send(string(nas))
 
     except:
-
         maxmin_sock.close()
 
-if True:
-
+if False:
     t_ = time()
     root = 'fb15k'
     data_files = ['/train.txt','/dev.txt', '/test.txt']
@@ -296,11 +283,7 @@ if True:
         parts[randint(0, partition_num - 1)].append(v)
 
     # printing the number of entities in each paritions
-    print('# of entities in each partitions: [', end='')
-    for i in range(partition_num):
-        print(len(parts[i]),end=' ',flush=True)
-    else:
-        print(']')
+    print('# of entities in each partitions: [%s]', " ".join([len(p) for p in parts]))
 
     # writing output file
     with open(output_file, "w") as fwrite:

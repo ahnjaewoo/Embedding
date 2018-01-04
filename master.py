@@ -83,13 +83,6 @@ for i, (relation, num) in enumerate(relation_each_num):
     allocated_relation_worker[0][0].append(relation)
     allocated_relation_worker[0][1] += num
 
-#printing # of relations per each partitions
-print('# of relations per each partitions: [',end='')
-for c, (relation_list, num) in enumerate(allocated_relation_worker):
-    print(len(relation_list), end=' ')
-else:
-    print(']')
-
 sub_graphs = {}
 for c, (relation_list, num) in enumerate(allocated_relation_worker):
     g = []
