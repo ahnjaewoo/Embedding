@@ -378,6 +378,11 @@ public:
 				&& data_model.check_parts.find(i) != data_model.check_parts.end())
 				{
 					fout_entity << data_model.entity_id_to_name[i] << '\t';
+
+					send
+
+
+
 					for (int j =0; j < dim; j++)
 					{
 						fout_entity << embedding_entity[i](j) << " ";

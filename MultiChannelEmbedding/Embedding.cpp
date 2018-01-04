@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 	// IP addr / port are from master.py
 	int flag_iter;
 	int end_iter;
-	int len;
+	unsigned int len;
 	int embedding_sock, worker_sock;
 	struct sockaddr_in embedding_addr;
 	struct sockaddr_in worker_addr;
@@ -72,6 +72,8 @@ int main(int argc, char* argv[])
 	}
 
 	while (1){
+
+		len = sizeof(worker_addr);
 
 		if ((worker_sock = accept(embedding_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
 
