@@ -142,7 +142,7 @@ if use_socket:
                 parts[randint(0, partition_num - 1)].append(v)
 
             # printing the number of entities in each paritions
-            print('# of entities in each partitions: [%s]', " ".join([len(p) for p in parts]))
+            print('# of entities in each partitions: [%s]' % " ".join([len(p) for p in parts]))
 
 
             # writing output file
@@ -283,7 +283,7 @@ if False:
         parts[randint(0, partition_num - 1)].append(v)
 
     # printing the number of entities in each paritions
-    print('# of entities in each partitions: [%s]', " ".join([len(p) for p in parts]))
+    print('# of entities in each partitions: [%s]' % " ".join([len(p) for p in parts]))
 
     # writing output file
     with open(output_file, "w") as fwrite:
