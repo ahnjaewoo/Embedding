@@ -4,6 +4,15 @@
 #include "DataModel.hpp"
 #include "Model.hpp"
 
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
 class TransE
 	:public Model
 {
@@ -42,6 +51,7 @@ public:
 		{
 			for_each(embedding_entity.begin(), embedding_entity.end(), [=](vec& elem) {elem = vec(dim); });
 			for_each(embedding_relation.begin(), embedding_relation.end(), [=](vec& elem) {elem = vec(dim); });
+			// if use socket, cannot load here, load on Embedding.cpp
 			load("");
 		}
 		else
@@ -438,6 +448,53 @@ public:
 			fout_relation.close();
 		}
 	}
+
+	// receive data from socket
+	/*
+	virtual void load(const string& filename) override
+	{
+		ifstream fin_entity("../tmp/entity_vectors.txt", ios::binary);
+		ifstream fin_relation("../tmp/relation_vectors.txt", ios::binary);
+
+		string key;
+
+
+		for (int i = 0; i < count_entity(); i++)
+		{
+			fin_entity >> key;
+			if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
+			{
+				cout << "entity key does not exist! entity number : " << i << endl;
+				return;
+			}
+			int entity_id = data_model.entity_name_to_id.at(key);
+
+			for (int j = 0; j < dim; j++)
+			{
+				fin_entity >> embedding_entity[entity_id](j);
+			}
+		}
+
+		for (int i = 0; i < count_relation(); i++)
+		{
+			fin_relation >> key;
+			if (data_model.relation_name_to_id.find(key) == data_model.relation_name_to_id.end())
+			{
+				cout << "relation key does not exist!" << endl;
+				return;
+			}
+			int relation_id = data_model.relation_name_to_id.at(key);
+
+			for (int j = 0; j < dim; j++)
+			{
+				fin_relation >> embedding_relation[relation_id](j);
+			}
+		}
+
+		fin_entity.close();
+		fin_relation.close();
+	}
+	*/
 
 	virtual void load(const string& filename) override
 	{

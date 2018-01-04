@@ -12,6 +12,10 @@ import pickle
 from time import time
 
 
+import socket
+import time as tt
+import struct
+
 parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
 parser.add_argument('--num_worker', type=int, default=2, help='number of workers')
 parser.add_argument('--data_root', type=str, default='./fb15k', help='root directory of data')
@@ -185,9 +189,6 @@ use_socket = True
 # master.py 는 client
 if use_socket:
 
-    import socket # 임시로 여기에 위치
-    import time as tt
-    import struct
     proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
     tt.sleep(3)
 
