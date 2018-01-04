@@ -36,18 +36,21 @@ int main(int argc, char* argv[])
 	int master_epoch = 0;
 	int is_final = 0;
 
-	/*
+	
 
 	// embedding.cpp is server
-	// worker.ph is client
+	// worker.py is client
 	// IP addr / port are from master.py
 	int len;
+	int embedding_sock;
 	struct sockaddr_in embedding_addr;
 	struct sockaddr_in worker_addr;
 	bzero((char *)&embedding_addr, sizeof(embedding_addr));
 	embedding_addr.sin_family = AF_INET;
 	embedding_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	embedding_addr.sin_port = htons(47500);
+
+	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, is_final);
 
 	// create socket and check it is valid
 	if ((embedding_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
@@ -65,51 +68,77 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	while(1){
+	while (1){
 
 		if ((worker_sock = accept(embedding_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
 
 			return -1;
 		}
 
-		// get args, to be modified
-		msg_len = recv(worker_sock, buff, len, 0);
+		while (1){
+
+			if (recv(worker_sock, buff, len, 0) <= 0){
+
+				close(worker_sock);
+				break;
+			}
+
+			if (buf[0] == 1){
+
+				close(worker_sock);
+				break;
+			}
 
 
-		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch);
 
-			//calculating training time
-		clock_t before, after;
-		before = clock();
 
-		model->run(1000);
 
-		after = clock();
-		cout << "training training_data time :  " << (double)(after - before) / CLOCKS_PER_SEC << "seconds" << endl;
 
-		//after training, put entities and relations into txt file
-		model->save(to_string(worker_num));
 
-		if (is_final){
-	
-			model->test();
-			delete model;
-			close(worker_sock);
-			
-			break;
-		}
-		else {
-	
-			delete model;
+			// get args, to be modified
+			msg_len = recv(worker_sock, buff, len, 0);
 
-			// reconnect to worker.py
-			close(worker_sock);
+
+			model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch);
+
+				//calculating training time
+			clock_t before, after;
+			before = clock();
+
+			model->run(1000);
+
+			after = clock();
+			cout << "training training_data time :  " << (double)(after - before) / CLOCKS_PER_SEC << "seconds" << endl;
+
+			//after training, put entities and relations into txt file
+			model->save(to_string(worker_num));
+
+			if (is_final){
 		
-			// TODO : model->save using socket communication
+				model->test();
+				delete model;
+				close(worker_sock);
+				
+				break;
+			}
+			else {
+		
+				delete model;
+
+				// reconnect to worker.py
+				close(worker_sock);
+			
+				// TODO : model->save using socket communication
+			}
 		}
 	}
 
-	*/
+	
+
+
+
+
+	/*
 
 	// Model* model = nullptr;
 	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, is_final);
@@ -134,11 +163,7 @@ int main(int argc, char* argv[])
 
 	delete model;
 
-
-
-	//------------ socket while end
-
-
+	*/
 
 	return 0;
 }

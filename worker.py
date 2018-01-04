@@ -14,16 +14,7 @@ embedding_dim = sys.argv[4]
 learning_rate = sys.argv[5]
 margin = sys.argv[6]
 is_final = sys.argv[7]
-
-#embedding_ip = sys.argv[8]
-#embedding_port = sys.argv[9]
-
-
-
-
-
 root_dir = "/home/rudvlf0413/distributedKGE/Embedding"
-
 
 # redis에서 embedding vector들 받아오기
 t_ = time()
