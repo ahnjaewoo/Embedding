@@ -41,9 +41,10 @@ int main(int argc, char* argv[])
 	// embedding.cpp is server
 	// worker.py is client
 	// IP addr / port are from master.py
+	int flag_iter;
 	int end_iter;
 	int len;
-	int embedding_sock;
+	int embedding_sock, worker_sock;
 	struct sockaddr_in embedding_addr;
 	struct sockaddr_in worker_addr;
 
@@ -79,13 +80,13 @@ int main(int argc, char* argv[])
 
 		while (1){
 
-			if (recv(worker_sock, buff, len, 0) < 0){
+			if (recv(worker_sock, &flag_iter, sizeof(flag_iter), 0) < 0){
 
 				close(worker_sock);
 				break;
 			}
 
-			if (buf[0] == 1){
+			if (ntohl(flag_iter) == 1){
 
 				close(worker_sock);
 				break;
