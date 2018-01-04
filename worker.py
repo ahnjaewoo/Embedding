@@ -79,18 +79,18 @@ if use_socket:
         tt.sleep(2)
 
     embedding_addr = '0.0.0.0'  # 이게 맞는 건지 확실치 않음
-    embedding_port = 49900 + int(worker_id) # worker_id 를 기반으로 포트를 생성
+    embedding_port = 49900 + int(worker_id.split('_')[1]) # worker_id 를 기반으로 포트를 생성
     embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     embedding_sock.connect((embedding_addr, embedding_port))
 
 
-    embedding_sock.send(strcut.pack('!i', 0))                        # 연산 요청 메시지
-    embedding_sock.send(strcut.pack('!i', int(worker_id)))           # int
-    embedding_sock.send(strcut.pack('!i', int(cur_iter)))            # int
-    embedding_sock.send(strcut.pack('!i', int(embedding_dim)))       # int
-    embedding_sock.send(strcut.pack('d', float(learning_rate)))      # double   endian 때문에 문제 생길 수 있음
-    embedding_sock.send(strcut.pack('d', float(margin)))             # double   endian 때문에 문제 생길 수 있음
-    embedding_sock.send(strcut.pack('!i', int(is_final)))            # int
+    embedding_sock.send(struct.pack('!i', 0))                        # 연산 요청 메시지
+    embedding_sock.send(struct.pack('!i', int(worker_id.split('_')[1])))           # int 임시 땜빵, 매우 큰 문제
+    embedding_sock.send(struct.pack('!i', int(cur_iter)))            # int
+    embedding_sock.send(struct.pack('!i', int(embedding_dim)))       # int
+    embedding_sock.send(struct.pack('d', float(learning_rate)))      # double   endian 때문에 문제 생길 수 있음
+    embedding_sock.send(struct.pack('d', float(margin)))             # double   endian 때문에 문제 생길 수 있음
+    embedding_sock.send(struct.pack('!i', int(is_final)))            # int
 
 
 

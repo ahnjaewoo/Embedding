@@ -139,7 +139,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, is_final):
     if cur_iter == 0:
 
         proc = Popen([f"{root_dir}/MultiChannelEmbedding/Embedding.out", worker_id, \
-            cur_iter, embedding_dim, learning_rate, margin, is_final], cwd=f'{root_dir}/preprocess/')
+            str(cur_iter), str(n_dim), str(lr), str(margin), str(is_final)], cwd=f'{root_dir}/preprocess/')
 
     proc = Popen([
         "python", f"{root_dir}/worker.py", chunk_data,

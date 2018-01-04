@@ -72,6 +72,10 @@ if use_socket:
         edge_list.append((entity2id[hd], entity2id[tl]))
 
     try:
+
+        # try 안 어딘가에서 문제가 발생함
+
+
         while True:
             master_status = master_sock.recv(1).decode()
 

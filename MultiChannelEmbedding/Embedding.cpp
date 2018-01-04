@@ -181,7 +181,7 @@ int main(int argc, char* argv[])
 				delete model;
 
 				// reconnect to worker.py
-				close(worker_sock);
+				//close(worker_sock);
 			
 				// TODO : model->save using socket communication
 			}
@@ -227,6 +227,7 @@ void getParams(int argc, char* argv[], int& dim, double& alpha, double& training
 {
 	if (argc == 2)
 	{
+		// very big problem for scaling!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		string worker = argv[1];
 		worker_num = worker.back() - '0';
 	}
