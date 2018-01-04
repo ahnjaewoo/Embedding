@@ -368,24 +368,35 @@ public:
 	/*
 	virtual void save(int sock_fd) override
 	{
+
+		int string_len;
+		int count;
+		double value_to_send;
+
 		// master_epoch이 짝수일 때 (entity embedding ㄱㄱ)
 		if (master_epoch % 2 == 0)
 		{
-			ofstream fout_entity("../tmp/entity_vectors_updated_" + filename + ".txt", ios::binary);
+			//ofstream fout_entity("../tmp/entity_vectors_updated_" + filename + ".txt", ios::binary);
+
+			count = count_entity();
+			send(sock_fd, &count, sizeof(count), 0);
+
 			for (int i = 0; i < count_entity(); i++)
 			{
 				if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
 				&& data_model.check_parts.find(i) != data_model.check_parts.end())
 				{
-					fout_entity << data_model.entity_id_to_name[i] << '\t';
+					//fout_entity << data_model.entity_id_to_name[i] << '\t';
 
-					send
-
-
+					string_len = strlen(data_model.entity_id_to_name[i].c_str());
+					send(sock_fd, &string_len, sizeof(string_len), 0);
+					send(sock_fd, data_model.entity_id_to_name[i].c_str() , string_len, 0);
 
 					for (int j =0; j < dim; j++)
 					{
-						fout_entity << embedding_entity[i](j) << " ";
+						//fout_entity << embedding_entity[i](j) << " ";
+						value_to_send = embedding_entity[i](j);
+						send(sock_fd, &value_to_send, sizeof(value_to_send), 0);
 					}
 					fout_entity << '\n';
 				}
@@ -395,15 +406,26 @@ public:
 		// master_epoch이 홀수일 때 (relation embedding ㄱㄱ)
 		else
 		{
-			ofstream fout_relation("../tmp/relation_vectors_updated_" + filename + ".txt", ios::binary);
+			//ofstream fout_relation("../tmp/relation_vectors_updated_" + filename + ".txt", ios::binary);
+
+			count = count_relation();
+			send(sock_fd, &count, sizeof(count), 0);
+
 			for (int i = 0; i < count_relation(); i++)
 			{
 				if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end())
 				{
-					fout_relation << data_model.relation_id_to_name[i] << '\t';
+					//fout_relation << data_model.relation_id_to_name[i] << '\t';
+
+					string_len = strlen(data_model.relation_id_to_name[i].c_str());
+					send(sock_fd, &string_len, sizeof(string_len), 0);
+					send(sock_fd, data_model.relation_id_to_name[i].c_str() , string_len, 0);
+
 					for (int j = 0; j < dim; j++)
 					{
-						fout_relation << embedding_relation[i](j) << " ";
+						//fout_relation << embedding_relation[i](j) << " ";
+						value_to_send = embedding_relation[i](j);
+						send(sock_fd, &value_to_send, sizeof(value_to_send), 0);
 					}
 					fout_relation << '\n';
 				}
