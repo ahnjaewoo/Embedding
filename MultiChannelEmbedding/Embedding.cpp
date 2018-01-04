@@ -93,37 +93,37 @@ int main(int argc, char* argv[])
 
 
 			// receive data
-			if(recv(clientSocket, &worker_num, sizeof(worker_num), 0) < 0){
+			if(recv(worker_sock, &worker_num, sizeof(worker_num), 0) < 0){
 
 				close(worker_sock);
 				break;
 			}
 
-			if(recv(clientSocket, &master_epoch, sizeof(master_epoch), 0) < 0){
+			if(recv(worker_sock, &master_epoch, sizeof(master_epoch), 0) < 0){
 
 				close(worker_sock);
 				break;
 			}
 
-			if(recv(clientSocket, &dim, sizeof(dim), 0) < 0){
+			if(recv(worker_sock, &dim, sizeof(dim), 0) < 0){
 
 				close(worker_sock);
 				break;
 			}
 
-			if(recv(clientSocket, &alpha, sizeof(alpha), 0) < 0){
+			if(recv(worker_sock, &alpha, sizeof(alpha), 0) < 0){
 
 				close(worker_sock);
 				break;
 			}
 
-			if(recv(clientSocket, &training_threshold, sizeof(training_threshold), 0) < 0){
+			if(recv(worker_sock, &training_threshold, sizeof(training_threshold), 0) < 0){
 
 				close(worker_sock);
 				break;
 			}
 
-			if(recv(clientSocket, &is_final, sizeof(is_final), 0) < 0){
+			if(recv(worker_sock, &is_final, sizeof(is_final), 0) < 0){
 
 				close(worker_sock);
 				break;
