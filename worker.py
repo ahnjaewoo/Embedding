@@ -108,14 +108,60 @@ if use_socket:
     w_id = worker_id.split('_')[1]
     t_ = time()
     if int(cur_iter) % 2 == 0:
-        entity_vectors = {}
+        entity_vectors = dict()
+
+        # socket 에서 처리 결과를 받아옴
+        # GeometricModel.cpp 의 save 에서 처리
+        # 이 부분을 활성화하면, 위의 barrier 를 제거해야 함
+        """
+        count_entity = struct.unpack('!i', embedding_sock.recv(4))[0]
+
+        for entity_idx in range(count_entity):
+
+            temp_entity_vector = list()
+            entity_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
+            entity_id = struct.unpack('!s', embedding_sock.recv(entity_id_len))[0]
+
+            for dim_idx in range(int(embedding_dim)):
+
+                temp_entity_vector.append(struct.unpack('d', embedding_sock.recv(8))[0])
+
+            entity_vectors[entity_id + '_v'] = pickle.dumps(np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
+        r.mset(entity_vectors)
+        """
+
         with open(f"{root_dir}/tmp/entity_vectors_updated_{w_id}.txt", 'r') as f:
             for line in f:
                 line = line[:-1].split()
                 entity_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
         r.mset(entity_vectors)
+   
     else:
-        relation_vectors = {}
+        relation_vectors = dict()
+
+
+        # socket 에서 처리 결과를 받아옴
+        # GeometricModel.cpp 의 save 에서 처리
+        # 이 부분을 활성화하면, 위의 barrier 를 제거해야 함
+        """
+        count_relation = struct.unpack('!i', embedding_sock.recv(4))[0]
+
+        for relation_idx in range(count_relation):
+
+            temp_relation_vector = list()
+            relation_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
+            relation_id = struct.unpack('!s', embedding_sock.recv(relation_id_len))[0]
+
+            for dim_idx in range(int(embedding_dim)):
+
+                temp_relation_vector.append(struct.unpack('d', embedding_sock.recv(8))[0])
+
+            relation_vectors[relation_id + '_v'] = pickle.dumps(np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
+        r.mset(relation_vectors)
+        """
+
+
+
         with open(f"{root_dir}/tmp/relation_vectors_updated_{w_id}.txt", 'r') as f:
             for line in f:
                 line = line[:-1].split()
@@ -124,12 +170,6 @@ if use_socket:
 
     print("redis server connection time: %f" % (time()-t_))
     print(f"{worker_id}: {cur_iter} iteration finished!")
-
-
-
-
-
-
 
 
 
