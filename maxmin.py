@@ -149,6 +149,13 @@ if use_socket:
         # printing the number of entities in each paritions
         print('# of entities in each partitions: [%s]' % " ".join([str(len(p)) for p in parts]))
 
+
+
+
+        # 밑의 부분을 socket 으로 전송해야 함
+
+
+
         # writing output file
         with open(output_file, "w") as fwrite:
             fwrite.write(" ".join([str(i) for i in anchor])+"\n")

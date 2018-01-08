@@ -144,7 +144,10 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, is_final):
     proc = Popen([
         "python", f"{root_dir}/worker.py", chunk_data,
         str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(is_final)])
-    proc.wait()
+    
+
+    # proc.wait() 가 없어야 할 듯
+    #proc.wait()
     return f"{worker_id}: {cur_iter} iteration finished"
 
 def savePreprocessedData(data, worker_id):
@@ -217,10 +220,31 @@ if use_socket:
     # anchors = eval(maxmin_sock.recv(1024))
     # chuncks = eval(maxmin_sock.recv(1024))
 
+
+
+
+
+
+
+    # maxmin 의 결과를 파일로 전송하지 않고 소켓으로 전송하면 아래 줄은 필요 없음
     maxmin_iter_end = maxmin_sock.recv(1).decode()
 
-    #if maxmin_iter_end == '0':
 
+
+    """
+    # writing output file
+    with open(output_file, "w") as fwrite:
+        fwrite.write(" ".join([str(i) for i in anchor])+"\n")
+        print(len(" ".join([str(i) for i in anchor])))
+        for nas in parts:
+            fwrite.write(" ".join([str(i) for i in nas])+"\n")
+            print(len(" ".join([str(i) for i in nas])))
+    """
+
+
+
+
+    # maxmin 의 결과를 파일로 전송하지 않고 소켓으로 전송
     with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
         lines = f.read().splitlines()
         anchors, chunks = lines[0], lines[1:]
@@ -236,6 +260,18 @@ if not use_socket:
     with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
         lines = f.read().splitlines()
         anchors, chunks = lines[0], lines[1:]
+
+
+
+
+
+
+
+
+
+
+
+
 
 for cur_iter in range(niter):
     t_ = time()
@@ -282,6 +318,9 @@ for cur_iter in range(niter):
             maxmin_sock.send(struct.pack('!i', anchor_num))
             maxmin_sock.send(struct.pack('!i', anchor_interval))
 
+
+
+            # maxmin 결과를 소켓으로 전송하면 아래 줄은 필요 없음
             maxmin_iter_end = maxmin_sock.recv(1).decode()
 
             #if maxmin_iter_end == '0':
