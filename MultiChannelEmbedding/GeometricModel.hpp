@@ -4,6 +4,15 @@
 #include "DataModel.hpp"
 #include "Model.hpp"
 
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
 class TransE
 	:public Model
 {
@@ -42,6 +51,7 @@ public:
 		{
 			for_each(embedding_entity.begin(), embedding_entity.end(), [=](vec& elem) {elem = vec(dim); });
 			for_each(embedding_relation.begin(), embedding_relation.end(), [=](vec& elem) {elem = vec(dim); });
+			// if use socket, cannot load here, load on Embedding.cpp
 			load("");
 		}
 		else
@@ -353,6 +363,78 @@ public:
 		return embedding_relation[relation_id];
 	}
 
+
+	// not save, send data using socket
+	/*
+	virtual void save(int sock_fd) override
+	{
+
+		int string_len;
+		int count;
+		double value_to_send;
+
+		// master_epoch이 짝수일 때 (entity embedding ㄱㄱ)
+		if (master_epoch % 2 == 0)
+		{
+			//ofstream fout_entity("../tmp/entity_vectors_updated_" + filename + ".txt", ios::binary);
+
+			count = count_entity();
+			send(sock_fd, &count, sizeof(count), 0);
+
+			for (int i = 0; i < count_entity(); i++)
+			{
+				if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+				&& data_model.check_parts.find(i) != data_model.check_parts.end())
+				{
+					//fout_entity << data_model.entity_id_to_name[i] << '\t';
+
+					string_len = strlen(data_model.entity_id_to_name[i].c_str());
+					send(sock_fd, &string_len, sizeof(string_len), 0);
+					send(sock_fd, data_model.entity_id_to_name[i].c_str() , string_len, 0);
+
+					for (int j =0; j < dim; j++)
+					{
+						//fout_entity << embedding_entity[i](j) << " ";
+						value_to_send = embedding_entity[i](j);
+						send(sock_fd, &value_to_send, sizeof(value_to_send), 0);
+					}
+					fout_entity << '\n';
+				}
+			}
+			fout_entity.close();
+		}
+		// master_epoch이 홀수일 때 (relation embedding ㄱㄱ)
+		else
+		{
+			//ofstream fout_relation("../tmp/relation_vectors_updated_" + filename + ".txt", ios::binary);
+
+			count = count_relation();
+			send(sock_fd, &count, sizeof(count), 0);
+
+			for (int i = 0; i < count_relation(); i++)
+			{
+				if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end())
+				{
+					//fout_relation << data_model.relation_id_to_name[i] << '\t';
+
+					string_len = strlen(data_model.relation_id_to_name[i].c_str());
+					send(sock_fd, &string_len, sizeof(string_len), 0);
+					send(sock_fd, data_model.relation_id_to_name[i].c_str() , string_len, 0);
+
+					for (int j = 0; j < dim; j++)
+					{
+						//fout_relation << embedding_relation[i](j) << " ";
+						value_to_send = embedding_relation[i](j);
+						send(sock_fd, &value_to_send, sizeof(value_to_send), 0);
+					}
+					fout_relation << '\n';
+				}
+			}
+			fout_relation.close();
+		}
+	}
+	*/
+
 	virtual void save(const string& filename) override
 	{
 		// master_epoch이 짝수일 때 (entity embedding ㄱㄱ)
@@ -393,6 +475,53 @@ public:
 			fout_relation.close();
 		}
 	}
+
+	// receive data from socket
+	/*
+	virtual void load(const string& filename) override
+	{
+		ifstream fin_entity("../tmp/entity_vectors.txt", ios::binary);
+		ifstream fin_relation("../tmp/relation_vectors.txt", ios::binary);
+
+		string key;
+
+
+		for (int i = 0; i < count_entity(); i++)
+		{
+			fin_entity >> key;
+			if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
+			{
+				cout << "entity key does not exist! entity number : " << i << endl;
+				return;
+			}
+			int entity_id = data_model.entity_name_to_id.at(key);
+
+			for (int j = 0; j < dim; j++)
+			{
+				fin_entity >> embedding_entity[entity_id](j);
+			}
+		}
+
+		for (int i = 0; i < count_relation(); i++)
+		{
+			fin_relation >> key;
+			if (data_model.relation_name_to_id.find(key) == data_model.relation_name_to_id.end())
+			{
+				cout << "relation key does not exist!" << endl;
+				return;
+			}
+			int relation_id = data_model.relation_name_to_id.at(key);
+
+			for (int j = 0; j < dim; j++)
+			{
+				fin_relation >> embedding_relation[relation_id](j);
+			}
+		}
+
+		fin_entity.close();
+		fin_relation.close();
+	}
+	*/
 
 	virtual void load(const string& filename) override
 	{

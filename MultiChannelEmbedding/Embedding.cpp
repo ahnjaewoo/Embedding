@@ -36,18 +36,24 @@ int main(int argc, char* argv[])
 	int master_epoch = 0;
 	int is_final = 0;
 
-	/*
+	
 
 	// embedding.cpp is server
-	// worker.ph is client
+	// worker.py is client
 	// IP addr / port are from master.py
-	int len;
+	int flag_iter;
+	int end_iter;
+	unsigned int len;
+	int embedding_sock, worker_sock;
 	struct sockaddr_in embedding_addr;
 	struct sockaddr_in worker_addr;
+
+	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, is_final);
+
 	bzero((char *)&embedding_addr, sizeof(embedding_addr));
 	embedding_addr.sin_family = AF_INET;
-	embedding_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-	embedding_addr.sin_port = htons(47500);
+	embedding_addr.sin_addr.s_addr = inet_addr("0.0.0.0");
+	embedding_addr.sin_port = htons(49900 + worker_num);
 
 	// create socket and check it is valid
 	if ((embedding_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
@@ -65,51 +71,129 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	while(1){
+	while (1){
+
+		len = sizeof(worker_addr);
 
 		if ((worker_sock = accept(embedding_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
 
 			return -1;
 		}
 
-		// get args, to be modified
-		msg_len = recv(worker_sock, buff, len, 0);
+		while (1){
+
+			if (recv(worker_sock, &flag_iter, sizeof(flag_iter), 0) < 0){
+
+				close(worker_sock);
+				break;
+			}
+
+			if (ntohl(flag_iter) == 1){
+
+				close(worker_sock);
+				break;
+			}
 
 
-		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch);
+			// receive data
+			if(recv(worker_sock, &worker_num, sizeof(worker_num), 0) < 0){
+
+				close(worker_sock);
+				break;
+			}
+
+			if(recv(worker_sock, &master_epoch, sizeof(master_epoch), 0) < 0){
+
+				close(worker_sock);
+				break;
+			}
+
+			if(recv(worker_sock, &dim, sizeof(dim), 0) < 0){
+
+				close(worker_sock);
+				break;
+			}
+
+			if(recv(worker_sock, &alpha, sizeof(alpha), 0) < 0){
+
+				close(worker_sock);
+				break;
+			}
+
+			if(recv(worker_sock, &training_threshold, sizeof(training_threshold), 0) < 0){
+
+				close(worker_sock);
+				break;
+			}
+
+			if(recv(worker_sock, &is_final, sizeof(is_final), 0) < 0){
+
+				close(worker_sock);
+				break;
+			}
+
+			worker_num = ntohl(worker_num);
+			master_epoch = ntohl(master_epoch);
+			dim = ntohl(dim);
+			is_final = ntohl(is_final);
+
+			/*
+			embedding_sock.send(strcut.pack('!i', int(worker_id)))           # int, worker_num
+			embedding_sock.send(strcut.pack('!i', int(cur_iter)))            # int, master_epoch
+			embedding_sock.send(strcut.pack('!i', int(embedding_dim)))       # int, dim
+			embedding_sock.send(strcut.pack('d', float(learning_rate)))      # double, alpha
+			embedding_sock.send(strcut.pack('d', float(margin)))             # double, training_threshold
+			embedding_sock.send(strcut.pack('!i', int(is_final)))            # int, is_final
+			*/
+
+			model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch);
+			//model->load(worker_sock);
 
 			//calculating training time
-		clock_t before, after;
-		before = clock();
+			clock_t before, after;
+			before = clock();
 
-		model->run(1000);
+			model->run(1000);
 
-		after = clock();
-		cout << "training training_data time :  " << (double)(after - before) / CLOCKS_PER_SEC << "seconds" << endl;
+			after = clock();
+			cout << "training training_data time :  " << (double)(after - before) / CLOCKS_PER_SEC << "seconds" << endl;
 
-		//after training, put entities and relations into txt file
-		model->save(to_string(worker_num));
+			//after training, put entities and relations into txt file
+			model->save(to_string(worker_num));
+			//model->save(worker_sock);
 
-		if (is_final){
-	
-			model->test();
-			delete model;
-			close(worker_sock);
-			
-			break;
-		}
-		else {
-	
-			delete model;
+			end_iter = 0;
+			end_iter = htonl(end_iter);
+			send(worker_sock, &end_iter, sizeof(end_iter), 0);
 
-			// reconnect to worker.py
-			close(worker_sock);
+
+
+			if (is_final){
 		
-			// TODO : model->save using socket communication
+				model->test();
+				delete model;
+				close(worker_sock);
+				
+				break;
+			}
+			else {
+		
+				delete model;
+
+				// reconnect to worker.py
+				//close(worker_sock);
+			
+				// TODO : model->save using socket communication
+			}
 		}
 	}
 
-	*/
+	
+
+
+
+
+	/*
 
 	// Model* model = nullptr;
 	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, is_final);
@@ -134,11 +218,7 @@ int main(int argc, char* argv[])
 
 	delete model;
 
-
-
-	//------------ socket while end
-
-
+	*/
 
 	return 0;
 }
@@ -147,6 +227,7 @@ void getParams(int argc, char* argv[], int& dim, double& alpha, double& training
 {
 	if (argc == 2)
 	{
+		// very big problem for scaling!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		string worker = argv[1];
 		worker_num = worker.back() - '0';
 	}

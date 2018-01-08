@@ -71,102 +71,110 @@ if use_socket:
     for (hd, tl) in entity_graph:
         edge_list.append((entity2id[hd], entity2id[tl]))
 
-    try:
-        while True:
-            master_status = master_sock.recv(1).decode()
 
-            if master_status == '1':
-                # 연결을 끊음
-                maxmin_sock.close()
-                sys.exit(0)
 
-            partition_num = struct.unpack('!i', master_sock.recv(4))[0]
-            cur_iter = (struct.unpack('!i', master_sock.recv(4))[0] + 1) // 2
-            anchor_num = struct.unpack('!i', master_sock.recv(4))[0]
-            anchor_interval = struct.unpack('!i', master_sock.recv(4))[0]
 
-            if cur_iter == 0:
-                anchor_dict = dict()
 
+    # while 안에서 문제가 발생함
+
+    while True:
+        master_status = master_sock.recv(1).decode()
+
+        if master_status == '1':
+            # 연결을 끊음
+            maxmin_sock.close()
+            sys.exit(0)
+
+        partition_num = struct.unpack('!i', master_sock.recv(4))[0]
+        cur_iter = (struct.unpack('!i', master_sock.recv(4))[0] + 1) // 2
+        anchor_num = struct.unpack('!i', master_sock.recv(4))[0]
+        anchor_interval = struct.unpack('!i', master_sock.recv(4))[0]
+
+        if cur_iter == 0:
+            anchor_dict = dict()
+
+        else:
+            anchor_dict = old_anchor_dict
+
+            for it in range(anchor_interval):
+                if it in anchor_dict.keys():
+                    for a in anchor_dict[it]:
+                        old_anchor.add(a)
+
+        # while len(anchor) < anchor_num:
+        for i in range(anchor_num):
+            best = None
+            best_score = 0
+            for vertex in entities_id.difference(anchor.union(old_anchor)):
+                # getting degree(v)
+                if len(connected_entity[vertex]) <= best_score:
+                    continue
+
+                score = len(connected_entity[vertex].difference(anchor))
+                if score > best_score or (score == best_score and random.choice([True, False])):
+                    best = vertex
+                    best_score = score
+
+            if best == None:
+                print("no vertex added to anchor")
             else:
-                anchor_dict = old_anchor_dict
+                anchor.add(best)
 
-                for it in range(anchor_interval):
-                    if it in anchor_dict.keys():
-                        for a in anchor_dict[it]:
-                            old_anchor.add(a)
+        anchor_dict[cur_iter % anchor_interval] = anchor
+        old_anchor_dict = anchor_dict
 
-            # while len(anchor) < anchor_num:
-            for i in range(anchor_num):
-                best = None
-                best_score = 0
-                for vertex in entities_id.difference(anchor.union(old_anchor)):
-                    # getting degree(v)
-                    if len(connected_entity[vertex]) <= best_score:
-                        continue
+        # solve the min-cut partition problem of A~, finding A~ and edges
+        non_anchor_id = entities_id.difference(anchor)
+        non_anchor_edge_list = [(h, t) for (h, t) in edge_list if h in non_anchor_id and t in non_anchor_id]
+        for (h, t) in non_anchor_edge_list:
+            non_anchor_edge_included_vertex.add(h)
+            non_anchor_edge_included_vertex.add(t) 
 
-                    score = len(connected_entity[vertex].difference(anchor))
-                    if score > best_score or (score == best_score and random.choice([True, False])):
-                        best = vertex
-                        best_score = score
+        # constructing nx.Graph and using metis in order to get min-cut partition
+        G = nx.Graph()
+        G.add_edges_from(non_anchor_edge_list)
 
-                if best == None:
-                    print("no vertex added to anchor")
-                else:
-                    anchor.add(best)
+        options = nxmetis.MetisOptions(     # objtype=1 => vol
+            ptype=-1, objtype=1, ctype=-1, iptype=-1, rtype=-1, ncuts=-1,
+            nseps=-1, numbering=-1, niter=cur_iter, seed=-1, minconn=-1, no2hop=-1,
+            contig=-1, compress=-1, ccorder=-1, pfactor=-1, ufactor=-1, dbglvl=-1)
 
-            anchor_dict[cur_iter % anchor_interval] = anchor
-            old_anchor_dict = anchor_dict
+        (edgecuts, parts) = nxmetis.partition(G, nparts=partition_num)
 
-            # solve the min-cut partition problem of A~, finding A~ and edges
-            non_anchor_id = entities_id.difference(anchor)
-            non_anchor_edge_list = [(h, t) for (h, t) in edge_list if h in non_anchor_id and t in non_anchor_id]
-            for (h, t) in non_anchor_edge_list:
-                non_anchor_edge_included_vertex.add(h)
-                non_anchor_edge_included_vertex.add(t) 
+        # putting residue randomly into non anchor set
+        residue = non_anchor_id.difference(non_anchor_edge_included_vertex)
+        for v in residue:
+            parts[randint(0, partition_num - 1)].append(v)
 
-            # constructing nx.Graph and using metis in order to get min-cut partition
-            G = nx.Graph()
-            G.add_edges_from(non_anchor_edge_list)
+        # printing the number of entities in each paritions
+        print('# of entities in each partitions: [%s]' % " ".join([str(len(p)) for p in parts]))
 
-            options = nxmetis.MetisOptions(     # objtype=1 => vol
-                ptype=-1, objtype=1, ctype=-1, iptype=-1, rtype=-1, ncuts=-1,
-                nseps=-1, numbering=-1, niter=cur_iter, seed=-1, minconn=-1, no2hop=-1,
-                contig=-1, compress=-1, ccorder=-1, pfactor=-1, ufactor=-1, dbglvl=-1)
+        # writing output file
+        with open(output_file, "w") as fwrite:
+            fwrite.write(" ".join([str(i) for i in anchor])+"\n")
+            print(len(" ".join([str(i) for i in anchor])))
+            for nas in parts:
+                fwrite.write(" ".join([str(i) for i in nas])+"\n")
+                print(len(" ".join([str(i) for i in nas])))
 
-            (edgecuts, parts) = nxmetis.partition(G, nparts=partition_num)
+        print("max-min cut finished - max-min time: {}".format((time()-t_)))
 
-            # putting residue randomly into non anchor set
-            residue = non_anchor_id.difference(non_anchor_edge_included_vertex)
-            for v in residue:
-                parts[randint(0, partition_num - 1)].append(v)
+        master_sock.send(b'0')
 
-            # printing the number of entities in each paritions
-            print('# of entities in each partitions: [%s]' % " ".join([len(p) for p in parts]))
+        # 작업 결과를 전송
+        # 현재 anchor 와 nas 의 type 이 어찌된 지 몰라서 임시로 작성
+        # string(anchor), string(nas) 를 socket 으로 전송 후 eval 해서 복구
+        # anchor 와 nas 를 string 으로 바꾸었을 때, 글자 수가 길다면 분할해서 전송해야 함
+        # 분할 전송을 하는 경우, anchor 와 nas 를 전송할 때 사용하는 규칙이 필요
+        #master_sock.send(string(anchor))
+        #master_sock.send(string(nas))
 
 
-            # writing output file
-            with open(output_file, "w") as fwrite:
-                fwrite.write(" ".join([str(i) for i in anchor])+"\n")
-                print(len(" ".join([str(i) for i in anchor])))
-                for nas in parts:
-                    fwrite.write(" ".join([str(i) for i in nas])+"\n")
-                    print(len(" ".join([str(i) for i in nas])))
 
-            print("max-min cut finished - max-min time: {}".format((time()-t_)))
 
-            master_sock.send(b'0')
 
-            # 작업 결과를 전송
-            # 현재 anchor 와 nas 의 type 이 어찌된 지 몰라서 임시로 작성
-            # string(anchor), string(nas) 를 socket 으로 전송 후 eval 해서 복구
-            # anchor 와 nas 를 string 으로 바꾸었을 때, 글자 수가 길다면 분할해서 전송해야 함
-            # 분할 전송을 하는 경우, anchor 와 nas 를 전송할 때 사용하는 규칙이 필요
-            #master_sock.send(string(anchor))
-            #master_sock.send(string(nas))
 
-    except:
-        maxmin_sock.close()
+
 
 if False:
     t_ = time()
@@ -283,7 +291,7 @@ if False:
         parts[randint(0, partition_num - 1)].append(v)
 
     # printing the number of entities in each paritions
-    print('# of entities in each partitions: [%s]' % " ".join([len(p) for p in parts]))
+    print('# of entities in each partitions: [%s]' % " ".join([str(len(p)) for p in parts]))
 
     # writing output file
     with open(output_file, "w") as fwrite:

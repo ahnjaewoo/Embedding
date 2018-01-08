@@ -12,6 +12,10 @@ import pickle
 from time import time
 
 
+import socket
+import time as tt
+import struct
+
 parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
 parser.add_argument('--num_worker', type=int, default=2, help='number of workers')
 parser.add_argument('--data_root', type=str, default='./fb15k', help='root directory of data')
@@ -129,12 +133,19 @@ def install_libs():
 
 
 def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, is_final):
+    
+    # 첫 iter 에서 embedding.cpp 를 실행해놓음
+    # 
+    if cur_iter == 0:
+
+        proc = Popen([f"{root_dir}/MultiChannelEmbedding/Embedding.out", worker_id, \
+            str(cur_iter), str(n_dim), str(lr), str(margin), str(is_final)], cwd=f'{root_dir}/preprocess/')
+
     proc = Popen([
         "python", f"{root_dir}/worker.py", chunk_data,
         str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(is_final)])
     proc.wait()
     return f"{worker_id}: {cur_iter} iteration finished"
-
 
 def savePreprocessedData(data, worker_id):
     from threading import Thread
@@ -178,9 +189,6 @@ use_socket = True
 # master.py 는 client
 if use_socket:
 
-    import socket # 임시로 여기에 위치
-    import time as tt
-    import struct
     proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
     tt.sleep(3)
 
@@ -188,20 +196,6 @@ if use_socket:
     maxmin_port = 7847
     maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     maxmin_sock.connect((maxmin_addr, maxmin_port))
-
-# embedding.cpp 를 num_worker 개수만큼 생성
-# embedding.cpp 는 생성된 후 socket server 로 연결을 대기
-if False:
-
-    embedding_sock_setting = list()
-
-    for i in range(num_worker):
-
-        embedding_ip = ''
-        embedding_port = ''               # port 가 각 프로세스 별로 변경되어야 함~!@#$%
-        proc = Popen([f"{root_dir}/MultiChannelEmbedding/Embedding.out", worker_id, \
-            cur_iter, embedding_dim, learning_rate, margin, is_final, embedding_ip, embedding_port], cwd=f'{root_dir}/preprocess/')
-        embedding_sock_setting.append((embedding_ip, embedding_port))
 
 # max-min process 의 socket 으로 anchor 분배, 실행
 if use_socket:
