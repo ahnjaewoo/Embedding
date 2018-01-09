@@ -140,36 +140,27 @@ int main(int argc, char* argv[])
 				dim = ntohl(dim);
 				is_final = ntohl(is_final);
 
-				/*
-				embedding_sock.send(strcut.pack('!i', int(worker_id)))           # int, worker_num
-				embedding_sock.send(strcut.pack('!i', int(cur_iter)))            # int, master_epoch
-				embedding_sock.send(strcut.pack('!i', int(embedding_dim)))       # int, dim
-				embedding_sock.send(strcut.pack('d', float(learning_rate)))      # double, alpha
-				embedding_sock.send(strcut.pack('d', float(margin)))             # double, training_threshold
-				embedding_sock.send(strcut.pack('!i', int(is_final)))            # int, is_final
-				*/
 
 				model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch);
 				//model->load(worker_sock);
 
 				//calculating training time
-				clock_t before, after;
-				before = clock();
+				struct timeval after, before;
+				gettimeofday(&before, NULL);
 
-				model->run(1000);
+				model->run(10);
 
-				after = clock();
-				cout << "training training_data time :  " << (double)(after - before) / CLOCKS_PER_SEC << "seconds" << endl;
+				gettimeofday(&after, NULL);
+				cout << "training training_data time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
 
 				//after training, put entities and relations into txt file
 				model->save(to_string(worker_num));
 				//model->save(worker_sock);
 
+
 				end_iter = 0;
 				end_iter = htonl(end_iter);
 				send(worker_sock, &end_iter, sizeof(end_iter), 0);
-
-
 
 				if (is_final){
 			
