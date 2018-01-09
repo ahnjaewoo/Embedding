@@ -128,16 +128,18 @@ r.mset({
 
 
 def install_libs():
+    
     import os
+    
     os.system("pip install redis")
     os.system("pip install hiredis")
 
 
 def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, is_final):
     
-    # 첫 iter 에서 embedding.cpp 를 실행해놓음
-    # 
+    # 첫 iter 에서 embedding.cpp 를 실행해놓음 
     if use_socket and cur_iter == 0:
+        
         proc = Popen([f"{root_dir}/MultiChannelEmbedding/Embedding.out", worker_id, \
             str(cur_iter), str(n_dim), str(lr), str(margin), str(is_final)], cwd=f'{root_dir}/preprocess/')
 
@@ -149,10 +151,13 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, is_final):
     return f"{worker_id}: {cur_iter} iteration finished"
 
 def savePreprocessedData(data, worker_id):
+    
     from threading import Thread
     
     def saveFile(data):
+    
         with open(f"{root_dir}/tmp/data_model_{worker_id}.bin", 'wb') as f:
+    
             f.write(data)
 
     thread = Thread(target=saveFile, args=(data, ))
@@ -164,21 +169,25 @@ def savePreprocessedData(data, worker_id):
 
 client = Client('163.152.29.73:8786', asynchronous=True, name='Embedding')
 if install:
+    
     client.run(install_libs)
 
 # 전처리 끝날때까지 대기
 proc.wait()
 with open(f"{root_dir}/tmp/data_model.bin", 'rb') as f:
+    
     data = f.read()
 
 print("preprocessing time: %f" % (time()-t_))
 
-workers = []
+workers = list()
 for i in range(num_worker):
+    
     worker_id = f'worker_{i}'
     workers.append(client.submit(savePreprocessedData, data, worker_id))
 
 for worker in as_completed(workers):
+    
     print(worker.result())
 
 # max-min process 실행, socket 연결
@@ -201,7 +210,7 @@ if use_socket:
 
     maxmin_sock.send(struct.pack('!i', 0))
     maxmin_sock.send(struct.pack('!i', num_worker))
-    maxmin_sock.send(struct.pack('!i', 0))     # 이 부분은 첫 send 에서는 "0" 으로 교체
+    maxmin_sock.send(struct.pack('!i', 0))                          # 이 부분은 첫 send 에서는 "0"
     maxmin_sock.send(struct.pack('!i', anchor_num))
     maxmin_sock.send(struct.pack('!i', anchor_interval))
 
@@ -225,8 +234,8 @@ if use_socket:
         anchors, chunks = lines[0], lines[1:]
     """
 
-# max-min cut 실행, anchor 분배
-if not use_socket:
+# max-min cut 실행, anchor 분배, 파일로 결과 전송
+else:
     
     proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
     proc.wait()
@@ -309,9 +318,10 @@ for cur_iter in range(niter):
         chunk_data = ''
 
     for worker in as_completed(workers):
+        
         print(worker.result())
 
-    print("iteration time: %f" % (time()-t_))
+    print("iteration time: %f" % (time() - t_))
 
 # except KeyboardInterrupt:
 #   maxmin_sock.close()
