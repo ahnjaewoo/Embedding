@@ -186,20 +186,20 @@ for worker in as_completed(workers):
 # master.py 는 client
 if use_socket:
 
+    anchors = list()
+    chunks = list()
+
     proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
     tt.sleep(3)
+
+    # try 가 들어가야 함 
 
     maxmin_addr = '127.0.0.1'
     maxmin_port = 7847
     maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     maxmin_sock.connect((maxmin_addr, maxmin_port))
 
-# max-min process 의 socket 으로 anchor 분배, 실행
-if use_socket:
-
-    # try 가 들어가야 함
-
-    maxmin_sock.send(b'0')
+    maxmin_sock.send(struct.pack('!i', 0))
     maxmin_sock.send(struct.pack('!i', num_worker))
     maxmin_sock.send(struct.pack('!i', 0))     # 이 부분은 첫 send 에서는 "0" 으로 교체
     maxmin_sock.send(struct.pack('!i', anchor_num))
@@ -208,20 +208,15 @@ if use_socket:
     # maxmin 의 결과를 파일로 전송하지 않고 소켓으로 전송하면 아래 줄은 필요 없음
     #maxmin_iter_end = maxmin_sock.recv(1).decode()
 
-    anchors = list()
-    chunks = list()
-
     for anchor_idx in range(struct.unpack('!i', maxmin_sock.recv(4))[0]):
 
         anchors.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
-
-    anchors = set(anchors)
 
     for nas_idx in range(struct.unpack('!i', maxmin_sock.recv(4))[0]):
 
         chunks.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
 
-
+    anchors = set(anchors)
 
     """
     # maxmin 의 결과를 파일로 전송하지 않고 소켓으로 전송
@@ -230,7 +225,6 @@ if use_socket:
         anchors, chunks = lines[0], lines[1:]
     """
 
-# line 201 ~ 205 을 line 181 ~ 196 의 socket 통신으로 대체
 # max-min cut 실행, anchor 분배
 if not use_socket:
     
@@ -241,6 +235,9 @@ if not use_socket:
     
         lines = f.read().splitlines()
         anchors, chunks = lines[0], lines[1:]
+
+
+
 
 
 for cur_iter in range(niter):
@@ -277,6 +274,9 @@ for cur_iter in range(niter):
 
         else:
 
+            anchors = list()
+            chunks = list()
+
             # try 가 들어가야 함
 
             maxmin_sock.send(struct.pack('!i', 0))
@@ -285,22 +285,18 @@ for cur_iter in range(niter):
             maxmin_sock.send(struct.pack('!i', anchor_num))
             maxmin_sock.send(struct.pack('!i', anchor_interval))
 
-            anchors = list()
-            chunks = list()
-
             # maxmin 결과를 소켓으로 전송하면 아래 줄은 필요 없음
-            maxmin_iter_end = maxmin_sock.recv(1).decode()
+            #maxmin_iter_end = maxmin_sock.recv(1).decode()
             
-
             for anchor_idx in range(struct.unpack('!i', maxmin_sock.recv(4))[0]):
 
                 anchors.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
 
-            anchors = set(anchors)
-
             for nas_idx in range(struct.unpack('!i', maxmin_sock.recv(4))[0]):
 
                 chunks.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
+
+            anchors = set(anchors)
 
             """
             with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
