@@ -231,6 +231,24 @@ public:
       if (master_epoch % 2 == 0)
       {
         //entity
+
+
+        //dsaklfaslkfjd;slkjflka;sjfsalkfjakls;f;klsafkla;dsfklsdfk;lsjfkladsjfl;adsjfl;kjkl
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         ifstream input("../tmp/maxmin_worker_"+ to_string(worker_num) + ".txt");
     		string str;
     		vector<string> anchor;
@@ -266,6 +284,16 @@ public:
       else
       {
         //relation
+
+        // asdfafdsaasdfdsaafsdfkasd;fk;alsdfk;adlsf;ldasfl;dsf;lsdf;ls
+
+
+
+
+
+
+
+        
         ifstream input("../tmp/sub_graph_worker_"+ to_string(worker_num) + ".txt");
     		string str;
     		pair<pair<int,int>, int> tmp;

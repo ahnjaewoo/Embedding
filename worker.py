@@ -39,21 +39,58 @@ relations_initialized = [pickle.loads(v) for v in relations_initialized]
 print("redis server connection time: %f" % (time()-t_))
 
 t_ = time()
+
 if int(cur_iter) % 2 == 0:
+
+
+
+    # 이 부분을 socket 으로 DataModel.hpp, Model.hpp 로 전송해줘야 함
+
+
+
+
     with open(f"{root_dir}/tmp/maxmin_{worker_id}.txt", 'w') as f:
+        
         f.write(chunk_data)
+
 else:
+    
     sub_graphs = pickle.loads(r.get(f'sub_graph_{worker_id}'))
+
+
+
+
+    # 이 부분을 socket 으로 DataModel.hpp, Model.hpp 로 전송해줘야 함
+
+
+
+
+
+
     with open(f"{root_dir}/tmp/sub_graph_{worker_id}.txt", 'w') as f:
+        
         for (head_id, relation_id, tail_id) in sub_graphs:
+        
             f.write(f"{head_id} {relation_id} {tail_id}\n")
 
+
+
+
+
+
+
+
+
+# 아래 부분은 어디에 전송하는걸까
 
 # matrix를 text로 빨리 저장하는 법 찾기!
 with open("./tmp/entity_vectors.txt", 'w') as f:
     for i, vector in enumerate(entities_initialized):
         f.write(str(entities[i]) + "\t")
         f.write(" ".join([str(v) for v in vector]) + '\n')
+
+
+
 
 with open("./tmp/relation_vectors.txt", 'w') as f:
     for i, relation in enumerate(relations_initialized):
