@@ -175,8 +175,7 @@ if use_socket:
 
 
 
-else:
-
+if not use_socket:
     # 이 부분은 호출 대신 socket 통신으로 대체
     # 여기서 C++ 프로그램 호출
     t_ = time()

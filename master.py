@@ -39,6 +39,7 @@ lr = args.lr
 margin = args.margin
 anchor_num = args.anchor_num
 anchor_interval = args.anchor_interval
+use_socket = False
 
 # 여기서 전처리 C++ 프로그램 비동기 호출
 t_ = time()
@@ -136,18 +137,15 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, is_final):
     
     # 첫 iter 에서 embedding.cpp 를 실행해놓음
     # 
-    if cur_iter == 0:
-
+    if use_socket and cur_iter == 0:
         proc = Popen([f"{root_dir}/MultiChannelEmbedding/Embedding.out", worker_id, \
             str(cur_iter), str(n_dim), str(lr), str(margin), str(is_final)], cwd=f'{root_dir}/preprocess/')
 
     proc = Popen([
         "python", f"{root_dir}/worker.py", chunk_data,
         str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(is_final)])
-    
+    proc.wait()    
 
-    # proc.wait() 가 없어야 할 듯
-    #proc.wait()
     return f"{worker_id}: {cur_iter} iteration finished"
 
 def savePreprocessedData(data, worker_id):
@@ -182,10 +180,6 @@ for i in range(num_worker):
 
 for worker in as_completed(workers):
     print(worker.result())
-
-
-
-use_socket = True
 
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
@@ -253,10 +247,8 @@ if use_socket:
 # line 201 ~ 205 을 line 181 ~ 196 의 socket 통신으로 대체
 # max-min cut 실행, anchor 분배
 if not use_socket:
-
     proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
     proc.wait()
-
     with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
         lines = f.read().splitlines()
         anchors, chunks = lines[0], lines[1:]

@@ -10,7 +10,7 @@ import socket
 import struct
 
 
-use_socket = True
+use_socket = False
 
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
@@ -183,7 +183,7 @@ if use_socket:
 
 
 
-if False:
+if not use_socket:
     t_ = time()
     root = 'fb15k'
     data_files = ['/train.txt','/dev.txt', '/test.txt']
