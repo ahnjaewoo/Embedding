@@ -197,7 +197,7 @@ if use_socket:
 # max-min process 의 socket 으로 anchor 분배, 실행
 if use_socket:
 
-    # try 가 들어가야 함 line 184 ~ 239 까지를 감쌈
+    # try 가 들어가야 함
 
     maxmin_sock.send(b'0')
     maxmin_sock.send(struct.pack('!i', num_worker))
@@ -205,93 +205,65 @@ if use_socket:
     maxmin_sock.send(struct.pack('!i', anchor_num))
     maxmin_sock.send(struct.pack('!i', anchor_interval))
 
-    # 원래 maxmin_output.txt 로 받았던 결과를 socket 으로 다시 받을 수 있음, socket 과 파일의 결과 전달 속도를 비교할 필요가 있음
-    # socket 으로 결과를 전달한다면 list type 을 string 으로 바꿔 보내고 recv 후 eval 하면 됨
-    # recv 의 인자로 들어가는 수는 read 할 데이터 길이, byte 단위
-    # 그리고 recv 에서의 길이에 주의, 결과를 담은 문자열의 길이가 얼마나 될 지 모름
-    # 만약 이것이 너무 길다면, 여러 번에 걸쳐서 나눠 받고 합쳐서 사용해야 함
-    # 하지만 master.py 가 maxmin.py 에 보내는 인자의 문자열 길이는 짧아서 괜찮음
-    # anchors = eval(maxmin_sock.recv(1024))
-    # chuncks = eval(maxmin_sock.recv(1024))
-
-
-
-
-
-
-
     # maxmin 의 결과를 파일로 전송하지 않고 소켓으로 전송하면 아래 줄은 필요 없음
-    maxmin_iter_end = maxmin_sock.recv(1).decode()
+    #maxmin_iter_end = maxmin_sock.recv(1).decode()
+
+    anchors = list()
+    chunks = list()
+
+    for anchor_idx in range(struct.unpack('!i', maxmin_sock.recv(4))[0]):
+
+        anchors.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
+
+    anchors = set(anchors)
+
+    for nas_idx in range(struct.unpack('!i', maxmin_sock.recv(4))[0]):
+
+        chunks.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
 
 
 
     """
-    # writing output file
-    with open(output_file, "w") as fwrite:
-        fwrite.write(" ".join([str(i) for i in anchor])+"\n")
-        print(len(" ".join([str(i) for i in anchor])))
-        for nas in parts:
-            fwrite.write(" ".join([str(i) for i in nas])+"\n")
-            print(len(" ".join([str(i) for i in nas])))
-    """
-
-
-
-
     # maxmin 의 결과를 파일로 전송하지 않고 소켓으로 전송
     with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
         lines = f.read().splitlines()
         anchors, chunks = lines[0], lines[1:]
-
+    """
 
 # line 201 ~ 205 을 line 181 ~ 196 의 socket 통신으로 대체
 # max-min cut 실행, anchor 분배
 if not use_socket:
+    
     proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
     proc.wait()
+    
     with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
+    
         lines = f.read().splitlines()
         anchors, chunks = lines[0], lines[1:]
 
 
-
-
-
-
-
-
-
-
-
-
-
 for cur_iter in range(niter):
+    
     t_ = time()
-
+    workers = list()
+    
     # 작업 배정
-    workers = []
     for i in range(num_worker):
+
         worker_id = f'worker_{i}'
         chunk_data = "{}\n{}".format(anchors, chunks[i])
 
-        # work 함수가 mapping 되어 실행될 때, worker.py 프로세스를 새로 실행
-        # worker.py 는 다시 embedding.cpp 프로세스를 새로 실행
-        # embedding.cpp 프로세스가 새로 실행되던 걸 개선하더라도 worker.py 가 계속 바뀌므로 socket 을 새로 연결하는 오버헤드가 있음
-        # 또한 이 상태에선 embedding.cpp 프로세스를 생성하는 주체가 master 가 되어야 하는데, 연결하는 주체는 worker.py 이므로 애매함이 좀 있음
-        # worker.py 와 embedding.cpp 간의 socket 에 관한 addr, port 를 관리해야 함
-
-
-        # embedding_sock_setting[i] 를 함께 전달
         if cur_iter < niter - 1:
+            
             workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin, 0))
-            #workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin, 0, embedding_sock_setting[i][0], embedding_sock_setting[i][1]))
+
         else:
+
             workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin, 1))
-            #workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin, 1, embedding_sock_setting[i][0], embedding_sock_setting[i][1]))
 
     if cur_iter % 2 == 1:
 
-        # line 227 ~ 233 을 line 181 ~ 193 의 socket 통신으로 대체
         # entity partitioning: max-min cut 실행, anchor 등 재분배
         if not use_socket:
 
@@ -299,28 +271,42 @@ for cur_iter in range(niter):
             proc.wait()
 
             with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
+    
                 lines = f.read().splitlines()
                 anchors, chunks = lines[0], lines[1:]
 
         else:
 
-            maxmin_sock.send(b'0')
+            # try 가 들어가야 함
+
+            maxmin_sock.send(struct.pack('!i', 0))
             maxmin_sock.send(struct.pack('!i', num_worker))
             maxmin_sock.send(struct.pack('!i', cur_iter))     # 이 부분은 첫 send 에서는 "0" 으로 교체
             maxmin_sock.send(struct.pack('!i', anchor_num))
             maxmin_sock.send(struct.pack('!i', anchor_interval))
 
-
+            anchors = list()
+            chunks = list()
 
             # maxmin 결과를 소켓으로 전송하면 아래 줄은 필요 없음
             maxmin_iter_end = maxmin_sock.recv(1).decode()
+            
 
-            #if maxmin_iter_end == '0':
+            for anchor_idx in range(struct.unpack('!i', maxmin_sock.recv(4))[0]):
 
+                anchors.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
+
+            anchors = set(anchors)
+
+            for nas_idx in range(struct.unpack('!i', maxmin_sock.recv(4))[0]):
+
+                chunks.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
+
+            """
             with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
                 lines = f.read().splitlines()
                 anchors, chunks = lines[0], lines[1:]
-
+            """
 
     else:
         # relation partitioning
@@ -341,5 +327,5 @@ for cur_iter in range(niter):
 
 if use_socket:
 
-    maxmin_sock.send(b'1')
+    maxmin_sock.send(struct.pack('!i', 1))
     maxmin_sock.close()

@@ -78,9 +78,10 @@ if use_socket:
     # while 안에서 문제가 발생함
 
     while True:
-        master_status = master_sock.recv(1).decode()
 
-        if master_status == '1':
+        master_status = struct.unpack('!i', master_sock.recv(4))[0]
+
+        if master_status == 1:
             # 연결을 끊음
             maxmin_sock.close()
             sys.exit(0)
@@ -151,11 +152,21 @@ if use_socket:
 
 
 
+        # 작업 결과를 master 로 전송
 
-        # 밑의 부분을 socket 으로 전송해야 함
+        master_sock.send(struct.pack('!i', len(list(anchor))))
 
+        for anchor_val in list(anchor):
 
+            master_sock.send(struct.pack('!i', anchor_val))
 
+        master_sock.send(struct.pack('!i', len(nas)))
+
+        for nas_val in nas:
+
+            master_sock.send(struct.pack('!i', nas_val))
+
+        """
         # writing output file
         with open(output_file, "w") as fwrite:
             fwrite.write(" ".join([str(i) for i in anchor])+"\n")
@@ -163,22 +174,9 @@ if use_socket:
             for nas in parts:
                 fwrite.write(" ".join([str(i) for i in nas])+"\n")
                 print(len(" ".join([str(i) for i in nas])))
+        """
 
         print("max-min cut finished - max-min time: {}".format((time()-t_)))
-
-        master_sock.send(b'0')
-
-        # 작업 결과를 전송
-        # 현재 anchor 와 nas 의 type 이 어찌된 지 몰라서 임시로 작성
-        # string(anchor), string(nas) 를 socket 으로 전송 후 eval 해서 복구
-        # anchor 와 nas 를 string 으로 바꾸었을 때, 글자 수가 길다면 분할해서 전송해야 함
-        # 분할 전송을 하는 경우, anchor 와 nas 를 전송할 때 사용하는 규칙이 필요
-        #master_sock.send(string(anchor))
-        #master_sock.send(string(nas))
-
-
-
-
 
 
 
