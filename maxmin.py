@@ -283,6 +283,9 @@ if False:
 
     # constructing nx.Graph and using metis in order to get min-cut partition
     G = nx.Graph()
+    # G에 있는 각 노드들에 대해 node weight 부여해야!
+    # ex)   G.node[0]['node_weight'] = 1
+    #       nxmetis.partition(G, nparts=partition_num, node_weight='node_weight')        
     G.add_edges_from(non_anchor_edge_list)
 
     options = nxmetis.MetisOptions(     # objtype=1 => vol
