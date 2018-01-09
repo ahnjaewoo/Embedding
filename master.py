@@ -214,21 +214,29 @@ if use_socket:
     maxmin_sock.send(struct.pack('!i', anchor_num))
     maxmin_sock.send(struct.pack('!i', anchor_interval))
 
-    # maxmin 의 결과를 파일로 전송하지 않고 소켓으로 전송하면 아래 줄은 필요 없음
-    #maxmin_iter_end = maxmin_sock.recv(1).decode()
+    # maxmin 의 결과를 소켓으로 받음
+    anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
-    for anchor_idx in range(struct.unpack('!i', maxmin_sock.recv(4))[0]):
+    for anchor_idx in range(anchor_len):
 
         anchors.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
 
-    for nas_idx in range(struct.unpack('!i', maxmin_sock.recv(4))[0]):
-
-        chunks.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
-
     anchors = set(anchors)
 
+    for part_idx in range(num_worker):
+
+        chunk = list()
+
+        chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
+
+        for nas_idx in range(chunk_len):
+
+            chunks.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
+
+        chunks.append(chunk)
+
     """
-    # maxmin 의 결과를 파일로 전송하지 않고 소켓으로 전송
+    # maxmin 의 결과를 파일로 받음
     with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
         lines = f.read().splitlines()
         anchors, chunks = lines[0], lines[1:]
@@ -294,20 +302,29 @@ for cur_iter in range(niter):
             maxmin_sock.send(struct.pack('!i', anchor_num))
             maxmin_sock.send(struct.pack('!i', anchor_interval))
 
-            # maxmin 결과를 소켓으로 전송하면 아래 줄은 필요 없음
-            #maxmin_iter_end = maxmin_sock.recv(1).decode()
-            
-            for anchor_idx in range(struct.unpack('!i', maxmin_sock.recv(4))[0]):
+            # maxmin 의 결과를 소켓으로 받음
+            anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
+
+            for anchor_idx in range(anchor_len):
 
                 anchors.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
 
-            for nas_idx in range(struct.unpack('!i', maxmin_sock.recv(4))[0]):
-
-                chunks.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
-
             anchors = set(anchors)
 
+            for part_idx in range(num_worker):
+
+                chunk = list()
+
+                chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
+
+                for nas_idx in range(chunk_len):
+
+                    chunks.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
+
+                chunks.append(chunk)
+
             """
+            # maxmin 의 결과를 파일로 받음
             with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
                 lines = f.read().splitlines()
                 anchors, chunks = lines[0], lines[1:]

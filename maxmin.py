@@ -153,18 +153,19 @@ if use_socket:
 
 
         # 작업 결과를 master 로 전송
-
         master_sock.send(struct.pack('!i', len(list(anchor))))
 
         for anchor_val in list(anchor):
 
             master_sock.send(struct.pack('!i', anchor_val))
 
-        master_sock.send(struct.pack('!i', len(nas)))
+        for nas in parts:
 
-        for nas_val in nas:
+            master_sock.send(struct.pack('!i', len(nas)))
 
-            master_sock.send(struct.pack('!i', nas_val))
+            for nas_val in nas:
+
+                master_sock.send(struct.pack('!i', nas_val))
 
         """
         # writing output file
