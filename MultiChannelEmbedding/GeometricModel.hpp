@@ -525,6 +525,17 @@ public:
 
 	virtual void load(const string& filename) override
 	{
+
+
+
+
+
+		// recv data from socket, worker.py
+
+
+
+
+
 		ifstream fin_entity("../tmp/entity_vectors.txt", ios::binary);
 		ifstream fin_relation("../tmp/relation_vectors.txt", ios::binary);
 

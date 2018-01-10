@@ -81,7 +81,8 @@ else:
 
 
 
-# 아래 부분은 어디에 전송하는걸까
+
+# GeometricModel.hpp 의 load 에 전송
 
 # matrix를 text로 빨리 저장하는 법 찾기!
 with open("./tmp/entity_vectors.txt", 'w') as f:
@@ -89,9 +90,7 @@ with open("./tmp/entity_vectors.txt", 'w') as f:
         f.write(str(entities[i]) + "\t")
         f.write(" ".join([str(v) for v in vector]) + '\n')
 
-
-
-
+# GeometricModel.hpp 의 load 에 전송
 with open("./tmp/relation_vectors.txt", 'w') as f:
     for i, relation in enumerate(relations_initialized):
         f.write(str(relations[i]) + "\t")
@@ -100,6 +99,19 @@ with open("./tmp/relation_vectors.txt", 'w') as f:
 print("file save time: %f" % (time()-t_))
 del entities_initialized
 del relations_initialized
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 use_socket = False
@@ -131,13 +143,113 @@ if use_socket:
 
 
 
+    # model.hpp 와의 통신이 먼저인지  DataModel.hpp 와의 통신이 먼저인지는
+    # 나중에 실제로 돌려보면서 확인해야 함
+
+    # Model.hpp 와의 통신
+    # 할 일이 없는 듯, 그냥 DataModel.hpp 의 생성자에 socket_fd 를 넘겨주는 부분만 만들어주면 됨
+
+
+
+
+
+
+
+
+
+
+
+
+    # DataModel.hpp 와의 통신
+    # ifstream input("../tmp/maxmin_worker_"+ to_string(worker_num) + ".txt");
+    # 위의 파일 내용을 DataModel.hpp 로 전송해야 함
+
+    # chunk_data 변수의 내용을 전송
+
+    # 파일을 다음과 같이 읽음
+    """
+        ifstream input("../tmp/maxmin_worker_"+ to_string(worker_num) + ".txt");
+            string str;
+            vector<string> anchor;
+
+            getline(input, str);
+            anchor = split(str, ' ');
+
+            for (string e : anchor)
+            {
+                set_entity_parts.insert(stoi(e));
+                check_anchor[stoi(e)] = true;
+                check_parts[stoi(e)] = true;
+            }
+
+            while (!input.eof())
+            {
+                input >> str;
+                set_entity_parts.insert(stoi(str));
+                check_parts[stoi(str)] = true;
+            }
+
+            for (auto i = data_train.begin(); i != data_train.end(); ++i)
+            {
+                int head = (*i).first.first;
+                int tail = (*i).first.second;
+                if (check_parts.find(head) != check_parts.end() && check_parts.find(tail) != check_parts.end()){
+                    data_train_parts.push_back(*i);
+                }
+            }
+
+        cout << "entity preprocesing let's get it!" << endl;
+      }
+      else
+      {
+        //relation
+
+        // asdfafdsaasdfdsaafsdfkasd;fk;alsdfk;adlsf;ldasfl;dsf;lsdf;ls
+
+
+
+
+
+
+
+        
+        ifstream input("../tmp/sub_graph_worker_"+ to_string(worker_num) + ".txt");
+            string str;
+            pair<pair<int,int>, int> tmp;
+
+            while (!input.eof())
+            {
+          string head, tail, relation;
+          input >> head >> relation >> tail;
+          if (head == "" && relation == "" && tail == "") break;
+
+          set_entity_parts.insert(stoi(head));
+          set_entity_parts.insert(stoi(tail));
+          set_relation_parts.insert(stoi(relation));
+                tmp.first.first = stoi(head);
+                tmp.second = stoi(relation);
+                tmp.first.second = stoi(tail);
+                data_train_parts.push_back(tmp);
+            }
+
+        cout << "relation preprocessing let's get it!" << endl;
+      }
+      vector_entity_parts.assign(set_entity_parts.begin(), set_entity_parts.end());
+      vector_relation_parts.assign(set_relation_parts.begin(), set_relation_parts.end());
+    }
+    """
+
+
+
+
+
+
+
+
+
 
     # 임시로 만들어놓음, barrier 같은 기능
     embedding_iter_end = struct.unpack('!i', embedding_sock.recv(4))[0]
-
-
-
-
 
 
     # 이 부분을 socket 통신으로 대체할 필요가 있음
@@ -153,6 +265,8 @@ if use_socket:
         """
         count_entity = struct.unpack('!i', embedding_sock.recv(4))[0]
 
+
+        
         for entity_idx in range(count_entity):
 
             temp_entity_vector = list()

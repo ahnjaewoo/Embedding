@@ -235,9 +235,11 @@ public:
 
         //dsaklfaslkfjd;slkjflka;sjfsalkfjakls;f;klsafkla;dsfklsdfk;lsjfkladsjfl;adsjfl;kjkl
 
+        // socket_fd is from constructor
 
 
 
+        //send(worker_sock, &end_iter, sizeof(end_iter), 0);
 
 
 
