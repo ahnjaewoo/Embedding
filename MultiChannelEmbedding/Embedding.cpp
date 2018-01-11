@@ -17,7 +17,7 @@
 #include <unistd.h>
 
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& is_final);
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& is_final, int& fd);
 
 // 400s for each experiment.
 int main(int argc, char* argv[])
@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 	int worker_num = 0;
 	int master_epoch = 0;
 	int is_final = 0;
-
+	int fd = 0;
 	
 
 	if (use_socket)
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 		struct sockaddr_in embedding_addr;
 		struct sockaddr_in worker_addr;
 
-		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, is_final);
+		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, is_final, fd);
 
 		bzero((char *)&embedding_addr, sizeof(embedding_addr));
 		embedding_addr.sin_family = AF_INET;
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
 				is_final = ntohl(is_final);
 
 
-				model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch);
+				model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, fd);
 				//model->load(worker_sock);
 
 				//calculating training time
@@ -185,10 +185,10 @@ int main(int argc, char* argv[])
 	else 
 	{
 		// Model* model = nullptr;
-		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, is_final);
+		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, is_final, fd);
 
 		//model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, false);
-		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch);
+		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, fd);
 
 
 		//calculating training time
@@ -211,7 +211,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& is_final)
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& is_final, int& fd)
 {
 	if (argc == 2)
 	{
@@ -259,6 +259,15 @@ void getParams(int argc, char* argv[], int& dim, double& alpha, double& training
                 training_threshold = atof(argv[5]);
 		is_final = atoi(argv[6]);
 	}
-}
- 
- 
+	if (argc == 8)
+	{
+		string worker = argv[1];
+                worker_num = worker.back() - '0';
+                master_epoch = atoi(argv[2]);
+                dim = atoi(argv[3]);
+                alpha = atof(argv[4]);
+                training_threshold = atof(argv[5]);
+                is_final = atoi(argv[6]);
+		fd = atoi(argv[7]);
+	}
+} 

@@ -35,8 +35,9 @@ public:
 		double training_threshold,
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
-		const int master_epoch = 0)
-		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch),
+		const int master_epoch = 0,
+		const int fd = 0)
+		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd),
 		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
 	{
 		logging.record() << "\t[Name]\tTransE";
@@ -71,8 +72,9 @@ public:
 		double training_threshold,
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
-		const int master_epoch = 0)
-		:Model(dataset, file_zero_shot, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch),
+		const int master_epoch = 0,
+		const int fd = 0)
+		:Model(dataset, file_zero_shot, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd),
 		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
 	{
 		logging.record() << "\t[Name]\tTransE";
@@ -586,8 +588,9 @@ public:
 		double ESS_factor,
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
-		const int master_epoch = 0)
-		:TransE(dataset, task_type, logging_base_path, dim, alpha, training_threshold, is_preprocessed, worker_num, master_epoch),
+		const int master_epoch = 0,
+		const int fd = 0)
+		:TransE(dataset, task_type, logging_base_path, dim, alpha, training_threshold, is_preprocessed, worker_num, master_epoch, fd),
 		ESS_factor(ESS_factor)
 	{
 		logging.record() << "\t[Name]\tTransE_ESS";
@@ -618,9 +621,10 @@ public:
 		double training_threshold,
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
-		const int master_epoch = 0)
+		const int master_epoch = 0,
+		const int fd = 0)
 		:TransE(dataset, task_type, logging_base_path,
-		dim, alpha, training_threshold, is_preprocessed, worker_num, master_epoch)
+		dim, alpha, training_threshold, is_preprocessed, worker_num, master_epoch, fd)
 	{
 		logging.record() << "\t[Name]\tTransH";
 		logging.record() << "\t[Dimension]\t" << dim;
@@ -706,8 +710,9 @@ public:
 		double training_threshold,
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
-		const int master_epoch = 0)
-		:TransE(dataset, task_type, logging_base_path, dim, alpha, training_threshold, is_preprocessed, worker_num, master_epoch)
+		const int master_epoch = 0,
+		const int fd = 0)
+		:TransE(dataset, task_type, logging_base_path, dim, alpha, training_threshold, is_preprocessed, worker_num, master_epoch, fd)
 	{
 		logging.record() << "\t[Name]\tTransA";
 		mat_r.resize(count_relation());
@@ -836,8 +841,9 @@ public:
 		double training_threshold,
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
-		const int master_epoch = 0)
-		:TransE(dataset, task_type, logging_base_path, dim, alpha, training_threshold, is_preprocessed, worker_num, master_epoch)
+		const int master_epoch = 0,
+		const int fd = 0)
+		:TransE(dataset, task_type, logging_base_path, dim, alpha, training_threshold, is_preprocessed, worker_num, master_epoch, fd)
 	{
 		logging.record() << "\t[Name]\tTransA";
 		mat_r.resize(count_relation());
@@ -972,8 +978,9 @@ public:
 		double ESS_factor,
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
-		const int master_epoch = 0)
-		:TransE(dataset, task_type, logging_base_path, dim, alpha, training_threshold, is_preprocessed, worker_num, master_epoch), ESS_factor(ESS_factor)
+		const int master_epoch = 0,
+		const int fd = 0)
+		:TransE(dataset, task_type, logging_base_path, dim, alpha, training_threshold, is_preprocessed, worker_num, master_epoch, fd), ESS_factor(ESS_factor)
 	{
 		logging.record() << "\t[Name]\tTransA";
 		mat_r.resize(count_relation());
@@ -1112,8 +1119,9 @@ public:
 		double ESS_factor,
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
-		const int master_epoch = 0)
-		:TransA(dataset, task_type, logging_base_path, dim, alpha, training_threshold, is_preprocessed, worker_num, master_epoch),
+		const int master_epoch = 0,
+		const int fd = 0)
+		:TransA(dataset, task_type, logging_base_path, dim, alpha, training_threshold, is_preprocessed, worker_num, master_epoch, fd),
 		ESS_factor(ESS_factor)
 	{
 		logging.record() << "\t[Name]\tTransA_ESS";
@@ -1159,8 +1167,9 @@ public:
 		bool be_weight_normalized = false,
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
-		const int master_epoch = 0)
-		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch), dim(dim), alpha(alpha),
+		const int master_epoch = 0,
+		const int fd = 0)
+		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd), dim(dim), alpha(alpha),
 		training_threshold(training_threshold), n_cluster(n_cluster), sparse_factor(sparse_factor),
 		single_or_total(sot), be_weight_normalized(be_weight_normalized)
 	{
@@ -1410,9 +1419,10 @@ public:
 		double wake_factor,
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
-		const int master_epoch = 0)
+		const int master_epoch = 0,
+		const int fd = 0)
 		:wake_factor(wake_factor),
-		TransE(dataset, task_type, logging_base_path, dim, alpha, training_threshold, is_preprocessed, worker_num, master_epoch)
+		TransE(dataset, task_type, logging_base_path, dim, alpha, training_threshold, is_preprocessed, worker_num, master_epoch, fd)
 	{
 		logging.record() << "\t[Name]\tTransE SleepWake";
 		logging.record() << "\t[Wake Factor]\t" << wake_factor;
@@ -1504,8 +1514,9 @@ public:
 		bool be_weight_normalized = true,
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
-		const int master_epoch = 0)
-		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch), dim(dim), alpha(alpha),
+		const int master_epoch = 0,
+		const int fd = 0)
+		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd), dim(dim), alpha(alpha),
 		training_threshold(training_threshold), n_cluster(n_cluster), CRP_factor(CRP_factor),
 		single_or_total(sot), be_weight_normalized(be_weight_normalized), step_before(step_before),
 		normalizor(1.0 / pow(3.1415, dim / 2))
@@ -1809,8 +1820,9 @@ public:
 		bool be_weight_normalized = true,
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
-		const int master_epoch = 0)
-		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch), dim(dim), alpha(alpha),
+		const int master_epoch = 0,
+		const int fd = 0)
+		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd), dim(dim), alpha(alpha),
 		training_threshold(training_threshold), n_cluster(n_cluster), CRP_factor(CRP_factor),
 		single_or_total(sot), be_weight_normalized(be_weight_normalized), step_before(step_before),
 		normalizor(1.0 / pow(3.1415, dim / 2)), variance_bound(variance_bound)
@@ -2091,4 +2103,4 @@ public:
 		}
 	}
 };
- 
+  

@@ -74,7 +74,7 @@ public:
     int zeroshot_pointer;
 
 public:
-    DataModel(const Dataset& dataset, const bool is_preprocessed, const int worker_num, const int master_epoch)
+    DataModel(const Dataset& dataset, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd)
     {
     	if (is_preprocessed)
     	{
@@ -321,7 +321,7 @@ public:
       vector_relation_parts.assign(set_relation_parts.begin(), set_relation_parts.end());
     }
 
-    DataModel(const Dataset& dataset, const string& file_zero_shot, const bool is_preprocessed, const int worker_num, const int master_epoch)
+    DataModel(const Dataset& dataset, const string& file_zero_shot, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd)
     {
         load_training(dataset.base_dir + dataset.training);
 
@@ -674,4 +674,5 @@ public:
   		return tokens;
   	}
 };
+ 
  

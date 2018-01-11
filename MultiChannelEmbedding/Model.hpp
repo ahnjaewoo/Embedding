@@ -13,10 +13,11 @@ class Model
 public:
 	const DataModel&	data_model;
 	const TaskType		task_type;
-	const bool			be_deleted_data_model;
-	const bool			is_preprocessed;
-	const int				worker_num;
-	const int				master_epoch;
+	const bool		be_deleted_data_model;
+	const bool		is_preprocessed;
+	const int		worker_num;
+	const int		master_epoch;
+	const int		fd;
 
 public:
 	ModelLogging&		logging;
@@ -30,10 +31,11 @@ public:
 		const string& logging_base_path,
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
-		const int master_epoch = 0)
-		:data_model(*(new DataModel(dataset, is_preprocessed, worker_num, master_epoch))), task_type(task_type),
+		const int master_epoch = 0,
+		const int fd = 0)
+		:data_model(*(new DataModel(dataset, is_preprocessed, worker_num, master_epoch, fd))), task_type(task_type),
 		logging(*(new ModelLogging(logging_base_path))),be_deleted_data_model(true),
-		is_preprocessed(is_preprocessed), worker_num(worker_num), master_epoch(master_epoch)
+		is_preprocessed(is_preprocessed), worker_num(worker_num), master_epoch(master_epoch), fd(fd)
 	{
 		epos = 0;
 		best_triplet_result = 0;
@@ -49,10 +51,11 @@ public:
 		const string& logging_base_path,
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
-		const int master_epoch = 0)
-		:data_model(*(new DataModel(dataset, is_preprocessed, worker_num, master_epoch))), task_type(task_type),
+		const int master_epoch = 0,
+		const int fd = 0)
+		:data_model(*(new DataModel(dataset, is_preprocessed, worker_num, master_epoch, fd))), task_type(task_type),
 		logging(*(new ModelLogging(logging_base_path))), be_deleted_data_model(true),
-		is_preprocessed(is_preprocessed), worker_num(worker_num), master_epoch(master_epoch)
+		is_preprocessed(is_preprocessed), worker_num(worker_num), master_epoch(master_epoch), fd(fd)
 	{
 		epos = 0;
 		best_triplet_result = 0;
@@ -598,5 +601,4 @@ public:
 		cout << "BAD";
 		return NULL;
 	}
-};
- 
+}; 
