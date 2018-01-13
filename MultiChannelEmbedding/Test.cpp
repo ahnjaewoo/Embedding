@@ -132,18 +132,17 @@ int main(int argc, char* argv[])
 				master_epoch = ntohl(master_epoch);
 				dim = ntohl(dim);
 
-
-				model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, fd);
-				//model->load(worker_sock);
+				model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
 
 				//after training, put entities and relations into txt file
 				model->save(to_string(worker_num));
-				//model->save(worker_sock);
 
-
+				// barrier 기능, 소켓 포팅이 끝나면 제거
+				/*
 				end_iter = 0;
 				end_iter = htonl(end_iter);
 				send(worker_sock, &end_iter, sizeof(end_iter), 0);
+				*/
 
 				//calculating testing time
 				struct timeval after, before;
@@ -155,9 +154,9 @@ int main(int argc, char* argv[])
 				cout << "testing test_data time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
 				
 				delete model;
-				// close(worker_sock);
+				close(worker_sock);
 				// reconnect to worker.py
-				// TODO : model->save using socket communication
+				// 소켓을 끊는 이유는 worker.py 가 매 이터레이션에서 재생성되기 때문
 			}
 		}
 	}

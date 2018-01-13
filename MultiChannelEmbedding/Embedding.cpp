@@ -36,6 +36,7 @@ int main(int argc, char* argv[])
 	int worker_num = 0;
 	int master_epoch = 0;
 	int train_iter = 10;
+	int fd = 0;
 
 	if (use_socket)
 	{
@@ -95,7 +96,6 @@ int main(int argc, char* argv[])
 					break;
 				}
 
-
 				// receive data
 				if(recv(worker_sock, &worker_num, sizeof(worker_num), 0) < 0){
 
@@ -131,11 +131,9 @@ int main(int argc, char* argv[])
 				master_epoch = ntohl(master_epoch);
 				dim = ntohl(dim);
 
-
 				model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
-				//model->load(worker_sock); // 할 필요 없음, 나중에 제거
 
-				//calculating training time
+				// calculating training time
 				struct timeval after, before;
 				gettimeofday(&before, NULL);
 
@@ -144,25 +142,25 @@ int main(int argc, char* argv[])
 				gettimeofday(&after, NULL);
 				cout << "training training_data time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
 
-				//after training, put entities and relations into txt file
+				// after training, put entities and relations into txt file
 				model->save(to_string(worker_num));
-				//model->save(worker_sock); // 할 필요 없음, 나중에 제거
 
-
+				// barrier 기능, 소켓 포팅이 끝나면 제거
+				/*
 				end_iter = 0;
 				end_iter = htonl(end_iter);
 				send(worker_sock, &end_iter, sizeof(end_iter), 0);
+				*/
 
 				delete model;
 				close(worker_sock);
-				// TODO : model->save using socket communication
 			}
 		}
 	}
 	else 
 	{
 		// Model* model = nullptr;
-		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter, 0);
+		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter, fd);
 
 		//model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, false);
 		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, 0);
