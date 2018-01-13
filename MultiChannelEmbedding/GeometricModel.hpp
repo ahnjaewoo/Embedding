@@ -365,78 +365,7 @@ public:
 		return embedding_relation[relation_id];
 	}
 
-
-	// not save, send data using socket
-	/*
-	virtual void save(int sock_fd) override
-	{
-
-		int string_len;
-		int count;
-		double value_to_send;
-
-		// master_epoch이 짝수일 때 (entity embedding ㄱㄱ)
-		if (master_epoch % 2 == 0)
-		{
-			//ofstream fout_entity("../tmp/entity_vectors_updated_" + filename + ".txt", ios::binary);
-
-			count = count_entity();
-			send(sock_fd, &count, sizeof(count), 0);
-
-			for (int i = 0; i < count_entity(); i++)
-			{
-				if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
-				&& data_model.check_parts.find(i) != data_model.check_parts.end())
-				{
-					//fout_entity << data_model.entity_id_to_name[i] << '\t';
-
-					string_len = strlen(data_model.entity_id_to_name[i].c_str());
-					send(sock_fd, &string_len, sizeof(string_len), 0);
-					send(sock_fd, data_model.entity_id_to_name[i].c_str() , string_len, 0);
-
-					for (int j =0; j < dim; j++)
-					{
-						//fout_entity << embedding_entity[i](j) << " ";
-						value_to_send = embedding_entity[i](j);
-						send(sock_fd, &value_to_send, sizeof(value_to_send), 0);
-					}
-					fout_entity << '\n';
-				}
-			}
-			fout_entity.close();
-		}
-		// master_epoch이 홀수일 때 (relation embedding ㄱㄱ)
-		else
-		{
-			//ofstream fout_relation("../tmp/relation_vectors_updated_" + filename + ".txt", ios::binary);
-
-			count = count_relation();
-			send(sock_fd, &count, sizeof(count), 0);
-
-			for (int i = 0; i < count_relation(); i++)
-			{
-				if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end())
-				{
-					//fout_relation << data_model.relation_id_to_name[i] << '\t';
-
-					string_len = strlen(data_model.relation_id_to_name[i].c_str());
-					send(sock_fd, &string_len, sizeof(string_len), 0);
-					send(sock_fd, data_model.relation_id_to_name[i].c_str() , string_len, 0);
-
-					for (int j = 0; j < dim; j++)
-					{
-						//fout_relation << embedding_relation[i](j) << " ";
-						value_to_send = embedding_relation[i](j);
-						send(sock_fd, &value_to_send, sizeof(value_to_send), 0);
-					}
-					fout_relation << '\n';
-				}
-			}
-			fout_relation.close();
-		}
-	}
-	*/
-
+	/* original save function
 	virtual void save(const string& filename) override
 	{
 		// master_epoch이 짝수일 때 (entity embedding ㄱㄱ)
@@ -475,6 +404,112 @@ public:
 				}
 			}
 			fout_relation.close();
+		}
+	}
+	*/
+
+	virtual void save(const string& filename) override
+	{
+
+		int string_len;
+		int count;
+		double value_to_send;
+
+		// 파일로 전송
+		if (fd == 0) {
+
+			// master_epoch이 짝수일 때 (entity embedding ㄱㄱ)
+			if (master_epoch % 2 == 0)
+			{
+				ofstream fout_entity("../tmp/entity_vectors_updated_" + filename + ".txt", ios::binary);
+				for (int i = 0; i < count_entity(); i++)
+				{
+					if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+					&& data_model.check_parts.find(i) != data_model.check_parts.end())
+					{
+						fout_entity << data_model.entity_id_to_name[i] << '\t';
+						for (int j =0; j < dim; j++)
+						{
+							fout_entity << embedding_entity[i](j) << " ";
+						}
+						fout_entity << '\n';
+					}
+				}
+				fout_entity.close();
+			}
+			// master_epoch이 홀수일 때 (relation embedding ㄱㄱ)
+			else
+			{
+				ofstream fout_relation("../tmp/relation_vectors_updated_" + filename + ".txt", ios::binary);
+				for (int i = 0; i < count_relation(); i++)
+				{
+					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end())
+					{
+						fout_relation << data_model.relation_id_to_name[i] << '\t';
+						for (int j = 0; j < dim; j++)
+						{
+							fout_relation << embedding_relation[i](j) << " ";
+						}
+						fout_relation << '\n';
+					}
+				}
+				fout_relation.close();
+			}
+		}
+		// socket 으로 전송
+		else {
+
+			// master_epoch이 짝수일 때 (entity embedding ㄱㄱ)
+			if (master_epoch % 2 == 0)
+			{
+
+				count = count_entity();
+				send(fd, &count, sizeof(count), 0);
+
+				for (int i = 0; i < count_entity(); i++)
+				{
+					if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+					&& data_model.check_parts.find(i) != data_model.check_parts.end())
+					{
+
+						string_len = strlen(data_model.entity_id_to_name[i].c_str());
+						send(fd, &string_len, sizeof(string_len), 0);
+						send(fd, data_model.entity_id_to_name[i].c_str() , string_len, 0);
+
+						for (int j =0; j < dim; j++)
+						{
+
+							value_to_send = embedding_entity[i](j);
+							send(fd, &value_to_send, sizeof(value_to_send), 0);
+						}
+					}
+				}
+			}
+			// master_epoch이 홀수일 때 (relation embedding ㄱㄱ)
+			else
+			{
+
+				count = count_relation();
+				send(fd, &count, sizeof(count), 0);
+
+				for (int i = 0; i < count_relation(); i++)
+				{
+					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end())
+					{
+
+						string_len = strlen(data_model.relation_id_to_name[i].c_str());
+						send(fd, &string_len, sizeof(string_len), 0);
+						send(fd, data_model.relation_id_to_name[i].c_str() , string_len, 0);
+
+						for (int j = 0; j < dim; j++)
+						{
+
+							value_to_send = embedding_relation[i](j);
+							send(fd, &value_to_send, sizeof(value_to_send), 0);
+						}
+					}
+				}
+			}
 		}
 	}
 

@@ -35,7 +35,6 @@ int main(int argc, char* argv[])
 	double training_threshold = 2;
 	int worker_num = 0;
 	int master_epoch = 0;
-	int fd = 0;
 	int train_iter = 10;
 
 	if (use_socket)
@@ -133,8 +132,8 @@ int main(int argc, char* argv[])
 				dim = ntohl(dim);
 
 
-				model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, fd);
-				//model->load(worker_sock);
+				model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
+				//model->load(worker_sock); // 할 필요 없음, 나중에 제거
 
 				//calculating training time
 				struct timeval after, before;
@@ -147,7 +146,7 @@ int main(int argc, char* argv[])
 
 				//after training, put entities and relations into txt file
 				model->save(to_string(worker_num));
-				//model->save(worker_sock);
+				//model->save(worker_sock); // 할 필요 없음, 나중에 제거
 
 
 				end_iter = 0;
@@ -163,10 +162,10 @@ int main(int argc, char* argv[])
 	else 
 	{
 		// Model* model = nullptr;
-		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter, fd);
+		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter, 0);
 
 		//model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, false);
-		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, fd);
+		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, 0);
 
 
 		//calculating training time

@@ -233,9 +233,7 @@ public:
         //entity
 
 
-        //dsaklfaslkfjd;slkjflka;sjfsalkfjakls;f;klsafkla;dsfklsdfk;lsjfkladsjfl;adsjfl;kjkl
-
-        // socket_fd is from constructor
+        // fd 변수를 사용
 
 
 
@@ -287,7 +285,7 @@ public:
       {
         //relation
 
-        // asdfafdsaasdfdsaafsdfkasd;fk;alsdfk;adlsf;ldasfl;dsf;lsdf;ls
+        // fd 변수를 사용
 
 
 
