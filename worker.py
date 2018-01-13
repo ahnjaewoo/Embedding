@@ -16,6 +16,7 @@ cur_iter = sys.argv[3]
 embedding_dim = sys.argv[4]
 learning_rate = sys.argv[5]
 margin = sys.argv[6]
+train_iter = sys.argv[7]
 root_dir = "/home/rudvlf0413/distributedKGE/Embedding"
 
 # redis에서 embedding vector들 받아오기
@@ -330,7 +331,7 @@ if not use_socket:
     t_ = time()
     proc = Popen([
         f"{root_dir}/MultiChannelEmbedding/Embedding.out", 
-        worker_id, cur_iter, embedding_dim, learning_rate, margin],
+        worker_id, cur_iter, embedding_dim, learning_rate, margin, train_iter],
         cwd=f'{root_dir}/preprocess/')
     proc.wait()
     print("embedding time: %f" % (time()-t_))

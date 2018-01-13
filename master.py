@@ -19,7 +19,8 @@ import struct
 parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
 parser.add_argument('--num_worker', type=int, default=2, help='number of workers')
 parser.add_argument('--data_root', type=str, default='./fb15k', help='root directory of data')
-parser.add_argument('--niter', type=int, default=2, help='total number of training iterations')
+parser.add_argument('--niter', type=int, default=2, help='total number of masters iterations')
+parser.add_argument('--train_iter', type=int, default=10, help='total number of workers(actual) training iterations')
 parser.add_argument('--install', default=False, help='install libraries in each worker')
 parser.add_argument('--ndim', type=int, default=20, help='dimension of embeddings')
 parser.add_argument('--lr', type=float, default=0.1, help='learning rate')
@@ -34,6 +35,7 @@ root_dir = "/home/rudvlf0413/distributedKGE/Embedding"
 data_files = ['/fb15k/train.txt', '/fb15k/dev.txt', '/fb15k/test.txt']
 num_worker = args.num_worker
 niter = args.niter
+train_iter = args.train_iter
 n_dim = args.ndim
 lr = args.lr
 margin = args.margin
@@ -135,17 +137,17 @@ def install_libs():
     os.system("pip install hiredis")
 
 
-def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin):
+def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter):
     
     # 첫 iter 에서 embedding.cpp 를 실행해놓음 
     if use_socket and cur_iter == 0:
         
         proc = Popen([f"{root_dir}/MultiChannelEmbedding/Embedding.out", worker_id, \
-            str(cur_iter), str(n_dim), str(lr), str(margin)], cwd=f'{root_dir}/preprocess/')
+            str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter)], cwd=f'{root_dir}/preprocess/')
 
     proc = Popen([
         "python", f"{root_dir}/worker.py", chunk_data,
-        str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin)])
+        str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter)])
     proc.wait()    
 
     return f"{worker_id}: {cur_iter} iteration finished"
@@ -256,7 +258,7 @@ else:
 
 
 
-
+print("worker training iteration epoch: ", train_iter)
 for cur_iter in range(niter):
     
     t_ = time()
@@ -267,7 +269,7 @@ for cur_iter in range(niter):
 
         worker_id = f'worker_{i}'
         chunk_data = "{}\n{}".format(anchors, chunks[i])
-        workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin))
+        workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter))
 
     if cur_iter % 2 == 1:
 
