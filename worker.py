@@ -141,12 +141,8 @@ if use_socket:
     embedding_sock.send(struct.pack('d', float(margin)))             # double   endian 때문에 문제 생길 수 있음
 
 
-
-    # model.hpp 와의 통신이 먼저인지  DataModel.hpp 와의 통신이 먼저인지는
-    # 나중에 실제로 돌려보면서 확인해야 함
-
-    # Model.hpp 와의 통신
-    # 할 일이 없는 듯, 그냥 DataModel.hpp 의 생성자에 socket_fd 를 넘겨주는 부분만 만들어주면 됨
+    # DataModel.hpp 와의 통신 다음에 GeometricModel.hpp 와의 통신이 필요
+    # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서
 
 
 
@@ -157,86 +153,13 @@ if use_socket:
 
 
 
-
-
-    # DataModel.hpp 와의 통신
-    # ifstream input("../tmp/maxmin_worker_"+ to_string(worker_num) + ".txt");
+    # DataModel.hpp 와의 통신 - load 메소드
+    # "../tmp/maxmin_worker_"+ to_string(worker_num) + ".txt"
+    # "../tmp/sub_graph_worker_"+ to_string(worker_num) + ".txt"
     # 위의 파일 내용을 DataModel.hpp 로 전송해야 함
-
     # chunk_data 변수의 내용을 전송
 
-    # 파일을 다음과 같이 읽음
-    """
-        ifstream input("../tmp/maxmin_worker_"+ to_string(worker_num) + ".txt");
-            string str;
-            vector<string> anchor;
 
-            getline(input, str);
-            anchor = split(str, ' ');
-
-            for (string e : anchor)
-            {
-                set_entity_parts.insert(stoi(e));
-                check_anchor[stoi(e)] = true;
-                check_parts[stoi(e)] = true;
-            }
-
-            while (!input.eof())
-            {
-                input >> str;
-                set_entity_parts.insert(stoi(str));
-                check_parts[stoi(str)] = true;
-            }
-
-            for (auto i = data_train.begin(); i != data_train.end(); ++i)
-            {
-                int head = (*i).first.first;
-                int tail = (*i).first.second;
-                if (check_parts.find(head) != check_parts.end() && check_parts.find(tail) != check_parts.end()){
-                    data_train_parts.push_back(*i);
-                }
-            }
-
-        cout << "entity preprocesing let's get it!" << endl;
-      }
-      else
-      {
-        //relation
-
-        // asdfafdsaasdfdsaafsdfkasd;fk;alsdfk;adlsf;ldasfl;dsf;lsdf;ls
-
-
-
-
-
-
-
-        
-        ifstream input("../tmp/sub_graph_worker_"+ to_string(worker_num) + ".txt");
-            string str;
-            pair<pair<int,int>, int> tmp;
-
-            while (!input.eof())
-            {
-          string head, tail, relation;
-          input >> head >> relation >> tail;
-          if (head == "" && relation == "" && tail == "") break;
-
-          set_entity_parts.insert(stoi(head));
-          set_entity_parts.insert(stoi(tail));
-          set_relation_parts.insert(stoi(relation));
-                tmp.first.first = stoi(head);
-                tmp.second = stoi(relation);
-                tmp.first.second = stoi(tail);
-                data_train_parts.push_back(tmp);
-            }
-
-        cout << "relation preprocessing let's get it!" << endl;
-      }
-      vector_entity_parts.assign(set_entity_parts.begin(), set_entity_parts.end());
-      vector_relation_parts.assign(set_relation_parts.begin(), set_relation_parts.end());
-    }
-    """
 
 
 
@@ -248,6 +171,7 @@ if use_socket:
 
 
     # 임시로 만들어놓음, barrier 같은 기능
+    # 아래 부분을 소켓으로 변경하면 이 줄을 제거
     embedding_iter_end = struct.unpack('!i', embedding_sock.recv(4))[0]
 
 

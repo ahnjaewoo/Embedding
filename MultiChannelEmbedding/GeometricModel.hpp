@@ -52,7 +52,11 @@ public:
 		{
 			for_each(embedding_entity.begin(), embedding_entity.end(), [=](vec& elem) {elem = vec(dim); });
 			for_each(embedding_relation.begin(), embedding_relation.end(), [=](vec& elem) {elem = vec(dim); });
-			// if use socket, cannot load here, load on Embedding.cpp
+
+
+
+
+			// load 함수 부분이 소켓과 연동되어야 함, load 함수 자체에서 처리
 			load("");
 		}
 		else
@@ -513,10 +517,12 @@ public:
 		}
 	}
 
-	// receive data from socket
 	/*
 	virtual void load(const string& filename) override
 	{
+
+		// filename 가 전혀 사용되지 않음을 참고
+
 		ifstream fin_entity("../tmp/entity_vectors.txt", ios::binary);
 		ifstream fin_relation("../tmp/relation_vectors.txt", ios::binary);
 
@@ -560,6 +566,7 @@ public:
 	}
 	*/
 
+	// 원본 load 함수
 	virtual void load(const string& filename) override
 	{
 
