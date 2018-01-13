@@ -319,6 +319,7 @@ public:
       }
       vector_entity_parts.assign(set_entity_parts.begin(), set_entity_parts.end());
       vector_relation_parts.assign(set_relation_parts.begin(), set_relation_parts.end());
+      cout << "# of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << endl;
     }
 
     DataModel(const Dataset& dataset, const string& file_zero_shot, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd)

@@ -135,17 +135,17 @@ def install_libs():
     os.system("pip install hiredis")
 
 
-def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, is_final):
+def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin):
     
     # 첫 iter 에서 embedding.cpp 를 실행해놓음 
     if use_socket and cur_iter == 0:
         
         proc = Popen([f"{root_dir}/MultiChannelEmbedding/Embedding.out", worker_id, \
-            str(cur_iter), str(n_dim), str(lr), str(margin), str(is_final)], cwd=f'{root_dir}/preprocess/')
+            str(cur_iter), str(n_dim), str(lr), str(margin)], cwd=f'{root_dir}/preprocess/')
 
     proc = Popen([
         "python", f"{root_dir}/worker.py", chunk_data,
-        str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(is_final)])
+        str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin)])
     proc.wait()    
 
     return f"{worker_id}: {cur_iter} iteration finished"
@@ -267,14 +267,7 @@ for cur_iter in range(niter):
 
         worker_id = f'worker_{i}'
         chunk_data = "{}\n{}".format(anchors, chunks[i])
-
-        if cur_iter < niter - 1:
-            
-            workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin, 0))
-
-        else:
-
-            workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin, 1))
+        workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin))
 
     if cur_iter % 2 == 1:
 
@@ -340,6 +333,11 @@ for cur_iter in range(niter):
 
     print("iteration time: %f" % (time() - t_))
 
+proc = Popen([
+        f"{root_dir}/MultiChannelEmbedding/Test.out",
+        worker_id, str(cur_iter),str(n_dim), str(lr), str(margin)],
+        cwd=f'{root_dir}/preprocess/')
+proc.wait()
 # except KeyboardInterrupt:
 #   maxmin_sock.close()
 

@@ -136,15 +136,6 @@ int main(int argc, char* argv[])
 				model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, fd);
 				//model->load(worker_sock);
 
-				//calculating training time
-				struct timeval after, before;
-				gettimeofday(&before, NULL);
-
-				model->run(10);
-
-				gettimeofday(&after, NULL);
-				cout << "training training_data time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
-
 				//after training, put entities and relations into txt file
 				model->save(to_string(worker_num));
 				//model->save(worker_sock);
@@ -154,8 +145,18 @@ int main(int argc, char* argv[])
 				end_iter = htonl(end_iter);
 				send(worker_sock, &end_iter, sizeof(end_iter), 0);
 
+				//calculating testing time
+				struct timeval after, before;
+				gettimeofday(&before, NULL);
+
+				model->test();
+
+				gettimeofday(&after, NULL);
+				cout << "testing test_data time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
+				
 				delete model;
-				close(worker_sock);
+				// close(worker_sock);
+				// reconnect to worker.py
 				// TODO : model->save using socket communication
 			}
 		}
@@ -168,19 +169,12 @@ int main(int argc, char* argv[])
 		//model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, false);
 		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, fd);
 
-
-		//calculating training time
+		//calculating testing time
 		struct timeval after, before;
 		gettimeofday(&before, NULL);
-
-		model->run(10);
-
+		model->test();
 		gettimeofday(&after, NULL);
-		cout << "training training_data time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
-
-		//after training, put entities and relations into txt file
-		model->save(to_string(worker_num));
-
+		cout << "testing test_data time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
 		delete model;
 	}
 
@@ -235,4 +229,4 @@ void getParams(int argc, char* argv[], int& dim, double& alpha, double& training
 		training_threshold = atof(argv[5]);
 		fd = atoi(argv[7]);
 	}
-} 
+}  

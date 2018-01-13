@@ -16,7 +16,6 @@ cur_iter = sys.argv[3]
 embedding_dim = sys.argv[4]
 learning_rate = sys.argv[5]
 margin = sys.argv[6]
-is_final = sys.argv[7]
 root_dir = "/home/rudvlf0413/distributedKGE/Embedding"
 
 # redis에서 embedding vector들 받아오기
@@ -139,7 +138,6 @@ if use_socket:
     embedding_sock.send(struct.pack('!i', int(embedding_dim)))       # int
     embedding_sock.send(struct.pack('d', float(learning_rate)))      # double   endian 때문에 문제 생길 수 있음
     embedding_sock.send(struct.pack('d', float(margin)))             # double   endian 때문에 문제 생길 수 있음
-    embedding_sock.send(struct.pack('!i', int(is_final)))            # int
 
 
 
@@ -332,7 +330,7 @@ if not use_socket:
     t_ = time()
     proc = Popen([
         f"{root_dir}/MultiChannelEmbedding/Embedding.out", 
-        worker_id, cur_iter, embedding_dim, learning_rate, margin, is_final],
+        worker_id, cur_iter, embedding_dim, learning_rate, margin],
         cwd=f'{root_dir}/preprocess/')
     proc.wait()
     print("embedding time: %f" % (time()-t_))
