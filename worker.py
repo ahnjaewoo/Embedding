@@ -39,82 +39,45 @@ relations_initialized = [pickle.loads(v) for v in relations_initialized]
 print("redis server connection time: %f" % (time()-t_))
 
 t_ = time()
-
-if int(cur_iter) % 2 == 0:
-
-
-
-    # 이 부분을 socket 으로 DataModel.hpp, Model.hpp 로 전송해줘야 함
-
-
-
-
-    with open(f"{root_dir}/tmp/maxmin_{worker_id}.txt", 'w') as f:
-        
-        f.write(chunk_data)
-
-else:
-    
-    sub_graphs = pickle.loads(r.get(f'sub_graph_{worker_id}'))
-
-
-
-
-    # 이 부분을 socket 으로 DataModel.hpp, Model.hpp 로 전송해줘야 함
-
-
-
-
-
-
-    with open(f"{root_dir}/tmp/sub_graph_{worker_id}.txt", 'w') as f:
-        
-        for (head_id, relation_id, tail_id) in sub_graphs:
-        
-            f.write(f"{head_id} {relation_id} {tail_id}\n")
-
-
-
-
-
-
-
-
-
-
-# GeometricModel.hpp 의 load 에 전송
-
-# matrix를 text로 빨리 저장하는 법 찾기!
-with open("./tmp/entity_vectors.txt", 'w') as f:
-    for i, vector in enumerate(entities_initialized):
-        f.write(str(entities[i]) + "\t")
-        f.write(" ".join([str(v) for v in vector]) + '\n')
-
-# GeometricModel.hpp 의 load 에 전송
-with open("./tmp/relation_vectors.txt", 'w') as f:
-    for i, relation in enumerate(relations_initialized):
-        f.write(str(relations[i]) + "\t")
-        f.write(" ".join([str(v) for v in relation]) + '\n')
-
-print("file save time: %f" % (time()-t_))
-del entities_initialized
-del relations_initialized
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 use_socket = False
+
+if not use_socket:
+
+    if int(cur_iter) % 2 == 0:
+
+        # 이 부분을 socket 으로 DataModel.hpp, Model.hpp 로 전송해줘야 함
+        with open(f"{root_dir}/tmp/maxmin_{worker_id}.txt", 'w') as f:
+            
+            f.write(chunk_data)
+
+    else:
+        
+        sub_graphs = pickle.loads(r.get(f'sub_graph_{worker_id}'))
+
+        # 이 부분을 socket 으로 DataModel.hpp, Model.hpp 로 전송해줘야 함
+        with open(f"{root_dir}/tmp/sub_graph_{worker_id}.txt", 'w') as f:
+            
+            for (head_id, relation_id, tail_id) in sub_graphs:
+            
+                f.write(f"{head_id} {relation_id} {tail_id}\n")
+
+    # GeometricModel.hpp 의 load 에 전송
+
+    # matrix를 text로 빨리 저장하는 법 찾기!
+    with open("./tmp/entity_vectors.txt", 'w') as f:
+        for i, vector in enumerate(entities_initialized):
+            f.write(str(entities[i]) + "\t")
+            f.write(" ".join([str(v) for v in vector]) + '\n')
+
+    # GeometricModel.hpp 의 load 에 전송
+    with open("./tmp/relation_vectors.txt", 'w') as f:
+        for i, relation in enumerate(relations_initialized):
+            f.write(str(relations[i]) + "\t")
+            f.write(" ".join([str(v) for v in relation]) + '\n')
+
+    print("file save time: %f" % (time()-t_))
+    del entities_initialized
+    del relations_initialized
 
 # embedding.cpp 와 socket 통신
 # master 에서 embedding.cpp 를 실행해놓고, worker 는 접속만 함
@@ -140,39 +103,93 @@ if use_socket:
     embedding_sock.send(struct.pack('d', float(learning_rate)))      # double   endian 때문에 문제 생길 수 있음
     embedding_sock.send(struct.pack('d', float(margin)))             # double   endian 때문에 문제 생길 수 있음
 
+    # 임시로 만들어놓음, barrier 같은 기능
+    # 아래 부분을 소켓으로 변경하면 이 줄을 제거
+    # embedding_iter_end = struct.unpack('!i', embedding_sock.recv(4))[0]
 
     # DataModel.hpp 와의 통신 다음에 GeometricModel.hpp 와의 통신이 필요
     # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서
 
-
-
-
-
-
-
-
-
-
-    # DataModel.hpp 와의 통신 - load 메소드
+    # DataModel.hpp 생성자와 통신
     # "../tmp/maxmin_worker_"+ to_string(worker_num) + ".txt"
     # "../tmp/sub_graph_worker_"+ to_string(worker_num) + ".txt"
-    # 위의 파일 내용을 DataModel.hpp 로 전송해야 함
-    # chunk_data 변수의 내용을 전송
+    # 위의 파일 내용을 전송해야 함
 
+    if int(cur_iter) % 2 == 0:
 
+        # entity 전송
+        chunk_anchor, chunk_entity = chunk_data.split('\n')
+        chunk_entity = chunk_entity.split(' ')
 
+        embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
 
+        for iter_anchor in chunk_anchor:
 
+            embedding_sock.send(struct.pack('!i', int(iter_anchor)))
 
+        embedding_sock.send(struct.pack('!i', len(chunk_entity)))
 
+        for iter_entity in chunk_entity:
 
+            embedding_sock.send(struct.pack('!i', int(iter_entity)))
 
+    else:
 
+        # relation 전송
+        sub_graphs = pickle.loads(r.get(f'sub_graph_{worker_id}'))
+        embedding_sock.send(struct.pack('!i', len(sub_graphs)))
 
+        for (head_id, relation_id, tail_id) in sub_graphs:
+        
+            embedding_sock.send(struct.pack('!i', int(head_id)))
+            embedding_sock.send(struct.pack('!i', int(relation_id)))
+            embedding_sock.send(struct.pack('!i', int(tail_id)))
 
-    # 임시로 만들어놓음, barrier 같은 기능
-    # 아래 부분을 소켓으로 변경하면 이 줄을 제거
-    # embedding_iter_end = struct.unpack('!i', embedding_sock.recv(4))[0]
+    # GeometricModel load 메소드와 통신
+    """
+    # matrix를 text로 빨리 저장하는 법 찾기!
+    with open("./tmp/entity_vectors.txt", 'w') as f:
+        for i, vector in enumerate(entities_initialized):
+            f.write(str(entities[i]) + "\t")
+            f.write(" ".join([str(v) for v in vector]) + '\n')
+
+    # GeometricModel.hpp 의 load 에 전송
+    with open("./tmp/relation_vectors.txt", 'w') as f:
+        for i, relation in enumerate(relations_initialized):
+            f.write(str(relations[i]) + "\t")
+            f.write(" ".join([str(v) for v in relation]) + '\n')
+
+    print("file save time: %f" % (time()-t_))
+    del entities_initialized
+    del relations_initialized
+    """
+
+    # entity_vector 전송
+    for i, vector in enumerate(entities_initialized):
+
+        entity_name = str(entities[i])
+        embedding_sock.send(struct.pack('!i', len(entity_name)))
+        
+        embedding_sock.send(struct.pack(, entity_name))         # entity string 자체를 전송
+
+        for v in vector:
+
+            embedding_sock.send(struct.pack('d', float(v)))
+
+    # relation_vector 전송
+    for i, relation in enumerate(relations_initialized):
+        
+        relation_name = str(relations[i])
+        embedding_sock.send(struct.pack('!i', len(relation_name)))
+
+        embedding_sock.send(struct.pack(, relation_name))       # relation string 자체를 전송
+
+        for v in relation:
+
+            embedding_sock.send(struct.pack('d', float(v)))
+
+    del entities_initialized
+    del relations_initialized
 
     w_id = worker_id.split('_')[1]
     t_ = time()

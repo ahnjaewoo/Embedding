@@ -74,8 +74,7 @@ public:
     int zeroshot_pointer;
 
 public:
-    DataModel(const Dataset& dataset, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd)
-    {
+    DataModel(const Dataset& dataset, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd) {
     	if (is_preprocessed)
     	{
     		ifstream input("../tmp/data_model.bin", ios_base::binary);
@@ -228,96 +227,173 @@ public:
 
 	        output.close();
     	}
-      if (master_epoch % 2 == 0)
-      {
-        //entity
 
+        if (master_epoch % 2 == 0) {
+            
+            //entity
+            if (fd == 0) {
 
-        // fd 변수를 사용
+                // 파일로 가져옴
+                ifstream input("../tmp/maxmin_worker_"+ to_string(worker_num) + ".txt");
+                string str;
+                vector<string> anchor;
 
+                getline(input, str);
+                anchor = split(str, ' ');
 
+                for (string e : anchor)
+                {
+                    set_entity_parts.insert(stoi(e));
+                    check_anchor[stoi(e)] = true;
+                    check_parts[stoi(e)] = true;
+                }
 
-        //send(worker_sock, &end_iter, sizeof(end_iter), 0);
+                while (!input.eof())
+                {
+                    input >> str;
+                    set_entity_parts.insert(stoi(str));
+                    check_parts[stoi(str)] = true;
+                }         
+            }
+            else {
 
+                // 소켓으로 가져옴
+                int anchor_num;
+                int entity_num;
+                int temp_value;
 
+                if (recv(fd, &anchor_num, sizeof(anchor_num), 0) < 0){
 
+                    close(fd);
+                    break;
+                }
 
+                for (int idx = 0; idx < ntohl(anchor_num); idx++) {
 
+                    if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
 
+                        close(fd);
+                        break;
+                    }
 
+                    temp_value = ntohl(temp_value);
+                    set_entity_parts.insert(temp_value);
+                    check_anchor[temp_value] = true;
+                    check_parts[temp_value] = true;
+                }
 
+                if (recv(fd, &entity_num, sizeof(entity_num), 0) < 0){
 
+                    close(fd);
+                    break;
+                }
 
+                for (int idx = 0; idx < ntohl(entity_num); idx++) {
 
-        ifstream input("../tmp/maxmin_worker_"+ to_string(worker_num) + ".txt");
-    		string str;
-    		vector<string> anchor;
+                    if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
 
-    		getline(input, str);
-    		anchor = split(str, ' ');
+                        close(fd);
+                        break;
+                    }
 
-    		for (string e : anchor)
-    		{
-    			set_entity_parts.insert(stoi(e));
-    			check_anchor[stoi(e)] = true;
-    			check_parts[stoi(e)] = true;
-    		}
+                    temp_value = ntohl(temp_value)
+                    set_entity_parts.insert(temp_value);
+                    check_parts[temp_value] = true;
+                }
+            }
 
-    		while (!input.eof())
-    		{
-    			input >> str;
-    			set_entity_parts.insert(stoi(str));
-    			check_parts[stoi(str)] = true;
-    		}
+            for (auto i = data_train.begin(); i != data_train.end(); ++i) {
+                
+                int head = (*i).first.first;
+                int tail = (*i).first.second;
+                
+                if (check_parts.find(head) != check_parts.end() && check_parts.find(tail) != check_parts.end()){
+                
+                    data_train_parts.push_back(*i);
+                }
+            }
 
-    		for (auto i = data_train.begin(); i != data_train.end(); ++i)
-    		{
-    			int head = (*i).first.first;
-    			int tail = (*i).first.second;
-    			if (check_parts.find(head) != check_parts.end() && check_parts.find(tail) != check_parts.end()){
-    				data_train_parts.push_back(*i);
-    			}
-    		}
+            cout << "entity preprocesing let's get it!" << endl;   
+        }
+        else {
+            //relation
+            if (fd == 0) {
 
-        cout << "entity preprocesing let's get it!" << endl;
-      }
-      else
-      {
-        //relation
+                // 파일로 가져옴
+                ifstream input("../tmp/sub_graph_worker_"+ to_string(worker_num) + ".txt");
+                string str;
+                pair<pair<int,int>, int> tmp;
 
-        // fd 변수를 사용
+                while (!input.eof())
+                {
+                    string head, tail, relation;
+                    input >> head >> relation >> tail;
+                    if (head == "" && relation == "" && tail == "") break;
 
+                    set_entity_parts.insert(stoi(head));
+                    set_entity_parts.insert(stoi(tail));
+                    set_relation_parts.insert(stoi(relation));
+                    tmp.first.first = stoi(head);
+                    tmp.second = stoi(relation);
+                    tmp.first.second = stoi(tail);
+                    data_train_parts.push_back(tmp);
+                }
 
+                cout << "relation preprocessing let's get it!" << endl;
+            }
+            else {
 
+                // 소켓으로 가져옴
+                int triplet_num = 0;
+                int temp_value_head;
+                int temp_value_relation;
+                int temp_value_tail;
+                pair<pair<int,int>, int> tmp;
 
+                if (recv(fd, &triplet_num, sizeof(triplet_num), 0) < 0){
 
+                    close(fd);
+                    break;
+                }
 
+                for (int idx = 0; idx < ntohl(triplet_num); idx++) {
 
-        
-        ifstream input("../tmp/sub_graph_worker_"+ to_string(worker_num) + ".txt");
-    		string str;
-    		pair<pair<int,int>, int> tmp;
+                    if (recv(fd, &temp_value_head, sizeof(temp_value_head), 0) < 0){
 
-    		while (!input.eof())
-    		{
-          string head, tail, relation;
-          input >> head >> relation >> tail;
-          if (head == "" && relation == "" && tail == "") break;
+                        close(fd);
+                        break;
+                    }
 
-          set_entity_parts.insert(stoi(head));
-          set_entity_parts.insert(stoi(tail));
-          set_relation_parts.insert(stoi(relation));
-    			tmp.first.first = stoi(head);
-    			tmp.second = stoi(relation);
-    			tmp.first.second = stoi(tail);
-    			data_train_parts.push_back(tmp);
-    		}
+                    if (recv(fd, &temp_value_relation, sizeof(temp_value_relation), 0) < 0){
 
-        cout << "relation preprocessing let's get it!" << endl;
-      }
-      vector_entity_parts.assign(set_entity_parts.begin(), set_entity_parts.end());
-      vector_relation_parts.assign(set_relation_parts.begin(), set_relation_parts.end());
-      cout << "# of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << endl;
+                        close(fd);
+                        break;
+                    }
+
+                    if (recv(fd, &temp_value_tail, sizeof(temp_value_tail), 0) < 0){
+
+                        close(fd);
+                        break;
+                    }
+
+                    temp_value_head = ntohl(temp_value_head);
+                    temp_value_relation = ntohl(temp_value_relation);
+                    temp_value_tail = ntohl(temp_value_tail);
+
+                    set_entity_parts.insert(temp_value_head);
+                    set_entity_parts.insert(temp_value_tail);
+                    set_relation_parts.insert(temp_value_relation);
+                    tmp.first.first = temp_value_head;
+                    tmp.second = temp_value_relation;
+                    tmp.first.second = temp_value_tail;
+                    data_train_parts.push_back(tmp);
+                }
+                cout << "relation preprocessing let's get it!" << endl;
+            }
+        }
+        vector_entity_parts.assign(set_entity_parts.begin(), set_entity_parts.end());
+        vector_relation_parts.assign(set_relation_parts.begin(), set_relation_parts.end());
+        cout << "# of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << endl;
     }
 
     DataModel(const Dataset& dataset, const string& file_zero_shot, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd)

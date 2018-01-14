@@ -517,55 +517,97 @@ public:
 		}
 	}
 
-	/*
 	virtual void load(const string& filename) override
 	{
 
 		// filename 가 전혀 사용되지 않음을 참고
 
-		ifstream fin_entity("../tmp/entity_vectors.txt", ios::binary);
-		ifstream fin_relation("../tmp/relation_vectors.txt", ios::binary);
+		if (fd == 0) {
 
-		string key;
+			// 파일로 전송
+			ifstream fin_entity("../tmp/entity_vectors.txt", ios::binary);
+			ifstream fin_relation("../tmp/relation_vectors.txt", ios::binary);
 
+			string key;
 
-		for (int i = 0; i < count_entity(); i++)
-		{
-			fin_entity >> key;
-			if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
+			for (int i = 0; i < count_entity(); i++)
 			{
-				cout << "entity key does not exist! entity number : " << i << endl;
-				return;
-			}
-			int entity_id = data_model.entity_name_to_id.at(key);
+				fin_entity >> key;
+				if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
+				{
+					cout << "entity key does not exist! entity number : " << i << endl;
+					return;
+				}
+				int entity_id = data_model.entity_name_to_id.at(key);
 
-			for (int j = 0; j < dim; j++)
-			{
-				fin_entity >> embedding_entity[entity_id](j);
+				for (int j = 0; j < dim; j++)
+				{
+					fin_entity >> embedding_entity[entity_id](j);
+				}
 			}
+
+			for (int i = 0; i < count_relation(); i++)
+			{
+				fin_relation >> key;
+				if (data_model.relation_name_to_id.find(key) == data_model.relation_name_to_id.end())
+				{
+					cout << "relation key does not exist!" << endl;
+					return;
+				}
+				int relation_id = data_model.relation_name_to_id.at(key);
+
+				for (int j = 0; j < dim; j++)
+				{
+					fin_relation >> embedding_relation[relation_id](j);
+				}
+			}
+
+			fin_entity.close();
+			fin_relation.close();
 		}
+		else {
 
-		for (int i = 0; i < count_relation(); i++)
-		{
-			fin_relation >> key;
-			if (data_model.relation_name_to_id.find(key) == data_model.relation_name_to_id.end())
-			{
-				cout << "relation key does not exist!" << endl;
-				return;
-			}
-			int relation_id = data_model.relation_name_to_id.at(key);
+			// 소켓으로 전송
+			string key;
+			int key_length;
+			double temp_vector;
 
-			for (int j = 0; j < dim; j++)
-			{
-				fin_relation >> embedding_relation[relation_id](j);
+			for (int i = 0; i < count_entity(); i++) {
+
+				// entity key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
+                if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
+
+                    close(fd);
+                    break;
+                }
+
+                key_length = ntohl(key_length);
+
+                
+                //if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
+
+                //    close(fd);
+                //    break;
+                //}
+
+
+				if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
+				{
+					cout << "entity key does not exist! entity number : " << i << endl;
+					return;
+				}
+				int entity_id = data_model.entity_name_to_id.at(key);
+
+				for (int j = 0; j < dim; j++)
+				{
+					fin_entity >> embedding_entity[entity_id](j);
+				}
 			}
+
 		}
-
-		fin_entity.close();
-		fin_relation.close();
 	}
-	*/
-
+	
+	/*
 	// 원본 load 함수
 	virtual void load(const string& filename) override
 	{
@@ -611,6 +653,7 @@ public:
 		fin_entity.close();
 		fin_relation.close();
 	}
+	*/
 };
 
 class TransE_ESS
