@@ -15,6 +15,15 @@
 #include <iterator>
 #include <sstream>
 
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
 class DataModel
 {
 public:
@@ -265,7 +274,7 @@ public:
                 if (recv(fd, &anchor_num, sizeof(anchor_num), 0) < 0){
 
                     close(fd);
-                    break;
+                    return;
                 }
 
                 for (int idx = 0; idx < ntohl(anchor_num); idx++) {
@@ -273,7 +282,7 @@ public:
                     if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
 
                         close(fd);
-                        break;
+                        return;
                     }
 
                     temp_value = ntohl(temp_value);
@@ -285,7 +294,7 @@ public:
                 if (recv(fd, &entity_num, sizeof(entity_num), 0) < 0){
 
                     close(fd);
-                    break;
+                    return;
                 }
 
                 for (int idx = 0; idx < ntohl(entity_num); idx++) {
@@ -293,10 +302,10 @@ public:
                     if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
 
                         close(fd);
-                        break;
+                        return;
                     }
 
-                    temp_value = ntohl(temp_value)
+                    temp_value = ntohl(temp_value);
                     set_entity_parts.insert(temp_value);
                     check_parts[temp_value] = true;
                 }
@@ -353,7 +362,7 @@ public:
                 if (recv(fd, &triplet_num, sizeof(triplet_num), 0) < 0){
 
                     close(fd);
-                    break;
+                    return;
                 }
 
                 for (int idx = 0; idx < ntohl(triplet_num); idx++) {
