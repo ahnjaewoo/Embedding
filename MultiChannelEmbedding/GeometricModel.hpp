@@ -571,6 +571,7 @@ public:
 			string key;
 			int key_length;
 			double temp_vector;
+			vector<char> temp_buff(256);
 
 			for (int i = 0; i < count_entity(); i++) {
 
@@ -583,27 +584,74 @@ public:
 
                 key_length = ntohl(key_length);
 
-                
-                //if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
+                if (recv(fd, &temp_buff[0], sizeof(char) * key_length, 0) < 0){
 
-                //    close(fd);
-                //    break;
-                //}
+                    close(fd);
+                    break;
+                }
 
+                key.assign(&(temp_buff[0]),temp_buff.size());
 
 				if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
 				{
 					cout << "entity key does not exist! entity number : " << i << endl;
 					return;
 				}
+
 				int entity_id = data_model.entity_name_to_id.at(key);
 
 				for (int j = 0; j < dim; j++)
 				{
-					fin_entity >> embedding_entity[entity_id](j);
+
+	                if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
+
+	                    close(fd);
+	                    break;
+	                }
+
+					embedding_entity[entity_id](j) = temp_vector;
 				}
 			}
 
+			for (int i = 0; i < count_relation(); i++) {
+
+
+                if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
+
+                    close(fd);
+                    break;
+                }
+
+                key_length = ntohl(key_length);
+
+                if (recv(fd, &temp_buff[0], sizeof(char) * key_length, 0) < 0){
+
+                    close(fd);
+                    break;
+                }
+
+                key.assign(&(temp_buff[0]),temp_buff.size());
+
+				if (data_model.relation_name_to_id.find(key) == data_model.relation_name_to_id.end())
+				{
+					cout << "relation key does not exist!" << endl;
+					return;
+				}
+
+				int relation_id = data_model.relation_name_to_id.at(key);
+
+				for (int j = 0; j < dim; j++)
+				{
+
+	                if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
+
+	                    close(fd);
+	                    break;
+	                }
+
+					embedding_relation[relation_id](j) = temp_vector;
+				}
+			}
 		}
 	}
 	

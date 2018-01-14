@@ -170,7 +170,7 @@ if use_socket:
         entity_name = str(entities[i])
         embedding_sock.send(struct.pack('!i', len(entity_name)))
         
-        embedding_sock.send(struct.pack(, entity_name))         # entity string 자체를 전송
+        embedding_sock.send(struct.pack('s', entity_name))             # entity string 자체를 전송
 
         for v in vector:
 
@@ -182,7 +182,7 @@ if use_socket:
         relation_name = str(relations[i])
         embedding_sock.send(struct.pack('!i', len(relation_name)))
 
-        embedding_sock.send(struct.pack(, relation_name))       # relation string 자체를 전송
+        embedding_sock.send(struct.pack('s', relation_name))       # relation string 자체를 전송
 
         for v in relation:
 
@@ -222,7 +222,7 @@ if use_socket:
                 entity_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
         r.mset(entity_vectors)
         """
-   
+
     else:
         relation_vectors = dict()
 
@@ -265,7 +265,6 @@ if not use_socket:
         cwd=f'{root_dir}/preprocess/')
     proc.wait()
     print("embedding time: %f" % (time()-t_))
-
 
     # 이 부분을 socket 통신으로 대체할 필요가 있음
     # 현재 embeding.cpp 자체에서는 못하고, 그 코드를 타고 들어가야 가능함
