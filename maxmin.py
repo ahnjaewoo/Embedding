@@ -9,8 +9,7 @@ import random
 import socket
 import struct
 
-
-use_socket = False
+use_socket = True
 
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
@@ -46,6 +45,8 @@ if use_socket:
     non_anchor_edge_included_vertex = set()
     entity_cnt = 0
 
+    entity_degree = defaultdict(int)
+
     for file in data_files:
         with open(root+file, 'r') as f:
             for line in f:
@@ -58,6 +59,9 @@ if use_socket:
                 if tail not in entity2id:
                     entity2id[tail] = entity_cnt
                     entity_cnt += 1
+                
+                entity_degree[entity2id[head]] += 1
+                entity_degree[entity2id[tail]] += 1
 
     with open(root+data_files[0], 'r') as f:
         for line in f:
@@ -72,16 +76,12 @@ if use_socket:
         edge_list.append((entity2id[hd], entity2id[tl]))
 
 
-
-
-
     # while 안에서 문제가 발생함
 
     while True:
+        master_status = master_sock.recv(1).decode()
 
-        master_status = struct.unpack('!i', master_sock.recv(4))[0]
-
-        if master_status == 1:
+        if master_status == '1':
             # 연결을 끊음
             maxmin_sock.close()
             sys.exit(0)
@@ -135,12 +135,16 @@ if use_socket:
         G = nx.Graph()
         G.add_edges_from(non_anchor_edge_list)
 
+        for node, degree in entity_degree:
+            if node in G:
+                G[node]['node_weight'] = degree
+
         options = nxmetis.MetisOptions(     # objtype=1 => vol
             ptype=-1, objtype=1, ctype=-1, iptype=-1, rtype=-1, ncuts=-1,
             nseps=-1, numbering=-1, niter=cur_iter, seed=-1, minconn=-1, no2hop=-1,
             contig=-1, compress=-1, ccorder=-1, pfactor=-1, ufactor=-1, dbglvl=-1)
 
-        (edgecuts, parts) = nxmetis.partition(G, nparts=partition_num)
+        (edgecuts, parts) = nxmetis.partition(G, nparts=partition_num, node_weight='node_weight')
 
         # putting residue randomly into non anchor set
         residue = non_anchor_id.difference(non_anchor_edge_included_vertex)
@@ -152,22 +156,11 @@ if use_socket:
 
 
 
-        # 작업 결과를 master 로 전송
-        master_sock.send(struct.pack('!i', len(list(anchor))))
 
-        for anchor_val in list(anchor):
+        # 밑의 부분을 socket 으로 전송해야 함
 
-            master_sock.send(struct.pack('!i', anchor_val))
 
-        for nas in parts:
 
-            master_sock.send(struct.pack('!i', len(nas)))
-
-            for nas_val in nas:
-
-                master_sock.send(struct.pack('!i', nas_val))
-
-        """
         # writing output file
         with open(output_file, "w") as fwrite:
             fwrite.write(" ".join([str(i) for i in anchor])+"\n")
@@ -175,14 +168,27 @@ if use_socket:
             for nas in parts:
                 fwrite.write(" ".join([str(i) for i in nas])+"\n")
                 print(len(" ".join([str(i) for i in nas])))
-        """
 
         print("max-min cut finished - max-min time: {}".format((time()-t_)))
 
+        master_sock.send(b'0')
+
+        # 작업 결과를 전송
+        # 현재 anchor 와 nas 의 type 이 어찌된 지 몰라서 임시로 작성
+        # string(anchor), string(nas) 를 socket 으로 전송 후 eval 해서 복구
+        # anchor 와 nas 를 string 으로 바꾸었을 때, 글자 수가 길다면 분할해서 전송해야 함
+        # 분할 전송을 하는 경우, anchor 와 nas 를 전송할 때 사용하는 규칙이 필요
+        #master_sock.send(string(anchor))
+        #master_sock.send(string(nas))
 
 
 
-if not use_socket:
+
+
+
+
+
+if False:
     t_ = time()
     root = 'fb15k'
     data_files = ['/train.txt','/dev.txt', '/test.txt']
