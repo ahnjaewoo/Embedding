@@ -9,7 +9,7 @@ import random
 import socket
 import struct
 
-use_socket = True
+use_socket = False
 
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
@@ -135,9 +135,9 @@ if use_socket:
         G = nx.Graph()
         G.add_edges_from(non_anchor_edge_list)
 
-        for node, degree in entity_degree:
+        for node, degree in entity_degree.items():
             if node in G:
-                G[node]['node_weight'] = degree
+                G.node[node]['node_weight'] = degree
 
         options = nxmetis.MetisOptions(     # objtype=1 => vol
             ptype=-1, objtype=1, ctype=-1, iptype=-1, rtype=-1, ncuts=-1,
@@ -188,7 +188,7 @@ if use_socket:
 
 
 
-if False:
+if not use_socket:
     t_ = time()
     root = 'fb15k'
     data_files = ['/train.txt','/dev.txt', '/test.txt']
@@ -210,6 +210,8 @@ if False:
     non_anchor_edge_included_vertex = set()
     entity_cnt = 0
 
+    entity_degree = defaultdict(int)
+
     for file in data_files:
         with open(root+file, 'r') as f:
             for line in f:
@@ -222,6 +224,9 @@ if False:
                 if tail not in entity2id:
                     entity2id[tail] = entity_cnt
                     entity_cnt += 1
+
+                entity_degree[entity2id[head]] += 1
+                entity_degree[entity2id[tail]] += 1
 
     with open(root+data_files[0], 'r') as f:
         for line in f:
@@ -293,12 +298,16 @@ if False:
     #       nxmetis.partition(G, nparts=partition_num, node_weight='node_weight')        
     G.add_edges_from(non_anchor_edge_list)
 
+    for node, degree in entity_degree.items():
+        if node in G:
+            G.node[node]['node_weight'] = degree
+
     options = nxmetis.MetisOptions(     # objtype=1 => vol
         ptype=-1, objtype=1, ctype=-1, iptype=-1, rtype=-1, ncuts=-1,
         nseps=-1, numbering=-1, niter=cur_iter, seed=-1, minconn=-1, no2hop=-1,
         contig=-1, compress=-1, ccorder=-1, pfactor=-1, ufactor=-1, dbglvl=-1)
 
-    (edgecuts, parts) = nxmetis.partition(G, nparts=partition_num)
+    (edgecuts, parts) = nxmetis.partition(G, nparts=partition_num, node_weight='node_weight')
 
     # putting residue randomly into non anchor set
     residue = non_anchor_id.difference(non_anchor_edge_included_vertex)
