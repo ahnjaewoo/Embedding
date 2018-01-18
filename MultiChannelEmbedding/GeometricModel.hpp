@@ -416,7 +416,7 @@ public:
 	{
 
 		int string_len;
-		int count;
+		int count = 0;
 		double value_to_send;
 
 		// 파일로 전송
@@ -463,11 +463,23 @@ public:
 		// socket 으로 전송
 		else {
 
+			count = 0;
+
 			// master_epoch이 짝수일 때 (entity embedding ㄱㄱ)
 			if (master_epoch % 2 == 0)
 			{
 
-				count = count_entity();
+				for (int i = 0; i < count_entity(); i++)
+				{
+					if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+					&& data_model.check_parts.find(i) != data_model.check_parts.end())
+					{
+
+						count++;
+					}
+				}
+
+				count = htonl(count);
 				send(fd, &count, sizeof(count), 0);
 
 				for (int i = 0; i < count_entity(); i++)
@@ -476,7 +488,8 @@ public:
 					&& data_model.check_parts.find(i) != data_model.check_parts.end())
 					{
 
-						string_len = strlen(data_model.entity_id_to_name[i].c_str());
+						string_len = data_model.entity_id_to_name[i].size();
+						string_len = htonl(string_len);
 						send(fd, &string_len, sizeof(string_len), 0);
 						send(fd, data_model.entity_id_to_name[i].c_str() , string_len, 0);
 
@@ -493,7 +506,17 @@ public:
 			else
 			{
 
-				count = count_relation();
+				for (int i = 0; i < count_entity(); i++)
+				{
+					if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+					&& data_model.check_parts.find(i) != data_model.check_parts.end())
+					{
+
+						count++;
+					}
+				}
+
+				count = htonl(count);
 				send(fd, &count, sizeof(count), 0);
 
 				for (int i = 0; i < count_relation(); i++)
@@ -501,7 +524,8 @@ public:
 					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end())
 					{
 
-						string_len = strlen(data_model.relation_id_to_name[i].c_str());
+						string_len = data_model.relation_id_to_name[i].size();
+						string_len = htonl(string_len);
 						send(fd, &string_len, sizeof(string_len), 0);
 						send(fd, data_model.relation_id_to_name[i].c_str() , string_len, 0);
 
@@ -584,16 +608,32 @@ public:
 
                 key_length = ntohl(key_length);
 
-                if (recv(fd, &temp_buff[0], sizeof(char) * key_length, 0) < 0){
+                if (recv(fd, &(temp_buff[0]), sizeof(char) * key_length, 0) < 0){
 
                     close(fd);
                     break;
                 }
 
-                key.assign(&(temp_buff[0]),temp_buff.size());
+                key.assign(&(temp_buff[0]), key_length);
 
 				if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
 				{
+
+
+
+
+					// 여기에서 문제가 생기는 것 같음
+
+
+
+
+
+
+
+
+
+
+
 					cout << "entity key does not exist! entity number : " << i << endl;
 					return;
 				}
@@ -634,6 +674,19 @@ public:
 
 				if (data_model.relation_name_to_id.find(key) == data_model.relation_name_to_id.end())
 				{
+
+
+
+
+					// 여기도 마찬가지일듯
+
+
+
+
+
+
+
+
 					cout << "relation key does not exist!" << endl;
 					return;
 				}

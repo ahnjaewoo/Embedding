@@ -119,6 +119,7 @@ if use_socket:
 
         # entity 전송
         chunk_anchor, chunk_entity = chunk_data.split('\n')
+        chunk_anchor = list(eval(chunk_anchor))
         chunk_entity = chunk_entity.split(' ')
 
         embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
@@ -170,7 +171,7 @@ if use_socket:
         entity_name = str(entities[i])
         embedding_sock.send(struct.pack('!i', len(entity_name)))
         
-        embedding_sock.send(struct.pack('s', entity_name))             # entity string 자체를 전송
+        embedding_sock.send(struct.pack('s', str.encode(entity_name)))             # entity string 자체를 전송
 
         for v in vector:
 
@@ -182,7 +183,7 @@ if use_socket:
         relation_name = str(relations[i])
         embedding_sock.send(struct.pack('!i', len(relation_name)))
 
-        embedding_sock.send(struct.pack('s', relation_name))       # relation string 자체를 전송
+        embedding_sock.send(struct.pack('s', str.encode(relation_name)))       # relation string 자체를 전송
 
         for v in relation:
 
@@ -207,7 +208,7 @@ if use_socket:
 
             temp_entity_vector = list()
             entity_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
-            entity_id = struct.unpack('!s', embedding_sock.recv(entity_id_len))[0]
+            entity_id = embedding_sock.recv(entity_id_len).decode()
 
             for dim_idx in range(int(embedding_dim)):
 
@@ -224,6 +225,7 @@ if use_socket:
         """
 
     else:
+        
         relation_vectors = dict()
 
         # 처리 결과를 받아옴
@@ -235,7 +237,7 @@ if use_socket:
 
             temp_relation_vector = list()
             relation_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
-            relation_id = struct.unpack('!s', embedding_sock.recv(relation_id_len))[0]
+            relation_id = embedding_sock.recv(relation_id_len).decode()
 
             for dim_idx in range(int(embedding_dim)):
 
