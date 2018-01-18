@@ -60,16 +60,19 @@ int main(int argc, char* argv[])
 		// create socket and check it is valid
 		if ((embedding_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
 
+			printf("[error] create socket in embedding.cpp\n");
 			return -1;
 		}
 
 		if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
 
+			printf("[error] bind socket in embedding.cpp\n");
 			return -1;
 		}
 
 		if (listen(embedding_sock, 1) < 0){
 
+			printf("[error] listen socket in embedding.cpp\n");
 			return -1;
 		}
 
@@ -79,6 +82,7 @@ int main(int argc, char* argv[])
 
 			if ((worker_sock = accept(embedding_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
 
+				printf("[error] accept socket in embedding.cpp\n");
 				return -1;
 			}
 
@@ -86,11 +90,13 @@ int main(int argc, char* argv[])
 
 				if (recv(worker_sock, &flag_iter, sizeof(flag_iter), 0) < 0){
 
+					printf("[error] recv flag_iter in embedding.cpp\n");
 					close(worker_sock);
 					break;
 				}
 
 				if (ntohl(flag_iter) == 1){
+
 
 					close(worker_sock);
 					break;
@@ -99,30 +105,35 @@ int main(int argc, char* argv[])
 				// receive data
 				if(recv(worker_sock, &worker_num, sizeof(worker_num), 0) < 0){
 
+					printf("[error] recv worker_num in embedding.cpp\n");
 					close(worker_sock);
 					break;
 				}
 
 				if(recv(worker_sock, &master_epoch, sizeof(master_epoch), 0) < 0){
 
+					printf("[error] recv master_epoch in embedding.cpp\n");
 					close(worker_sock);
 					break;
 				}
 
 				if(recv(worker_sock, &dim, sizeof(dim), 0) < 0){
 
+					printf("[error] recv dim in embedding.cpp\n");
 					close(worker_sock);
 					break;
 				}
 
 				if(recv(worker_sock, &alpha, sizeof(alpha), 0) < 0){
 
+					printf("[error] recv alpha in embedding.cpp\n");
 					close(worker_sock);
 					break;
 				}
 
 				if(recv(worker_sock, &training_threshold, sizeof(training_threshold), 0) < 0){
 
+					printf("[error] recv training_threshold in embedding.cpp\n");
 					close(worker_sock);
 					break;
 				}

@@ -602,6 +602,7 @@ public:
 				// entity key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
                 if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
 
+                	printf("[error] recv key_length in GeometricModel.hpp\n");
                     close(fd);
                     break;
                 }
@@ -610,6 +611,7 @@ public:
 
                 if (recv(fd, &(temp_buff[0]), sizeof(char) * key_length, 0) < 0){
 
+                	printf("[error] recv temp_buff in GeometricModel.hpp\n");
                     close(fd);
                     break;
                 }
@@ -618,21 +620,6 @@ public:
 
 				if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
 				{
-
-
-
-
-					// 여기에서 문제가 생기는 것 같음
-
-
-
-
-
-
-
-
-
-
 
 					cout << "entity key does not exist! entity number : " << i << endl;
 					return;
@@ -645,6 +632,7 @@ public:
 
 	                if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
 
+	                	printf("[error] recv temp_vector for loop of dim in GeometricModel.hpp\n");
 	                    close(fd);
 	                    break;
 	                }
@@ -658,6 +646,7 @@ public:
 
                 if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
 
+                	printf("[error] recv key_length in GeometricModel.hpp\n");
                     close(fd);
                     break;
                 }
@@ -666,28 +655,17 @@ public:
 
                 if (recv(fd, &temp_buff[0], sizeof(char) * key_length, 0) < 0){
 
+                	printf("[error] recv temp_buff in GeometricModel.hpp\n");
                     close(fd);
                     break;
                 }
 
-                key.assign(&(temp_buff[0]),temp_buff.size());
+                key.assign(&(temp_buff[0]), key_length);
 
 				if (data_model.relation_name_to_id.find(key) == data_model.relation_name_to_id.end())
 				{
 
-
-
-
-					// 여기도 마찬가지일듯
-
-
-
-
-
-
-
-
-					cout << "relation key does not exist!" << endl;
+					cout << "relation key does not exist! relation number : " << i << endl;
 					return;
 				}
 
@@ -698,6 +676,7 @@ public:
 
 	                if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
 
+	                	printf("[error] recv temp_vector for loop of dim in GeometricModel.hpp\n");
 	                    close(fd);
 	                    break;
 	                }

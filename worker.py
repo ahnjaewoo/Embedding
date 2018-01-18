@@ -171,7 +171,7 @@ if use_socket:
         entity_name = str(entities[i])
         embedding_sock.send(struct.pack('!i', len(entity_name)))
         
-        embedding_sock.send(struct.pack('s', str.encode(entity_name)))             # entity string 자체를 전송
+        embedding_sock.send(str.encode(entity_name))             # entity string 자체를 전송
 
         for v in vector:
 
@@ -183,7 +183,7 @@ if use_socket:
         relation_name = str(relations[i])
         embedding_sock.send(struct.pack('!i', len(relation_name)))
 
-        embedding_sock.send(struct.pack('s', str.encode(relation_name)))       # relation string 자체를 전송
+        embedding_sock.send(str.encode(relation_name))       # relation string 자체를 전송
 
         for v in relation:
 
@@ -225,7 +225,7 @@ if use_socket:
         """
 
     else:
-        
+
         relation_vectors = dict()
 
         # 처리 결과를 받아옴
