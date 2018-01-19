@@ -273,6 +273,7 @@ public:
 
                 if (recv(fd, &anchor_num, sizeof(anchor_num), 0) < 0){
 
+                    printf("[error] recv anchor_num in DataModel.hpp\n");
                     close(fd);
                     return;
                 }
@@ -281,6 +282,7 @@ public:
 
                     if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
 
+                        printf("[error] recv temp_value for anchor in DataModel.hpp\n");
                         close(fd);
                         return;
                     }
@@ -293,6 +295,7 @@ public:
 
                 if (recv(fd, &entity_num, sizeof(entity_num), 0) < 0){
 
+                    printf("[error] recv entity_num in DataModel.hpp\n");
                     close(fd);
                     return;
                 }
@@ -301,6 +304,7 @@ public:
 
                     if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
 
+                        printf("[error] recv temp_value for entity in DataModel.hpp\n");
                         close(fd);
                         return;
                     }
@@ -322,7 +326,7 @@ public:
                 }
             }
 
-            cout << "entity preprocesing let's get it!" << endl;   
+            cout << "entity preprocesing let's get it! - DataModel.hpp" << endl;   
         }
         else {
             //relation
@@ -347,8 +351,6 @@ public:
                     tmp.first.second = stoi(tail);
                     data_train_parts.push_back(tmp);
                 }
-
-                cout << "relation preprocessing let's get it!" << endl;
             }
             else {
 
@@ -361,6 +363,7 @@ public:
 
                 if (recv(fd, &triplet_num, sizeof(triplet_num), 0) < 0){
 
+                    printf("[error] recv triplet_num in DataModel.hpp\n");
                     close(fd);
                     return;
                 }
@@ -369,18 +372,21 @@ public:
 
                     if (recv(fd, &temp_value_head, sizeof(temp_value_head), 0) < 0){
 
+                        printf("[error] recv temp_value_head in DataModel.hpp\n");
                         close(fd);
                         break;
                     }
 
                     if (recv(fd, &temp_value_relation, sizeof(temp_value_relation), 0) < 0){
 
+                        printf("[error] recv temp_value_relation in DataModel.hpp\n");
                         close(fd);
                         break;
                     }
 
                     if (recv(fd, &temp_value_tail, sizeof(temp_value_tail), 0) < 0){
 
+                        printf("[error] recv temp_value_tail in DataModel.hpp\n");
                         close(fd);
                         break;
                     }
@@ -397,12 +403,12 @@ public:
                     tmp.first.second = temp_value_tail;
                     data_train_parts.push_back(tmp);
                 }
-                cout << "relation preprocessing let's get it!" << endl;
             }
+            cout << "relation preprocessing let's get it! - DataModel.hpp" << endl;
         }
         vector_entity_parts.assign(set_entity_parts.begin(), set_entity_parts.end());
         vector_relation_parts.assign(set_relation_parts.begin(), set_relation_parts.end());
-        cout << "# of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << endl;
+        cout << "# of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << " - DataModel.hpp" << endl;
     }
 
     DataModel(const Dataset& dataset, const string& file_zero_shot, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd)

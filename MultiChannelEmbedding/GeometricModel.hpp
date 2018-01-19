@@ -501,6 +501,7 @@ public:
 						}
 					}
 				}
+				printf("entity save finish - GeometricModel.hpp\n");
 			}
 			// master_epoch이 홀수일 때 (relation embedding ㄱㄱ)
 			else
@@ -537,6 +538,7 @@ public:
 						}
 					}
 				}
+				printf("relation save finish - GeometricModel.hpp\n");
 			}
 		}
 	}
@@ -640,6 +642,7 @@ public:
 					embedding_entity[entity_id](j) = temp_vector;
 				}
 			}
+			printf("load entity finish - GeometricModel.hpp\n");
 
 			for (int i = 0; i < count_relation(); i++) {
 
@@ -684,7 +687,10 @@ public:
 					embedding_relation[relation_id](j) = temp_vector;
 				}
 			}
+			printf("load relation finish - GeometricModel.hpp\n");
 		}
+
+		printf("load function finish - GeometricModel.hpp\n");
 	}
 	
 	/*
