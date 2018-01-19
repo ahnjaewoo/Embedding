@@ -46,20 +46,20 @@ if not use_socket:
     if int(cur_iter) % 2 == 0:
 
         # 이 부분을 socket 으로 DataModel.hpp, Model.hpp 로 전송해줘야 함
-        with open(f"{root_dir}/tmp/maxmin_{worker_id}.txt", 'w') as f:
+        with open("{}/tmp/maxmin_{}.txt".format(root_dir, worker_id), 'w') as f:
             
             f.write(chunk_data)
 
     else:
         
-        sub_graphs = pickle.loads(r.get(f'sub_graph_{worker_id}'))
+        sub_graphs = pickle.loads(r.get('sub_graph_{}'.format(worker_id)))
 
         # 이 부분을 socket 으로 DataModel.hpp, Model.hpp 로 전송해줘야 함
-        with open(f"{root_dir}/tmp/sub_graph_{worker_id}.txt", 'w') as f:
+        with open("{}/tmp/sub_graph_{}.txt".format(root_dir, worker_id), 'w') as f:
             
             for (head_id, relation_id, tail_id) in sub_graphs:
             
-                f.write(f"{head_id} {relation_id} {tail_id}\n")
+                f.write("{} {} {}\n".format(head_id, relation_id, tail_id))
 
     # GeometricModel.hpp 의 load 에 전송
 
@@ -137,7 +137,7 @@ if use_socket:
     else:
 
         # relation 전송
-        sub_graphs = pickle.loads(r.get(f'sub_graph_{worker_id}'))
+        sub_graphs = pickle.loads(r.get('sub_graph_{}'.format(worker_id)))
         embedding_sock.send(struct.pack('!i', len(sub_graphs)))
 
         for (head_id, relation_id, tail_id) in sub_graphs:
@@ -217,7 +217,7 @@ if use_socket:
             entity_vectors[entity_id + '_v'] = pickle.dumps(np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
         r.mset(entity_vectors)
         """
-        with open(f"{root_dir}/tmp/entity_vectors_updated_{w_id}.txt", 'r') as f:
+        with open("{}/tmp/entity_vectors_updated_{w_id}.txt".format(root_dir), 'r') as f:
             for line in f:
                 line = line[:-1].split()
                 entity_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
@@ -247,7 +247,7 @@ if use_socket:
         r.mset(relation_vectors)
         
         """
-        with open(f"{root_dir}/tmp/relation_vectors_updated_{w_id}.txt", 'r') as f:
+        with open("{}/tmp/relation_vectors_updated_{}.txt".format(root_dir, w_id), 'r') as f:
             for line in f:
                 line = line[:-1].split()
                 relation_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
@@ -255,16 +255,16 @@ if use_socket:
         """
 
     print("redis server connection time: %f" % (time()-t_))
-    print(f"{worker_id}: {cur_iter} iteration finished!")
+    print("{}: {} iteration finished!".format(worker_id, cur_iter))
 
 if not use_socket:
     # 이 부분은 호출 대신 socket 통신으로 대체
     # 여기서 C++ 프로그램 호출
     t_ = time()
     proc = Popen([
-        f"{root_dir}/MultiChannelEmbedding/Embedding.out", 
+        "{}/MultiChannelEmbedding/Embedding.out".format(root_dir), 
         worker_id, cur_iter, embedding_dim, learning_rate, margin, train_iter],
-        cwd=f'{root_dir}/preprocess/')
+        cwd='{}/preprocess/'.format(root_dir))
     proc.wait()
     print("embedding time: %f" % (time()-t_))
 
@@ -274,18 +274,18 @@ if not use_socket:
     t_ = time()
     if int(cur_iter) % 2 == 0:
         entity_vectors = {}
-        with open(f"{root_dir}/tmp/entity_vectors_updated_{w_id}.txt", 'r') as f:
+        with open("{}/tmp/entity_vectors_updated_{}.txt".format(root_dir, w_id), 'r') as f:
             for line in f:
                 line = line[:-1].split()
                 entity_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
         r.mset(entity_vectors)
     else:
         relation_vectors = {}
-        with open(f"{root_dir}/tmp/relation_vectors_updated_{w_id}.txt", 'r') as f:
+        with open("{}/tmp/relation_vectors_updated_{}.txt".format(root_dir, w_id), 'r') as f:
             for line in f:
                 line = line[:-1].split()
                 relation_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
         r.mset(relation_vectors)
 
     print("redis server connection time: %f" % (time()-t_))
-    print(f"{worker_id}: {cur_iter} iteration finished!")
+    print("{}: {} iteration finished!".format(worker_id, cur_iter))

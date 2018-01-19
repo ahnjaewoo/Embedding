@@ -47,7 +47,7 @@ use_socket = False
 master_start = time()
 t_ = time()
 print("Preprocessing start...")
-proc = Popen(f"{root_dir}/preprocess/preprocess.out", cwd=f'{root_dir}/preprocess/')
+proc = Popen("%s/preprocess/preprocess.out" % root_dir, cwd='%s/preprocess/' % root_dir)
 
 
 print("read files")
@@ -101,7 +101,7 @@ for c, (relation_list, num) in enumerate(allocated_relation_worker):
     for relation in relation_list:
         for (head, tail) in relation_triples[relation]:
             g.append((head, relation, tail))
-    sub_graphs[f'sub_graph_worker_{c}'] = pickle.dumps(g, protocol=pickle.HIGHEST_PROTOCOL)
+    sub_graphs['sub_graph_worker_%d' % c] = pickle.dumps(g, protocol=pickle.HIGHEST_PROTOCOL)
 
 r = redis.StrictRedis(host='163.152.29.73', port=6379, db=0)
 r.mset(sub_graphs)
@@ -143,15 +143,15 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter):
     # 첫 iter 에서 embedding.cpp 를 실행해놓음 
     if use_socket and cur_iter == 0:
         
-        proc = Popen([f"{root_dir}/MultiChannelEmbedding/Embedding.out", worker_id, \
-            str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter)], cwd=f'{root_dir}/preprocess/')
+        proc = Popen(["%s/MultiChannelEmbedding/Embedding.out" % root_dir, worker_id, \
+            str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter)], cwd='%s/preprocess/' % root_dir)
 
     proc = Popen([
-        "python", f"{root_dir}/worker.py", chunk_data,
+        "python", "%s/worker.py" % root_dir, chunk_data,
         str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter)])
     proc.wait()    
 
-    return f"{worker_id}: {cur_iter} iteration finished"
+    return "%s: %d iteration finished" % (worker_id, cur_iter)
 
 def savePreprocessedData(data, worker_id):
     
@@ -159,7 +159,7 @@ def savePreprocessedData(data, worker_id):
     
     def saveFile(data):
     
-        with open(f"{root_dir}/tmp/data_model_{worker_id}.bin", 'wb') as f:
+        with open("%s/tmp/data_model_%s.bin" % (root_dir, worker_id), 'wb') as f:
     
             f.write(data)
 
@@ -167,7 +167,7 @@ def savePreprocessedData(data, worker_id):
     thread.start()
     thread.join()
 
-    return f"{worker_id} finish saving file!"
+    return "%s finish saving file!" % worker_id
 
 
 client = Client('163.152.29.73:8786', asynchronous=True, name='Embedding')
@@ -177,7 +177,7 @@ if install:
 
 # 전처리 끝날때까지 대기
 proc.wait()
-with open(f"{root_dir}/tmp/data_model.bin", 'rb') as f:
+with open("%s/tmp/data_model.bin" % root_dir, 'rb') as f:
     
     data = f.read()
 
@@ -186,7 +186,7 @@ print("preprocessing time: %f" % (time()-t_))
 workers = list()
 for i in range(num_worker):
     
-    worker_id = f'worker_{i}'
+    worker_id = 'worker_%d' % i
     workers.append(client.submit(savePreprocessedData, data, worker_id))
 
 for worker in as_completed(workers):
@@ -240,7 +240,7 @@ if use_socket:
 
     """
     # maxmin 의 결과를 파일로 받음
-    with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
+    with open("%s/tmp/maxmin_output.txt" % root_dir) as f:
         lines = f.read().splitlines()
         anchors, chunks = lines[0], lines[1:]
     """
@@ -248,10 +248,10 @@ if use_socket:
 # max-min cut 실행, anchor 분배, 파일로 결과 전송
 else:
     
-    proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
+    proc = Popen(["pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
     proc.wait()
     
-    with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
+    with open("%s/tmp/maxmin_output.txt" % root_dir) as f:
     
         lines = f.read().splitlines()
         anchors, chunks = lines[0], lines[1:]
@@ -268,7 +268,7 @@ for cur_iter in range(niter):
     # 작업 배정
     for i in range(num_worker):
 
-        worker_id = f'worker_{i}'
+        worker_id = 'worker_%d' % i
         chunk_data = "{}\n{}".format(anchors, chunks[i])
         workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter))
 
@@ -280,7 +280,7 @@ for cur_iter in range(niter):
             proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), str(cur_iter), str(anchor_num), str(anchor_interval)])
             proc.wait()
 
-            with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
+            with open("{}/tmp/maxmin_output.txt".format(root_dir)) as f:
     
                 lines = f.read().splitlines()
                 anchors, chunks = lines[0], lines[1:]
@@ -321,7 +321,7 @@ for cur_iter in range(niter):
 
             """
             # maxmin 의 결과를 파일로 받음
-            with open(f"{root_dir}/tmp/maxmin_output.txt") as f:
+            with open("{}/tmp/maxmin_output.txt".format(root_dir)) as f:
                 lines = f.read().splitlines()
                 anchors, chunks = lines[0], lines[1:]
             """
@@ -337,9 +337,9 @@ for cur_iter in range(niter):
     print("iteration time: %f" % (time() - t_))
 
 proc = Popen([
-        f"{root_dir}/MultiChannelEmbedding/Test.out",
+        "{}/MultiChannelEmbedding/Test.out".format(root_dir),
         worker_id, str(cur_iter),str(n_dim), str(lr), str(margin)],
-        cwd=f'{root_dir}/preprocess/')
+        cwd='{}/preprocess/'.format(root_dir))
 proc.wait()
 # except KeyboardInterrupt:
 #   maxmin_sock.close()
