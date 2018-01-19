@@ -44,6 +44,7 @@ anchor_interval = args.anchor_interval
 use_socket = False
 
 # 여기서 전처리 C++ 프로그램 비동기 호출
+master_start = time()
 t_ = time()
 print("Preprocessing start...")
 proc = Popen(f"{root_dir}/preprocess/preprocess.out", cwd=f'{root_dir}/preprocess/')
@@ -352,3 +353,5 @@ if use_socket:
 
     maxmin_sock.send(struct.pack('!i', 1))
     maxmin_sock.close()
+
+print("Total elapsed time: %f" % (time() - master_start))
