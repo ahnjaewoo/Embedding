@@ -491,15 +491,14 @@ public:
 						string_len = data_model.entity_id_to_name[i].size();
 						string_len = htonl(string_len);
 						send(fd, &string_len, sizeof(string_len), 0);
+						string_len = ntohl(string_len);
 						send(fd, data_model.entity_id_to_name[i].c_str() , string_len, 0);
 
 						for (int j =0; j < dim; j++)
 						{
-							char temp_buff[16];
+
 							value_to_send = embedding_entity[i](j);
-							memcpy(temp_buff, &value_to_send, sizeof(value_to_send));
-							send(fd, temp_buff, sizeof(value_to_send), 0);
-							//send(fd, &value_to_send, sizeof(value_to_send), 0);
+							send(fd, &value_to_send, sizeof(value_to_send), 0);
 						}
 					}
 				}
@@ -509,10 +508,9 @@ public:
 			else
 			{
 
-				for (int i = 0; i < count_entity(); i++)
+				for (int i = 0; i < count_relation(); i++)
 				{
-					if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
-					&& data_model.check_parts.find(i) != data_model.check_parts.end())
+					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end())
 					{
 
 						count++;
@@ -530,16 +528,14 @@ public:
 						string_len = data_model.relation_id_to_name[i].size();
 						string_len = htonl(string_len);
 						send(fd, &string_len, sizeof(string_len), 0);
+						string_len = ntohl(string_len);
 						send(fd, data_model.relation_id_to_name[i].c_str() , string_len, 0);
 
 						for (int j = 0; j < dim; j++)
 						{
 
-							char temp_buff[16];
 							value_to_send = embedding_relation[i](j);
-							memcpy(temp_buff, &value_to_send, sizeof(value_to_send));
-							send(fd, temp_buff, sizeof(value_to_send), 0);
-							//send(fd, &value_to_send, sizeof(value_to_send), 0);
+							send(fd, &value_to_send, sizeof(value_to_send), 0);
 						}
 					}
 				}
