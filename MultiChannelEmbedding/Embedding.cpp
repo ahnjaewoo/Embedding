@@ -86,86 +86,84 @@ int main(int argc, char* argv[])
 				return -1;
 			}
 
-			while (1){
+			if (recv(worker_sock, &flag_iter, sizeof(flag_iter), 0) < 0){
 
-				if (recv(worker_sock, &flag_iter, sizeof(flag_iter), 0) < 0){
-
-					printf("[error] recv flag_iter in embedding.cpp\n");
-					close(worker_sock);
-					break;
-				}
-
-				if (ntohl(flag_iter) == 1){
-
-
-					close(worker_sock);
-					break;
-				}
-
-				// receive data
-				if(recv(worker_sock, &worker_num, sizeof(worker_num), 0) < 0){
-
-					printf("[error] recv worker_num in embedding.cpp\n");
-					close(worker_sock);
-					break;
-				}
-
-				if(recv(worker_sock, &master_epoch, sizeof(master_epoch), 0) < 0){
-
-					printf("[error] recv master_epoch in embedding.cpp\n");
-					close(worker_sock);
-					break;
-				}
-
-				if(recv(worker_sock, &dim, sizeof(dim), 0) < 0){
-
-					printf("[error] recv dim in embedding.cpp\n");
-					close(worker_sock);
-					break;
-				}
-
-				if(recv(worker_sock, &alpha, sizeof(alpha), 0) < 0){
-
-					printf("[error] recv alpha in embedding.cpp\n");
-					close(worker_sock);
-					break;
-				}
-
-				if(recv(worker_sock, &training_threshold, sizeof(training_threshold), 0) < 0){
-
-					printf("[error] recv training_threshold in embedding.cpp\n");
-					close(worker_sock);
-					break;
-				}
-
-				worker_num = ntohl(worker_num);
-				master_epoch = ntohl(master_epoch);
-				dim = ntohl(dim);
-
-				model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
-
-				// calculating training time
-				struct timeval after, before;
-				gettimeofday(&before, NULL);
-
-				model->run(train_iter);
-
-				gettimeofday(&after, NULL);
-				cout << "training training_data time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
-
-				// after training, put entities and relations into txt file
-				model->save(to_string(worker_num));
-
-				// barrier 기능, 소켓 포팅이 끝나면 제거
-				/*
-				end_iter = 0;
-				end_iter = htonl(end_iter);
-				send(worker_sock, &end_iter, sizeof(end_iter), 0);
-				*/
-
-				delete model;
+				printf("[error] recv flag_iter in embedding.cpp\n");
 				close(worker_sock);
+				break;
 			}
+
+			if (ntohl(flag_iter) == 1){
+
+
+				close(worker_sock);
+				break;
+			}
+
+			// receive data
+			if(recv(worker_sock, &worker_num, sizeof(worker_num), 0) < 0){
+
+				printf("[error] recv worker_num in embedding.cpp\n");
+				close(worker_sock);
+				break;
+			}
+
+			if(recv(worker_sock, &master_epoch, sizeof(master_epoch), 0) < 0){
+
+				printf("[error] recv master_epoch in embedding.cpp\n");
+				close(worker_sock);
+				break;
+			}
+
+			if(recv(worker_sock, &dim, sizeof(dim), 0) < 0){
+
+				printf("[error] recv dim in embedding.cpp\n");
+				close(worker_sock);
+				break;
+			}
+
+			if(recv(worker_sock, &alpha, sizeof(alpha), 0) < 0){
+
+				printf("[error] recv alpha in embedding.cpp\n");
+				close(worker_sock);
+				break;
+			}
+
+			if(recv(worker_sock, &training_threshold, sizeof(training_threshold), 0) < 0){
+
+				printf("[error] recv training_threshold in embedding.cpp\n");
+				close(worker_sock);
+				break;
+			}
+
+			worker_num = ntohl(worker_num);
+			master_epoch = ntohl(master_epoch);
+			dim = ntohl(dim);
+
+			model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
+
+			// calculating training time
+			struct timeval after, before;
+			gettimeofday(&before, NULL);
+
+			model->run(train_iter);
+
+			gettimeofday(&after, NULL);
+			cout << "model->run end, training training_data time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
+
+			// after training, put entities and relations into txt file
+			model->save(to_string(worker_num));
+			cout << "model->save end" << endl;
+
+			// barrier 기능, 소켓 포팅이 끝나면 제거
+			/*
+			end_iter = 0;
+			end_iter = htonl(end_iter);
+			send(worker_sock, &end_iter, sizeof(end_iter), 0);
+			*/
+
+			delete model;
+			close(worker_sock);
 		}
 	}
 	else 
