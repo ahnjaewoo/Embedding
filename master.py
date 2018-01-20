@@ -31,7 +31,15 @@ args = parser.parse_args()
 
 install = args.install
 data_root = args.data_root
+
 root_dir = "/home/rudvlf0413/distributedKGE/Embedding"
+preprocess_folder_dir = "%s/preprocess/" % root_dir
+train_code_dir = "%s/MultiChannelEmbedding/Embedding.out" % root_dir
+test_code_dir = "%s/MultiChannelEmbedding/Test.out" % root_dir
+temp_folder_dir = "%s/tmp" % root_dir
+pypy_dir = "/home/rudvlf0413/pypy/bin/pypy"
+worker_code_dir = "%s/worker.py" % root_dir
+
 data_files = ['/fb15k/train.txt', '/fb15k/dev.txt', '/fb15k/test.txt']
 num_worker = args.num_worker
 niter = args.niter
@@ -47,8 +55,7 @@ use_socket = False
 master_start = time()
 t_ = time()
 print("Preprocessing start...")
-proc = Popen("%s/preprocess/preprocess.out" % root_dir, cwd='%s/preprocess/' % root_dir)
-
+proc = Popen("%sPreprocess.out" % preprocess_folder_dir, cwd=preprocess_folder_dir)
 
 print("read files")
 entities = list()
@@ -59,25 +66,25 @@ entity_cnt = 0
 relations_cnt = 0
 
 for file in data_files:
-    with open(root_dir+file, 'r') as f:
+    with open(root_dir + file, 'r') as f:
         for line in f:
             head, relation, tail = line[:-1].split("\t")
             if head not in entity2id:
-            	entities.append(head)
-            	entity2id[head] = entity_cnt
-            	entity_cnt += 1
+                entities.append(head)
+                entity2id[head] = entity_cnt
+                entity_cnt += 1
             if tail not in entity2id:
-            	entities.append(tail)
-            	entity2id[tail] = entity_cnt
-            	entity_cnt += 1
+                entities.append(tail)
+                entity2id[tail] = entity_cnt
+                entity_cnt += 1
             if relation not in relation2id:
-            	relations.append(relation)
-            	relation2id[relation] = relations_cnt
-            	relations_cnt += 1
+                relations.append(relation)
+                relation2id[relation] = relations_cnt
+                relations_cnt += 1
 
 
 relation_triples = defaultdict(list)
-with open(root_dir+data_files[0], 'r') as f:
+with open(root_dir + data_files[0], 'r') as f:
     for line in f:
         head, relation, tail = line[:-1].split("\t")
         head, relation, tail = entity2id[head], relation2id[relation], entity2id[tail]
@@ -87,13 +94,14 @@ relation_each_num = [(k, len(v)) for k, v in relation_triples.items()]
 relation_each_num = sorted(relation_each_num, key=lambda x: x[1], reverse=True)
 allocated_relation_worker = [[[], 0] for i in range(num_worker)]
 for i, (relation, num) in enumerate(relation_each_num):
-    allocated_relation_worker = sorted(allocated_relation_worker, key=lambda x: x[1])
+    allocated_relation_worker = sorted(
+        allocated_relation_worker, key=lambda x: x[1])
     allocated_relation_worker[0][0].append(relation)
     allocated_relation_worker[0][1] += num
 
-#printing # of relations per each partitions
+# printing # of relations per each partitions
 print('# of relations per each partitions: [%s]' %
-    " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
+      " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
 
 sub_graphs = {}
 for c, (relation_list, num) in enumerate(allocated_relation_worker):
@@ -101,7 +109,8 @@ for c, (relation_list, num) in enumerate(allocated_relation_worker):
     for relation in relation_list:
         for (head, tail) in relation_triples[relation]:
             g.append((head, relation, tail))
-    sub_graphs['sub_graph_worker_%d' % c] = pickle.dumps(g, protocol=pickle.HIGHEST_PROTOCOL)
+    sub_graphs['sub_graph_worker_%d' % c] = pickle.dumps(
+        g, protocol=pickle.HIGHEST_PROTOCOL)
 
 r = redis.StrictRedis(host='163.152.29.73', port=6379, db=0)
 r.mset(sub_graphs)
@@ -121,46 +130,40 @@ entities_initialized = normalize(np.random.randn(len(entities), n_dim))
 relations_initialized = normalize(np.random.randn(len(relations), n_dim))
 
 r.mset({
-    entity+'_v': pickle.dumps(
+    entity + '_v': pickle.dumps(
         entities_initialized[i],
         protocol=pickle.HIGHEST_PROTOCOL) for i, entity in enumerate(entities)})
 r.mset({
-    relation+'_v': pickle.dumps(
+    relation + '_v': pickle.dumps(
         relations_initialized[i],
         protocol=pickle.HIGHEST_PROTOCOL) for i, relation in enumerate(relations)})
 
 
 def install_libs():
-    
     import os
-    
     os.system("pip install redis")
     os.system("pip install hiredis")
 
 
 def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter):
-    
-    # 첫 iter 에서 embedding.cpp 를 실행해놓음 
+    # 첫 iter 에서 embedding.cpp 를 실행해놓음
     if use_socket and cur_iter == 0:
-        
-        proc = Popen(["%s/MultiChannelEmbedding/Embedding.out" % root_dir, worker_id, \
-            str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter)], cwd='%s/preprocess/' % root_dir)
+        proc = Popen([train_code_dir, worker_id,
+                      str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter)], cwd=preprocess_folder_dir)
 
     proc = Popen([
-        "python", "%s/worker.py" % root_dir, chunk_data,
+        "python", worker_code_dir, chunk_data,
         str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter)])
-    proc.wait()    
+    proc.wait()
 
     return "%s: %d iteration finished" % (worker_id, cur_iter)
 
+
 def savePreprocessedData(data, worker_id):
-    
     from threading import Thread
-    
+
     def saveFile(data):
-    
-        with open("%s/tmp/data_model_%s.bin" % (root_dir, worker_id), 'wb') as f:
-    
+        with open("%s/data_model_%s.bin" % (temp_folder_dir, worker_id), 'wb') as f:
             f.write(data)
 
     thread = Thread(target=saveFile, args=(data, ))
@@ -172,39 +175,35 @@ def savePreprocessedData(data, worker_id):
 
 client = Client('163.152.29.73:8786', asynchronous=True, name='Embedding')
 if install:
-    
     client.run(install_libs)
 
 # 전처리 끝날때까지 대기
 proc.wait()
-with open("%s/tmp/data_model.bin" % root_dir, 'rb') as f:
-    
+with open("%s/data_model.bin" % temp_folder_dir, 'rb') as f:
     data = f.read()
 
-print("preprocessing time: %f" % (time()-t_))
+print("preprocessing time: %f" % (time() - t_))
 
 workers = list()
 for i in range(num_worker):
-    
     worker_id = 'worker_%d' % i
     workers.append(client.submit(savePreprocessedData, data, worker_id))
 
 for worker in as_completed(workers):
-    
     print(worker.result())
 
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
 # master.py 는 client
 if use_socket:
-
     anchors = list()
     chunks = list()
 
-    proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
+    proc = Popen([pypy_dir, 'maxmin.py', str(num_worker),
+                  '0', str(anchor_num), str(anchor_interval)])
     tt.sleep(3)
 
-    # try 가 들어가야 함 
+    # try 가 들어가야 함
 
     maxmin_addr = '127.0.0.1'
     maxmin_port = 7847
@@ -213,7 +212,8 @@ if use_socket:
 
     maxmin_sock.send(struct.pack('!i', 0))
     maxmin_sock.send(struct.pack('!i', num_worker))
-    maxmin_sock.send(struct.pack('!i', 0))                          # 이 부분은 첫 send 에서는 "0"
+    # 이 부분은 첫 send 에서는 "0"
+    maxmin_sock.send(struct.pack('!i', 0))
     maxmin_sock.send(struct.pack('!i', anchor_num))
     maxmin_sock.send(struct.pack('!i', anchor_interval))
 
@@ -221,80 +221,73 @@ if use_socket:
     anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
     for anchor_idx in range(anchor_len):
-
         anchors.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
 
     anchors = set(anchors)
 
     for part_idx in range(num_worker):
-
         chunk = list()
 
         chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
         for nas_idx in range(chunk_len):
-
             chunks.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
 
         chunks.append(chunk)
 
     """
     # maxmin 의 결과를 파일로 받음
-    with open("%s/tmp/maxmin_output.txt" % root_dir) as f:
+    with open("%s/maxmin_output.txt" % temp_folder_dir) as f:
         lines = f.read().splitlines()
         anchors, chunks = lines[0], lines[1:]
     """
 
 # max-min cut 실행, anchor 분배, 파일로 결과 전송
 else:
-    
-    proc = Popen(["pypy", 'maxmin.py', str(num_worker), '0', str(anchor_num), str(anchor_interval)])
+    proc = Popen([pypy_dir, '%s/maxmin.py' % root_dir, str(num_worker),
+                  '0', str(anchor_num), str(anchor_interval)])
     proc.wait()
-    
-    with open("%s/tmp/maxmin_output.txt" % root_dir) as f:
-    
+
+    with open("%s/maxmin_output.txt" % temp_folder_dir) as f:
+
         lines = f.read().splitlines()
         anchors, chunks = lines[0], lines[1:]
 
 
-
-
 print("worker training iteration epoch: ", train_iter)
 for cur_iter in range(niter):
-    
     t_ = time()
     workers = list()
-    
+
     # 작업 배정
     for i in range(num_worker):
-
         worker_id = 'worker_%d' % i
         chunk_data = "{}\n{}".format(anchors, chunks[i])
-        workers.append(client.submit(work, chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter))
+        workers.append(client.submit(work, chunk_data, worker_id,
+                                     cur_iter, n_dim, lr, margin, train_iter))
 
     if cur_iter % 2 == 1:
-
         # entity partitioning: max-min cut 실행, anchor 등 재분배
         if not use_socket:
 
-            proc = Popen(["/home/rudvlf0413/pypy/bin/pypy", 'maxmin.py', str(num_worker), str(cur_iter), str(anchor_num), str(anchor_interval)])
+            proc = Popen([pypy_dir, 'maxmin.py', str(num_worker), str(
+                cur_iter), str(anchor_num), str(anchor_interval)])
             proc.wait()
 
-            with open("{}/tmp/maxmin_output.txt".format(root_dir)) as f:
-    
+            with open("%s/maxmin_output.txt" % temp_folder_dir) as f:
+
                 lines = f.read().splitlines()
                 anchors, chunks = lines[0], lines[1:]
 
         else:
-
             anchors = list()
             chunks = list()
 
             # try 가 들어가야 함
-
             maxmin_sock.send(struct.pack('!i', 0))
             maxmin_sock.send(struct.pack('!i', num_worker))
-            maxmin_sock.send(struct.pack('!i', cur_iter))     # 이 부분은 첫 send 에서는 "0" 으로 교체
+            # 이 부분은 첫 send 에서는 "0" 으로 교체
+            maxmin_sock.send(struct.pack('!i', cur_iter))
             maxmin_sock.send(struct.pack('!i', anchor_num))
             maxmin_sock.send(struct.pack('!i', anchor_interval))
 
@@ -302,26 +295,22 @@ for cur_iter in range(niter):
             anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
             for anchor_idx in range(anchor_len):
-
                 anchors.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
 
             anchors = set(anchors)
 
             for part_idx in range(num_worker):
-
                 chunk = list()
-
                 chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
                 for nas_idx in range(chunk_len):
-
                     chunks.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
 
                 chunks.append(chunk)
 
             """
             # maxmin 의 결과를 파일로 받음
-            with open("{}/tmp/maxmin_output.txt".format(root_dir)) as f:
+            with open("%s/maxmin_output.txt" % temp_folder_dir) as f:
                 lines = f.read().splitlines()
                 anchors, chunks = lines[0], lines[1:]
             """
@@ -331,15 +320,14 @@ for cur_iter in range(niter):
         chunk_data = ''
 
     for worker in as_completed(workers):
-        
         print(worker.result())
 
     print("iteration time: %f" % (time() - t_))
 
 proc = Popen([
-        "{}/MultiChannelEmbedding/Test.out".format(root_dir),
-        worker_id, str(cur_iter),str(n_dim), str(lr), str(margin)],
-        cwd='{}/preprocess/'.format(root_dir))
+    test_code_dir,
+    worker_id, str(cur_iter), str(n_dim), str(lr), str(margin)],
+    cwd=preprocess_folder_dir)
 proc.wait()
 # except KeyboardInterrupt:
 #   maxmin_sock.close()
