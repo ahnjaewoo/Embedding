@@ -10,7 +10,8 @@ import socket
 import struct
 
 use_socket = False
-
+root_dir = "/home/rudvlf0413/distributedKGE/Embedding"
+temp_folder_dir = "%s/tmp" % root_dir
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
 # master.py 는 client
@@ -27,8 +28,8 @@ if use_socket:
     t_ = time()
     root = 'fb15k'
     data_files = ['/train.txt','/dev.txt', '/test.txt']
-    output_file = 'tmp/maxmin_output.txt'
-    old_anchor_file = 'tmp/old_anchor.txt'
+    output_file = '%s/maxmin_output.txt' % temp_folder_dir
+    old_anchor_file = '%s/old_anchor.txt' % temp_folder_dir
     #partition_num = int(sys.argv[1])
     #cur_iter = (int(sys.argv[2]) + 1) // 2
     #anchor_num = int(sys.argv[3])
@@ -182,8 +183,8 @@ if not use_socket:
     t_ = time()
     root = 'fb15k'
     data_files = ['/train.txt','/dev.txt', '/test.txt']
-    output_file = 'tmp/maxmin_output.txt'
-    old_anchor_file = 'tmp/old_anchor.txt'
+    output_file = '%s/maxmin_output.txt' % temp_folder_dir
+    old_anchor_file = '%s/old_anchor.txt' % temp_folder_dir
     partition_num = int(sys.argv[1])
     cur_iter = (int(sys.argv[2]) + 1) // 2
     anchor_num = int(sys.argv[3])
