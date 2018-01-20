@@ -10,8 +10,6 @@ import numpy as np
 import redis
 import pickle
 from time import time
-
-
 import socket
 import time as tt
 import struct
@@ -21,7 +19,7 @@ parser.add_argument('--num_worker', type=int, default=2, help='number of workers
 parser.add_argument('--data_root', type=str, default='./fb15k', help='root directory of data')
 parser.add_argument('--niter', type=int, default=2, help='total number of masters iterations')
 parser.add_argument('--train_iter', type=int, default=10, help='total number of workers(actual) training iterations')
-parser.add_argument('--install', default=False, help='install libraries in each worker')
+parser.add_argument('--install', default=True, help='install libraries in each worker')
 parser.add_argument('--ndim', type=int, default=20, help='dimension of embeddings')
 parser.add_argument('--lr', type=float, default=0.1, help='learning rate')
 parser.add_argument('--margin', type=int, default=2, help='margin')
@@ -36,9 +34,12 @@ root_dir = "/home/rudvlf0413/distributedKGE/Embedding"
 preprocess_folder_dir = "%s/preprocess/" % root_dir
 train_code_dir = "%s/MultiChannelEmbedding/Embedding.out" % root_dir
 test_code_dir = "%s/MultiChannelEmbedding/Test.out" % root_dir
+worker_code_dir = "%s/worker.py" % root_dir
 temp_folder_dir = "%s/tmp" % root_dir
 pypy_dir = "/home/rudvlf0413/pypy/bin/pypy"
-worker_code_dir = "%s/worker.py" % root_dir
+
+redis_ip_address = '163.152.29.73'
+dask_ip_address = '163.152.29.73:8786'
 
 data_files = ['/fb15k/train.txt', '/fb15k/dev.txt', '/fb15k/test.txt']
 num_worker = args.num_worker
@@ -112,7 +113,7 @@ for c, (relation_list, num) in enumerate(allocated_relation_worker):
     sub_graphs['sub_graph_worker_%d' % c] = pickle.dumps(
         g, protocol=pickle.HIGHEST_PROTOCOL)
 
-r = redis.StrictRedis(host='163.152.29.73', port=6379, db=0)
+r = redis.StrictRedis(host=redis_ip_address, port=6379, db=0)
 r.mset(sub_graphs)
 
 del relation_each_num
@@ -173,7 +174,7 @@ def savePreprocessedData(data, worker_id):
     return "%s finish saving file!" % worker_id
 
 
-client = Client('163.152.29.73:8786', asynchronous=True, name='Embedding')
+client = Client(dask_ip_address, asynchronous=True, name='Embedding')
 if install:
     client.run(install_libs)
 
@@ -227,7 +228,6 @@ if use_socket:
 
     for part_idx in range(num_worker):
         chunk = list()
-
         chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
         for nas_idx in range(chunk_len):
@@ -249,7 +249,6 @@ else:
     proc.wait()
 
     with open("%s/maxmin_output.txt" % temp_folder_dir) as f:
-
         lines = f.read().splitlines()
         anchors, chunks = lines[0], lines[1:]
 
@@ -269,13 +268,11 @@ for cur_iter in range(niter):
     if cur_iter % 2 == 1:
         # entity partitioning: max-min cut 실행, anchor 등 재분배
         if not use_socket:
-
             proc = Popen([pypy_dir, 'maxmin.py', str(num_worker), str(
                 cur_iter), str(anchor_num), str(anchor_interval)])
             proc.wait()
 
             with open("%s/maxmin_output.txt" % temp_folder_dir) as f:
-
                 lines = f.read().splitlines()
                 anchors, chunks = lines[0], lines[1:]
 
@@ -331,14 +328,12 @@ proc = Popen([
 proc.wait()
 # except KeyboardInterrupt:
 #   maxmin_sock.close()
-
 # maxmin.py 과의 socket 을 close
 # socket 을 사용하는 코드 전체를 try except 로 감싸고 close 를 한 번 더 사용해줘야 함 (비정상 종료 때문)
 # finally:
 # maxmin_sock.close()
 
 if use_socket:
-
     maxmin_sock.send(struct.pack('!i', 1))
     maxmin_sock.close()
 
