@@ -56,7 +56,7 @@ use_socket = False
 master_start = time()
 t_ = time()
 print("Preprocessing start...")
-proc = Popen("%sPreprocess.out" % preprocess_folder_dir, cwd=preprocess_folder_dir)
+proc = Popen("%spreprocess.out" % preprocess_folder_dir, cwd=preprocess_folder_dir)
 
 print("read files")
 entities = list()

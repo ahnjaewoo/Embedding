@@ -48,7 +48,7 @@ use_socket = False
 if not use_socket:
     if int(cur_iter) % 2 == 0:
         # 이 부분을 socket 으로 DataModel.hpp, Model.hpp 로 전송해줘야 함
-        with open("%s/maxmin_%s.txt" (temp_folder_dir, worker_id), 'w') as f:
+        with open("%s/maxmin_%s.txt" % (temp_folder_dir, worker_id), 'w') as f:
             f.write(chunk_data)
 
     else:
