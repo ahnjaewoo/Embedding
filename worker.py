@@ -16,13 +16,11 @@ embedding_dim = sys.argv[4]
 learning_rate = sys.argv[5]
 margin = sys.argv[6]
 train_iter = sys.argv[7]
-
-root_dir = "/home/rudvlf0413/distributedKGE/Embedding"
+redis_ip_address = sys.argv[8]
+root_dir = sys.argv[9]
 preprocess_folder_dir = "%s/preprocess/" % root_dir
 train_code_dir = "%s/MultiChannelEmbedding/Embedding.out" % root_dir
 temp_folder_dir = "%s/tmp" % root_dir
-
-redis_ip_address = '163.152.29.73'
 
 t_ = time()
 # redis에서 embedding vector들 받아오기
