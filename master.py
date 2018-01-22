@@ -208,7 +208,7 @@ if use_socket:
     chunks = list()
 
     proc = Popen([pypy_dir, 'maxmin.py', str(num_worker),
-                  '0', str(anchor_num), str(anchor_interval)])
+                  '0', str(anchor_num), str(anchor_interval), root_dir])
     tt.sleep(3)
 
     # try 가 들어가야 함
@@ -252,7 +252,7 @@ if use_socket:
 # max-min cut 실행, anchor 분배, 파일로 결과 전송
 else:
     proc = Popen([pypy_dir, '%s/maxmin.py' % root_dir, str(num_worker),
-                  '0', str(anchor_num), str(anchor_interval)])
+                  '0', str(anchor_num), str(anchor_interval), root_dir])
     proc.wait()
 
     with open("%s/maxmin_output.txt" % temp_folder_dir) as f:
@@ -276,7 +276,7 @@ for cur_iter in range(niter):
         # entity partitioning: max-min cut 실행, anchor 등 재분배
         if not use_socket:
             proc = Popen([pypy_dir, 'maxmin.py', str(num_worker), str(
-                cur_iter), str(anchor_num), str(anchor_interval)])
+                cur_iter), str(anchor_num), str(anchor_interval), root_dir])
             proc.wait()
 
             with open("%s/maxmin_output.txt" % temp_folder_dir) as f:

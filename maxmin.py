@@ -10,7 +10,7 @@ import socket
 import struct
 
 use_socket = False
-root_dir = "/home/rudvlf0413/distributedKGE/Embedding"
+root_dir = sys.argv[5]
 temp_folder_dir = "%s/tmp" % root_dir
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
