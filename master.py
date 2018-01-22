@@ -25,21 +25,28 @@ parser.add_argument('--lr', type=float, default=0.1, help='learning rate')
 parser.add_argument('--margin', type=int, default=2, help='margin')
 parser.add_argument('--anchor_num', type=int, default=5, help='number of anchor during entity training')
 parser.add_argument('--anchor_interval', type=int, default=6, help='number of epoch that anchors can rest as non-anchor')
+parser.add_argument('--root_dir', type=str, default="/home/rudvlf0413/distributedKGE/Embedding", help='project directory')
+parser.add_argument('--temp_dir', type=str, default='', help='temp directory')
+parser.add_argument('--pypy_dir', type=str, default="/home/rudvlf0413/pypy/bin/pypy", help='pypy directory')
+parser.add_argument('--redis_ip', type=str, default='163.152.29.73', help='redis ip address')
+parser.add_argument('--scheduler_ip', type=str, default='163.152.29.73:8786', help='dask scheduler ip:port')
 args = parser.parse_args()
 
 install = args.install
 data_root = args.data_root
 
-root_dir = "/home/rudvlf0413/distributedKGE/Embedding"
+root_dir = args.root_dir
 preprocess_folder_dir = "%s/preprocess/" % root_dir
 train_code_dir = "%s/MultiChannelEmbedding/Embedding.out" % root_dir
 test_code_dir = "%s/MultiChannelEmbedding/Test.out" % root_dir
 worker_code_dir = "%s/worker.py" % root_dir
-temp_folder_dir = "%s/tmp" % root_dir
-pypy_dir = "/home/rudvlf0413/pypy/bin/pypy"
 
-redis_ip_address = '163.152.29.73'
-dask_ip_address = '163.152.29.73:8786'
+if args.temp_dir == '':
+    temp_folder_dir = "%s/tmp" % root_dir
+
+pypy_dir = args.pypy_dir
+redis_ip_address = args.redis_ip
+dask_ip_address = args.scheduler_ip
 
 data_files = ['/fb15k/train.txt', '/fb15k/dev.txt', '/fb15k/test.txt']
 num_worker = args.num_worker
