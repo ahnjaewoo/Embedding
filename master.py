@@ -267,7 +267,18 @@ for cur_iter in range(niter):
     # 작업 배정
     for i in range(num_worker):
         worker_id = 'worker_%d' % i
+
+
+
+
+
+        ### 의도대로 돌아가는 코드인지 확인해야 함
         chunk_data = "{}\n{}".format(anchors, chunks[i])
+        ###
+
+
+
+
         workers.append(client.submit(work, chunk_data, worker_id,
                                      cur_iter, n_dim, lr, margin, train_iter))
 
