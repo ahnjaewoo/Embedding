@@ -154,8 +154,10 @@ def install_libs():
 
 
 def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter):
+    
     # 첫 iter 에서 embedding.cpp 를 실행해놓음
     if use_socket and cur_iter == 0:
+    
         proc = Popen([train_code_dir, worker_id,
                       str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter)], cwd=preprocess_folder_dir)
 
@@ -183,35 +185,40 @@ def savePreprocessedData(data, worker_id):
 
 client = Client(dask_ip_address, asynchronous=True, name='Embedding')
 if install:
+    
     client.run(install_libs)
 
 # 전처리 끝날때까지 대기
 proc.wait()
+
 with open("%s/data_model.bin" % temp_folder_dir, 'rb') as f:
+    
     data = f.read()
 
 print("preprocessing time: %f" % (time() - t_))
 
 workers = list()
+
 for i in range(num_worker):
+
     worker_id = 'worker_%d' % i
     workers.append(client.submit(savePreprocessedData, data, worker_id))
 
 for worker in as_completed(workers):
+
     print(worker.result())
 
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
 # master.py 는 client
 if use_socket:
+    
     anchors = list()
     chunks = list()
 
     proc = Popen([pypy_dir, 'maxmin.py', str(num_worker),
                   '0', str(anchor_num), str(anchor_interval), root_dir])
     tt.sleep(3)
-
-    # try 가 들어가야 함
 
     maxmin_addr = '127.0.0.1'
     maxmin_port = 7847
@@ -220,7 +227,6 @@ if use_socket:
 
     maxmin_sock.send(struct.pack('!i', 0))
     maxmin_sock.send(struct.pack('!i', num_worker))
-    # 이 부분은 첫 send 에서는 "0"
     maxmin_sock.send(struct.pack('!i', 0))
     maxmin_sock.send(struct.pack('!i', anchor_num))
     maxmin_sock.send(struct.pack('!i', anchor_interval))
@@ -241,13 +247,6 @@ if use_socket:
             chunks.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
 
         chunks.append(chunk)
-
-    """
-    # maxmin 의 결과를 파일로 받음
-    with open("%s/maxmin_output.txt" % temp_folder_dir) as f:
-        lines = f.read().splitlines()
-        anchors, chunks = lines[0], lines[1:]
-    """
 
 # max-min cut 실행, anchor 분배, 파일로 결과 전송
 else:
@@ -284,6 +283,7 @@ for cur_iter in range(niter):
                 anchors, chunks = lines[0], lines[1:]
 
         else:
+
             anchors = list()
             chunks = list()
 
@@ -312,18 +312,12 @@ for cur_iter in range(niter):
 
                 chunks.append(chunk)
 
-            """
-            # maxmin 의 결과를 파일로 받음
-            with open("%s/maxmin_output.txt" % temp_folder_dir) as f:
-                lines = f.read().splitlines()
-                anchors, chunks = lines[0], lines[1:]
-            """
-
     else:
         # relation partitioning
         chunk_data = ''
 
     for worker in as_completed(workers):
+        
         print(worker.result())
 
     print("iteration time: %f" % (time() - t_))
@@ -333,12 +327,6 @@ proc = Popen([
     worker_id, str(cur_iter), str(n_dim), str(lr), str(margin)],
     cwd=preprocess_folder_dir)
 proc.wait()
-# except KeyboardInterrupt:
-#   maxmin_sock.close()
-# maxmin.py 과의 socket 을 close
-# socket 을 사용하는 코드 전체를 try except 로 감싸고 close 를 한 번 더 사용해줘야 함 (비정상 종료 때문)
-# finally:
-# maxmin_sock.close()
 
 if use_socket:
     maxmin_sock.send(struct.pack('!i', 1))

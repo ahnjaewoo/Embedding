@@ -155,13 +155,6 @@ int main(int argc, char* argv[])
 			model->save(to_string(worker_num));
 			cout << "model->save end" << endl;
 
-			// barrier 기능, 소켓 포팅이 끝나면 제거
-			/*
-			end_iter = 0;
-			end_iter = htonl(end_iter);
-			send(worker_sock, &end_iter, sizeof(end_iter), 0);
-			*/
-
 			delete model;
 			close(worker_sock);
 		}
@@ -171,7 +164,6 @@ int main(int argc, char* argv[])
 		// Model* model = nullptr;
 		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter, fd);
 
-		//model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, false);
 		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, 0);
 
 

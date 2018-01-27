@@ -76,15 +76,17 @@ if not use_socket:
     del relations_initialized
 
 # embedding.cpp 와 socket 통신
-# master 에서 embedding.cpp 를 실행해놓고, worker 는 접속만 함
 # worker 가 실행될 때 전달받은 ip 와 port 로 접속
-# worker 는 client, embedding 은 server
+# Embedding.cpp 가 server, 프로세느는 master.py 가 생성
+# worker.py 가 client
 if use_socket:
-    # 첫 iteration 에서 embedding.cpp 가 실행되고 소켓을 열기까지 기다림
+    
+    # 첫 iteration 에서눈 Embedding.cpp 의 실행, 소켓 생성을 기다림
     if cur_iter == 0:
+    
         tt.sleep(2)
 
-    embedding_addr = '0.0.0.0'  # 이게 맞는 건지 확실치 않음
+    embedding_addr = '0.0.0.0'
     embedding_port = 49900 + int(worker_id.split('_')[1]) # worker_id 를 기반으로 포트를 생성
     embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     embedding_sock.connect((embedding_addr, embedding_port))
@@ -93,20 +95,10 @@ if use_socket:
     embedding_sock.send(struct.pack('!i', int(worker_id.split('_')[1])))           # int 임시 땜빵, 매우 큰 문제
     embedding_sock.send(struct.pack('!i', int(cur_iter)))            # int
     embedding_sock.send(struct.pack('!i', int(embedding_dim)))       # int
-    embedding_sock.send(struct.pack('d', float(learning_rate)))      # double   endian 때문에 문제 생길 수 있음
-    embedding_sock.send(struct.pack('d', float(margin)))             # double   endian 때문에 문제 생길 수 있음
+    embedding_sock.send(struct.pack('d', float(learning_rate)))      # double
+    embedding_sock.send(struct.pack('d', float(margin)))             # double
 
-    # 임시로 만들어놓음, barrier 같은 기능
-    # 아래 부분을 소켓으로 변경하면 이 줄을 제거
-    # embedding_iter_end = struct.unpack('!i', embedding_sock.recv(4))[0]
-
-    # DataModel.hpp 와의 통신 다음에 GeometricModel.hpp 와의 통신이 필요
-    # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서
-
-    # DataModel.hpp 생성자와 통신
-    # "../tmp/maxmin_worker_"+ to_string(worker_num) + ".txt"
-    # "../tmp/sub_graph_worker_"+ to_string(worker_num) + ".txt"
-    # 위의 파일 내용을 전송해야 함
+    # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 
     if int(cur_iter) % 2 == 0:
         # entity 전송
@@ -134,25 +126,6 @@ if use_socket:
             embedding_sock.send(struct.pack('!i', int(relation_id)))
             embedding_sock.send(struct.pack('!i', int(tail_id)))
 
-    # GeometricModel load 메소드와 통신
-    """
-    # matrix를 text로 빨리 저장하는 법 찾기!
-    with open("%s/entity_vectors.txt" % temp_folder_dir, 'w') as f:
-        for i, vector in enumerate(entities_initialized):
-            f.write(str(entities[i]) + "\t")
-            f.write(" ".join([str(v) for v in vector]) + '\n')
-
-    # GeometricModel.hpp 의 load 에 전송
-    with open("%s/relation_vectors.txt" % temp_folder_dir, 'w') as f:
-        for i, relation in enumerate(relations_initialized):
-            f.write(str(relations[i]) + "\t")
-            f.write(" ".join([str(v) for v in relation]) + '\n')
-
-    print("file save time: %f" % (time()-t_))
-    del entities_initialized
-    del relations_initialized
-    """
-
     # entity_vector 전송
     for i, vector in enumerate(entities_initialized):
         entity_name = str(entities[i])
@@ -178,11 +151,11 @@ if use_socket:
     t_ = time()
     
     if int(cur_iter) % 2 == 0:
+        
         entity_vectors = dict()
 
         # 처리 결과를 받아옴
-        # GeometricModel.cpp 의 save 에서 처리 - 작업 완료
-        # 이 부분을 활성화하면, 위의 barrier (embedding_iter_end) 를 제거해야 함
+        # GeometricModel.cpp 의 save 에서 처리
         count_entity = struct.unpack('!i', embedding_sock.recv(4))[0]
 
         for entity_idx in range(count_entity):
@@ -195,20 +168,13 @@ if use_socket:
 
             entity_vectors[entity_id + '_v'] = pickle.dumps(np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
         r.mset(entity_vectors)
-        """
-        with open("%s/entity_vectors_updated_{w_id}.txt" % temp_foler_dir, 'r') as f:
-            for line in f:
-                line = line[:-1].split()
-                entity_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
-        r.mset(entity_vectors)
-        """
 
     else:
+        
         relation_vectors = dict()
 
         # 처리 결과를 받아옴
-        # GeometricModel.cpp 의 save 에서 처리 - 작업 완료
-        # 이 부분을 활성화하면, 위의 barrier (embedding_iter_end) 를 제거해야 함
+        # GeometricModel.cpp 의 save 에서 처리
         count_relation = struct.unpack('!i', embedding_sock.recv(4))[0]
 
         for relation_idx in range(count_relation):
@@ -221,17 +187,21 @@ if use_socket:
 
             relation_vectors[relation_id + '_v'] = pickle.dumps(np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
         r.mset(relation_vectors)
-        
-        """
-        with open("%s/relation_vectors_updated_%s.txt" % (temp_folder_dir, w_id), 'r') as f:
-            for line in f:
-                line = line[:-1].split()
-                relation_vectors[line[0] + '_v'] = pickle.dumps(np.array(line[1:]), protocol=pickle.HIGHEST_PROTOCOL)
-        r.mset(relation_vectors)
-        """
 
     print("redis server connection time: %f" % (time()-t_))
     print("{}: {} iteration finished!".format(worker_id, cur_iter))
+
+
+
+
+
+
+
+
+
+
+
+
 
 if not use_socket:
     # 이 부분은 호출 대신 socket 통신으로 대체

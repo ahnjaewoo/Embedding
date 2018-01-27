@@ -12,10 +12,12 @@ import struct
 use_socket = False
 root_dir = sys.argv[5]
 temp_folder_dir = "%s/tmp" % root_dir
+
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
 # master.py 는 client
 if use_socket:
+    
     # master 와 maxmin 은 같은 ip 상에서 작동, 포트를 임의로 7847 로 지정
     maxmin_addr = '127.0.0.1'
     maxmin_port = 7847
@@ -30,10 +32,6 @@ if use_socket:
     data_files = ['/train.txt','/dev.txt', '/test.txt']
     output_file = '%s/maxmin_output.txt' % temp_folder_dir
     old_anchor_file = '%s/old_anchor.txt' % temp_folder_dir
-    #partition_num = int(sys.argv[1])
-    #cur_iter = (int(sys.argv[2]) + 1) // 2
-    #anchor_num = int(sys.argv[3])
-    #anchor_interval = int(sys.argv[4])
     anchor_dict = dict()
     old_anchor = set()
 
@@ -101,7 +99,6 @@ if use_socket:
                     for a in anchor_dict[it]:
                         old_anchor.add(a)
 
-        # while len(anchor) < anchor_num:
         for i in range(anchor_num):
             best = None
             best_score = 0
@@ -153,7 +150,6 @@ if use_socket:
         # printing the number of entities in each paritions
         print('# of entities in each partitions: [%s]' % " ".join([str(len(p)) for p in parts]))
 
-
         master_sock.send(struct.pack('!i', len(list(anchor))))
 
         for anchor_val in list(anchor):
@@ -168,16 +164,16 @@ if use_socket:
 
                 master_sock.send(struct.pack('!i', nas_val))
 
-        """
-        # writing output file
-        with open(output_file, "w") as fwrite:
-            fwrite.write(" ".join([str(i) for i in anchor])+"\n")
-            print(len(" ".join([str(i) for i in anchor])))
-            for nas in parts:
-                fwrite.write(" ".join([str(i) for i in nas])+"\n")
-                print(len(" ".join([str(i) for i in nas])))
-        """
         print("max-min cut finished - max-min time: {}".format((time()-t_)))
+
+
+
+
+
+
+
+
+
 
 if not use_socket:
     t_ = time()
