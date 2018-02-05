@@ -244,6 +244,7 @@ if use_socket:
 
         for nas_idx in range(chunk_len):
             chunk += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
+        chunk = chunk[:-1]
         chunks.append(chunk)
 
 # max-min cut 실행, anchor 분배, 파일로 결과 전송
@@ -307,6 +308,7 @@ for cur_iter in range(niter):
 
                 for nas_idx in range(chunk_len):
                     chunk += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
+                chunk = chunk[:-1]
                 chunks.append(chunk)
 
     else:
