@@ -9,7 +9,7 @@ import random
 import socket
 import struct
 
-use_socket = False
+use_socket = True
 root_dir = sys.argv[5]
 temp_folder_dir = "%s/tmp" % root_dir
 

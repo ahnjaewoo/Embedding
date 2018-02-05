@@ -57,7 +57,7 @@ lr = args.lr
 margin = args.margin
 anchor_num = args.anchor_num
 anchor_interval = args.anchor_interval
-use_socket = False
+use_socket = True
 
 # 여기서 전처리 C++ 프로그램 비동기 호출
 master_start = time()

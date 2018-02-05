@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 	//omp_set_num_threads(6);
 
 	Model* model = nullptr;
-	int use_socket = 0;
+	int use_socket = 1;
 
 	//first read the txt file and load the model
 	//read dimension, LR, margin for parameters

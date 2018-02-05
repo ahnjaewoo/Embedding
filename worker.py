@@ -41,7 +41,7 @@ relations_initialized = [pickle.loads(v) for v in relations_initialized]
 print("redis server connection time: %f" % (time()-t_))
 
 t_ = time()
-use_socket = False
+use_socket = True
 
 if not use_socket:
     if int(cur_iter) % 2 == 0:
