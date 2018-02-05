@@ -238,14 +238,12 @@ if use_socket:
         anchors.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
 
     anchors = set(anchors)
-
     for part_idx in range(num_worker):
-        chunk = list()
+        chunk = ""
         chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
         for nas_idx in range(chunk_len):
-            chunk.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
-
+            chunk += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
         chunks.append(chunk)
 
 # max-min cut 실행, anchor 분배, 파일로 결과 전송
@@ -304,12 +302,11 @@ for cur_iter in range(niter):
             anchors = set(anchors)
 
             for part_idx in range(num_worker):
-                chunk = list()
+                chunk = ""
                 chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
                 for nas_idx in range(chunk_len):
-                    chunk.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
-
+                    chunk += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
                 chunks.append(chunk)
 
     else:
