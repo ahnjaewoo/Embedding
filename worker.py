@@ -104,16 +104,16 @@ if use_socket:
         # entity 전송
         chunk_anchor, chunk_entity = chunk_data.split('\n')
         chunk_anchor = list(eval(chunk_anchor))
-        chunk_entity = chunk_entity.split(' ')
+        chunk_entity = eval(chunk_entity)
 
         embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
 
         for iter_anchor in chunk_anchor:
             embedding_sock.send(struct.pack('!i', int(iter_anchor)))
 
-        embedding_sock.send(struct.pack('!i', len(chunk_entity[int(worker_id.split('_')[1]))])))
+        embedding_sock.send(struct.pack('!i', len(chunk_entity)))
 
-        for iter_entity in chunk_entity[int(worker_id.split('_')[1]))]:
+        for iter_entity in chunk_entity:
             embedding_sock.send(struct.pack('!i', int(iter_entity)))
 
     else:
