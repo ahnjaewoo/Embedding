@@ -244,7 +244,7 @@ if use_socket:
         chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
         for nas_idx in range(chunk_len):
-            chunks.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
+            chunk.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
 
         chunks.append(chunk)
 
@@ -267,18 +267,7 @@ for cur_iter in range(niter):
     # 작업 배정
     for i in range(num_worker):
         worker_id = 'worker_%d' % i
-
-
-
-
-
-        ### 의도대로 돌아가는 코드인지 확인해야 함
         chunk_data = "{}\n{}".format(anchors, chunks[i])
-        ###
-
-
-
-
         workers.append(client.submit(work, chunk_data, worker_id,
                                      cur_iter, n_dim, lr, margin, train_iter))
 
@@ -319,7 +308,7 @@ for cur_iter in range(niter):
                 chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
                 for nas_idx in range(chunk_len):
-                    chunks.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
+                    chunk.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
 
                 chunks.append(chunk)
 
