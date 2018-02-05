@@ -111,7 +111,7 @@ if use_socket:
         for iter_anchor in chunk_anchor:
             embedding_sock.send(struct.pack('!i', int(iter_anchor)))
 
-        embedding_sock.send(struct.pack('!i', len(chunk_entity)))
+        embedding_sock.send(struct.pack('!i', len(chunk_entity[int(worker_id.split('_')[1]))])))
 
         for iter_entity in chunk_entity[int(worker_id.split('_')[1]))]:
             embedding_sock.send(struct.pack('!i', int(iter_entity)))
