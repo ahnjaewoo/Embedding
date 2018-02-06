@@ -104,7 +104,7 @@ if use_socket:
         # entity 전송
         chunk_anchor, chunk_entity = chunk_data.split('\n')
         chunk_anchor = list(eval(chunk_anchor))
-        chunk_entity = eval(chunk_entity)
+        chunk_entity = chunk_entity.split(' ')
 
         embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
 
