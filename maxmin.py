@@ -17,7 +17,7 @@ temp_folder_dir = "%s/tmp" % root_dir
 # maxmin.cpp 가 server
 # master.py 는 client
 if use_socket:
-    
+    t_ = time()
     # master 와 maxmin 은 같은 ip 상에서 작동, 포트를 임의로 7847 로 지정
     maxmin_addr = '127.0.0.1'
     maxmin_port = 7847
@@ -27,7 +27,6 @@ if use_socket:
 
     master_sock, master_addr = maxmin_sock.accept()
 
-    t_ = time()
     root = 'fb15k'
     data_files = ['/train.txt','/dev.txt', '/test.txt']
     output_file = '%s/maxmin_output.txt' % temp_folder_dir
@@ -73,10 +72,11 @@ if use_socket:
 
     for (hd, tl) in entity_graph:
         edge_list.append((entity2id[hd], entity2id[tl]))
+    print("max-min cut data preprocessing finished - max-min preprocessing time: {}".format((time()-t_)))
 
     while True:
-        
         master_status = struct.unpack('!i', master_sock.recv(4))[0]
+        t_ = time()
 
         if master_status == 1:
             # 연결을 끊음
