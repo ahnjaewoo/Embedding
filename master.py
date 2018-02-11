@@ -213,7 +213,7 @@ for worker in as_completed(workers):
 # master.py 는 client
 if use_socket:
     
-    anchors = list()
+    anchors = ""
     chunks = list()
 
     proc = Popen([pypy_dir, 'maxmin.py', str(num_worker),
@@ -235,9 +235,9 @@ if use_socket:
     anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
     for anchor_idx in range(anchor_len):
-        anchors.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
+        anchors += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
+    anchors = anchors[:-1]
 
-    anchors = set(anchors)
     for part_idx in range(num_worker):
         chunk = ""
         chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
@@ -283,7 +283,7 @@ for cur_iter in range(niter):
 
         else:
 
-            anchors = list()
+            anchors = ""
             chunks = list()
 
             # try 가 들어가야 함
@@ -298,9 +298,9 @@ for cur_iter in range(niter):
             anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
             for anchor_idx in range(anchor_len):
-                anchors.append(struct.unpack('!i', maxmin_sock.recv(4))[0])
+                anchors+= str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
+            anchors = anchors[:-1]
 
-            anchors = set(anchors)
 
             for part_idx in range(num_worker):
                 chunk = ""
