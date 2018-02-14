@@ -28,6 +28,9 @@ if use_socket:
 
     master_sock, master_addr = maxmin_sock.accept()
 
+    print("socket between master and maxmin connected - maxmin.py")
+    warning("socket between master and maxmin connected - maxmin.py")
+
     root = 'fb15k'
     data_files = ['/train.txt','/dev.txt', '/test.txt']
     output_file = '%s/maxmin_output.txt' % temp_folder_dir

@@ -224,12 +224,16 @@ if use_socket:
 
     proc = Popen([pypy_dir, 'maxmin.py', str(num_worker),
                   '0', str(anchor_num), str(anchor_interval), root_dir])
+    print("popen maxmin.py complete - master.py")
+    warning("popen maxmin.py complete - master.py")
     tt.sleep(3)
 
     maxmin_addr = '127.0.0.1'
     maxmin_port = 7847
     maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     maxmin_sock.connect((maxmin_addr, maxmin_port))
+    print("socket between master and maxmin connected - master.py")
+    warning("socket between master and maxmin connected - master.py")
 
     maxmin_sock.send(struct.pack('!i', 0))
     maxmin_sock.send(struct.pack('!i', num_worker))
