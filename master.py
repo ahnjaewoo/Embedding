@@ -423,7 +423,7 @@ if use_socket:
         for entity_idx in range(count_entity):
             temp_entity_vector = list()
             entity_id_len = struct.unpack('!i', test_sock.recv(4))[0]
-            entity_id = embedding_sock.recv(entity_id_len).decode()
+            entity_id = test_sock.recv(entity_id_len).decode()
 
             for dim_idx in range(int(n_dim)):
                 temp_entity_vector.append(struct.unpack('d', test_sock.recv(8))[0])
