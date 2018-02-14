@@ -6,6 +6,7 @@ from subprocess import Popen
 from argparse import ArgumentParser
 from random import shuffle
 from collections import defaultdict
+from logging import warning
 import numpy as np
 import redis
 import pickle
@@ -63,9 +64,11 @@ use_socket = True
 master_start = time()
 t_ = time()
 print("Preprocessing start...")
+warning("Preprocessing start...")
 proc = Popen("%spreprocess.out" % preprocess_folder_dir, cwd=preprocess_folder_dir)
 
 print("read files")
+warning("read files")
 entities = list()
 relations = list()
 entity2id = dict()
@@ -109,6 +112,8 @@ for i, (relation, num) in enumerate(relation_each_num):
 
 # printing # of relations per each partitions
 print('# of relations per each partitions: [%s]' %
+      " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
+warning('# of relations per each partitions: [%s]' %
       " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
 
 sub_graphs = {}
@@ -196,6 +201,7 @@ with open("%s/data_model.bin" % temp_folder_dir, 'rb') as f:
     data = f.read()
 
 print("preprocessing time: %f" % (time() - t_))
+warning("preprocessing time: %f" % (time() - t_))
 
 workers = list()
 
@@ -318,8 +324,10 @@ for cur_iter in range(niter):
     for worker in as_completed(workers):
         
         print(worker.result())
+        warning(worker.result())
 
     print("iteration time: %f" % (time() - t_))
+    warning("iteration time: %f" % (time() - t_))
 
 proc = Popen([
     test_code_dir,
@@ -332,3 +340,4 @@ if use_socket:
     maxmin_sock.close()
 
 print("Total elapsed time: %f" % (time() - master_start))
+warning("Total elapsed time: %f" % (time() - master_start))

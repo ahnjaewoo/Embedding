@@ -1,6 +1,7 @@
 # coding: utf-8
 from subprocess import Popen
 from time import time
+from logging import warning
 import numpy as np
 import redis
 import pickle
@@ -39,6 +40,7 @@ entities_initialized = [pickle.loads(v) for v in entities_initialized]
 relations_initialized = [pickle.loads(v) for v in relations_initialized]
 
 print("redis server connection time: %f" % (time()-t_))
+warning("redis server connection time: %f" % (time()-t_))
 
 t_ = time()
 use_socket = True
@@ -72,6 +74,7 @@ if not use_socket:
             f.write(" ".join([str(v) for v in relation]) + '\n')
 
     print("file save time: %f" % (time()-t_))
+    warning("file save time: %f" % (time()-t_))
     del entities_initialized
     del relations_initialized
 
@@ -189,7 +192,9 @@ if use_socket:
         r.mset(relation_vectors)
 
     print("redis server connection time: %f" % (time()-t_))
+    warning("redis server connection time: %f" % (time()-t_))
     print("{}: {} iteration finished!".format(worker_id, cur_iter))
+    warning("{}: {} iteration finished!".format(worker_id, cur_iter))
 
 
 
@@ -213,6 +218,7 @@ if not use_socket:
         cwd=preprocess_folder_dir)
     proc.wait()
     print("embedding time: %f" % (time()-t_))
+    warning("embedding time: %f" % (time()-t_))
 
     # 이 부분을 socket 통신으로 대체할 필요가 있음
     # 현재 embeding.cpp 자체에서는 못하고, 그 코드를 타고 들어가야 가능함
@@ -234,4 +240,6 @@ if not use_socket:
         r.mset(relation_vectors)
 
     print("redis server connection time: %f" % (time()-t_))
+    warning("redis server connection time: %f" % (time()-t_))
     print("{}: {} iteration finished!".format(worker_id, cur_iter))
+    warning("{}: {} iteration finished!".format(worker_id, cur_iter))
