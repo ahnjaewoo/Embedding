@@ -335,27 +335,32 @@ for cur_iter in range(niter):
     warning("iteration time: %f" % (time() - t_))
 
 # test part
+print('test start')
+warning('test start')
+
 proc = Popen([
     test_code_dir,
     worker_id, str(cur_iter), str(n_dim), str(lr), str(margin)],
     cwd=preprocess_folder_dir)
-proc.wait()
 
 if use_socket:
+
+    maxmin_sock.send(struct.pack('!i', 1))
+    maxmin_sock.close()
     
     tt.sleep(2)
 
     test_addr = '0.0.0.0'
-    test_port = 49900 + int(worker_id.split('_')[1]) # worker_id 를 기반으로 포트를 생성
+    test_port = 7874 # 임의로 7874 로 포트를 정함
     test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    test_sock.connect((embedding_addr, embedding_port))
+    test_sock.connect((test_addr, test_port))
 
     test_sock.send(struct.pack('!i', 0))                        # 연산 요청 메시지
     test_sock.send(struct.pack('!i', int(worker_id.split('_')[1])))           # int 임시 땜빵, 매우 큰 문제
     test_sock.send(struct.pack('!i', int(cur_iter)))            # int
-    test_sock.send(struct.pack('!i', int(embedding_dim)))       # int
+    test_sock.send(struct.pack('!i', int(n_dim)))       # int
     test_sock.send(struct.pack('d', float(learning_rate)))      # double
-    test_sock.send(struct.pack('d', float(margin)))             # double
+    test_sock.send(struct.pack('d', float(lr)))             # double
 
     # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 
@@ -413,18 +418,18 @@ if use_socket:
 
         # 처리 결과를 받아옴
         # GeometricModel.cpp 의 save 에서 처리
-        count_entity = struct.unpack('!i', embedding_sock.recv(4))[0]
+        count_entity = struct.unpack('!i', test_sock.recv(4))[0]
 
         for entity_idx in range(count_entity):
             temp_entity_vector = list()
-            entity_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
+            entity_id_len = struct.unpack('!i', test_sock.recv(4))[0]
             entity_id = embedding_sock.recv(entity_id_len).decode()
 
-            for dim_idx in range(int(embedding_dim)):
-                temp_entity_vector.append(struct.unpack('d', embedding_sock.recv(8))[0])
+            for dim_idx in range(int(n_dim)):
+                temp_entity_vector.append(struct.unpack('d', test_sock.recv(8))[0])
 
             entity_vectors[entity_id + '_v'] = pickle.dumps(np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
-        r.mset(entity_vectors)
+        #r.mset(entity_vectors)
 
     else:
         
@@ -432,18 +437,18 @@ if use_socket:
 
         # 처리 결과를 받아옴
         # GeometricModel.cpp 의 save 에서 처리
-        count_relation = struct.unpack('!i', embedding_sock.recv(4))[0]
+        count_relation = struct.unpack('!i', test_sock.recv(4))[0]
 
         for relation_idx in range(count_relation):
             temp_relation_vector = list()
-            relation_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
-            relation_id = embedding_sock.recv(relation_id_len).decode()
+            relation_id_len = struct.unpack('!i', test_sock.recv(4))[0]
+            relation_id = test_sock.recv(relation_id_len).decode()
 
             for dim_idx in range(int(embedding_dim)):
-                temp_relation_vector.append(struct.unpack('d', embedding_sock.recv(8))[0])
+                temp_relation_vector.append(struct.unpack('d', test_sock.recv(8))[0])
 
             relation_vectors[relation_id + '_v'] = pickle.dumps(np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
-        r.mset(relation_vectors)
+        #r.mset(relation_vectors)
     """
 
 print("Total elapsed time: %f" % (time() - master_start))

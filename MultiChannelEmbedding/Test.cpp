@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 		bzero((char *)&test_addr, sizeof(test_addr));
 		test_addr.sin_family = AF_INET;
 		test_addr.sin_addr.s_addr = inet_addr("0.0.0.0");
-		test_addr.sin_port = htons(49900 + worker_num);
+		test_addr.sin_port = htons(7874);
 
 		// create socket and check it is valid
 		if ((test_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
@@ -75,87 +75,84 @@ int main(int argc, char* argv[])
 			return -1;
 		}
 
-		while (1){
+		len = sizeof(worker_addr);
 
-			len = sizeof(worker_addr);
+		if ((worker_sock = accept(test_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
 
-			if ((worker_sock = accept(test_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
-
-				printf("[error] accept socket in test.cpp\n");
-				return -1;
-			}
-
-			if (recv(worker_sock, &flag_iter, sizeof(flag_iter), 0) < 0){
-
-				printf("[error] recv flag_iter in test.cpp\n");
-				close(worker_sock);
-				break;
-			}
-
-			if (ntohl(flag_iter) == 1){
-
-
-				close(worker_sock);
-				break;
-			}
-
-			// receive data
-			if(recv(worker_sock, &worker_num, sizeof(worker_num), 0) < 0){
-
-				printf("[error] recv worker_num in test.cpp\n");
-				close(worker_sock);
-				break;
-			}
-
-			if(recv(worker_sock, &master_epoch, sizeof(master_epoch), 0) < 0){
-
-				printf("[error] recv master_epoch in test.cpp\n");
-				close(worker_sock);
-				break;
-			}
-
-			if(recv(worker_sock, &dim, sizeof(dim), 0) < 0){
-
-				printf("[error] recv dim in test.cpp\n");
-				close(worker_sock);
-				break;
-			}
-
-			if(recv(worker_sock, &alpha, sizeof(alpha), 0) < 0){
-
-				printf("[error] recv alpha in test.cpp\n");
-				close(worker_sock);
-				break;
-			}
-
-			if(recv(worker_sock, &training_threshold, sizeof(training_threshold), 0) < 0){
-
-				printf("[error] recv training_threshold in test.cpp\n");
-				close(worker_sock);
-				break;
-			}
-
-			worker_num = ntohl(worker_num);
-			master_epoch = ntohl(master_epoch);
-			dim = ntohl(dim);
-
-			model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
-
-			//after training, put entities and relations into txt file
-			//model->save(to_string(worker_num));
-
-			//calculating testing time
-			struct timeval after, before;
-			gettimeofday(&before, NULL);
-
-			model->test();
-
-			gettimeofday(&after, NULL);
-			cout << "testing test_data time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
-			
-			delete model;
-			close(worker_sock);	
+			printf("[error] accept socket in test.cpp\n");
+			return -1;
 		}
+
+		if (recv(worker_sock, &flag_iter, sizeof(flag_iter), 0) < 0){
+
+			printf("[error] recv flag_iter in test.cpp\n");
+			close(worker_sock);
+			return -1;
+		}
+
+		if (ntohl(flag_iter) == 1){
+
+
+			close(worker_sock);
+			return -1;
+		}
+
+		// receive data
+		if(recv(worker_sock, &worker_num, sizeof(worker_num), 0) < 0){
+
+			printf("[error] recv worker_num in test.cpp\n");
+			close(worker_sock);
+			return -1;
+		}
+
+		if(recv(worker_sock, &master_epoch, sizeof(master_epoch), 0) < 0){
+
+			printf("[error] recv master_epoch in test.cpp\n");
+			close(worker_sock);
+			return -1;
+		}
+
+		if(recv(worker_sock, &dim, sizeof(dim), 0) < 0){
+
+			printf("[error] recv dim in test.cpp\n");
+			close(worker_sock);
+			return -1;
+		}
+
+		if(recv(worker_sock, &alpha, sizeof(alpha), 0) < 0){
+
+			printf("[error] recv alpha in test.cpp\n");
+			close(worker_sock);
+			return -1;
+		}
+
+		if(recv(worker_sock, &training_threshold, sizeof(training_threshold), 0) < 0){
+
+			printf("[error] recv training_threshold in test.cpp\n");
+			close(worker_sock);
+			return -1;
+		}
+
+		worker_num = ntohl(worker_num);
+		master_epoch = ntohl(master_epoch);
+		dim = ntohl(dim);
+
+		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
+
+		//after training, put entities and relations into txt file
+		model->save(to_string(worker_num));
+
+		//calculating testing time
+		struct timeval after, before;
+		gettimeofday(&before, NULL);
+
+		model->test();
+
+		gettimeofday(&after, NULL);
+		cout << "testing test_data time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
+		
+		delete model;
+		close(worker_sock);	
 	}
 	else 
 	{
