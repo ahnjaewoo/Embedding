@@ -359,8 +359,8 @@ if use_socket:
     test_sock.send(struct.pack('!i', int(worker_id.split('_')[1])))           # int 임시 땜빵, 매우 큰 문제
     test_sock.send(struct.pack('!i', int(cur_iter)))            # int
     test_sock.send(struct.pack('!i', int(n_dim)))       # int
-    test_sock.send(struct.pack('d', float(learning_rate)))      # double
-    test_sock.send(struct.pack('d', float(lr)))             # double
+    test_sock.send(struct.pack('d', float(lr)))      # double
+    test_sock.send(struct.pack('d', float(margin)))             # double
 
     # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 
