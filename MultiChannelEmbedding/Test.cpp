@@ -36,40 +36,42 @@ int main(int argc, char* argv[])
 	int worker_num = 0;
 	int master_epoch = 0;
 	int fd = 0;
-	
 
 	if (use_socket)
 	{
-		// embedding.cpp is server
+		// test.cpp is server
 		// worker.py is client
 		// IP addr / port are from master.py
 		int flag_iter;
 		int end_iter;
 		unsigned int len;
-		int embedding_sock, worker_sock;
-		struct sockaddr_in embedding_addr;
+		int test_sock, worker_sock;
+		struct sockaddr_in test_addr;
 		struct sockaddr_in worker_addr;
 
 		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, fd);
 
-		bzero((char *)&embedding_addr, sizeof(embedding_addr));
-		embedding_addr.sin_family = AF_INET;
-		embedding_addr.sin_addr.s_addr = inet_addr("0.0.0.0");
-		embedding_addr.sin_port = htons(49900 + worker_num);
+		bzero((char *)&test_addr, sizeof(test_addr));
+		test_addr.sin_family = AF_INET;
+		test_addr.sin_addr.s_addr = inet_addr("0.0.0.0");
+		test_addr.sin_port = htons(49900 + worker_num);
 
 		// create socket and check it is valid
-		if ((embedding_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
+		if ((test_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
 
+			printf("[error] create socket in test.cpp\n");
 			return -1;
 		}
 
-		if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
+		if (bind(test_sock, (struct sockaddr *)&test_addr, sizeof(test_addr)) < 0){
 
+			printf("[error] bind socket in test.cpp\n");
 			return -1;
 		}
 
-		if (listen(embedding_sock, 1) < 0){
+		if (listen(test_sock, 1) < 0){
 
+			printf("[error] listen socket in test.cpp\n");
 			return -1;
 		}
 
@@ -77,87 +79,82 @@ int main(int argc, char* argv[])
 
 			len = sizeof(worker_addr);
 
-			if ((worker_sock = accept(embedding_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
+			if ((worker_sock = accept(test_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
 
+				printf("[error] accept socket in test.cpp\n");
 				return -1;
 			}
 
-			while (1){
+			if (recv(worker_sock, &flag_iter, sizeof(flag_iter), 0) < 0){
 
-				if (recv(worker_sock, &flag_iter, sizeof(flag_iter), 0) < 0){
-
-					close(worker_sock);
-					break;
-				}
-
-				if (ntohl(flag_iter) == 1){
-
-					close(worker_sock);
-					break;
-				}
-
-
-				// receive data
-				if(recv(worker_sock, &worker_num, sizeof(worker_num), 0) < 0){
-
-					close(worker_sock);
-					break;
-				}
-
-				if(recv(worker_sock, &master_epoch, sizeof(master_epoch), 0) < 0){
-
-					close(worker_sock);
-					break;
-				}
-
-				if(recv(worker_sock, &dim, sizeof(dim), 0) < 0){
-
-					close(worker_sock);
-					break;
-				}
-
-				if(recv(worker_sock, &alpha, sizeof(alpha), 0) < 0){
-
-					close(worker_sock);
-					break;
-				}
-
-				if(recv(worker_sock, &training_threshold, sizeof(training_threshold), 0) < 0){
-
-					close(worker_sock);
-					break;
-				}
-
-				worker_num = ntohl(worker_num);
-				master_epoch = ntohl(master_epoch);
-				dim = ntohl(dim);
-
-				model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
-
-				//after training, put entities and relations into txt file
-				model->save(to_string(worker_num));
-
-				// barrier 기능, 소켓 포팅이 끝나면 제거
-				/*
-				end_iter = 0;
-				end_iter = htonl(end_iter);
-				send(worker_sock, &end_iter, sizeof(end_iter), 0);
-				*/
-
-				//calculating testing time
-				struct timeval after, before;
-				gettimeofday(&before, NULL);
-
-				model->test();
-
-				gettimeofday(&after, NULL);
-				cout << "testing test_data time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
-				
-				delete model;
+				printf("[error] recv flag_iter in test.cpp\n");
 				close(worker_sock);
-				// reconnect to worker.py
-				// 소켓을 끊는 이유는 worker.py 가 매 이터레이션에서 재생성되기 때문
+				break;
 			}
+
+			if (ntohl(flag_iter) == 1){
+
+
+				close(worker_sock);
+				break;
+			}
+
+			// receive data
+			if(recv(worker_sock, &worker_num, sizeof(worker_num), 0) < 0){
+
+				printf("[error] recv worker_num in test.cpp\n");
+				close(worker_sock);
+				break;
+			}
+
+			if(recv(worker_sock, &master_epoch, sizeof(master_epoch), 0) < 0){
+
+				printf("[error] recv master_epoch in test.cpp\n");
+				close(worker_sock);
+				break;
+			}
+
+			if(recv(worker_sock, &dim, sizeof(dim), 0) < 0){
+
+				printf("[error] recv dim in test.cpp\n");
+				close(worker_sock);
+				break;
+			}
+
+			if(recv(worker_sock, &alpha, sizeof(alpha), 0) < 0){
+
+				printf("[error] recv alpha in test.cpp\n");
+				close(worker_sock);
+				break;
+			}
+
+			if(recv(worker_sock, &training_threshold, sizeof(training_threshold), 0) < 0){
+
+				printf("[error] recv training_threshold in test.cpp\n");
+				close(worker_sock);
+				break;
+			}
+
+			worker_num = ntohl(worker_num);
+			master_epoch = ntohl(master_epoch);
+			dim = ntohl(dim);
+
+			model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
+
+			//after training, put entities and relations into txt file
+			//model->save(to_string(worker_num));
+
+			//calculating testing time
+			struct timeval after, before;
+			gettimeofday(&before, NULL);
+
+			model->test();
+
+			gettimeofday(&after, NULL);
+			cout << "testing test_data time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
+			
+			delete model;
+			close(worker_sock);	
 		}
 	}
 	else 

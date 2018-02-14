@@ -334,6 +334,7 @@ for cur_iter in range(niter):
     print("iteration time: %f" % (time() - t_))
     warning("iteration time: %f" % (time() - t_))
 
+# test part
 proc = Popen([
     test_code_dir,
     worker_id, str(cur_iter), str(n_dim), str(lr), str(margin)],
@@ -341,8 +342,109 @@ proc = Popen([
 proc.wait()
 
 if use_socket:
-    maxmin_sock.send(struct.pack('!i', 1))
-    maxmin_sock.close()
+    
+    tt.sleep(2)
+
+    test_addr = '0.0.0.0'
+    test_port = 49900 + int(worker_id.split('_')[1]) # worker_id 를 기반으로 포트를 생성
+    test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    test_sock.connect((embedding_addr, embedding_port))
+
+    test_sock.send(struct.pack('!i', 0))                        # 연산 요청 메시지
+    test_sock.send(struct.pack('!i', int(worker_id.split('_')[1])))           # int 임시 땜빵, 매우 큰 문제
+    test_sock.send(struct.pack('!i', int(cur_iter)))            # int
+    test_sock.send(struct.pack('!i', int(embedding_dim)))       # int
+    test_sock.send(struct.pack('d', float(learning_rate)))      # double
+    test_sock.send(struct.pack('d', float(margin)))             # double
+
+    # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
+
+    if int(cur_iter) % 2 == 0:
+        # entity 전송
+        chunk_anchor, chunk_entity = chunk_data.split('\n')
+        chunk_anchor = chunk_anchor.split(' ')
+        chunk_entity = chunk_entity.split(' ')
+
+        test_sock.send(struct.pack('!i', len(chunk_anchor)))
+
+        for iter_anchor in chunk_anchor:
+            test_sock.send(struct.pack('!i', int(iter_anchor)))
+
+        test_sock.send(struct.pack('!i', len(chunk_entity)))
+
+        for iter_entity in chunk_entity:
+            test_sock.send(struct.pack('!i', int(iter_entity)))
+
+    else:
+        # relation 전송
+        sub_graphs = pickle.loads(r.get('sub_graph_{}'.format(worker_id)))
+        test_sock.send(struct.pack('!i', len(sub_graphs)))
+
+        for (head_id, relation_id, tail_id) in sub_graphs:
+            test_sock.send(struct.pack('!i', int(head_id)))
+            test_sock.send(struct.pack('!i', int(relation_id)))
+            test_sock.send(struct.pack('!i', int(tail_id)))
+
+    # entity_vector 전송
+    for i, vector in enumerate(entities_initialized):
+        entity_name = str(entities[i])
+        test_sock.send(struct.pack('!i', len(entity_name)))
+        test_sock.send(str.encode(entity_name))    # entity string 자체를 전송
+
+        for v in vector:
+            test_sock.send(struct.pack('d', float(v)))
+
+    # relation_vector 전송
+    for i, relation in enumerate(relations_initialized):
+        relation_name = str(relations[i])
+        test_sock.send(struct.pack('!i', len(relation_name)))
+        test_sock.send(str.encode(relation_name))  # relation string 자체를 전송
+
+        for v in relation:
+            test_sock.send(struct.pack('d', float(v)))
+
+    del entities_initialized
+    del relations_initialized
+    
+    """
+    if int(cur_iter) % 2 == 0:
+        
+        entity_vectors = dict()
+
+        # 처리 결과를 받아옴
+        # GeometricModel.cpp 의 save 에서 처리
+        count_entity = struct.unpack('!i', embedding_sock.recv(4))[0]
+
+        for entity_idx in range(count_entity):
+            temp_entity_vector = list()
+            entity_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
+            entity_id = embedding_sock.recv(entity_id_len).decode()
+
+            for dim_idx in range(int(embedding_dim)):
+                temp_entity_vector.append(struct.unpack('d', embedding_sock.recv(8))[0])
+
+            entity_vectors[entity_id + '_v'] = pickle.dumps(np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
+        r.mset(entity_vectors)
+
+    else:
+        
+        relation_vectors = dict()
+
+        # 처리 결과를 받아옴
+        # GeometricModel.cpp 의 save 에서 처리
+        count_relation = struct.unpack('!i', embedding_sock.recv(4))[0]
+
+        for relation_idx in range(count_relation):
+            temp_relation_vector = list()
+            relation_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
+            relation_id = embedding_sock.recv(relation_id_len).decode()
+
+            for dim_idx in range(int(embedding_dim)):
+                temp_relation_vector.append(struct.unpack('d', embedding_sock.recv(8))[0])
+
+            relation_vectors[relation_id + '_v'] = pickle.dumps(np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
+        r.mset(relation_vectors)
+    """
 
 print("Total elapsed time: %f" % (time() - master_start))
 warning("Total elapsed time: %f" % (time() - master_start))
