@@ -265,6 +265,7 @@ else:
 
 
 print("worker training iteration epoch: ", train_iter)
+warning("worker training iteration epoch: ", train_iter)
 for cur_iter in range(niter):
     t_ = time()
     workers = list()
