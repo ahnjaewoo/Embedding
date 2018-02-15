@@ -19,6 +19,7 @@ margin = sys.argv[6]
 train_iter = sys.argv[7]
 redis_ip_address = sys.argv[8]
 root_dir = sys.argv[9]
+data_root_id = sys.argv[10]
 preprocess_folder_dir = "%s/preprocess/" % root_dir
 train_code_dir = "%s/MultiChannelEmbedding/Embedding.out" % root_dir
 temp_folder_dir = "%s/tmp" % root_dir
@@ -100,6 +101,7 @@ if use_socket:
     embedding_sock.send(struct.pack('!i', int(embedding_dim)))       # int
     embedding_sock.send(struct.pack('d', float(learning_rate)))      # double
     embedding_sock.send(struct.pack('d', float(margin)))             # double
+    embedding_sock.send(struct.pack('!i', int(data_root_id)))       # int
 
     # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 
@@ -214,7 +216,7 @@ if not use_socket:
     t_ = time()
     proc = Popen([
         train_code_dir, 
-        worker_id, cur_iter, embedding_dim, learning_rate, margin, train_iter],
+        worker_id, cur_iter, embedding_dim, learning_rate, margin, train_iter, data_root_id],
         cwd=preprocess_folder_dir)
     proc.wait()
     print("embedding time: %f" % (time()-t_))

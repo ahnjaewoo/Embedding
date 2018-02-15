@@ -12,6 +12,7 @@ import struct
 
 use_socket = True
 root_dir = sys.argv[5]
+data_root = sys.argv[6]
 temp_folder_dir = "%s/tmp" % root_dir
 
 # max-min process 실행, socket 연결
@@ -31,8 +32,7 @@ if use_socket:
     print("socket between master and maxmin connected - maxmin.py")
     warning("socket between master and maxmin connected - maxmin.py")
 
-    root = 'fb15k'
-    data_files = ['/train.txt','/dev.txt', '/test.txt']
+    data_files = ['%s/train.txt' % data_root, '%s/dev.txt' % data_root, '%s/test.txt' % data_root]
     output_file = '%s/maxmin_output.txt' % temp_folder_dir
     old_anchor_file = '%s/old_anchor.txt' % temp_folder_dir
     anchor_dict = dict()
@@ -50,7 +50,7 @@ if use_socket:
     entity_degree = defaultdict(int)
 
     for file in data_files:
-        with open(root+file, 'r') as f:
+        with open(root_dir+file, 'r') as f:
             for line in f:
                 head, relation, tail = line[:-1].split("\t")
                 entities.add(head)
@@ -65,7 +65,7 @@ if use_socket:
                 entity_degree[entity2id[head]] += 1
                 entity_degree[entity2id[tail]] += 1
 
-    with open(root+data_files[0], 'r') as f:
+    with open(root_dir+data_files[0], 'r') as f:
         for line in f:
             head, relation, tail = line[:-1].split("\t")
             entity_graph.append((head, tail))
@@ -184,8 +184,7 @@ if use_socket:
 
 if not use_socket:
     t_ = time()
-    root = 'fb15k'
-    data_files = ['/train.txt','/dev.txt', '/test.txt']
+    data_files = ['%s/train.txt' % data_root, '%s/dev.txt' % data_root, '%s/test.txt' % data_root]
     output_file = '%s/maxmin_output.txt' % temp_folder_dir
     old_anchor_file = '%s/old_anchor.txt' % temp_folder_dir
     partition_num = int(sys.argv[1])
@@ -207,7 +206,7 @@ if not use_socket:
     entity_degree = defaultdict(int)
 
     for file in data_files:
-        with open(root+file, 'r') as f:
+        with open(root_dir+file, 'r') as f:
             for line in f:
                 head, relation, tail = line[:-1].split("\t")
                 entities.add(head)
@@ -222,7 +221,7 @@ if not use_socket:
                 entity_degree[entity2id[head]] += 1
                 entity_degree[entity2id[tail]] += 1
 
-    with open(root+data_files[0], 'r') as f:
+    with open(root_dir+data_files[0], 'r') as f:
         for line in f:
             head, relation, tail = line[:-1].split("\t")
             entity_graph.append((head, tail))

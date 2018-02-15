@@ -46,7 +46,7 @@ const string semantic_tfile_FB15KZS = "C:\\Data\\Knowledge Embedding\\FB15KZS\\d
 const Dataset FB15K("FB15K", "/home/rudvlf0413/distributedKGE/Embedding/fb15k/", "train.txt", "dev.txt", "test.txt", true);
 const Dataset FB13("FB13", "/home/bookman/data/Knowledge Embedding/FB13/", "train.txt", "dev.txt", "test.txt", false);
 const Dataset WN11("WN11", "/home/bookman/data/Knowledge Embedding/WN11/", "train.txt", "dev.txt", "test.txt", false);
-const Dataset WN18("WN18", "/home/bookman/data/Knowledge Embedding/WN18/", "train.txt", "dev.txt", "test.txt", true);
+const Dataset WN18("WN18", "/home/rudvlf0413/distributedKGE/Embedding/wn18/", "train.txt", "dev.txt", "test.txt", true);
 const Dataset Wordnet("Wordnet", "/home/bookman/data/Knowledge Embedding/Wordnet/", "train.txt", "dev.txt", "test.txt", false);
 const Dataset Freebase("Freebase", "/home/bookman/data/Knowledge Embedding/Freebase/", "train.txt", "dev.txt", "test.txt", false);
 const string report_path = "/home/rudvlf0413/distributedKGE/Embedding/Report/";

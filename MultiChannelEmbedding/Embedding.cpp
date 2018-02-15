@@ -17,7 +17,7 @@
 #include <unistd.h>
 
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch,int& train_iter);
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id);
 
 // 400s for each experiment.
 int main(int argc, char* argv[])
@@ -36,6 +36,7 @@ int main(int argc, char* argv[])
 	int worker_num = 0;
 	int master_epoch = 0;
 	int train_iter = 10;
+	int data_root_id = 0;
 
 	if (use_socket)
 	{
@@ -49,7 +50,7 @@ int main(int argc, char* argv[])
 		struct sockaddr_in embedding_addr;
 		struct sockaddr_in worker_addr;
 
-		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter);
+		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter, data_root_id);
 
 		bzero((char *)&embedding_addr, sizeof(embedding_addr));
 		embedding_addr.sin_family = AF_INET;
@@ -135,11 +136,37 @@ int main(int argc, char* argv[])
 				break;
 			}
 
+			if(recv(worker_sock, &data_root_id, sizeof(data_root_id), 0) < 0){
+
+				printf("[error] recv data_root_id in embedding.cpp\n");
+				close(worker_sock);
+				break;
+			}
+
 			worker_num = ntohl(worker_num);
 			master_epoch = ntohl(master_epoch);
 			dim = ntohl(dim);
+			data_root_id = ntohl(data_root_id);
 
-			model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
+			// choosing data root by data root id
+			if (data_root_id == 0)
+			{
+				model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
+			}
+			else if (data_root_id == 1)
+			{
+				model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
+			}
+			/*
+			else if (data_root_id == 2)
+			{
+				model = new TransE(Dbpedia, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
+			}
+			*/
+			else
+			{
+				printf("[error] recv data root id in embedding.cpp\n");
+			}
 
 			// calculating training time
 			struct timeval after, before;
@@ -161,10 +188,26 @@ int main(int argc, char* argv[])
 	else 
 	{
 		// Model* model = nullptr;
-		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter);
+		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter, data_root_id);
 
-		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, 0);
-
+		if (data_root_id == 0) 
+		{
+			model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, 0);
+                }
+                else if (data_root_id == 1)
+                {
+                        model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, 0);
+                }
+                /*
+                else if (data_root_id == 2)
+                {
+                        model = new TransE(Dbpedia, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, 0);
+                }
+                */
+                else
+                {
+                        printf("[error] recv data root id in embedding.cpp\n");
+                }
 
 		//calculating training time
 		struct timeval after, before;
@@ -184,7 +227,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter)
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id)
 {
 	if (argc == 2)
 	{
@@ -232,4 +275,15 @@ void getParams(int argc, char* argv[], int& dim, double& alpha, double& training
 		training_threshold = atof(argv[5]);
 		train_iter = atoi(argv[6]);
 	}
+	if (argc == 8)
+        {
+                string worker = argv[1];
+                worker_num = worker.back() - '0';
+                master_epoch = atoi(argv[2]);
+                dim = atoi(argv[3]);
+                alpha = atof(argv[4]);
+                training_threshold = atof(argv[5]);
+                train_iter = atoi(argv[6]);
+		data_root_id = atoi(argv[7]);
+        }	
 } 

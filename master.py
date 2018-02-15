@@ -14,10 +14,11 @@ from time import time
 import socket
 import time as tt
 import struct
+import sys
 
 parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
 parser.add_argument('--num_worker', type=int, default=2, help='number of workers')
-parser.add_argument('--data_root', type=str, default='./fb15k', help='root directory of data')
+parser.add_argument('--data_root', type=str, default='/fb15k', help='root directory of data(must include a name of dataset)')
 parser.add_argument('--niter', type=int, default=2, help='total number of masters iterations')
 parser.add_argument('--train_iter', type=int, default=10, help='total number of workers(actual) training iterations')
 parser.add_argument('--install', default=True, help='install libraries in each worker')
@@ -35,6 +36,9 @@ args = parser.parse_args()
 
 install = args.install
 data_root = args.data_root
+if data_root[0] != '/':
+    print("[error] data root directory must start with /")
+    sys.exit(1)
 
 root_dir = args.root_dir
 preprocess_folder_dir = "%s/preprocess/" % root_dir
@@ -49,7 +53,7 @@ pypy_dir = args.pypy_dir
 redis_ip_address = args.redis_ip
 dask_ip_address = args.scheduler_ip
 
-data_files = ['/fb15k/train.txt', '/fb15k/dev.txt', '/fb15k/test.txt']
+data_files = ['%s/train.txt' % data_root, '%s/dev.txt' % data_root, '%s/test.txt' % data_root]
 num_worker = args.num_worker
 niter = args.niter
 train_iter = args.train_iter
@@ -60,12 +64,26 @@ anchor_num = args.anchor_num
 anchor_interval = args.anchor_interval
 use_socket = True
 
+def data2id(data_root):
+    data_root_split = [x.lower() for x in data_root.split('/')]
+    if 'fb15k' in data_root_split:
+        return 0
+    elif 'wn18' in data_root_split:
+        return 1
+    elif 'dbpedia' in data_root_split:
+        return 2
+    else:
+        print("[error] data root mismatch")
+        sys.exit(1)
+
+data_root_id = data2id(data_root)
+
 # 여기서 전처리 C++ 프로그램 비동기 호출
 master_start = time()
 t_ = time()
 print("Preprocessing start...")
 warning("Preprocessing start...")
-proc = Popen("%spreprocess.out" % preprocess_folder_dir, cwd=preprocess_folder_dir)
+proc = Popen(["%spreprocess.out" % preprocess_folder_dir, str(data_root_id)], cwd=preprocess_folder_dir)
 
 print("read files")
 warning("read files")
@@ -158,17 +176,17 @@ def install_libs():
     os.system("pip install hiredis")
 
 
-def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter):
+def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id):
     
     # 첫 iter 에서 embedding.cpp 를 실행해놓음
     if use_socket and cur_iter == 0:
     
         proc = Popen([train_code_dir, worker_id,
-                      str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter)], cwd=preprocess_folder_dir)
+                      str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter), str(data_root_id)], cwd=preprocess_folder_dir)
 
     proc = Popen([
         "python", worker_code_dir, chunk_data,
-        str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter), redis_ip_address, root_dir])
+        str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter), redis_ip_address, root_dir, str(data_root_id)])
     proc.wait()
 
     return "%s: %d iteration finished" % (worker_id, cur_iter)
@@ -223,7 +241,7 @@ if use_socket:
     chunks = list()
 
     proc = Popen([pypy_dir, 'maxmin.py', str(num_worker),
-                  '0', str(anchor_num), str(anchor_interval), root_dir])
+                  '0', str(anchor_num), str(anchor_interval), root_dir, data_root])
     print("popen maxmin.py complete - master.py")
     warning("popen maxmin.py complete - master.py")
     tt.sleep(3)
@@ -260,7 +278,7 @@ if use_socket:
 # max-min cut 실행, anchor 분배, 파일로 결과 전송
 else:
     proc = Popen([pypy_dir, '%s/maxmin.py' % root_dir, str(num_worker),
-                  '0', str(anchor_num), str(anchor_interval), root_dir])
+                  '0', str(anchor_num), str(anchor_interval), root_dir, data_root])
     proc.wait()
 
     with open("%s/maxmin_output.txt" % temp_folder_dir) as f:
@@ -279,13 +297,13 @@ for cur_iter in range(niter):
         worker_id = 'worker_%d' % i
         chunk_data = "{}\n{}".format(anchors, chunks[i])
         workers.append(client.submit(work, chunk_data, worker_id,
-                                     cur_iter, n_dim, lr, margin, train_iter))
+                                     cur_iter, n_dim, lr, margin, train_iter, data_root_id))
 
     if cur_iter % 2 == 1:
         # entity partitioning: max-min cut 실행, anchor 등 재분배
         if not use_socket:
             proc = Popen([pypy_dir, 'maxmin.py', str(num_worker), str(
-                cur_iter), str(anchor_num), str(anchor_interval), root_dir])
+                cur_iter), str(anchor_num), str(anchor_interval), root_dir, data_root])
             proc.wait()
 
             with open("%s/maxmin_output.txt" % temp_folder_dir) as f:
@@ -354,7 +372,7 @@ relations_initialized = [pickle.loads(v) for v in relations_initialized]
 
 proc = Popen([
     test_code_dir,
-    worker_id, str(cur_iter), str(n_dim), str(lr), str(margin)],
+    worker_id, str(cur_iter), str(n_dim), str(lr), str(margin), str(data_root_id)],
     cwd=preprocess_folder_dir)
 
 if use_socket:
@@ -375,6 +393,7 @@ if use_socket:
     test_sock.send(struct.pack('!i', int(n_dim)))       # int
     test_sock.send(struct.pack('d', float(lr)))      # double
     test_sock.send(struct.pack('d', float(margin)))             # double
+    test_sock.send(struct.pack('!i', int(data_root_id)))	# int
 
     # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 
