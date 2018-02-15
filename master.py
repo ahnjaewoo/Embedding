@@ -269,7 +269,7 @@ else:
 
 
 print("worker training iteration epoch: ", train_iter)
-
+-warning("worker training iteration epoch: ", train_iter)
 for cur_iter in range(niter):
     t_ = time()
     workers = list()
@@ -424,6 +424,7 @@ if use_socket:
 
     del entities_initialized
     del relations_initialized    
+proc.wait()
 
 print("Total elapsed time: %f" % (time() - master_start))
 warning("Total elapsed time: %f" % (time() - master_start))
