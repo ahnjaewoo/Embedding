@@ -17,7 +17,7 @@
 #include <unistd.h>
 
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch,int& train_iter, int& fd);
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch,int& train_iter);
 
 // 400s for each experiment.
 int main(int argc, char* argv[])
@@ -36,7 +36,6 @@ int main(int argc, char* argv[])
 	int worker_num = 0;
 	int master_epoch = 0;
 	int train_iter = 10;
-	int fd = 0;
 
 	if (use_socket)
 	{
@@ -50,7 +49,7 @@ int main(int argc, char* argv[])
 		struct sockaddr_in embedding_addr;
 		struct sockaddr_in worker_addr;
 
-		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter, fd);
+		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter);
 
 		bzero((char *)&embedding_addr, sizeof(embedding_addr));
 		embedding_addr.sin_family = AF_INET;
@@ -162,7 +161,7 @@ int main(int argc, char* argv[])
 	else 
 	{
 		// Model* model = nullptr;
-		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter, fd);
+		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter);
 
 		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, 0);
 
@@ -185,7 +184,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& fd)
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter)
 {
 	if (argc == 2)
 	{
@@ -233,15 +232,4 @@ void getParams(int argc, char* argv[], int& dim, double& alpha, double& training
 		training_threshold = atof(argv[5]);
 		train_iter = atoi(argv[6]);
 	}
-	if (argc == 8)
-        {
-                string worker = argv[1];
-                worker_num = worker.back() - '0';
-                master_epoch = atoi(argv[2]);
-                dim = atoi(argv[3]);
-                alpha = atof(argv[4]);
-                training_threshold = atof(argv[5]);
-		train_iter = atoi(argv[6]);
-                fd = atoi(argv[7]);
-        }
 } 

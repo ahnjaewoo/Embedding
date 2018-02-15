@@ -17,7 +17,7 @@
 #include <unistd.h>
 
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& fd);
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch);
 
 // 400s for each experiment.
 int main(int argc, char* argv[])
@@ -35,7 +35,6 @@ int main(int argc, char* argv[])
 	double training_threshold = 2;
 	int worker_num = 0;
 	int master_epoch = 0;
-	int fd = 0;
 
 	if (use_socket)
 	{
@@ -49,7 +48,7 @@ int main(int argc, char* argv[])
 		struct sockaddr_in test_addr;
 		struct sockaddr_in worker_addr;
 
-		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, fd);
+		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch);
 
 		bzero((char *)&test_addr, sizeof(test_addr));
 		test_addr.sin_family = AF_INET;
@@ -138,10 +137,6 @@ int main(int argc, char* argv[])
 		dim = ntohl(dim);
 
 		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
-
-		//after training, put entities and relations into txt file
-		model->save(to_string(worker_num));
-
 		//calculating testing time
 		struct timeval after, before;
 		gettimeofday(&before, NULL);
@@ -152,17 +147,16 @@ int main(int argc, char* argv[])
 
 		gettimeofday(&after, NULL);
 		cout << "testing test_data time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
-		
 		delete model;
 		close(worker_sock);	
 	}
 	else 
 	{
 		// Model* model = nullptr;
-		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, fd);
+		getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch);
 
 		//model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, false);
-		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, fd);
+		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch);
 
 		//calculating testing time
 		struct timeval after, before;
@@ -176,7 +170,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& fd)
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch)
 {
 	if (argc == 2)
 	{
@@ -213,15 +207,5 @@ void getParams(int argc, char* argv[], int& dim, double& alpha, double& training
 		dim = atoi(argv[3]);
 		alpha = atof(argv[4]);
 		training_threshold = atof(argv[5]);
-	}
-	if (argc == 7)
-	{
-		string worker = argv[1];
-		worker_num = worker.back() - '0';
-		master_epoch = atoi(argv[2]);
-		dim = atoi(argv[3]);
-		alpha = atof(argv[4]);
-		training_threshold = atof(argv[5]);
-		fd = atoi(argv[7]);
 	}
 }  
