@@ -16,7 +16,7 @@ data_root = sys.argv[6]
 temp_folder_dir = "%s/tmp" % root_dir
 logging.basicConfig(filename='%s/maxmin.log' % root_dir, filemode='w', level=logging.DEBUG)
 logger = logging.getLogger()
-handler = logging.StreamHandler(stream.sys.stdout)
+handler = logging.StreamHandler(stream=sys.stdout)
 logger.addHandler(handler)
 
 def handle_exception(exc_type, exc_value, exc_traceback):

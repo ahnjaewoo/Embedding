@@ -43,7 +43,7 @@ if data_root[0] != '/':
 root_dir = args.root_dir
 logging.basicConfig(filename='%s/master.log' % root_dir, filemode='w', level=logging.DEBUG)
 logger = logging.getLogger()
-handler = logging.StreamHandler(stream.sys.stdout)
+handler = logging.StreamHandler(stream=sys.stdout)
 logger.addHandler(handler)
 
 def handle_exception(exc_type, exc_value, exc_traceback):

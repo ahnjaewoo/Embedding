@@ -20,8 +20,20 @@ train_iter = sys.argv[7]
 redis_ip_address = sys.argv[8]
 root_dir = sys.argv[9]
 data_root_id = sys.argv[10]
-logging.basicConfig(filename='%s/worker.log' %
-                    root_dir, filemode='w', level=logging.DEBUG)
+logging.basicConfig(filename='%s/worker.log' % root_dir, filemode='w', level=logging.DEBUG)
+logger = logging.getLogger()
+handler = logging.StreamHandler(stream=sys.stdout)
+logger.addHandler(handler)
+
+def handle_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+    
+    logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+sys.excepthook = handle_exception
+
 preprocess_folder_dir = "%s/preprocess/" % root_dir
 train_code_dir = "%s/MultiChannelEmbedding/Embedding.out" % root_dir
 temp_folder_dir = "%s/tmp" % root_dir
@@ -45,19 +57,6 @@ relations_initialized = [pickle.loads(v) for v in relations_initialized]
 
 print("redis server connection time: %f" % (time() - t_))
 logger.warning("redis server connection time: %f" % (time() - t_))
-logger = logging.getLogger()
-handler = logging.StreamHandler(stream.sys.stdout)
-logger.addHandler(handler)
-
-def handle_exception(exc_type, exc_value, exc_traceback):
-    if issubclass(exc_type, KeyboardInterrupt):
-        sys.__excepthook__(exc_type, exc_value, exc_traceback)
-        return
-    
-    logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
-
-sys.excepthook = handle_exception
-
 
 t_ = time()
 use_socket = True
