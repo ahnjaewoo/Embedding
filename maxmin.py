@@ -3,7 +3,6 @@ import networkx as nx
 from random import randint
 from collections import defaultdict
 from time import time
-from logging import warning
 import nxmetis
 import sys
 import random
@@ -14,6 +13,7 @@ use_socket = True
 root_dir = sys.argv[5]
 data_root = sys.argv[6]
 temp_folder_dir = "%s/tmp" % root_dir
+fwrite = open("%s/log.txt" % root_dir, 'w')
 
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
@@ -30,8 +30,7 @@ if use_socket:
     master_sock, master_addr = maxmin_sock.accept()
 
     print("socket between master and maxmin connected - maxmin.py")
-    warning("socket between master and maxmin connected - maxmin.py")
-
+    fwrite.write("socket between master and maxmin connected - maxmin.py")
     data_files = ['%s/train.txt' % data_root, '%s/dev.txt' % data_root, '%s/test.txt' % data_root]
     output_file = '%s/maxmin_output.txt' % temp_folder_dir
     old_anchor_file = '%s/old_anchor.txt' % temp_folder_dir
@@ -77,10 +76,11 @@ if use_socket:
     for (hd, tl) in entity_graph:
         edge_list.append((entity2id[hd], entity2id[tl]))
     print("max-min cut data preprocessing finished - max-min preprocessing time: {}".format((time()-t_)))
-    warning("max-min cut data preprocessing finished - max-min preprocessing time: {}".format((time()-t_)))
+    fwrite.write("max-min cut data preprocessing finished - max-min preprocessing time: {}".format((time()-t_)))
 
     while True:
         master_status = struct.unpack('!i', master_sock.recv(4))[0]
+        fwrite.write(master_status)
         t_ = time()
 
         if master_status == 1:
@@ -119,7 +119,7 @@ if use_socket:
 
             if best == None:
                 print("no vertex added to anchor")
-                warning("no vertex added to anchor")
+                fwrite.write("no vertex added to anchor")
             else:
                 anchor.add(best)
 
@@ -155,7 +155,7 @@ if use_socket:
 
         # printing the number of entities in each paritions
         print('# of entities in each partitions: [%s]' % " ".join([str(len(p)) for p in parts]))
-        warning('# of entities in each partitions: [%s]' % " ".join([str(len(p)) for p in parts]))
+        fwrite.write('# of entities in each partitions: [%s]' % " ".join([str(len(p)) for p in parts]))
         master_sock.send(struct.pack('!i', len(list(anchor))))
 
         for anchor_val in list(anchor):
@@ -171,7 +171,7 @@ if use_socket:
                 master_sock.send(struct.pack('!i', nas_val))
 
         print("max-min cut finished - max-min time: {}".format((time()-t_)))
-        warning("max-min cut finished - max-min time: {}".format((time()-t_)))
+        fwrite.write("max-min cut finished - max-min time: {}".format((time()-t_)))
 
 
 
@@ -268,7 +268,7 @@ if not use_socket:
 
         if best == None:
             print("no vertex added to anchor")
-            warning("no vertex added to anchor")
+            fwrite.write("no vertex added to anchor")
         else:
             anchor.add(best)
     #writing anchor to old anchor file
@@ -310,7 +310,7 @@ if not use_socket:
 
     # printing the number of entities in each paritions
     print('# of entities in each partitions: [%s]' % " ".join([str(len(p)) for p in parts]))
-    warning('# of entities in each partitions: [%s]' % " ".join([str(len(p)) for p in parts]))
+    fwrite.write('# of entities in each partitions: [%s]' % " ".join([str(len(p)) for p in parts]))
 
     # writing output file
     with open(output_file, "w") as fwrite:
@@ -319,4 +319,4 @@ if not use_socket:
             fwrite.write(" ".join([str(i) for i in nas])+"\n")
 
     print("max-min cut finished - max-min time: {}".format((time()-t_)))
-    warning("max-min cut finished - max-min time: {}".format((time()-t_)))
+    fwrite.write("max-min cut finished - max-min time: {}".format((time()-t_)))
