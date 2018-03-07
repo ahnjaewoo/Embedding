@@ -189,17 +189,17 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     return "%s: %d iteration finished" % (worker_id, cur_iter)
 
 
-def savePreprocessedData(data, worker_id):
-    from threading import Thread
-    def saveFile(data):
-        with open("%s/data_model_%s.bin" % (temp_folder_dir, worker_id), 'wb') as f:
-            f.write(data)
+# def savePreprocessedData(data, worker_id):
+#     from threading import Thread
+#     def saveFile(data):
+#         with open("%s/data_model_%s.bin" % (temp_folder_dir, worker_id), 'wb') as f:
+#             f.write(data)
 
-    thread = Thread(target=saveFile, args=(data, ))
-    thread.start()
-    thread.join()
+#     thread = Thread(target=saveFile, args=(data, ))
+#     thread.start()
+#     thread.join()
 
-    return "%s finish saving file!" % worker_id
+#     return "%s finish saving file!" % worker_id
 
 
 client = Client(dask_ip_address, asynchronous=True, name='Embedding')
@@ -209,20 +209,20 @@ if install:
 # 전처리 끝날때까지 대기
 proc.wait()
 
-with open("%s/data_model.bin" % temp_folder_dir, 'rb') as f:
-    data = f.read()
+# with open("%s/data_model.bin" % temp_folder_dir, 'rb') as f:
+#     data = f.read()
 
 print("preprocessing time: %f" % (time() - t_))
 warning("preprocessing time: %f" % (time() - t_))
 
-workers = list()
+# workers = list()
 
-for i in range(num_worker):
-    worker_id = 'worker_%d' % i
-    workers.append(client.submit(savePreprocessedData, data, worker_id))
+# for i in range(num_worker):
+#     worker_id = 'worker_%d' % i
+#     workers.append(client.submit(savePreprocessedData, data, worker_id))
 
-for worker in as_completed(workers):
-    print(worker.result())
+# for worker in as_completed(workers):
+#     print(worker.result())
 
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
