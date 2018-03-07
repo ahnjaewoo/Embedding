@@ -294,8 +294,10 @@ else:
 
 
 print("worker training iteration epoch: ", train_iter)
-logger.warning("worker training iteration epoch: ", train_iter)
+logger.warning("worker training iteration epoch: {}".format(train_iter))
 for cur_iter in range(niter):
+    logger.warning("%d iteration" % cur_iter)
+    
     t_ = time()
     workers = list()
 
@@ -305,6 +307,7 @@ for cur_iter in range(niter):
         chunk_data = "{}\n{}".format(anchors, chunks[i])
         workers.append(client.submit(work, chunk_data, worker_id,
                                      cur_iter, n_dim, lr, margin, train_iter, data_root_id))
+    logger.warning("finished distributing jobs")
 
     if cur_iter % 2 == 1:
         # entity partitioning: max-min cut 실행, anchor 등 재분배

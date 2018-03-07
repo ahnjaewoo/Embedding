@@ -20,7 +20,7 @@ train_iter = sys.argv[7]
 redis_ip_address = sys.argv[8]
 root_dir = sys.argv[9]
 data_root_id = sys.argv[10]
-logging.basicConfig(filename='%s/worker.log' % root_dir, filemode='w', level=logging.DEBUG)
+logging.basicConfig(filename='%s/worker_%s.log' % (root_dir, worker_id), filemode='w', level=logging.DEBUG)
 logger = logging.getLogger()
 handler = logging.StreamHandler(stream=sys.stdout)
 logger.addHandler(handler)
