@@ -96,11 +96,11 @@ data_root_id = data2id(data_root)
 master_start = time()
 t_ = time()
 print("Preprocessing start...")
-logger.warning("Preprocessing start...")
+logger.warning("Preprocessing start...\n")
 proc = Popen(["%spreprocess.out" % preprocess_folder_dir, str(data_root_id)], cwd=preprocess_folder_dir)
 
 print("read files")
-logger.warning("read files")
+logger.warning("read files\n")
 entities = list()
 relations = list()
 entity2id = dict()
@@ -145,7 +145,7 @@ for i, (relation, num) in enumerate(relation_each_num):
 # printing # of relations per each partitions
 print('# of relations per each partitions: [%s]' %
       " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
-logger.warning('# of relations per each partitions: [%s]' %
+logger.warning('# of relations per each partitions: [%s]\n' %
       " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
 
 sub_graphs = {}
@@ -227,7 +227,7 @@ proc.wait()
 #     data = f.read()
 
 print("preprocessing time: %f" % (time() - t_))
-logger.warning("preprocessing time: %f" % (time() - t_))
+logger.warning("preprocessing time: %f\n" % (time() - t_))
 
 # workers = list()
 
@@ -248,7 +248,7 @@ if use_socket:
     proc = Popen([pypy_dir, 'maxmin.py', str(num_worker),
                   '0', str(anchor_num), str(anchor_interval), root_dir, data_root])
     print("popen maxmin.py complete - master.py")
-    logger.warning("popen maxmin.py complete - master.py")
+    logger.warning("popen maxmin.py complete - master.py\n")
     tt.sleep(3)
 
     maxmin_addr = '127.0.0.1'
@@ -256,7 +256,7 @@ if use_socket:
     maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     maxmin_sock.connect((maxmin_addr, maxmin_port))
     print("socket between master and maxmin connected - master.py")
-    logger.warning("socket between master and maxmin connected - master.py")
+    logger.warning("socket between master and maxmin connected - master.py\n")
 
     maxmin_sock.send(struct.pack('!i', 0))
     maxmin_sock.send(struct.pack('!i', num_worker))
@@ -266,6 +266,7 @@ if use_socket:
 
     # maxmin 의 결과를 소켓으로 받음
     anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
+    logger.warning(str(anchor_len)+'\n')
 
     for anchor_idx in range(anchor_len):
         anchors += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
@@ -279,6 +280,7 @@ if use_socket:
             chunk += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
         chunk = chunk[:-1]
         chunks.append(chunk)
+    logger.warning(str(chunks)+'\n')
 
 # max-min cut 실행, anchor 분배, 파일로 결과 전송
 else:
@@ -353,11 +355,11 @@ for cur_iter in range(niter):
         logger.warning(worker.result())
 
     print("iteration time: %f" % (time() - t_))
-    logger.warning("iteration time: %f" % (time() - t_))
+    logger.warning("iteration time: %f\n" % (time() - t_))
 
 # test part
 print('test start')
-logger.warning('test start')
+logger.warning('test start\n')
 
 # load entity vector
 entities = pickle.loads(r.get('entities'))
@@ -450,4 +452,4 @@ if use_socket:
 proc.wait()
 
 print("Total elapsed time: %f" % (time() - master_start))
-logger.warning("Total elapsed time: %f" % (time() - master_start)) 
+logger.warning("Total elapsed time: %f\n" % (time() - master_start)) 
