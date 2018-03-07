@@ -15,6 +15,18 @@ root_dir = sys.argv[5]
 data_root = sys.argv[6]
 temp_folder_dir = "%s/tmp" % root_dir
 logging.basicConfig(filename='%s/maxmin.log' % root_dir, filemode='w', level=logging.DEBUG)
+logger = logging.getLogger()
+handler = logging.StreamHandler(stream.sys.stdout)
+logger.addHandler(handler)
+
+def handle_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+    
+    logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+sys.excepthook = handle_exception
 
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
@@ -31,7 +43,7 @@ if use_socket:
     master_sock, master_addr = maxmin_sock.accept()
 
     print("socket between master and maxmin connected - maxmin.py")
-    logging.warning("socket between master and maxmin connected - maxmin.py\n")
+    logger.warning("socket between master and maxmin connected - maxmin.py\n")
     data_files = ['%s/train.txt' % data_root, '%s/dev.txt' % data_root, '%s/test.txt' % data_root]
     output_file = '%s/maxmin_output.txt' % temp_folder_dir
     old_anchor_file = '%s/old_anchor.txt' % temp_folder_dir
@@ -77,11 +89,11 @@ if use_socket:
     for (hd, tl) in entity_graph:
         edge_list.append((entity2id[hd], entity2id[tl]))
     print("max-min cut data preprocessing finished - max-min preprocessing time: {}".format((time()-t_)))
-    logging.warning("max-min cut data preprocessing finished - max-min preprocessing time: {}\n".format((time()-t_)))
+    logger.warning("max-min cut data preprocessing finished - max-min preprocessing time: {}\n".format((time()-t_)))
 
     while True:
         master_status = struct.unpack('!i', master_sock.recv(4))[0]
-        logging.warning(int(master_status)+'\n')
+        logger.warning(str(master_status)+'\n')
         t_ = time()
 
         if master_status == 1:
@@ -120,7 +132,7 @@ if use_socket:
 
             if best == None:
                 print("no vertex added to anchor")
-                logging.warning("no vertex added to anchor\n")
+                logger.warning("no vertex added to anchor\n")
             else:
                 anchor.add(best)
 
@@ -156,7 +168,7 @@ if use_socket:
 
         # printing the number of entities in each paritions
         print('# of entities in each partitions: [%s]' % " ".join([str(len(p)) for p in parts]))
-        logging.warning('# of entities in each partitions: [%s]\n' % " ".join([str(len(p)) for p in parts]))
+        logger.warning('# of entities in each partitions: [%s]\n' % " ".join([str(len(p)) for p in parts]))
         master_sock.send(struct.pack('!i', len(list(anchor))))
 
         for anchor_val in list(anchor):
@@ -172,7 +184,7 @@ if use_socket:
                 master_sock.send(struct.pack('!i', nas_val))
 
         print("max-min cut finished - max-min time: {}".format((time()-t_)))
-        logging.warning("max-min cut finished - max-min time: {}\n".format((time()-t_)))
+        logger.warning("max-min cut finished - max-min time: {}\n".format((time()-t_)))
 
 
 
@@ -232,7 +244,7 @@ if not use_socket:
         # if current iteration is 0, then initialize old_anchor.txt as empty space
         if cur_iter == 0:
             with open(old_anchor_file, 'w') as fwrite:
-                logging.warning("")
+                logger.warning("")
 
         #read as old anchor set
         with open(old_anchor_file, 'r') as f:
@@ -262,7 +274,7 @@ if not use_socket:
 
         if best == None:
             print("no vertex added to anchor")
-            logging.warning("no vertex added to anchor")
+            logger.warning("no vertex added to anchor")
         else:
             anchor.add(best)
     #writing anchor to old anchor file
@@ -270,7 +282,7 @@ if not use_socket:
     with open(old_anchor_file, 'w') as fwrite:
         for it in range(anchor_interval):
             if it in anchor_dict.keys():
-                logging.warning(" ".join([str(i) for i in anchor_dict[it]])+"\n")
+                logger.warning(" ".join([str(i) for i in anchor_dict[it]])+"\n")
 
     # solve the min-cut partition problem of A~, finding A~ and edges
     non_anchor_id = entities_id.difference(anchor)
@@ -304,13 +316,13 @@ if not use_socket:
 
     # printing the number of entities in each paritions
     print('# of entities in each partitions: [%s]' % " ".join([str(len(p)) for p in parts]))
-    logging.warning('# of entities in each partitions: [%s]' % " ".join([str(len(p)) for p in parts]))
+    logger.warning('# of entities in each partitions: [%s]' % " ".join([str(len(p)) for p in parts]))
 
     # writing output file
     with open(output_file, "w") as fwrite:
-        logging.warning(" ".join([str(i) for i in anchor])+"\n")
+        logger.warning(" ".join([str(i) for i in anchor])+"\n")
         for nas in parts:
-            logging.warning(" ".join([str(i) for i in nas])+"\n")
+            logger.warning(" ".join([str(i) for i in nas])+"\n")
 
     print("max-min cut finished - max-min time: {}".format((time()-t_)))
-    logging.warning("max-min cut finished - max-min time: {}".format((time()-t_)))
+    logger.warning("max-min cut finished - max-min time: {}".format((time()-t_)))
