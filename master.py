@@ -6,7 +6,7 @@ from subprocess import Popen
 from argparse import ArgumentParser
 from random import shuffle
 from collections import defaultdict
-from logging import warning
+import logging
 import numpy as np
 import redis
 import pickle
@@ -41,6 +41,7 @@ if data_root[0] != '/':
     sys.exit(1)
 
 root_dir = args.root_dir
+logging.basicConfig(filename='%s/master.log' % root_dir, filemode='w', level=logging.DEBUG)
 preprocess_folder_dir = "%s/preprocess/" % root_dir
 train_code_dir = "%s/MultiChannelEmbedding/Embedding.out" % root_dir
 test_code_dir = "%s/MultiChannelEmbedding/Test.out" % root_dir
@@ -82,11 +83,11 @@ data_root_id = data2id(data_root)
 master_start = time()
 t_ = time()
 print("Preprocessing start...")
-warning("Preprocessing start...")
+logging.warning("Preprocessing start...")
 proc = Popen(["%spreprocess.out" % preprocess_folder_dir, str(data_root_id)], cwd=preprocess_folder_dir)
 
 print("read files")
-warning("read files")
+logging.warning("read files")
 entities = list()
 relations = list()
 entity2id = dict()
@@ -131,7 +132,7 @@ for i, (relation, num) in enumerate(relation_each_num):
 # printing # of relations per each partitions
 print('# of relations per each partitions: [%s]' %
       " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
-warning('# of relations per each partitions: [%s]' %
+logging.warning('# of relations per each partitions: [%s]' %
       " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
 
 sub_graphs = {}
@@ -213,7 +214,7 @@ proc.wait()
 #     data = f.read()
 
 print("preprocessing time: %f" % (time() - t_))
-warning("preprocessing time: %f" % (time() - t_))
+logging.warning("preprocessing time: %f" % (time() - t_))
 
 # workers = list()
 
@@ -234,7 +235,7 @@ if use_socket:
     proc = Popen([pypy_dir, 'maxmin.py', str(num_worker),
                   '0', str(anchor_num), str(anchor_interval), root_dir, data_root])
     print("popen maxmin.py complete - master.py")
-    warning("popen maxmin.py complete - master.py")
+    logging.warning("popen maxmin.py complete - master.py")
     tt.sleep(3)
 
     maxmin_addr = '127.0.0.1'
@@ -242,7 +243,7 @@ if use_socket:
     maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     maxmin_sock.connect((maxmin_addr, maxmin_port))
     print("socket between master and maxmin connected - master.py")
-    warning("socket between master and maxmin connected - master.py")
+    logging.warning("socket between master and maxmin connected - master.py")
 
     maxmin_sock.send(struct.pack('!i', 0))
     maxmin_sock.send(struct.pack('!i', num_worker))
@@ -278,7 +279,7 @@ else:
 
 
 print("worker training iteration epoch: ", train_iter)
-warning("worker training iteration epoch: ", train_iter)
+logging.warning("worker training iteration epoch: ", train_iter)
 for cur_iter in range(niter):
     t_ = time()
     workers = list()
@@ -336,14 +337,14 @@ for cur_iter in range(niter):
 
     for worker in as_completed(workers):
         print(worker.result())
-        warning(worker.result())
+        logging.warning(worker.result())
 
     print("iteration time: %f" % (time() - t_))
-    warning("iteration time: %f" % (time() - t_))
+    logging.warning("iteration time: %f" % (time() - t_))
 
 # test part
 print('test start')
-warning('test start')
+logging.warning('test start')
 
 # load entity vector
 entities = pickle.loads(r.get('entities'))
@@ -436,4 +437,4 @@ if use_socket:
 proc.wait()
 
 print("Total elapsed time: %f" % (time() - master_start))
-warning("Total elapsed time: %f" % (time() - master_start)) 
+logging.warning("Total elapsed time: %f" % (time() - master_start)) 
