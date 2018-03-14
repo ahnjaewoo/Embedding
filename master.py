@@ -280,7 +280,7 @@ if use_socket:
             chunk += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
         chunk = chunk[:-1]
         chunks.append(chunk)
-    logger.warning(str(chunks)+'\n')
+    # logger.warning(str(chunks)+'\n')
 
 # max-min cut 실행, anchor 분배, 파일로 결과 전송
 else:
