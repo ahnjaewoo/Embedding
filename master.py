@@ -235,7 +235,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
 
 #     return "%s finish saving file!" % worker_id
 
-if use_scheduler_config_file == True:
+if use_scheduler_config_file == 'True':
     client = Client(scheduler_file=temp_folder_dir + '/scheduler.json', name='Embedding')
 else:
     client = Client(dask_ip_address, name='Embedding')
