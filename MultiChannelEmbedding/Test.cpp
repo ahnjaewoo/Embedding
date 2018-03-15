@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 
 		if (ntohl(flag_iter) == 1){
 
-
+			print("[Info] recv flag_iter 1 in test.cpp, quit");
 			close(worker_sock);
 			return -1;
 		}

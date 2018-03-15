@@ -488,11 +488,27 @@ public:
 					&& data_model.check_parts.find(i) != data_model.check_parts.end())
 					{
 
+						// entity_id 가 string 으로 주어진 경우
+						// entity_id_to_name 을 이용해 string 을 가져와서 보냄
 						string_len = data_model.entity_id_to_name[i].size();
 						string_len = htonl(string_len);
 						send(fd, &string_len, sizeof(string_len), 0);
 						string_len = ntohl(string_len);
 						send(fd, data_model.entity_id_to_name[i].c_str() , string_len, 0);
+
+
+
+
+
+						/*
+						// entity_id 가 int 로 주어진 경우
+						// 그냥 그대로 보냄
+						i = htonl(i);
+						send(fd, &i, sizeof(int), 0);
+						*/
+
+
+
 
 						for (int j =0; j < dim; j++)
 						{
@@ -525,11 +541,26 @@ public:
 					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end())
 					{
 
+						// relation_id 가 string 으로 주어진 경우
+						// relation_id_to_name 을 이용해 string 을 가져와서 보냄
 						string_len = data_model.relation_id_to_name[i].size();
 						string_len = htonl(string_len);
 						send(fd, &string_len, sizeof(string_len), 0);
 						string_len = ntohl(string_len);
 						send(fd, data_model.relation_id_to_name[i].c_str() , string_len, 0);
+
+
+
+
+						/*
+						// relation_id 가 int 로 주어진 경우
+						// 그냥 그대로 보냄
+						i = htonl(i);
+						send(fd, &i, sizeof(int), 0);
+						*/
+
+
+
 
 						for (int j = 0; j < dim; j++)
 						{
@@ -602,6 +633,7 @@ public:
 
 			for (int i = 0; i < count_entity(); i++) {
 
+				// entity key 를 string 으로 받는 경우
 				// entity key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
                 if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
 
@@ -630,6 +662,18 @@ public:
 
 				int entity_id = data_model.entity_name_to_id.at(key);
 
+				/*
+				// entity key 가 int 형식으로 주어짐
+                if (recv(fd, &entity_id, sizeof(int), 0) < 0){
+
+                	printf("[error] recv entity_id in GeometricModel.hpp\n");
+                    close(fd);
+                    break;
+                }
+
+				entity_id = ntohl(entity_id);
+				*/
+
 				for (int j = 0; j < dim; j++)
 				{
 
@@ -647,7 +691,8 @@ public:
 
 			for (int i = 0; i < count_relation(); i++) {
 
-
+				// relation key 를 string 으로 받는 경우
+				// relation key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
                 if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
 
                 	printf("[error] recv key_length in GeometricModel.hpp\n");
@@ -674,6 +719,26 @@ public:
 				}
 
 				int relation_id = data_model.relation_name_to_id.at(key);
+
+
+
+
+				/*
+				// relation key 가 int 형식으로 주어짐
+                if (recv(fd, &relation_id, sizeof(int), 0) < 0){
+
+                	printf("[error] recv relation_id in GeometricModel.hpp\n");
+                    close(fd);
+                    break;
+                }
+
+				relation_id = ntohl(relation_id);
+				*/
+
+
+
+
+
 
 				for (int j = 0; j < dim; j++)
 				{
