@@ -411,6 +411,7 @@ relation_id = {relation: int(relation_id[i])
 entities_initialized = [pickle.loads(v) for v in entities_initialized]
 relations_initialized = [pickle.loads(v) for v in relations_initialized]
 
+worker_id = 'worker_0'
 proc = Popen([
     test_code_dir,
     worker_id, str(cur_iter), str(n_dim), str(lr), str(margin), str(data_root_id)],
@@ -428,7 +429,7 @@ if use_socket:
             test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             test_sock.connect((test_addr, test_port))
             break
-        except TimeoutError, ConnectionRefusedError:
+        except (TimeoutError, ConnectionRefusedError):
             tt.sleep(1)
 
     test_sock.send(struct.pack('!i', 0))                        # 연산 요청 메시지
