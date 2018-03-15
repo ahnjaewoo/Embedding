@@ -119,12 +119,12 @@ if use_socket:
     embedding_sock.send(struct.pack('!i', int(embedding_dim)))       # int
     embedding_sock.send(struct.pack('d', float(learning_rate)))      # double
     embedding_sock.send(struct.pack('d', float(margin)))             # double
-    embedding_sock.send(struct.pack('!i', int(data_root_id)))       # int
+    embedding_sock.send(struct.pack('!i', int(data_root_id)))        # int
 
     # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 
     if int(cur_iter) % 2 == 0:
-        # entity 전송
+        # entity 전송 - DataModel 생성자
         chunk_anchor, chunk_entity = chunk_data.split('\n')
         chunk_anchor = chunk_anchor.split(' ')
         chunk_entity = chunk_entity.split(' ')
@@ -140,7 +140,7 @@ if use_socket:
             embedding_sock.send(struct.pack('!i', int(iter_entity)))
 
     else:
-        # relation 전송
+        # relation 전송 - DataModel 생성자
         sub_graphs = pickle.loads(r.get('sub_graph_{}'.format(worker_id)))
         embedding_sock.send(struct.pack('!i', len(sub_graphs)))
 
@@ -149,21 +149,45 @@ if use_socket:
             embedding_sock.send(struct.pack('!i', int(relation_id)))
             embedding_sock.send(struct.pack('!i', int(tail_id)))
 
-    # entity_vector 전송
+    # entity_vector 전송 - GeometricModel load
     for i, vector in enumerate(entities_initialized):
         entity_name = str(entities[i])
         embedding_sock.send(struct.pack('!i', len(entity_name)))
         embedding_sock.send(str.encode(entity_name))    # entity string 자체를 전송
 
+
+
+
+
+
+
+        #embedding_sock.send(struct.pack('!i', entity2id[entity_name])) # entity id 를 int 로 전송
+
+
+
+
+
+
         for v in vector:
             embedding_sock.send(struct.pack('d', float(v)))
 
-    # relation_vector 전송
+    # relation_vector 전송 - GeometricModel load
     for i, relation in enumerate(relations_initialized):
         relation_name = str(relations[i])
         embedding_sock.send(struct.pack('!i', len(relation_name)))
-        # relation string 자체를 전송
-        embedding_sock.send(str.encode(relation_name))
+        embedding_sock.send(str.encode(relation_name))  # relation string 자체를 전송
+
+
+
+
+
+
+        #embedding_sock.send(struct.pack('!i', relation2id[relation_name])) # relation id 를 int 로 전송
+
+
+
+
+
 
         for v in relation:
             embedding_sock.send(struct.pack('d', float(v)))
@@ -178,14 +202,25 @@ if use_socket:
 
         entity_vectors = dict()
 
-        # 처리 결과를 받아옴
-        # GeometricModel.cpp 의 save 에서 처리
+        # 처리 결과를 받아옴 - GeometricModel save
         count_entity = struct.unpack('!i', embedding_sock.recv(4))[0]
 
         for entity_idx in range(count_entity):
             temp_entity_vector = list()
             entity_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
             entity_id = embedding_sock.recv(entity_id_len).decode()
+
+
+
+
+
+
+            #entity_id = struct.unpack('!i', embedding_sock.recv(4))[0]     # entity_id 를 int 로 받음
+
+
+
+
+
 
             for dim_idx in range(int(embedding_dim)):
                 temp_entity_vector.append(
@@ -199,14 +234,26 @@ if use_socket:
 
         relation_vectors = dict()
 
-        # 처리 결과를 받아옴
-        # GeometricModel.cpp 의 save 에서 처리
+        # 처리 결과를 받아옴 - GeometricModel save
         count_relation = struct.unpack('!i', embedding_sock.recv(4))[0]
 
         for relation_idx in range(count_relation):
             temp_relation_vector = list()
             relation_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
             relation_id = embedding_sock.recv(relation_id_len).decode()
+
+
+
+
+
+
+            #relation_id = struct.unpack('!i', embedding_sock.recv(4))[0]   # relation_id 를 int 로 바음
+
+
+
+
+
+
 
             for dim_idx in range(int(embedding_dim)):
                 temp_relation_vector.append(

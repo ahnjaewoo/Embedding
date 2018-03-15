@@ -334,11 +334,11 @@ for cur_iter in range(niter):
 
             # maxmin 의 결과를 소켓으로 받음
             anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
+            logger.warning(str(anchor_len)+'\n')
 
             for anchor_idx in range(anchor_len):
                 anchors+= str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
             anchors = anchors[:-1]
-
 
             for part_idx in range(num_worker):
                 chunk = ""
@@ -431,11 +431,21 @@ if use_socket:
             test_sock.send(struct.pack('!i', int(relation_id)))
             test_sock.send(struct.pack('!i', int(tail_id)))
 
+
+
     # entity_vector 전송
     for i, vector in enumerate(entities_initialized):
         entity_name = str(entities[i])
         test_sock.send(struct.pack('!i', len(entity_name)))
         test_sock.send(str.encode(entity_name))    # entity string 자체를 전송
+
+
+
+
+        #test_sock.send(struct.pack('!i', entity2id[entity_name])) # entity id 를 int 로 전송
+
+
+
 
         for v in vector:
             test_sock.send(struct.pack('d', float(v)))
@@ -445,6 +455,15 @@ if use_socket:
         relation_name = str(relations[i])
         test_sock.send(struct.pack('!i', len(relation_name)))
         test_sock.send(str.encode(relation_name))  # relation string 자체를 전송
+
+
+
+
+        #test_sock.send(struct.pack('!i', relation2id[relation_name])) # relation id 를 int 로 전송
+
+
+
+
 
         for v in relation:
             test_sock.send(struct.pack('d', float(v)))
