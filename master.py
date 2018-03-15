@@ -25,7 +25,7 @@ parser.add_argument('--niter', type=int, default=2,
                     help='total number of masters iterations')
 parser.add_argument('--train_iter', type=int, default=10,
                     help='total number of workers(actual) training iterations')
-parser.add_argument('--install', default=True,
+parser.add_argument('--install', default='True',
                     help='install libraries in each worker')
 parser.add_argument('--ndim', type=int, default=20,
                     help='dimension of embeddings')
@@ -44,7 +44,7 @@ parser.add_argument('--redis_ip', type=str,
                     default='163.152.29.73', help='redis ip address')
 parser.add_argument('--scheduler_ip', type=str,
                     default='163.152.29.73:8786', help='dask scheduler ip:port')
-parser.add_argument('--use_scheduler_config_file', default=False,
+parser.add_argument('--use_scheduler_config_file', default='False',
                     help='wheter to use scheduler config file or use scheduler ip directly')
 args = parser.parse_args()
 
@@ -235,12 +235,12 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
 
 #     return "%s finish saving file!" % worker_id
 
-if use_scheduler_config_file:
+if use_scheduler_config_file == True:
     client = Client(scheduler_file=temp_folder_dir + '/scheduler.json', name='Embedding')
 else:
     client = Client(dask_ip_address, name='Embedding')
 
-if install:
+if install == 'True':
     client.run(install_libs)
 
 # 전처리 끝날때까지 대기
