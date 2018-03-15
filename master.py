@@ -283,7 +283,7 @@ if use_socket:
             maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             maxmin_sock.connect((maxmin_addr, maxmin_port))
             break
-        except TimeoutError, ConnectionRefusedError:
+        except (TimeoutError, ConnectionRefusedError):
             tt.sleep(1)
 
     print("socket between master and maxmin connected - master.py")
