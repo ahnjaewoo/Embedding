@@ -4,7 +4,6 @@ from distributed.diagnostics import progress
 from sklearn.preprocessing import normalize
 from subprocess import Popen
 from argparse import ArgumentParser
-from random import shuffle
 from collections import defaultdict
 import logging
 import numpy as np
