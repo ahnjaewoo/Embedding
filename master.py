@@ -69,6 +69,7 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 
     logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
 
+
 sys.excepthook = handle_exception
 
 preprocess_folder_dir = "%s/preprocess/" % root_dir
@@ -236,7 +237,8 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
 #     return "%s finish saving file!" % worker_id
 
 if use_scheduler_config_file == 'True':
-    client = Client(scheduler_file=temp_folder_dir + '/scheduler.json', name='Embedding')
+    client = Client(scheduler_file=temp_folder_dir +
+                    '/scheduler.json', name='Embedding')
 else:
     client = Client(dask_ip_address, name='Embedding')
 
@@ -275,12 +277,13 @@ if use_socket:
 
     maxmin_addr = '127.0.0.1'
     maxmin_port = 7847
+    tt.sleep(2)
     while True:
         try:
             maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             maxmin_sock.connect((maxmin_addr, maxmin_port))
             break
-        except TimeoutError:
+        except TimeoutError, ConnectionRefusedError:
             tt.sleep(1)
 
     print("socket between master and maxmin connected - master.py")
@@ -308,7 +311,7 @@ if use_socket:
             chunk += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
         chunk = chunk[:-1]
         chunks.append(chunk)
-    
+
 # max-min cut 실행, anchor 분배, 파일로 결과 전송
 else:
     proc = Popen([pypy_dir, '%s/maxmin.py' % root_dir, str(num_worker),
@@ -328,8 +331,13 @@ for cur_iter in range(niter):
     t_ = time()
 
     # 작업 배정
-    workers = client.map(work, [["{}\n{}".format(anchors, chunks[i]), 'worker_%d' %
-                                 i, cur_iter, n_dim, lr, margin, train_iter, data_root_id] for i in range(num_worker)])
+    # chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id
+    workers = [client.submit(work,
+                             "{}\n{}".format(anchors, chunks[i]),
+                             'worker_%d' % i,
+                             cur_iter, n_dim, lr, margin, train_iter,
+                             data_root_id
+                             ) for i in range(num_worker)]
 
     if cur_iter % 2 == 1:
         # entity partitioning: max-min cut 실행, anchor 등 재분배
@@ -358,7 +366,8 @@ for cur_iter in range(niter):
             anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
             for anchor_idx in range(anchor_len):
-                anchors += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
+                anchors += str(struct.unpack('!i',
+                                             maxmin_sock.recv(4))[0]) + " "
             anchors = anchors[:-1]
 
             for part_idx in range(num_worker):
@@ -366,7 +375,8 @@ for cur_iter in range(niter):
                 chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
                 for nas_idx in range(chunk_len):
-                    chunk += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
+                    chunk += str(struct.unpack('!i',
+                                               maxmin_sock.recv(4))[0]) + " "
                 chunk = chunk[:-1]
                 chunks.append(chunk)
 
@@ -412,13 +422,13 @@ if use_socket:
 
     test_addr = '0.0.0.0'
     test_port = 7874  # 임의로 7874 로 포트를 정함
-
+    tt.sleep(2)
     while True:
         try:
             test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             test_sock.connect((test_addr, test_port))
             break
-        except TimeoutError:
+        except TimeoutError, ConnectionRefusedError:
             tt.sleep(1)
 
     test_sock.send(struct.pack('!i', 0))                        # 연산 요청 메시지
