@@ -711,9 +711,10 @@ public:
         triplet = origin;
         while (true)
         {
-            if (rand() % 100 < 50)
+	    int rand_num = rand();
+            if (rand_num % 100 < 50)
                 triplet.second = rand() % set_relation.size();
-            else if (rand() % 1000 < 1000 * prob)
+            else if (rand_num % 1000 < 1000 * prob)
             {
                 triplet.first.second = rand() % set_entity.size();
             }
@@ -737,9 +738,10 @@ public:
         triplet = origin;
         while (true)
         {
-            if (rand() % 100 < 50)
+	    int rand_num = rand();
+            if (rand_num % 100 < 50)
                 triplet.second = vector_relation_parts[rand() % vector_relation_parts.size()];
-            else if (rand() % 1000 < 1000 * prob)
+            else if (rand_num % 1000 < 1000 * prob)
             {
                 triplet.first.second = vector_entity_parts[rand() % vector_entity_parts.size()];
             }

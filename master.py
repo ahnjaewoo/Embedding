@@ -385,6 +385,7 @@ for cur_iter in range(niter):
         chunk_data = ''
 
     progress(workers)
+    print('\n')
     for worker in workers:
         print(worker.result())
         logger.warning(worker.result())

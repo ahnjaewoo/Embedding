@@ -57,8 +57,8 @@ int main(int argc, char* argv[])
 		test_addr.sin_port = htons(7874);
 
 		// to solve bind error
-		int nSockOpt = 1;
- 		setsockopt(test_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt));
+		// int nSockOpt = 1;
+ 		// setsockopt(test_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt));
 
 		// create socket and check it is valid
 		if ((test_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 
 		if (ntohl(flag_iter) == 1){
 
-			print("[Info] recv flag_iter 1 in test.cpp, quit");
+			printf("[Info] recv flag_iter 1 in test.cpp, quit");
 			close(worker_sock);
 			return -1;
 		}
