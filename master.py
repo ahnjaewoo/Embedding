@@ -328,6 +328,13 @@ for cur_iter in range(niter):
     logger.warning("%d iteration" % cur_iter)
 
     t_ = time()
+    if cur_iter > 0:
+        avg_idle_t = 0
+        for worker in workers:
+            idle_t = t_ - float(worker.result().split(':')[-1])
+            avg_idle_t += idle_t
+            print("%s idle time : %f" % (':'.join(worker.result().split(':')[:2]), idle_t))
+        print("average idle time : %f" % (avg_idle_t/len(workers)))
 
     # 작업 배정
     # chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id
