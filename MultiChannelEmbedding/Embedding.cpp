@@ -57,9 +57,13 @@ int main(int argc, char* argv[])
 		embedding_addr.sin_addr.s_addr = inet_addr("0.0.0.0");
 		embedding_addr.sin_port = htons(49900 + worker_num);
 
-				// to solve bind error
-		// int nSockOpt = 1;
- 		// setsockopt(embedding_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt));
+		// to solve bind error
+ 		struct linger solinger = { 1, 0 };
+		if(setsockopt(embedding_sock, SOL_SOCKET, SO_LINGER, &solinger, sizeof(struct linger)) == -1){
+			
+			perror("[error] setsockopt(SO_LINGER)\n");
+			printf("[error] setsocketopt in embedding.cpp\n");
+		}
 
 		// create socket and check it is valid
 		if ((embedding_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){

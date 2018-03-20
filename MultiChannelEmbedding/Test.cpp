@@ -57,8 +57,12 @@ int main(int argc, char* argv[])
 		test_addr.sin_port = htons(7874);
 
 		// to solve bind error
-		// int nSockOpt = 1;
- 		// setsockopt(test_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt));
+ 		struct linger solinger = { 1, 0 };
+		if(setsockopt(test_sock, SOL_SOCKET, SO_LINGER, &solinger, sizeof(struct linger)) == -1){
+			
+			perror("[error] setsockopt(SO_LINGER)\n");
+			printf("[error] setsocketopt in test.cpp\n");
+		}
 
 		// create socket and check it is valid
 		if ((test_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
