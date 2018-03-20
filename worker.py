@@ -101,15 +101,22 @@ if not use_socket:
 if use_socket:
 
     # 첫 iteration 에서눈 Embedding.cpp 의 실행, 소켓 생성을 기다림
-    if cur_iter == 0:
-
-        tt.sleep(2)
+    #if cur_iter == 0:
+    #    tt.sleep(2)
 
     embedding_addr = '0.0.0.0'
     # worker_id 를 기반으로 포트를 생성
     embedding_port = 49900 + int(worker_id.split('_')[1])
-    embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    embedding_sock.connect((embedding_addr, embedding_port))
+    #embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #embedding_sock.connect((embedding_addr, embedding_port))
+
+    while True:
+        try:
+            embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            embedding_sock.connect((embedding_addr, embedding_port))
+            break
+        except (TimeoutError, ConnectionRefusedError):
+            tt.sleep(1)
 
     # 연산 요청 메시지
     embedding_sock.send(struct.pack('!i', 0))
