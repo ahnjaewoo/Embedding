@@ -106,7 +106,7 @@ if use_socket:
 
     embedding_addr = '0.0.0.0'
     # worker_id 를 기반으로 포트를 생성
-    embedding_port = 49900 + int(worker_id.split('_')[1])
+    embedding_port = 49900 + 5 * int(worker_id.split('_')[1]) + int(cur_iter) % 5
     #embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #embedding_sock.connect((embedding_addr, embedding_port))
 

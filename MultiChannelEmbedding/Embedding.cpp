@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
 		bzero((char *)&embedding_addr, sizeof(embedding_addr));
 		embedding_addr.sin_family = AF_INET;
 		embedding_addr.sin_addr.s_addr = inet_addr("0.0.0.0");
-		embedding_addr.sin_port = htons(49900 + worker_num);
+		embedding_addr.sin_port = htons(49900 + worker_num * 5 + master_epoch % 5);
 
 		// to solve bind error
  		struct linger solinger = { 1, 0 };
