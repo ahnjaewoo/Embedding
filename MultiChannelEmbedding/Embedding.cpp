@@ -87,7 +87,6 @@ int main(int argc, char* argv[])
 		while (1){
 
 			len = sizeof(worker_addr);
-			embedding_addr.sin_port = htons(49900 + worker_num * 5 + master_epoch % 5);
 
 			if ((worker_sock = accept(embedding_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
 
@@ -192,6 +191,8 @@ int main(int argc, char* argv[])
 
 			delete model;
 			close(worker_sock);
+
+			embedding_addr.sin_port = htons(49900 + worker_num * 5 + (master_epoch + 1) % 5);
 		}
 	}
 	else 
