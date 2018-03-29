@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
 
 		while (1){
 
-			printf("master_epoch : %d in embedding.cpp\n", master_epoch);
+			printf("master_epoch : %d in embedding.cpp\n", epoch);
 
 			len = sizeof(worker_addr);
 
