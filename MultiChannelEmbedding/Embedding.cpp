@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 				return -1;
 			}
 
-			printf("[Info] create socket %d in worker %d\n", temp, worekr_num);
+			printf("[Info] create socket %d in worker %d\n", temp, worker_num);
 		}
 
 
