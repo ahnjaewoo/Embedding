@@ -76,13 +76,13 @@ int main(int argc, char* argv[])
 					return -1;
 				}
 
-				if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
+				if (bind(embedding_sock[master_epoch % 5], (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
 
 					printf("[error] bind socket in embedding.cpp\n");
 					return -1;
 				}
 
-				if (listen(embedding_sock, 1) < 0){
+				if (listen(embedding_sock[master_epoch % 5], 1) < 0){
 
 					printf("[error] listen socket in embedding.cpp\n");
 					return -1;
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 
 			len = sizeof(worker_addr);
 
-			if ((worker_sock = accept(embedding_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
+			if ((worker_sock = accept(embedding_sock[master_epoch % 5], (struct sockaddr *)&worker_addr, &len)) < 0){
 
 				printf("[error] accept socket in embedding.cpp\n");
 				return -1;
