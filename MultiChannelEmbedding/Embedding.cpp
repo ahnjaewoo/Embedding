@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
 			}
 			else{
 
-				print("[Info] accept socket in embedding.cpp\n");
+				printf("[Info] accept socket in embedding.cpp\n");
 			}
 
 			if (recv(worker_sock, &flag_iter, sizeof(flag_iter), 0) < 0){
