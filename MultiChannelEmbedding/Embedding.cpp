@@ -88,9 +88,8 @@ int main(int argc, char* argv[])
 				return -1;
 			}
 
-			printf("[Info] create socket %d in worker %d\n", temp, worker_num);
+			printf("[Info] create socket %d in worker %d in embedding.cpp\n", temp, worker_num);
 		}
-
 
 		while (1){
 
@@ -100,6 +99,10 @@ int main(int argc, char* argv[])
 
 				printf("[error] accept socket in embedding.cpp\n");
 				return -1;
+			}
+			else{
+
+				print("[Info] accept socket in embedding.cpp\n");
 			}
 
 			if (recv(worker_sock, &flag_iter, sizeof(flag_iter), 0) < 0){
