@@ -98,6 +98,10 @@ int main(int argc, char* argv[])
 				printf("[error] accept socket in embedding.cpp\n");
 				return -1;
 			}
+			else{
+
+				printf("[info] accept socket successfully in embedding.cpp\n");
+			}
 
 			if (recv(worker_sock, &flag_iter, sizeof(flag_iter), 0) < 0){
 
@@ -160,6 +164,8 @@ int main(int argc, char* argv[])
 			master_epoch = ntohl(master_epoch) + 1;
 			dim = ntohl(dim);
 			data_root_id = ntohl(data_root_id);
+
+			printf("[info] successfully recv params in embedding.cpp\n");
 
 			// choosing data root by data root id
 			if (data_root_id == 0)
