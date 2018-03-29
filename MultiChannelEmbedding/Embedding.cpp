@@ -65,31 +65,33 @@ int main(int argc, char* argv[])
 		//	printf("[error] setsocketopt in embedding.cpp\n");
 		//}
 
+		for(int temp; temp < 5; temp ++){
+
+			embedding_addr.sin_port = htons(49900 + worker_num * 5 + temp % 5);
+
+			// create socket and check it is valid
+			if ((embedding_sock[temp] = socket(PF_INET, SOCK_STREAM, 0)) < 0){
+
+				printf("[error] create socket in embedding.cpp\n");
+				return -1;
+			}
+
+			if (bind(embedding_sock[temp], (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
+
+				printf("[error] bind socket in embedding.cpp\n");
+				return -1;
+			}
+
+			if (listen(embedding_sock[temp], 1) < 0){
+
+				printf("[error] listen socket in embedding.cpp\n");
+				return -1;
+			}
+		}
+
 		while (1){
 
 			printf("master_epoch : %d in embedding.cpp\n", master_epoch);
-
-			if (master_epoch < 4){
-
-				// create socket and check it is valid
-				if ((embedding_sock[master_epoch % 5] = socket(PF_INET, SOCK_STREAM, 0)) < 0){
-
-					printf("[error] create socket in embedding.cpp\n");
-					return -1;
-				}
-
-				if (bind(embedding_sock[master_epoch % 5], (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
-
-					printf("[error] bind socket in embedding.cpp\n");
-					return -1;
-				}
-
-				if (listen(embedding_sock[master_epoch % 5], 1) < 0){
-
-					printf("[error] listen socket in embedding.cpp\n");
-					return -1;
-				}
-			}
 
 			len = sizeof(worker_addr);
 
