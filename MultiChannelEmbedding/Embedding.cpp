@@ -67,6 +67,8 @@ int main(int argc, char* argv[])
 
 		while (1){
 
+			printf("master_epoch : %d in embedding.cpp\n", master_epoch);
+
 			if (master_epoch < 5){
 
 				// create socket and check it is valid
