@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
 			}
 
 			worker_num = ntohl(worker_num);
-			master_epoch = ntohl(master_epoch);
+			master_epoch = ntohl(master_epoch) + 1;
 			dim = ntohl(dim);
 			data_root_id = ntohl(data_root_id);
 
