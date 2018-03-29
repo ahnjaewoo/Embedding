@@ -43,6 +43,7 @@ int main(int argc, char* argv[])
 		// embedding.cpp is server
 		// worker.py is client
 		// IP addr / port are from master.py
+		int epoch = 0;
 		int flag_iter;
 		int end_iter;
 		unsigned int len;
@@ -95,7 +96,7 @@ int main(int argc, char* argv[])
 
 			len = sizeof(worker_addr);
 
-			if ((worker_sock = accept(embedding_sock[master_epoch % 5], (struct sockaddr *)&worker_addr, &len)) < 0){
+			if ((worker_sock = accept(embedding_sock[epoch % 5], (struct sockaddr *)&worker_addr, &len)) < 0){
 
 				printf("[error] accept socket in embedding.cpp\n");
 				return -1;
@@ -205,7 +206,7 @@ int main(int argc, char* argv[])
 			delete model;
 			close(worker_sock);
 
-			embedding_addr.sin_port = htons(49900 + worker_num * 5 + (master_epoch + 1) % 5);
+			epoch = epoch + 1;
 		}
 	}
 	else 
