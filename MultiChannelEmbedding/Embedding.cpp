@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
 		//	printf("[error] setsocketopt in embedding.cpp\n");
 		//}
 
-		for(int temp; temp < 5; temp ++){
+		for(int temp = 0; temp < 5; temp++){
 
 			embedding_addr.sin_port = htons(49900 + worker_num * 5 + temp % 5);
 
