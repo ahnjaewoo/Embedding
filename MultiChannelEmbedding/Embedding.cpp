@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 		int flag_iter;
 		int end_iter;
 		unsigned int len;
-		int embedding_sock, worker_sock;
+		int embedding_sock[5], worker_sock;
 		struct sockaddr_in embedding_addr;
 		struct sockaddr_in worker_addr;
 
@@ -67,23 +67,26 @@ int main(int argc, char* argv[])
 
 		while (1){
 
-			// create socket and check it is valid
-			if ((embedding_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
+			if (master_epoch < 5){
 
-				printf("[error] create socket in embedding.cpp\n");
-				return -1;
-			}
+				// create socket and check it is valid
+				if ((embedding_sock[master_epoch % 5] = socket(PF_INET, SOCK_STREAM, 0)) < 0){
 
-			if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
+					printf("[error] create socket in embedding.cpp\n");
+					return -1;
+				}
 
-				printf("[error] bind socket in embedding.cpp\n");
-				return -1;
-			}
+				if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
 
-			if (listen(embedding_sock, 1) < 0){
+					printf("[error] bind socket in embedding.cpp\n");
+					return -1;
+				}
 
-				printf("[error] listen socket in embedding.cpp\n");
-				return -1;
+				if (listen(embedding_sock, 1) < 0){
+
+					printf("[error] listen socket in embedding.cpp\n");
+					return -1;
+				}
 			}
 
 			len = sizeof(worker_addr);
