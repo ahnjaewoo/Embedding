@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 
 			printf("master_epoch : %d in embedding.cpp\n", master_epoch);
 
-			if (master_epoch < 5){
+			if (master_epoch < 4){
 
 				// create socket and check it is valid
 				if ((embedding_sock[master_epoch % 5] = socket(PF_INET, SOCK_STREAM, 0)) < 0){
@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
 			}
 
 			worker_num = ntohl(worker_num);
-			master_epoch = ntohl(master_epoch) + 1;
+			master_epoch = ntohl(master_epoch);
 			dim = ntohl(dim);
 			data_root_id = ntohl(data_root_id);
 
