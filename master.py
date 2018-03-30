@@ -277,6 +277,9 @@ if use_socket:
     maxmin_addr = '127.0.0.1'
     maxmin_port = 7847
     tt.sleep(2)
+
+    print("try to connect socket...")
+    logger.warning("try to connect socket...")
     while True:
         try:
             maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

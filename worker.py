@@ -110,6 +110,8 @@ if use_socket:
     #embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #embedding_sock.connect((embedding_addr, embedding_port))
 
+    print("try to create socket...")
+    logger.warning("try to create socket...")
     while True:
         try:
             embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -119,6 +121,8 @@ if use_socket:
             tt.sleep(1)
 
     # 연산 요청 메시지
+    print("socket connected!")
+    logger.warning("socket connected!")
     embedding_sock.send(struct.pack('!i', 0))
     # int 임시 땜빵, 매우 큰 문제
     embedding_sock.send(struct.pack('!i', int(worker_id.split('_')[1])))
@@ -129,6 +133,7 @@ if use_socket:
     embedding_sock.send(struct.pack('!i', int(data_root_id)))        # int
 
     # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
+    
 
     if int(cur_iter) % 2 == 0:
         # entity 전송 - DataModel 생성자
