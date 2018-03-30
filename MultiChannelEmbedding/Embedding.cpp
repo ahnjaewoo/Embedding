@@ -43,10 +43,11 @@ int main(int argc, char* argv[])
 		// embedding.cpp is server
 		// worker.py is client
 		// IP addr / port are from master.py
+		int epoch = 0;
 		int flag_iter;
 		int end_iter;
 		unsigned int len;
-		int embedding_sock, worker_sock;
+		int embedding_sock[5], worker_sock;
 		struct sockaddr_in embedding_addr;
 		struct sockaddr_in worker_addr;
 
@@ -65,33 +66,44 @@ int main(int argc, char* argv[])
 		//	printf("[error] setsocketopt in embedding.cpp\n");
 		//}
 
-		while (1){
+		for(int temp = 0; temp < 5; temp++){
+
+			embedding_addr.sin_port = htons(49900 + worker_num * 5 + temp % 5);
 
 			// create socket and check it is valid
-			if ((embedding_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
+			if ((embedding_sock[temp] = socket(PF_INET, SOCK_STREAM, 0)) < 0){
 
 				printf("[error] create socket in embedding.cpp\n");
 				return -1;
 			}
 
-			if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
+			if (bind(embedding_sock[temp], (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
 
 				printf("[error] bind socket in embedding.cpp\n");
 				return -1;
 			}
 
-			if (listen(embedding_sock, 1) < 0){
+			if (listen(embedding_sock[temp], 1) < 0){
 
 				printf("[error] listen socket in embedding.cpp\n");
 				return -1;
 			}
+		}
+
+		while (1){
+
+			printf("master_epoch : %d in embedding.cpp\n", epoch);
 
 			len = sizeof(worker_addr);
 
-			if ((worker_sock = accept(embedding_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
+			if ((worker_sock = accept(embedding_sock[epoch % 5], (struct sockaddr *)&worker_addr, &len)) < 0){
 
 				printf("[error] accept socket in embedding.cpp\n");
 				return -1;
+			}
+			else{
+
+				printf("[info] accept socket successfully in embedding.cpp\n");
 			}
 
 			if (recv(worker_sock, &flag_iter, sizeof(flag_iter), 0) < 0){
@@ -156,6 +168,8 @@ int main(int argc, char* argv[])
 			dim = ntohl(dim);
 			data_root_id = ntohl(data_root_id);
 
+			printf("[info] successfully recv params in embedding.cpp\n");
+
 			// choosing data root by data root id
 			if (data_root_id == 0)
 			{
@@ -192,7 +206,7 @@ int main(int argc, char* argv[])
 			delete model;
 			close(worker_sock);
 
-			embedding_addr.sin_port = htons(49900 + worker_num * 5 + (master_epoch + 1) % 5);
+			epoch = epoch + 1;
 		}
 	}
 	else 

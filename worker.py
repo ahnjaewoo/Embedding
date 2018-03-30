@@ -110,8 +110,10 @@ if use_socket:
     #embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #embedding_sock.connect((embedding_addr, embedding_port))
 
-    print("try to create socket...")
-    logger.warning("try to create socket...")
+
+    print('port number of ' + worker_id, ' : ' + str(embedding_port) + ' - worker.py')
+    logger.warning('port number of ' + worker_id, ' : ' + str(embedding_port) + ' - worker.py')
+
     while True:
         try:
             embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -120,6 +122,9 @@ if use_socket:
         except (TimeoutError, ConnectionRefusedError):
             tt.sleep(1)
 
+    print('socket connected to embedding.cpp in worker.py')
+    logger.warning('socket connected to embedding.cpp in worker.py')
+    
     # 연산 요청 메시지
     print("socket connected!")
     logger.warning("socket connected!")
