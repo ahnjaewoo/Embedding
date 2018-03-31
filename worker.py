@@ -220,7 +220,11 @@ if use_socket:
         entity_vectors = dict()
 
         # 처리 결과를 받아옴 - GeometricModel save
-        count_entity = struct.unpack('!i', embedding_sock.recv(4))[0]
+        count_entity_data = embedding_sock.recv(4)
+        if len(count_entity_data) is not 4:
+            print("count entity data length is", len(count_entity_data))
+        count_entity = struct.unpack('!i', count_entity_data)[0]
+        print("count entity is", count_entity)
 
         for entity_idx in range(count_entity):
             temp_entity_vector = list()
@@ -240,8 +244,11 @@ if use_socket:
 
 
             for dim_idx in range(int(embedding_dim)):
-                temp_entity_vector.append(
-                    struct.unpack('d', embedding_sock.recv(8))[0])
+                temp_entity_double = embedding_sock.recv(8)
+                if len(temp_entity_double) is not 8:
+                    print("temp entity double's length is", len(temp_entity_double))
+                temp_entity = struct.unpack('d', temp_entity_double)[0]
+                temp_entity_vector.append(temp_entity)
 
             entity_vectors[entity_id + '_v'] = pickle.dumps(
                 np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
@@ -252,7 +259,11 @@ if use_socket:
         relation_vectors = dict()
 
         # 처리 결과를 받아옴 - GeometricModel save
-        count_relation = struct.unpack('!i', embedding_sock.recv(4))[0]
+        count_relation_data = embedding_sock.recv(4)
+        if len(count_relation_data) is not 4:
+            print("count relation data length is", len(count_relation_data))
+        count_relation = struct.unpack('!i', count_relation_data)[0]
+        print("count relation is", count_relation)
 
         for relation_idx in range(count_relation):
             temp_relation_vector = list()
@@ -273,8 +284,11 @@ if use_socket:
 
 
             for dim_idx in range(int(embedding_dim)):
-                temp_relation_vector.append(
-                    struct.unpack('d', embedding_sock.recv(8))[0])
+                temp_relation_double = embedding_sock.recv(8)
+                if len(temp_relation_double) is not 8:
+                    print("temp relation double's length is", len(temp_relation_double))
+                temp_relation = struct.unpack('d', temp_relation_double)[0]
+                temp_relation_vector.append(temp_relation)
 
             relation_vectors[relation_id + '_v'] = pickle.dumps(
                 np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
