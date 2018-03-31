@@ -146,6 +146,9 @@ if use_socket:
         chunk_anchor = chunk_anchor.split(' ')
         chunk_entity = chunk_entity.split(' ')
 
+        if len(chunk_anchor) is 1 and chunk_anchor[0] is '':
+            chunk_anchor = []
+
         embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
 
         for iter_anchor in chunk_anchor:
