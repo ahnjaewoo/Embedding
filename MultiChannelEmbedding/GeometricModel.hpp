@@ -479,6 +479,7 @@ public:
 					}
 				}
 
+				printf("count_entity in GeometricModel save function is %d\n", count);
 				count = htonl(count);
 				send(fd, &count, sizeof(count), 0);
 
@@ -533,6 +534,7 @@ public:
 					}
 				}
 
+				printf("count_relation in GeometricModel save function is %d\n", count);
 				count = htonl(count);
 				send(fd, &count, sizeof(count), 0);
 
