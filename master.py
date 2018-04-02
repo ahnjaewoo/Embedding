@@ -214,13 +214,11 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     # 첫 iter 에서 embedding.cpp 를 실행해놓음
     
     print('work function called - master.py')
-    logger.warning('work function called - master.py\n')
 
     if use_socket and cur_iter == 0:
         proc = Popen([train_code_dir, worker_id,
                       str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter), str(data_root_id)], cwd=preprocess_folder_dir)
         print('in first iteration, create embedding.cpp process - master.py')
-        logger.warning('in first iteration, create embedding.cpp process - master.py')
     
     proc = Popen([
         "python", worker_code_dir, chunk_data,
