@@ -98,6 +98,8 @@ if use_socket:
 
         if master_status == 1:
             # 연결을 끊음
+            print('received master_status : 1, disconnect - maxmin.py')
+            logger.warning('received master_status : 1, disconnect - maxmin.py\n')
             maxmin_sock.close()
             sys.exit(0)
 
@@ -182,6 +184,9 @@ if use_socket:
             for nas_val in nas:
 
                 master_sock.send(struct.pack('!i', nas_val))
+
+        print('sent anchor and nas to master - maxmin.py')        
+        logger.warning('sent anchor and nas to master - maxmin.py')        
 
         print("max-min cut finished - max-min time: {}".format((time()-t_)))
         logger.warning("max-min cut finished - max-min time: {}\n".format((time()-t_)))

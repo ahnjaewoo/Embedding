@@ -212,9 +212,16 @@ def install_libs():
 
 def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id):
     # 첫 iter 에서 embedding.cpp 를 실행해놓음
+    
+    print('work function called - master.py')
+    logger.warning('work function called - master.py\n')
+
     if use_socket and cur_iter == 0:
         proc = Popen([train_code_dir, worker_id,
                       str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter), str(data_root_id)], cwd=preprocess_folder_dir)
+        print('in first iteration, create embedding.cpp process - master.py')
+        logger.warning('in first iteration, create embedding.cpp process - master.py')
+    
     proc = Popen([
         "python", worker_code_dir, chunk_data,
         str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter), redis_ip_address, root_dir, str(data_root_id)])
@@ -278,8 +285,8 @@ if use_socket:
     maxmin_port = 7847
     tt.sleep(2)
 
-    print("try to connect socket...")
-    logger.warning("try to connect socket...")
+    print("try to connect maxmin socket... - master.py")
+    logger.warning("try to connect maxmin socket... - master.py\n")
     while True:
         try:
             maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -324,6 +331,9 @@ else:
         lines = f.read().splitlines()
         anchors, chunks = lines[0], lines[1:]
 
+
+print('maxmin finished - master.py')
+logger.warning('maxmin finished - master.py\n')
 
 print("worker training iteration epoch: ", train_iter)
 logger.warning("worker training iteration epoch: {}".format(train_iter))

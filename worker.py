@@ -137,9 +137,11 @@ if use_socket:
     embedding_sock.send(struct.pack('d', float(margin)))             # double
     embedding_sock.send(struct.pack('!i', int(data_root_id)))        # int
 
+    print('sent params to embedding.cpp - worker.py, ' + worker_id)
+    logger.warning('sent params to embedding.cpp - worker.py, ' + worker_id)
+
     # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
     
-
     if int(cur_iter) % 2 == 0:
         # entity 전송 - DataModel 생성자
         chunk_anchor, chunk_entity = chunk_data.split('\n')
@@ -169,6 +171,9 @@ if use_socket:
             embedding_sock.send(struct.pack('!i', int(relation_id)))
             embedding_sock.send(struct.pack('!i', int(tail_id)))
 
+    print('chunk or relation sent to DataModel - worker.py')
+    logger.warning('chunk or relation sent to DataModel - worker.py')
+
     # entity_vector 전송 - GeometricModel load
     for i, vector in enumerate(entities_initialized):
         entity_name = str(entities[i])
@@ -176,20 +181,14 @@ if use_socket:
         embedding_sock.send(str.encode(entity_name))    # entity string 자체를 전송
 
 
-
-
-
-
-
         #embedding_sock.send(struct.pack('!i', entity2id[entity_name])) # entity id 를 int 로 전송
-
-
-
-
 
 
         for v in vector:
             embedding_sock.send(struct.pack('d', float(v)))
+
+    print('entity_vector sent to GeometricModel load function - worker.py')
+    logger.warning('entity_vector sent to GeometricModel load function - worker.py')
 
     # relation_vector 전송 - GeometricModel load
     for i, relation in enumerate(relations_initialized):
@@ -198,19 +197,14 @@ if use_socket:
         embedding_sock.send(str.encode(relation_name))  # relation string 자체를 전송
 
 
-
-
-
-
         #embedding_sock.send(struct.pack('!i', relation2id[relation_name])) # relation id 를 int 로 전송
-
-
-
-
 
 
         for v in relation:
             embedding_sock.send(struct.pack('d', float(v)))
+
+    print('relation_vector sent to GeometricModel load function - worker.py')
+    logger.warning('relation_vector sent to GeometricModel load function - worker.py')
 
     del entities_initialized
     del relations_initialized
@@ -235,15 +229,7 @@ if use_socket:
             entity_id = embedding_sock.recv(entity_id_len).decode()
 
 
-
-
-
-
             #entity_id = struct.unpack('!i', embedding_sock.recv(4))[0]     # entity_id 를 int 로 받음
-
-
-
-
 
 
             for dim_idx in range(int(embedding_dim)):
@@ -274,16 +260,7 @@ if use_socket:
             relation_id = embedding_sock.recv(relation_id_len).decode()
 
 
-
-
-
-
             #relation_id = struct.unpack('!i', embedding_sock.recv(4))[0]   # relation_id 를 int 로 바음
-
-
-
-
-
 
 
             for dim_idx in range(int(embedding_dim)):
@@ -296,6 +273,9 @@ if use_socket:
             relation_vectors[relation_id + '_v'] = pickle.dumps(
                 np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
         r.mset(relation_vectors)
+
+    print('recieved result from GeometricModel save function - worker.py')
+    logger.warning('recieved result from GeometricModel save function - worker.py')
 
     print("redis server connection time: %f" % (time() - t_))
     logger.warning("redis server connection time: %f" % (time() - t_))
