@@ -14,6 +14,7 @@ import socket
 import time as tt
 import struct
 import sys
+import threading
 
 parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
 parser.add_argument('--num_worker', type=int,
@@ -291,6 +292,8 @@ if use_socket:
             maxmin_sock.connect((maxmin_addr, maxmin_port))
             break
         except (TimeoutError, ConnectionRefusedError):
+            print('exception occured in master and maxmin connection - master.py')
+            logger.warning('exception occured in master and maxmin connection - master.py')
             tt.sleep(1)
 
     print("socket between master and maxmin connected - master.py")
