@@ -16,6 +16,7 @@ import struct
 import sys
 import threading
 
+# argument parse
 parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
 parser.add_argument('--num_worker', type=int,
                     default=2, help='number of workers')
@@ -55,12 +56,24 @@ if data_root[0] != '/':
     sys.exit(1)
 
 root_dir = args.root_dir
+
+
 logging.basicConfig(filename='%s/master.log' %
                     root_dir, filemode='w', level=logging.DEBUG)
 logger = logging.getLogger()
 handler = logging.StreamHandler(stream=sys.stdout)
 logger.addHandler(handler)
 
+loggerOn = True
+
+def printt(str):
+
+    global loggerOn
+
+    print(str)
+
+    if loggerOn:
+        logger.warning(str + '\n')
 
 def handle_exception(exc_type, exc_value, exc_traceback):
     if issubclass(exc_type, KeyboardInterrupt):
@@ -68,7 +81,6 @@ def handle_exception(exc_type, exc_value, exc_traceback):
         return
 
     logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
-
 
 sys.excepthook = handle_exception
 
@@ -95,8 +107,6 @@ lr = args.lr
 margin = args.margin
 anchor_num = args.anchor_num
 anchor_interval = args.anchor_interval
-use_socket = True
-
 
 def data2id(data_root):
     data_root_split = [x.lower() for x in data_root.split('/')]
@@ -110,19 +120,17 @@ def data2id(data_root):
         print("[error] data root mismatch")
         sys.exit(1)
 
-
 data_root_id = data2id(data_root)
 
 # 여기서 전처리 C++ 프로그램 비동기 호출
 master_start = time()
 t_ = time()
-print("Preprocessing start...")
-logger.warning("Preprocessing start...\n")
+
+printt('Preprocessing start! - master.py')
 proc = Popen(["%spreprocess.out" % preprocess_folder_dir,
               str(data_root_id)], cwd=preprocess_folder_dir)
 
-print("read files")
-logger.warning("read files\n")
+printt('Read files - master.py')
 entities = list()
 relations = list()
 entity2id = dict()
@@ -147,8 +155,8 @@ for file in data_files:
                 relation2id[relation] = relations_cnt
                 relations_cnt += 1
 
-
 relation_triples = defaultdict(list)
+
 with open(root_dir + data_files[0], 'r') as f:
     for line in f:
         head, relation, tail = line[:-1].split("\t")
@@ -158,6 +166,7 @@ with open(root_dir + data_files[0], 'r') as f:
 relation_each_num = [(k, len(v)) for k, v in relation_triples.items()]
 relation_each_num = sorted(relation_each_num, key=lambda x: x[1], reverse=True)
 allocated_relation_worker = [[[], 0] for i in range(num_worker)]
+
 for i, (relation, num) in enumerate(relation_each_num):
     allocated_relation_worker = sorted(
         allocated_relation_worker, key=lambda x: x[1])
@@ -165,12 +174,12 @@ for i, (relation, num) in enumerate(relation_each_num):
     allocated_relation_worker[0][1] += num
 
 # printing # of relations per each partitions
-print('# of relations per each partitions: [%s]' %
+
+printt('# of relations per each partitions: [%s]' %
       " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
-logger.warning('# of relations per each partitions: [%s]\n' %
-               " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
 
 sub_graphs = {}
+
 for c, (relation_list, num) in enumerate(allocated_relation_worker):
     g = []
     for relation in relation_list:
@@ -204,22 +213,20 @@ r.mset({
         relations_initialized[i],
         protocol=pickle.HIGHEST_PROTOCOL) for i, relation in enumerate(relations)})
 
-
 def install_libs():
     import os
     os.system("pip install redis")
     os.system("pip install hiredis")
 
-
 def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id):
     # 첫 iter 에서 embedding.cpp 를 실행해놓음
     
-    print('work function called - master.py')
+    printt('work function called - master.py')
 
-    if use_socket and cur_iter == 0:
+    if cur_iter == 0:
         proc = Popen([train_code_dir, worker_id,
                       str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter), str(data_root_id)], cwd=preprocess_folder_dir)
-        print('in first iteration, create embedding.cpp process - master.py')
+        printt('in first iteration, create embedding.cpp process - master.py')
     
     proc = Popen([
         "python", worker_code_dir, chunk_data,
@@ -256,8 +263,7 @@ proc.wait()
 # with open("%s/data_model.bin" % temp_folder_dir, 'rb') as f:
 #     data = f.read()
 
-print("preprocessing time: %f" % (time() - t_))
-logger.warning("preprocessing time: %f\n" % (time() - t_))
+printt('Preprocessing time : %f' % (time() - t_))
 
 # workers = list()
 
@@ -271,75 +277,65 @@ logger.warning("preprocessing time: %f\n" % (time() - t_))
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
 # master.py 는 client
-if use_socket:
-    anchors = ""
-    chunks = list()
+anchors = ""
+chunks = list()
 
-    proc = Popen([pypy_dir, 'maxmin.py', str(num_worker),
-                  '0', str(anchor_num), str(anchor_interval), root_dir, data_root])
-    print("popen maxmin.py complete - master.py")
-    logger.warning("popen maxmin.py complete - master.py\n")
+proc = Popen([pypy_dir, 'maxmin.py', str(num_worker),
+              '0', str(anchor_num), str(anchor_interval), root_dir, data_root])
+printt('popen maxmin.py complete - master.py')
 
-    maxmin_addr = '127.0.0.1'
-    maxmin_port = 7847
-    tt.sleep(2)
+maxmin_addr = '127.0.0.1'
+maxmin_port = 7847
+tt.sleep(2)
 
-    print("try to connect maxmin socket... - master.py")
-    logger.warning("try to connect maxmin socket... - master.py\n")
-    while True:
-        try:
-            maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            maxmin_sock.connect((maxmin_addr, maxmin_port))
-            break
-        except (TimeoutError, ConnectionRefusedError):
-            print('exception occured in master and maxmin connection - master.py')
-            logger.warning('exception occured in master and maxmin connection - master.py')
-            tt.sleep(1)
+printt('try to connect maxmin socket - master.py')
 
-    print("socket between master and maxmin connected - master.py")
-    logger.warning("socket between master and maxmin connected - master.py\n")
+while True:
+    try:
+        maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        break
+    except (TimeoutError, ConnectionRefusedError):
+        printt('exception occured in master and maxmin connection - master.py')
+        tt.sleep(1)
 
-    maxmin_sock.send(struct.pack('!i', 0))
-    maxmin_sock.send(struct.pack('!i', num_worker))
-    maxmin_sock.send(struct.pack('!i', 0))
-    maxmin_sock.send(struct.pack('!i', anchor_num))
-    maxmin_sock.send(struct.pack('!i', anchor_interval))
+while True:
+    try:
+        maxmin_sock.connect((maxmin_addr, maxmin_port))
+        break
+    except (TimeoutError, ConnectionRefusedError):
+        printt('exception occured in master and maxmin connection - master.py')
+        tt.sleep(1)
 
-    # maxmin 의 결과를 소켓으로 받음
-    anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
-    logger.warning(str(anchor_len) + '\n')
+printt('socket between master and maxmin connected - master.py')
 
-    for anchor_idx in range(anchor_len):
-        anchors += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
-    anchors = anchors[:-1]
+maxmin_sock.send(struct.pack('!i', 0))
+maxmin_sock.send(struct.pack('!i', num_worker))
+maxmin_sock.send(struct.pack('!i', 0))
+maxmin_sock.send(struct.pack('!i', anchor_num))
+maxmin_sock.send(struct.pack('!i', anchor_interval))
 
-    for part_idx in range(num_worker):
-        chunk = ""
-        chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
+# maxmin 의 결과를 소켓으로 받음
+anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
+printt('anchor_len : ' + str(anchor_len) + ' - master.py')
 
-        for nas_idx in range(chunk_len):
-            chunk += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
-        chunk = chunk[:-1]
-        chunks.append(chunk)
+for anchor_idx in range(anchor_len):
+    anchors += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
+anchors = anchors[:-1]
 
-# max-min cut 실행, anchor 분배, 파일로 결과 전송
-else:
-    proc = Popen([pypy_dir, '%s/maxmin.py' % root_dir, str(num_worker),
-                  '0', str(anchor_num), str(anchor_interval), root_dir, data_root])
-    proc.wait()
+for part_idx in range(num_worker):
+    chunk = ""
+    chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
-    with open("%s/maxmin_output.txt" % temp_folder_dir) as f:
-        lines = f.read().splitlines()
-        anchors, chunks = lines[0], lines[1:]
+    for nas_idx in range(chunk_len):
+        chunk += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
+    chunk = chunk[:-1]
+    chunks.append(chunk)
 
+printt('maxmin finished - master.py')
+printt('worker training iteration epoch: {} - master.py'.format(train_iter))
 
-print('maxmin finished - master.py')
-logger.warning('maxmin finished - master.py\n')
-
-print("worker training iteration epoch: ", train_iter)
-logger.warning("worker training iteration epoch: {}".format(train_iter))
 for cur_iter in range(niter):
-    logger.warning("%d iteration" % cur_iter)
+    printt('%d iteration - master.py' % cur_iter)
 
     t_ = time()
     if cur_iter > 0:
@@ -347,8 +343,8 @@ for cur_iter in range(niter):
         for worker in workers:
             idle_t = t_ - float(worker.result().split(':')[-1])
             avg_idle_t += idle_t
-            print("%s idle time : %f" % (':'.join(worker.result().split(':')[:2]), idle_t))
-        print("average idle time : %f" % (avg_idle_t/len(workers)))
+            printt('%s idle time : %f - master.py' % (':'.join(worker.result().split(':')[:2]), idle_t))
+        printt('average idle time : %f - master.py' % (avg_idle_t / len(workers)))
 
     # 작업 배정
     # chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id
@@ -361,62 +357,49 @@ for cur_iter in range(niter):
 
     if cur_iter % 2 == 1:
         # entity partitioning: max-min cut 실행, anchor 등 재분배
-        if not use_socket:
-            proc = Popen([pypy_dir, 'maxmin.py', str(num_worker), str(
-                cur_iter), str(anchor_num), str(anchor_interval), root_dir, data_root])
-            proc.wait()
+        anchors = ""
+        chunks = list()
 
-            with open("%s/maxmin_output.txt" % temp_folder_dir) as f:
-                lines = f.read().splitlines()
-                anchors, chunks = lines[0], lines[1:]
+        # try 가 들어가야 함
+        maxmin_sock.send(struct.pack('!i', 0))
+        maxmin_sock.send(struct.pack('!i', num_worker))
+        # 이 부분은 첫 send 에서는 "0" 으로 교체
+        maxmin_sock.send(struct.pack('!i', cur_iter))
+        maxmin_sock.send(struct.pack('!i', anchor_num))
+        maxmin_sock.send(struct.pack('!i', anchor_interval))
 
-        else:
-            anchors = ""
-            chunks = list()
+        # maxmin 의 결과를 소켓으로 받음
+        anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
+        logger.warning(str(anchor_len)+'\n')
 
-            # try 가 들어가야 함
-            maxmin_sock.send(struct.pack('!i', 0))
-            maxmin_sock.send(struct.pack('!i', num_worker))
-            # 이 부분은 첫 send 에서는 "0" 으로 교체
-            maxmin_sock.send(struct.pack('!i', cur_iter))
-            maxmin_sock.send(struct.pack('!i', anchor_num))
-            maxmin_sock.send(struct.pack('!i', anchor_interval))
+        for anchor_idx in range(anchor_len):
+            anchors += str(struct.unpack('!i',
+                                         maxmin_sock.recv(4))[0]) + " "
+        anchors = anchors[:-1]
 
-            # maxmin 의 결과를 소켓으로 받음
-            anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
-            logger.warning(str(anchor_len)+'\n')
+        for part_idx in range(num_worker):
+            chunk = ""
+            chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
-            for anchor_idx in range(anchor_len):
-                anchors += str(struct.unpack('!i',
-                                             maxmin_sock.recv(4))[0]) + " "
-            anchors = anchors[:-1]
-
-            for part_idx in range(num_worker):
-                chunk = ""
-                chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
-
-                for nas_idx in range(chunk_len):
-                    chunk += str(struct.unpack('!i',
-                                               maxmin_sock.recv(4))[0]) + " "
-                chunk = chunk[:-1]
-                chunks.append(chunk)
+            for nas_idx in range(chunk_len):
+                chunk += str(struct.unpack('!i',
+                                           maxmin_sock.recv(4))[0]) + " "
+            chunk = chunk[:-1]
+            chunks.append(chunk)
 
     else:
         # relation partitioning
         chunk_data = ''
 
     progress(workers)
-    print('\n')
-    for worker in workers:
-        print(worker.result())
-        logger.warning(worker.result())
 
-    print("iteration time: %f" % (time() - t_))
-    logger.warning("iteration time: %f\n" % (time() - t_))
+    for worker in workers:
+        printt(worker.result() + ' - master.py')
+
+    printt('iteration time : %f - master.py' % (time() - t_))
 
 # test part
-print('test start')
-logger.warning('test start\n')
+printt('test start - master.py')
 
 # load entity vector
 entities = pickle.loads(r.get('entities'))
@@ -439,99 +422,92 @@ proc = Popen([
     worker_id, str(cur_iter), str(n_dim), str(lr), str(margin), str(data_root_id)],
     cwd=preprocess_folder_dir)
 
-if use_socket:
-    maxmin_sock.send(struct.pack('!i', 1))
-    maxmin_sock.close()
+maxmin_sock.send(struct.pack('!i', 1))
+maxmin_sock.close()
 
-    test_addr = '0.0.0.0'
-    test_port = 7874  # 임의로 7874 로 포트를 정함
-    tt.sleep(2)
-    while True:
-        try:
-            test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            test_sock.connect((test_addr, test_port))
-            break
-        except (TimeoutError, ConnectionRefusedError):
-            tt.sleep(1)
+test_addr = '0.0.0.0'
+test_port = 7874  # 임의로 7874 로 포트를 정함
+tt.sleep(2)
 
-    test_sock.send(struct.pack('!i', 0))                        # 연산 요청 메시지
-    # int 임시 땜빵, 매우 큰 문제
-    test_sock.send(struct.pack('!i', int(worker_id.split('_')[1])))
-    test_sock.send(struct.pack('!i', int(cur_iter)))            # int
-    test_sock.send(struct.pack('!i', int(n_dim)))       # int
-    test_sock.send(struct.pack('d', float(lr)))      # double
-    test_sock.send(struct.pack('d', float(margin)))             # double
-    test_sock.send(struct.pack('!i', int(data_root_id)))    # int
+while True:
+    try:
+        test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        break
+    except (TimeoutError, ConnectionRefusedError):
+        tt.sleep(1)
 
-    # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
+while True:
+    try:
+        test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        break
+    except (TimeoutError, ConnectionRefusedError):
+        tt.sleep(1)
 
-    if int(cur_iter) % 2 == 0:
-        # entity 전송
-        chunk_anchor, chunk_entity = chunk_data.split('\n')
-        chunk_anchor = chunk_anchor.split(' ')
-        chunk_entity = chunk_entity.split(' ')
+test_sock.send(struct.pack('!i', 0))                        # 연산 요청 메시지
+# int 임시 땜빵, 매우 큰 문제
+test_sock.send(struct.pack('!i', int(worker_id.split('_')[1])))
+test_sock.send(struct.pack('!i', int(cur_iter)))            # int
+test_sock.send(struct.pack('!i', int(n_dim)))       # int
+test_sock.send(struct.pack('d', float(lr)))      # double
+test_sock.send(struct.pack('d', float(margin)))             # double
+test_sock.send(struct.pack('!i', int(data_root_id)))    # int
 
-        test_sock.send(struct.pack('!i', len(chunk_anchor)))
+# DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 
-        for iter_anchor in chunk_anchor:
-            test_sock.send(struct.pack('!i', int(iter_anchor)))
+if int(cur_iter) % 2 == 0:
+    # entity 전송
+    chunk_anchor, chunk_entity = chunk_data.split('\n')
+    chunk_anchor = chunk_anchor.split(' ')
+    chunk_entity = chunk_entity.split(' ')
 
-        test_sock.send(struct.pack('!i', len(chunk_entity)))
+    test_sock.send(struct.pack('!i', len(chunk_anchor)))
 
-        for iter_entity in chunk_entity:
-            test_sock.send(struct.pack('!i', int(iter_entity)))
+    for iter_anchor in chunk_anchor:
+        test_sock.send(struct.pack('!i', int(iter_anchor)))
 
-    else:
-        # relation 전송
-        sub_graphs = pickle.loads(r.get('sub_graph_{}'.format(worker_id)))
-        test_sock.send(struct.pack('!i', len(sub_graphs)))
+    test_sock.send(struct.pack('!i', len(chunk_entity)))
 
-        for (head_id, relation_id, tail_id) in sub_graphs:
-            test_sock.send(struct.pack('!i', int(head_id)))
-            test_sock.send(struct.pack('!i', int(relation_id)))
-            test_sock.send(struct.pack('!i', int(tail_id)))
+    for iter_entity in chunk_entity:
+        test_sock.send(struct.pack('!i', int(iter_entity)))
 
+else:
+    # relation 전송
+    sub_graphs = pickle.loads(r.get('sub_graph_{}'.format(worker_id)))
+    test_sock.send(struct.pack('!i', len(sub_graphs)))
 
+    for (head_id, relation_id, tail_id) in sub_graphs:
+        test_sock.send(struct.pack('!i', int(head_id)))
+        test_sock.send(struct.pack('!i', int(relation_id)))
+        test_sock.send(struct.pack('!i', int(tail_id)))
 
-    # entity_vector 전송
-    for i, vector in enumerate(entities_initialized):
-        entity_name = str(entities[i])
-        test_sock.send(struct.pack('!i', len(entity_name)))
-        test_sock.send(str.encode(entity_name))    # entity string 자체를 전송
-
-
-
-
-        #test_sock.send(struct.pack('!i', entity2id[entity_name])) # entity id 를 int 로 전송
-
+# entity_vector 전송
+for i, vector in enumerate(entities_initialized):
+    entity_name = str(entities[i])
+    test_sock.send(struct.pack('!i', len(entity_name)))
+    test_sock.send(str.encode(entity_name))    # entity string 자체를 전송
 
 
-
-        for v in vector:
-            test_sock.send(struct.pack('d', float(v)))
-
-    # relation_vector 전송
-    for i, relation in enumerate(relations_initialized):
-        relation_name = str(relations[i])
-        test_sock.send(struct.pack('!i', len(relation_name)))
-        test_sock.send(str.encode(relation_name))  # relation string 자체를 전송
+    #test_sock.send(struct.pack('!i', entity2id[entity_name])) # entity id 를 int 로 전송
 
 
+    for v in vector:
+        test_sock.send(struct.pack('d', float(v)))
+
+# relation_vector 전송
+for i, relation in enumerate(relations_initialized):
+    relation_name = str(relations[i])
+    test_sock.send(struct.pack('!i', len(relation_name)))
+    test_sock.send(str.encode(relation_name))  # relation string 자체를 전송
 
 
-        #test_sock.send(struct.pack('!i', relation2id[relation_name])) # relation id 를 int 로 전송
+    #test_sock.send(struct.pack('!i', relation2id[relation_name])) # relation id 를 int 로 전송
 
 
+    for v in relation:
+        test_sock.send(struct.pack('d', float(v)))
 
-
-
-        for v in relation:
-            test_sock.send(struct.pack('d', float(v)))
-
-    del entities_initialized
-    del relations_initialized
+del entities_initialized
+del relations_initialized
 
 proc.wait()
-
-print("Total elapsed time: %f" % (time() - master_start))
-logger.warning("Total elapsed time: %f\n" % (time() - master_start))
+printt('Total elapsed time: %f - master.py' % (time() - master_start))
