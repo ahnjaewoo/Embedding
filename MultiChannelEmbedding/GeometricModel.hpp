@@ -539,7 +539,7 @@ public:
 	                }
 	                else{
 
-	                	printt("unknown error of phase 3 (entity) GeometricModel.hpp\n");
+	                	printf("unknown error of phase 3 (entity) GeometricModel.hpp\n");
 	                	checksum = 0;
 	                }
 				}
@@ -619,7 +619,7 @@ public:
 	                }
 	                else{
 
-	                	printt("unknown error of phase 3 (relation) GeometricModel.hpp\n");
+	                	printf("unknown error of phase 3 (relation) GeometricModel.hpp\n");
 	                	checksum = 0;
 	                }
 				}
