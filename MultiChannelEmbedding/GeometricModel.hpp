@@ -754,9 +754,10 @@ public:
                     send(fd, &flag, sizeof(flag), 0);
                     success = 1;
             	}
-            	catch{
+            	catch(std::exception& e){
 
-                    print("[error] exception occured in GeometricModel.hpp")
+                    printf("[error] exception occured in GeometricModel.hpp\n")
+                    printf("%s\n", e.what());
                     success = 0;
                     flag = 9876;
                     flag = htonl(flag);
@@ -836,9 +837,10 @@ public:
                     send(fd, &flag, sizeof(flag), 0);
                     success = 1;
 				}
-				catch{
+				catch(std::exception& e){
 
-                    print("[error] exception occured in GeometricModel.hpp")
+                    printf("[error] exception occured in GeometricModel.hpp\n");
+                    printf("%s\n", e.what());
                     success = 0;
                     flag = 9876;
                     flag = htonl(flag);

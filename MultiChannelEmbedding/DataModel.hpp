@@ -348,9 +348,10 @@ public:
                         send(fd, &flag, sizeof(flag), 0);
                         success = 1;
                     }
-                    catch{
+                    catch(std::exception& e){
 
-                        print("[error] entity : exception occured in DataModel.hpp")
+                        printf("[error] entity : exception occured in DataModel.hpp\n");
+                        printf("%s\n", e.what());
                         success = 0;
                         flag = 9876;
                         flag = htonl(flag);
@@ -449,9 +450,10 @@ public:
                         send(fd, &flag, sizeof(flag), 0);
                         success = 1;
                     }
-                    catch{
+                    catch(std::exception& e){
 
-                        print("[error] relation : exception occured in DataModel.hpp")
+                        printf("[error] relation : exception occured in DataModel.hpp\n");
+                        printf("%s\n", e.what());
                         success = 0;
                         flag = 9876;
                         flag = htonl(flag);
