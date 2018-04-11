@@ -221,12 +221,17 @@ def install_libs():
 def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id):
     # 첫 iter 에서 embedding.cpp 를 실행해놓음
     
-    printt('work function called - master.py')
+    # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
+    #printt('work function called - master.py')
+    print('work function called - master.py')
 
     if cur_iter == 0:
         proc = Popen([train_code_dir, worker_id,
                       str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter), str(data_root_id)], cwd=preprocess_folder_dir)
-        printt('in first iteration, create embedding.cpp process - master.py')
+        
+        # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
+        #printt('in first iteration, create embedding.cpp process - master.py')
+        print('in first iteration, create embedding.cpp process - master.py')
     
     proc = Popen([
         "python", worker_code_dir, chunk_data,
@@ -454,57 +459,148 @@ test_sock.send(struct.pack('!i', int(data_root_id)))    # int
 
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 
+checksum = 0
+
 if int(cur_iter) % 2 == 0:
-    # entity 전송
+    # entity 전송 - DataModel 생성자
     chunk_anchor, chunk_entity = chunk_data.split('\n')
     chunk_anchor = chunk_anchor.split(' ')
     chunk_entity = chunk_entity.split(' ')
 
-    test_sock.send(struct.pack('!i', len(chunk_anchor)))
+    if len(chunk_anchor) is 1 and chunk_anchor[0] is '':
+        chunk_anchor = []
 
-    for iter_anchor in chunk_anchor:
-        test_sock.send(struct.pack('!i', int(iter_anchor)))
+    while checksum != 1:
 
-    test_sock.send(struct.pack('!i', len(chunk_entity)))
+        test_sock.send(struct.pack('!i', len(chunk_anchor)))
 
-    for iter_entity in chunk_entity:
-        test_sock.send(struct.pack('!i', int(iter_entity)))
+        for iter_anchor in chunk_anchor:
+            test_sock.send(struct.pack('!i', int(iter_anchor)))
+
+        test_sock.send(struct.pack('!i', len(chunk_entity)))
+
+        for iter_entity in chunk_entity:
+            test_sock.send(struct.pack('!i', int(iter_entity)))
+
+        checksum = struct.unpack('!i', test_sock.recv(4))[0]
+
+        if checksum == 1234:
+
+            printt('phase 1 finished - master.py (for test)')
+            checksum = 1
+
+        elif checksum == 9876:
+
+            printt('retry phase 1 - master.py (for test)')
+            checksum = 0
+
+        else:
+
+            printt('unknown error in phase 1 - master.py (for test)')
+            checksum = 0
 
 else:
-    # relation 전송
+    # relation 전송 - DataModel 생성자
     sub_graphs = pickle.loads(r.get('sub_graph_{}'.format(worker_id)))
     test_sock.send(struct.pack('!i', len(sub_graphs)))
 
-    for (head_id, relation_id, tail_id) in sub_graphs:
-        test_sock.send(struct.pack('!i', int(head_id)))
-        test_sock.send(struct.pack('!i', int(relation_id)))
-        test_sock.send(struct.pack('!i', int(tail_id)))
+    while checksum != 1:
 
-# entity_vector 전송
-for i, vector in enumerate(entities_initialized):
-    entity_name = str(entities[i])
-    test_sock.send(struct.pack('!i', len(entity_name)))
-    test_sock.send(str.encode(entity_name))    # entity string 자체를 전송
+        for (head_id, relation_id, tail_id) in sub_graphs:
+            test_sock.send(struct.pack('!i', int(head_id)))
+            test_sock.send(struct.pack('!i', int(relation_id)))
+            test_sock.send(struct.pack('!i', int(tail_id)))
+
+        checksum = struct.unpack('!i', test_sock.recv(4))[0]
+
+        if checksum == 1234:
+
+            printt('phase 1 finished - master.py (for test)')
+            checksum = 1
+
+        elif checksum == 9876:
+
+            printt('retry phase 1 - master.py (for test)')
+            checksum = 0
+
+        else:
+
+            printt('unknown error in phase 1 - master.py (for test)')
+            checksum = 0
+
+printt('chunk or relation sent to DataModel - master.py (for test)')
+
+checksum = 0
+
+# entity_vector 전송 - GeometricModel load
+while checksum != 1:
+
+    for i, vector in enumerate(entities_initialized):
+        entity_name = str(entities[i])
+        test_sock.send(struct.pack('!i', len(entity_name)))
+        test_sock.send(str.encode(entity_name))    # entity string 자체를 전송
 
 
-    #test_sock.send(struct.pack('!i', entity2id[entity_name])) # entity id 를 int 로 전송
+        #test_sock.send(struct.pack('!i', entity2id[entity_name])) # entity id 를 int 로 전송
 
 
-    for v in vector:
-        test_sock.send(struct.pack('d', float(v)))
+        for v in vector:
+            test_sock.send(struct.pack('d', float(v)))
 
-# relation_vector 전송
-for i, relation in enumerate(relations_initialized):
-    relation_name = str(relations[i])
-    test_sock.send(struct.pack('!i', len(relation_name)))
-    test_sock.send(str.encode(relation_name))  # relation string 자체를 전송
+    checksum = struct.unpack('!i', test_sock.recv(4))[0]
+
+    if checksum == 1234:
+
+        printt('phase 2 (entity) finished - master.py (for test)')
+        checksum = 1
+
+    elif checksum == 9876:
+
+        printt('retry phase 2 (entity) - master.py (for test)')
+        checksum = 0
+
+    else:
+
+        printt('unknown error in phase 2 (entity) - master.py (for test)')
+        checksum = 0
+
+printt('entity_vector sent to GeometricModel load function - master.py (for test)')
+
+checksum = 0
+
+# relation_vector 전송 - GeometricModel load
+while checksum != 1:
+
+    for i, relation in enumerate(relations_initialized):
+        relation_name = str(relations[i])
+        test_sock.send(struct.pack('!i', len(relation_name)))
+        test_sock.send(str.encode(relation_name))  # relation string 자체를 전송
 
 
-    #test_sock.send(struct.pack('!i', relation2id[relation_name])) # relation id 를 int 로 전송
+        #test_sock.send(struct.pack('!i', relation2id[relation_name])) # relation id 를 int 로 전송
 
 
-    for v in relation:
-        test_sock.send(struct.pack('d', float(v)))
+        for v in relation:
+            test_sock.send(struct.pack('d', float(v)))
+
+    checksum = struct.unpack('!i', test_sock.recv(4))[0]
+
+    if checksum == 1234:
+
+        printt('phase 2 (relation) finished - master.py (for test)')
+        checksum = 1
+
+    elif checksum == 9876:
+
+        printt('retry phase 2 (relation) - master.py (for test)')
+        checksum = 0
+
+    else:
+
+        printt('unknown error in phase 2 (relation) - master.py (for test)')
+        checksum = 0
+
+printt('relation_vector sent to Geome tricModel load function - master.py (for test)')
 
 del entities_initialized
 del relations_initialized
