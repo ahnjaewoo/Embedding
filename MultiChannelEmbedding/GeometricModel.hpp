@@ -466,112 +466,164 @@ public:
 			count = 0;
 
 			// master_epoch이 짝수일 때 (entity embedding ㄱㄱ)
-			if (master_epoch % 2 == 0)
-			{
+			if (master_epoch % 2 == 0){
 
-				for (int i = 0; i < count_entity(); i++)
-				{
-					if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
-					&& data_model.check_parts.find(i) != data_model.check_parts.end())
-					{
+				int checksum = 0;
+				int flag = 0;
 
-						count++;
-					}
-				}
+				while(checksum != 1){
 
-				printf("count_entity in GeometricModel save function is %d\n", count);
-				count = htonl(count);
-				send(fd, &count, sizeof(count), 0);
+					for (int i = 0; i < count_entity(); i++){
 
-				for (int i = 0; i < count_entity(); i++)
-				{
-					if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
-					&& data_model.check_parts.find(i) != data_model.check_parts.end())
-					{
+						if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+						&& data_model.check_parts.find(i) != data_model.check_parts.end()){
 
-						// entity_id 가 string 으로 주어진 경우
-						// entity_id_to_name 을 이용해 string 을 가져와서 보냄
-						string_len = data_model.entity_id_to_name[i].size();
-						string_len = htonl(string_len);
-						send(fd, &string_len, sizeof(string_len), 0);
-						string_len = ntohl(string_len);
-						send(fd, data_model.entity_id_to_name[i].c_str() , string_len, 0);
-
-
-
-
-
-						/*
-						// entity_id 가 int 로 주어진 경우
-						// 그냥 그대로 보냄
-						i = htonl(i);
-						send(fd, &i, sizeof(int), 0);
-						*/
-
-
-
-
-						for (int j =0; j < dim; j++)
-						{
-
-							value_to_send = embedding_entity[i](j);
-							send(fd, &value_to_send, sizeof(value_to_send), 0);
+							count++;
 						}
 					}
+
+					printf("count_entity in GeometricModel save function is %d\n", count);
+					count = htonl(count);
+					send(fd, &count, sizeof(count), 0);
+
+					for (int i = 0; i < count_entity(); i++){
+
+						if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+						&& data_model.check_parts.find(i) != data_model.check_parts.end()){
+
+							// entity_id 가 string 으로 주어진 경우
+							// entity_id_to_name 을 이용해 string 을 가져와서 보냄
+							string_len = data_model.entity_id_to_name[i].size();
+							string_len = htonl(string_len);
+							send(fd, &string_len, sizeof(string_len), 0);
+							string_len = ntohl(string_len);
+							send(fd, data_model.entity_id_to_name[i].c_str() , string_len, 0);
+
+
+							/*
+							// entity_id 가 int 로 주어진 경우
+							// 그냥 그대로 보냄
+							i = htonl(i);
+							send(fd, &i, sizeof(int), 0);
+							*/
+
+
+							for (int j =0; j < dim; j++){
+
+								value_to_send = embedding_entity[i](j);
+								send(fd, &value_to_send, sizeof(value_to_send), 0);
+							}
+						}
+					}
+
+	                if (recv(fd, &flag, sizeof(flag), 0) < 0){
+
+	                	printf("[error] recv flag (phase 3) in GeometricModel.hpp\n");
+	                    
+	                	// 여기서 소켓이 끊어지면 어떻게 해야하나
+	                    //close(fd);
+	                    //break;
+	                }
+
+	                flag = ntohl(flag);
+
+	                if(flag == 1234){
+
+	                	printf("phase 3 (entity) finished in GeometricModel.hpp\n");
+	                	checksum = 1;
+	                }
+	                else if(flag == 9876){
+
+	                	printf("retry phase 3 (entity) in GeometricModel.hpp\n");
+	                	checksum = 0;
+	                }
+	                else{
+
+	                	printt("unknown error of phase 3 (entity) GeometricModel.hpp\n");
+	                	checksum = 0;
+	                }
 				}
+
 				printf("entity save finish - GeometricModel.hpp\n");
 			}
 			// master_epoch이 홀수일 때 (relation embedding ㄱㄱ)
-			else
-			{
+			else{
 
-				for (int i = 0; i < count_relation(); i++)
-				{
-					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end())
-					{
+				
+				int checksum = 0;
+				int flag = 0;
 
-						count++;
-					}
-				}
+				while(checksum != 1){
 
-				printf("count_relation in GeometricModel save function is %d\n", count);
-				count = htonl(count);
-				send(fd, &count, sizeof(count), 0);
+					for (int i = 0; i < count_relation(); i++){
 
-				for (int i = 0; i < count_relation(); i++)
-				{
-					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end())
-					{
+						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
-						// relation_id 가 string 으로 주어진 경우
-						// relation_id_to_name 을 이용해 string 을 가져와서 보냄
-						string_len = data_model.relation_id_to_name[i].size();
-						string_len = htonl(string_len);
-						send(fd, &string_len, sizeof(string_len), 0);
-						string_len = ntohl(string_len);
-						send(fd, data_model.relation_id_to_name[i].c_str() , string_len, 0);
-
-
-
-
-						/*
-						// relation_id 가 int 로 주어진 경우
-						// 그냥 그대로 보냄
-						i = htonl(i);
-						send(fd, &i, sizeof(int), 0);
-						*/
-
-
-
-
-						for (int j = 0; j < dim; j++)
-						{
-
-							value_to_send = embedding_relation[i](j);
-							send(fd, &value_to_send, sizeof(value_to_send), 0);
+							count++;
 						}
 					}
+
+					printf("count_relation in GeometricModel save function is %d\n", count);
+					count = htonl(count);
+					send(fd, &count, sizeof(count), 0);
+
+					for (int i = 0; i < count_relation(); i++){
+
+						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
+
+							// relation_id 가 string 으로 주어진 경우
+							// relation_id_to_name 을 이용해 string 을 가져와서 보냄
+							string_len = data_model.relation_id_to_name[i].size();
+							string_len = htonl(string_len);
+							send(fd, &string_len, sizeof(string_len), 0);
+							string_len = ntohl(string_len);
+							send(fd, data_model.relation_id_to_name[i].c_str() , string_len, 0);
+
+
+							/*
+							// relation_id 가 int 로 주어진 경우
+							// 그냥 그대로 보냄
+							i = htonl(i);
+							send(fd, &i, sizeof(int), 0);
+							*/
+
+
+							for (int j = 0; j < dim; j++){
+
+								value_to_send = embedding_relation[i](j);
+								send(fd, &value_to_send, sizeof(value_to_send), 0);
+							}
+						}
+					}
+
+	                if (recv(fd, &flag, sizeof(flag), 0) < 0){
+
+	                	printf("[error] recv flag (phase 3) in GeometricModel.hpp\n");
+	                    
+	                	// 여기서 소켓이 끊어지면 어떻게 해야하나
+	                    //close(fd);
+	                    //break;
+	                }
+
+	                flag = ntohl(flag);
+
+	                if(flag == 1234){
+
+	                	printf("phase 3 (relation) finished in GeometricModel.hpp\n");
+	                	checksum = 1;
+	                }
+	                else if(flag == 9876){
+
+	                	printf("retry phase 3 (relation) in GeometricModel.hpp\n");
+	                	checksum = 0;
+	                }
+	                else{
+
+	                	printt("unknown error of phase 3 (relation) GeometricModel.hpp\n");
+	                	checksum = 0;
+	                }
 				}
+
 				printf("relation save finish - GeometricModel.hpp\n");
 			}
 		}

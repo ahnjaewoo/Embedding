@@ -264,64 +264,106 @@ t_ = time()
 
 if int(cur_iter) % 2 == 0:
 
-    entity_vectors = dict()
+    success = 0
 
-    # 처리 결과를 받아옴 - GeometricModel save
-    count_entity_data = embedding_sock.recv(4)
-    if len(count_entity_data) is not 4:
-        printt('length of count_entity_data is ' + str(len(count_entity_data)) + ' - worker.py')
-    count_entity = struct.unpack('!i', count_entity_data)[0]
-    printt('count_entity is ' + str(count_entity) + ' - worker.py')
+    while success != 1:
 
-    for entity_idx in range(count_entity):
-        temp_entity_vector = list()
-        entity_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
-        entity_id = embedding_sock.recv(entity_id_len).decode()
+        try:        
+
+            entity_vectors = dict()
+
+            # 처리 결과를 받아옴 - GeometricModel save
+            count_entity_data = embedding_sock.recv(4)
+            if len(count_entity_data) is not 4:
+                printt('length of count_entity_data is ' + str(len(count_entity_data)) + ' - worker.py')
+            count_entity = struct.unpack('!i', count_entity_data)[0]
+            printt('count_entity is ' + str(count_entity) + ' - worker.py')
+
+            for entity_idx in range(count_entity):
+                temp_entity_vector = list()
+                entity_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
+                entity_id = embedding_sock.recv(entity_id_len).decode()
 
 
-        #entity_id = struct.unpack('!i', embedding_sock.recv(4))[0]     # entity_id 를 int 로 받음
+                #entity_id = struct.unpack('!i', embedding_sock.recv(4))[0]     # entity_id 를 int 로 받음
 
 
-        for dim_idx in range(int(embedding_dim)):
-            temp_entity_double = embedding_sock.recv(8)
-            if len(temp_entity_double) is not 8:
-                printt('length of temp_entity_double is ' + str(len(temp_entity_double)) + ' - worker.py')
-            temp_entity = struct.unpack('d', temp_entity_double)[0]
-            temp_entity_vector.append(temp_entity)
+                for dim_idx in range(int(embedding_dim)):
+                    temp_entity_double = embedding_sock.recv(8)
+                    if len(temp_entity_double) is not 8:
+                        printt('length of temp_entity_double is ' + str(len(temp_entity_double)) + ' - worker.py')
+                    temp_entity = struct.unpack('d', temp_entity_double)[0]
+                    temp_entity_vector.append(temp_entity)
 
-        entity_vectors[entity_id + '_v'] = pickle.dumps(
-            np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
+                entity_vectors[entity_id + '_v'] = pickle.dumps(
+                    np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
+
+        except:
+
+            printt('retry phase 3 (entity) - worker.py, ' + worker_id)
+            flag = 9876
+            embedding_sock.send(struct.pack('!i', flag))
+            sucess = 0
+
+        else:
+
+            printt('phase 3 (entity) finished - worker.py, ' + worker_id)
+            flag = 1234
+            embedding_sock.send(struct.pack('!i', flag))
+            sucess = 1
+    
     r.mset(entity_vectors)
 
 else:
 
-    relation_vectors = dict()
+    success = 0
 
-    # 처리 결과를 받아옴 - GeometricModel save
-    count_relation_data = embedding_sock.recv(4)
-    if len(count_relation_data) is not 4:
-        printt('length of count_relation_data is ' + str(len(count_relation_data)) + ' - worker.py')
-    count_relation = struct.unpack('!i', count_relation_data)[0]
-    printt('count_relation is ' + count_relation + ' - worker.py')
+    while success != 1:
 
-    for relation_idx in range(count_relation):
-        temp_relation_vector = list()
-        relation_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
-        relation_id = embedding_sock.recv(relation_id_len).decode()
+        try:    
+
+            relation_vectors = dict()
+
+            # 처리 결과를 받아옴 - GeometricModel save
+            count_relation_data = embedding_sock.recv(4)
+            if len(count_relation_data) is not 4:
+                printt('length of count_relation_data is ' + str(len(count_relation_data)) + ' - worker.py')
+            count_relation = struct.unpack('!i', count_relation_data)[0]
+            printt('count_relation is ' + count_relation + ' - worker.py')
+
+            for relation_idx in range(count_relation):
+                temp_relation_vector = list()
+                relation_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
+                relation_id = embedding_sock.recv(relation_id_len).decode()
 
 
-        #relation_id = struct.unpack('!i', embedding_sock.recv(4))[0]   # relation_id 를 int 로 바음
+                #relation_id = struct.unpack('!i', embedding_sock.recv(4))[0]   # relation_id 를 int 로 바음
 
 
-        for dim_idx in range(int(embedding_dim)):
-            temp_relation_double = embedding_sock.recv(8)
-            if len(temp_relation_double) is not 8:
-                printt('length of temp_relation_double is ' + len(temp_relation_double) + ' - worker.py')
-            temp_relation = struct.unpack('d', temp_relation_double)[0]
-            temp_relation_vector.append(temp_relation)
+                for dim_idx in range(int(embedding_dim)):
+                    temp_relation_double = embedding_sock.recv(8)
+                    if len(temp_relation_double) is not 8:
+                        printt('length of temp_relation_double is ' + len(temp_relation_double) + ' - worker.py')
+                    temp_relation = struct.unpack('d', temp_relation_double)[0]
+                    temp_relation_vector.append(temp_relation)
 
-        relation_vectors[relation_id + '_v'] = pickle.dumps(
-            np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
+                relation_vectors[relation_id + '_v'] = pickle.dumps(
+                    np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
+    
+        except:
+
+            printt('retry phase 3 (relation) - worker.py, ' + worker_id)
+            flag = 9876
+            embedding_sock.send(struct.pack('!i', flag))
+            sucess = 0
+
+        else:
+
+            printt('phase 3 (relation) finished - worker.py, ' + worker_id)
+            flag = 1234
+            embedding_sock.send(struct.pack('!i', flag))
+            sucess = 1
+
     r.mset(relation_vectors)
 
 printt('recieved result from GeometricModel save function - worker.py')
