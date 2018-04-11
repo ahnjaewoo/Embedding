@@ -239,7 +239,7 @@ public:
 
         if (master_epoch % 2 == 0) {
             
-            //entity
+            // entity
             if (fd == 0) {
 
                 // 파일로 가져옴
@@ -262,6 +262,17 @@ public:
                     input >> str;
                     set_entity_parts.insert(stoi(str));
                     check_parts[stoi(str)] = true;
+                }
+
+                for (auto i = data_train.begin(); i != data_train.end(); ++i) {
+                
+                    int head = (*i).first.first;
+                    int tail = (*i).first.second;
+                    
+                    if (check_parts.find(head) != check_parts.end() && check_parts.find(tail) != check_parts.end()){
+                    
+                        data_train_parts.push_back(*i);
+                    }
                 }         
             }
             else {
@@ -270,59 +281,81 @@ public:
                 int anchor_num;
                 int entity_num;
                 int temp_value;
+                int success = 0;
+                int flag = 0;
 
-                if (recv(fd, &anchor_num, sizeof(anchor_num), 0) < 0){
+                // try catch 에서 exception 발생시 이 구간을 반복
+                while(!success){
 
-                    printf("[error] recv anchor_num in DataModel.hpp\n");
-                    close(fd);
-                    return;
-                }
+                    try{
 
-                for (int idx = 0; idx < ntohl(anchor_num); idx++) {
+                        if (recv(fd, &anchor_num, sizeof(anchor_num), 0) < 0){
 
-                    if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
+                            printf("[error] recv anchor_num in DataModel.hpp\n");
+                            close(fd);
+                            return;
+                        }
 
-                        printf("[error] recv temp_value for anchor in DataModel.hpp\n");
-                        close(fd);
-                        return;
+                        for (int idx = 0; idx < ntohl(anchor_num); idx++) {
+
+                            if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
+
+                                printf("[error] recv temp_value for anchor in DataModel.hpp\n");
+                                close(fd);
+                                return;
+                            }
+
+                            temp_value = ntohl(temp_value);
+                            set_entity_parts.insert(temp_value);
+                            check_anchor[temp_value] = true;
+                            check_parts[temp_value] = true;
+                        }
+
+                        if (recv(fd, &entity_num, sizeof(entity_num), 0) < 0){
+
+                            printf("[error] recv entity_num in DataModel.hpp\n");
+                            close(fd);
+                            return;
+                        }
+
+                        for (int idx = 0; idx < ntohl(entity_num); idx++) {
+
+                            if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
+
+                                printf("[error] recv temp_value for entity in DataModel.hpp\n");
+                                close(fd);
+                                return;
+                            }
+
+                            temp_value = ntohl(temp_value);
+                            set_entity_parts.insert(temp_value);
+                            check_parts[temp_value] = true;
+                        }
+
+                        for (auto i = data_train.begin(); i != data_train.end(); ++i) {
+                        
+                            int head = (*i).first.first;
+                            int tail = (*i).first.second;
+                            
+                            if (check_parts.find(head) != check_parts.end() && check_parts.find(tail) != check_parts.end()){
+                            
+                                data_train_parts.push_back(*i);
+                            }
+                        }   
+
+                        success = 1;
+                        flag = 1234;
+                        flag = htonl(flag);
+                        send(fd, &flag, sizeof(flag), 0);
                     }
+                    catch{
 
-                    temp_value = ntohl(temp_value);
-                    set_entity_parts.insert(temp_value);
-                    check_anchor[temp_value] = true;
-                    check_parts[temp_value] = true;
-                }
-
-                if (recv(fd, &entity_num, sizeof(entity_num), 0) < 0){
-
-                    printf("[error] recv entity_num in DataModel.hpp\n");
-                    close(fd);
-                    return;
-                }
-
-                for (int idx = 0; idx < ntohl(entity_num); idx++) {
-
-                    if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
-
-                        printf("[error] recv temp_value for entity in DataModel.hpp\n");
-                        close(fd);
-                        return;
+                        print("[error] entity : exception occured in DataModel.hpp")
+                        success = 0;
+                        flag = 9876;
+                        flag = htonl(flag);
+                        send(fd, &flag, sizeof(flag), 0);
                     }
-
-                    temp_value = ntohl(temp_value);
-                    set_entity_parts.insert(temp_value);
-                    check_parts[temp_value] = true;
-                }
-            }
-
-            for (auto i = data_train.begin(); i != data_train.end(); ++i) {
-                
-                int head = (*i).first.first;
-                int tail = (*i).first.second;
-                
-                if (check_parts.find(head) != check_parts.end() && check_parts.find(tail) != check_parts.end()){
-                
-                    data_train_parts.push_back(*i);
                 }
             }
 
@@ -359,50 +392,74 @@ public:
                 int temp_value_head;
                 int temp_value_relation;
                 int temp_value_tail;
-                pair<pair<int,int>, int> tmp;
+                int success = 0;
+                int flag = 0;
 
-                if (recv(fd, &triplet_num, sizeof(triplet_num), 0) < 0){
+                while(!success){
 
-                    printf("[error] recv triplet_num in DataModel.hpp\n");
-                    close(fd);
-                    return;
+                    pair<pair<int,int>, int> tmp;
+
+                    try{
+
+                        if (recv(fd, &triplet_num, sizeof(triplet_num), 0) < 0){
+
+                            printf("[error] recv triplet_num in DataModel.hpp\n");
+                            close(fd);
+                            return;
+                        }
+
+                        for (int idx = 0; idx < ntohl(triplet_num); idx++) {
+
+                            if (recv(fd, &temp_value_head, sizeof(temp_value_head), 0) < 0){
+
+                                printf("[error] recv temp_value_head in DataModel.hpp\n");
+                                close(fd);
+                                break;
+                            }
+
+                            if (recv(fd, &temp_value_relation, sizeof(temp_value_relation), 0) < 0){
+
+                                printf("[error] recv temp_value_relation in DataModel.hpp\n");
+                                close(fd);
+                                break;
+                            }
+
+                            if (recv(fd, &temp_value_tail, sizeof(temp_value_tail), 0) < 0){
+
+                                printf("[error] recv temp_value_tail in DataModel.hpp\n");
+                                close(fd);
+                                break;
+                            }
+
+                            temp_value_head = ntohl(temp_value_head);
+                            temp_value_relation = ntohl(temp_value_relation);
+                            temp_value_tail = ntohl(temp_value_tail);
+
+                            set_entity_parts.insert(temp_value_head);
+                            set_entity_parts.insert(temp_value_tail);
+                            set_relation_parts.insert(temp_value_relation);
+                            tmp.first.first = temp_value_head;
+                            tmp.second = temp_value_relation;
+                            tmp.first.second = temp_value_tail;
+                            data_train_parts.push_back(tmp);
+                        }
+
+                        success = 1;
+                        flag = 1234;
+                        flag = htonl(flag);
+                        send(fd, &flag, sizeof(flag), 0);
+                    }
+                    catch{
+
+                        print("[error] relation : exception occured in DataModel.hpp")
+                        success = 0;
+                        flag = 9876;
+                        flag = htonl(flag);
+                        send(fd, &flag, sizeof(flag), 0);
+                    }
                 }
 
-                for (int idx = 0; idx < ntohl(triplet_num); idx++) {
-
-                    if (recv(fd, &temp_value_head, sizeof(temp_value_head), 0) < 0){
-
-                        printf("[error] recv temp_value_head in DataModel.hpp\n");
-                        close(fd);
-                        break;
-                    }
-
-                    if (recv(fd, &temp_value_relation, sizeof(temp_value_relation), 0) < 0){
-
-                        printf("[error] recv temp_value_relation in DataModel.hpp\n");
-                        close(fd);
-                        break;
-                    }
-
-                    if (recv(fd, &temp_value_tail, sizeof(temp_value_tail), 0) < 0){
-
-                        printf("[error] recv temp_value_tail in DataModel.hpp\n");
-                        close(fd);
-                        break;
-                    }
-
-                    temp_value_head = ntohl(temp_value_head);
-                    temp_value_relation = ntohl(temp_value_relation);
-                    temp_value_tail = ntohl(temp_value_tail);
-
-                    set_entity_parts.insert(temp_value_head);
-                    set_entity_parts.insert(temp_value_tail);
-                    set_relation_parts.insert(temp_value_relation);
-                    tmp.first.first = temp_value_head;
-                    tmp.second = temp_value_relation;
-                    tmp.first.second = temp_value_tail;
-                    data_train_parts.push_back(tmp);
-                }
+                
             }
             cout << "relation preprocessing let's get it! - DataModel.hpp" << endl;
         }

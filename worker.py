@@ -113,6 +113,8 @@ printt('sent params to embedding.cpp - worker.py, ' + worker_id)
 
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 
+checksum = 0
+
 if int(cur_iter) % 2 == 0:
     # entity 전송 - DataModel 생성자
     chunk_anchor, chunk_entity = chunk_data.split('\n')
@@ -122,25 +124,63 @@ if int(cur_iter) % 2 == 0:
     if len(chunk_anchor) is 1 and chunk_anchor[0] is '':
         chunk_anchor = []
 
-    embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
+    while checksum != 1:
 
-    for iter_anchor in chunk_anchor:
-        embedding_sock.send(struct.pack('!i', int(iter_anchor)))
+        embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
 
-    embedding_sock.send(struct.pack('!i', len(chunk_entity)))
+        for iter_anchor in chunk_anchor:
+            embedding_sock.send(struct.pack('!i', int(iter_anchor)))
 
-    for iter_entity in chunk_entity:
-        embedding_sock.send(struct.pack('!i', int(iter_entity)))
+        embedding_sock.send(struct.pack('!i', len(chunk_entity)))
+
+        for iter_entity in chunk_entity:
+            embedding_sock.send(struct.pack('!i', int(iter_entity)))
+
+        checksum = struct.unpack('!i', embedding_sock.recv(4))[0]
+
+        if checksum == 1234:
+
+            printt('phase 1 finished - worker.py, ' + worker_id)
+            checksum = 1
+
+        elif checksum == 9876:
+
+            printt('retry phase 1 - worker.py, ' + worker_id)
+            checksum = 0
+
+        else:
+
+            printt('unknown error in phase 1 - worker.py, ' + worker_id)
+            checksum = 0
 
 else:
     # relation 전송 - DataModel 생성자
     sub_graphs = pickle.loads(r.get('sub_graph_{}'.format(worker_id)))
     embedding_sock.send(struct.pack('!i', len(sub_graphs)))
 
-    for (head_id, relation_id, tail_id) in sub_graphs:
-        embedding_sock.send(struct.pack('!i', int(head_id)))
-        embedding_sock.send(struct.pack('!i', int(relation_id)))
-        embedding_sock.send(struct.pack('!i', int(tail_id)))
+    while checksum != 1:
+
+        for (head_id, relation_id, tail_id) in sub_graphs:
+            embedding_sock.send(struct.pack('!i', int(head_id)))
+            embedding_sock.send(struct.pack('!i', int(relation_id)))
+            embedding_sock.send(struct.pack('!i', int(tail_id)))
+
+        checksum = struct.unpack('!i', embedding_sock.recv(4))[0]
+
+        if checksum == 1234:
+
+            printt('phase 1 finished - worker.py, ' + worker_id)
+            checksum = 1
+
+        elif checksum == 9876:
+
+            printt('retry phase 1 - worker.py, ' + worker_id)
+            checksum = 0
+
+        else:
+
+            printt('unknown error in phase 1 - worker.py, ' + worker_id)
+            checksum = 0
 
 printt('chunk or relation sent to DataModel - worker.py')
 
