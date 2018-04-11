@@ -756,7 +756,7 @@ public:
             	}
             	catch(std::exception& e){
 
-                    printf("[error] exception occured in GeometricModel.hpp\n")
+                    printf("[error] exception occured in GeometricModel.hpp\n");
                     printf("%s\n", e.what());
                     success = 0;
                     flag = 9876;
