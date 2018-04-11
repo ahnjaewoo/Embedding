@@ -80,7 +80,7 @@ t_ = time()
 embedding_addr = '0.0.0.0'
 embedding_port = 49900 + 5 * int(worker_id.split('_')[1]) + int(cur_iter) % 5
 
-printt('port number of ' + worker_id, ' : ' + str(embedding_port) + ' - worker.py')
+printt('port number of ' + worker_id + ' : ' + str(embedding_port) + ' - worker.py')
 
 while True:
     try:
@@ -298,9 +298,10 @@ if int(cur_iter) % 2 == 0:
                 entity_vectors[entity_id + '_v'] = pickle.dumps(
                     np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
 
-        except:
+        except Exception as e:
 
             printt('retry phase 3 (entity) - worker.py, ' + worker_id)
+            printt(e.message)
             flag = 9876
             embedding_sock.send(struct.pack('!i', flag))
             sucess = 0
@@ -350,9 +351,10 @@ else:
                 relation_vectors[relation_id + '_v'] = pickle.dumps(
                     np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
     
-        except:
+        except Exception as e:
 
             printt('retry phase 3 (relation) - worker.py, ' + worker_id)
+            printt(e.message)
             flag = 9876
             embedding_sock.send(struct.pack('!i', flag))
             sucess = 0

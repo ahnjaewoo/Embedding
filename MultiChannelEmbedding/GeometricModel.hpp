@@ -712,7 +712,7 @@ public:
 		                }
 
 		                key.assign(&(temp_buff[0]), key_length);
-				if (i ==0 || key_length < 1)  cout << "key: " << key << ", length: " << key_length << endl;
+						if (i ==0 || key_length < 1)  cout << "key: " << key << ", length: " << key_length << " - GeometricModel.hpp" << endl;
 
 						if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
 						{
@@ -795,7 +795,7 @@ public:
 		                }
 
 		                key.assign(&(temp_buff[0]), key_length);
-				if (i ==0 || key_length < 1)  cout << "key: " << key << ", length: " << key_length << endl;
+						if (i ==0 || key_length < 1)  cout << "key: " << key << ", length: " << key_length << " - GeometricModel.hpp" << endl;
 
 						if (data_model.relation_name_to_id.find(key) == data_model.relation_name_to_id.end())
 						{
