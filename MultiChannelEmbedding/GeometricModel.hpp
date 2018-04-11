@@ -632,129 +632,165 @@ public:
 			int key_length;
 			double temp_vector;
 			vector<char> temp_buff(256);
+            int success = 0;
+            int flag = 0;
 
-			for (int i = 0; i < count_entity(); i++) {
+            while(!success){
 
-				// entity key 를 string 으로 받는 경우
-				// entity key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
-                if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
+            	try{
 
-                	printf("[error] recv key_length in GeometricModel.hpp\n");
-                    close(fd);
-                    break;
-                }
+					for (int i = 0; i < count_entity(); i++) {
 
-                key_length = ntohl(key_length);
+						// entity key 를 string 으로 받는 경우
+						// entity key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
+		                if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
 
-                if (recv(fd, &(temp_buff[0]), sizeof(char) * key_length, 0) < 0){
+		                	printf("[error] recv key_length in GeometricModel.hpp\n");
+		                    close(fd);
+		                    break;
+		                }
 
-                	printf("[error] recv temp_buff in GeometricModel.hpp\n");
-                    close(fd);
-                    break;
-                }
+		                key_length = ntohl(key_length);
 
-                key.assign(&(temp_buff[0]), key_length);
-		if (i ==0 || key_length < 1)  cout << "key: " << key << ", length: " << key_length << endl;
+		                if (recv(fd, &(temp_buff[0]), sizeof(char) * key_length, 0) < 0){
 
-				if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
-				{
+		                	printf("[error] recv temp_buff in GeometricModel.hpp\n");
+		                    close(fd);
+		                    break;
+		                }
 
-					cout << "entity key does not exist! entity number : " << i << endl;
-					return;
-				}
+		                key.assign(&(temp_buff[0]), key_length);
+				if (i ==0 || key_length < 1)  cout << "key: " << key << ", length: " << key_length << endl;
 
-				int entity_id = data_model.entity_name_to_id.at(key);
+						if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
+						{
 
-				/*
-				// entity key 가 int 형식으로 주어짐
-                if (recv(fd, &entity_id, sizeof(int), 0) < 0){
+							cout << "entity key does not exist! entity number : " << i << endl;
+							return;
+						}
 
-                	printf("[error] recv entity_id in GeometricModel.hpp\n");
-                    close(fd);
-                    break;
-                }
+						int entity_id = data_model.entity_name_to_id.at(key);
 
-				entity_id = ntohl(entity_id);
-				*/
+						/*
+						// entity key 가 int 형식으로 주어짐
+		                if (recv(fd, &entity_id, sizeof(int), 0) < 0){
 
-				for (int j = 0; j < dim; j++)
-				{
+		                	printf("[error] recv entity_id in GeometricModel.hpp\n");
+		                    close(fd);
+		                    break;
+		                }
 
-	                if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
+						entity_id = ntohl(entity_id);
+						*/
 
-	                	printf("[error] recv temp_vector for loop of dim in GeometricModel.hpp\n");
-	                    close(fd);
-	                    break;
-	                }
+						for (int j = 0; j < dim; j++)
+						{
 
-					embedding_entity[entity_id](j) = temp_vector;
-				}
-			}
+			                if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
+
+			                	printf("[error] recv temp_vector for loop of dim in GeometricModel.hpp\n");
+			                    close(fd);
+			                    break;
+			                }
+
+							embedding_entity[entity_id](j) = temp_vector;
+						}
+					}
+
+                    flag = 1234;
+                    flag = htonl(flag);
+                    send(fd, &flag, sizeof(flag), 0);
+                    success = 1;
+            	}
+            	catch{
+
+                    print("[error] exception occured in GeometricModel.hpp")
+                    success = 0;
+                    flag = 9876;
+                    flag = htonl(flag);
+                    send(fd, &flag, sizeof(flag), 0);
+            	}
+            }
 			printf("load entity finish - GeometricModel.hpp\n");
 
-			for (int i = 0; i < count_relation(); i++) {
 
-				// relation key 를 string 으로 받는 경우
-				// relation key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
-                if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
+			success = 0;
+			flag = 0;
 
-                	printf("[error] recv key_length in GeometricModel.hpp\n");
-                    close(fd);
-                    break;
-                }
+			while(!success){
 
-                key_length = ntohl(key_length);
+				try{
 
-                if (recv(fd, &temp_buff[0], sizeof(char) * key_length, 0) < 0){
+					for (int i = 0; i < count_relation(); i++) {
 
-                	printf("[error] recv temp_buff in GeometricModel.hpp\n");
-                    close(fd);
-                    break;
-                }
+						// relation key 를 string 으로 받는 경우
+						// relation key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
+		                if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
 
-                key.assign(&(temp_buff[0]), key_length);
-		if (i ==0 || key_length < 1)  cout << "key: " << key << ", length: " << key_length << endl;
+		                	printf("[error] recv key_length in GeometricModel.hpp\n");
+		                    close(fd);
+		                    break;
+		                }
 
-				if (data_model.relation_name_to_id.find(key) == data_model.relation_name_to_id.end())
-				{
+		                key_length = ntohl(key_length);
 
-					cout << "relation key does not exist! relation number : " << i << endl;
-					return;
+		                if (recv(fd, &temp_buff[0], sizeof(char) * key_length, 0) < 0){
+
+		                	printf("[error] recv temp_buff in GeometricModel.hpp\n");
+		                    close(fd);
+		                    break;
+		                }
+
+		                key.assign(&(temp_buff[0]), key_length);
+				if (i ==0 || key_length < 1)  cout << "key: " << key << ", length: " << key_length << endl;
+
+						if (data_model.relation_name_to_id.find(key) == data_model.relation_name_to_id.end())
+						{
+
+							cout << "relation key does not exist! relation number : " << i << endl;
+							return;
+						}
+
+						int relation_id = data_model.relation_name_to_id.at(key);
+
+						/*
+						// relation key 가 int 형식으로 주어짐
+		                if (recv(fd, &relation_id, sizeof(int), 0) < 0){
+
+		                	printf("[error] recv relation_id in GeometricModel.hpp\n");
+		                    close(fd);
+		                    break;
+		                }
+
+						relation_id = ntohl(relation_id);
+						*/
+
+						for (int j = 0; j < dim; j++)
+						{
+
+			                if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
+
+			                	printf("[error] recv temp_vector for loop of dim in GeometricModel.hpp\n");
+			                    close(fd);
+			                    break;
+			                }
+
+							embedding_relation[relation_id](j) = temp_vector;
+						}
+					}
+
+                    flag = 1234;
+                    flag = htonl(flag);
+                    send(fd, &flag, sizeof(flag), 0);
+                    success = 1;
 				}
+				catch{
 
-				int relation_id = data_model.relation_name_to_id.at(key);
-
-
-
-
-				/*
-				// relation key 가 int 형식으로 주어짐
-                if (recv(fd, &relation_id, sizeof(int), 0) < 0){
-
-                	printf("[error] recv relation_id in GeometricModel.hpp\n");
-                    close(fd);
-                    break;
-                }
-
-				relation_id = ntohl(relation_id);
-				*/
-
-
-
-
-
-
-				for (int j = 0; j < dim; j++)
-				{
-
-	                if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
-
-	                	printf("[error] recv temp_vector for loop of dim in GeometricModel.hpp\n");
-	                    close(fd);
-	                    break;
-	                }
-
-					embedding_relation[relation_id](j) = temp_vector;
+                    print("[error] exception occured in GeometricModel.hpp")
+                    success = 0;
+                    flag = 9876;
+                    flag = htonl(flag);
+                    send(fd, &flag, sizeof(flag), 0);
 				}
 			}
 			printf("load relation finish - GeometricModel.hpp\n");

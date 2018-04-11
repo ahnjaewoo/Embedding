@@ -184,35 +184,77 @@ else:
 
 printt('chunk or relation sent to DataModel - worker.py')
 
+checksum = 0
+
 # entity_vector 전송 - GeometricModel load
-for i, vector in enumerate(entities_initialized):
-    entity_name = str(entities[i])
-    embedding_sock.send(struct.pack('!i', len(entity_name)))
-    embedding_sock.send(str.encode(entity_name))    # entity string 자체를 전송
+while checksum != 1:
+
+    for i, vector in enumerate(entities_initialized):
+        entity_name = str(entities[i])
+        embedding_sock.send(struct.pack('!i', len(entity_name)))
+        embedding_sock.send(str.encode(entity_name))    # entity string 자체를 전송
 
 
-    #embedding_sock.send(struct.pack('!i', entity2id[entity_name])) # entity id 를 int 로 전송
+        #embedding_sock.send(struct.pack('!i', entity2id[entity_name])) # entity id 를 int 로 전송
 
 
-    for v in vector:
-        embedding_sock.send(struct.pack('d', float(v)))
+        for v in vector:
+            embedding_sock.send(struct.pack('d', float(v)))
+
+    checksum = struct.unpack('!i', embedding_sock.recv(4))[0]
+
+    if checksum == 1234:
+
+        printt('phase 2 (entity) finished - worker.py, ' + worker_id)
+        checksum = 1
+
+    elif checksum == 9876:
+
+        printt('retry phase 2 (entity) - worker.py, ' + worker_id)
+        checksum = 0
+
+    else:
+
+        printt('unknown error in phase 2 (entity) - worker.py, ' + worker_id)
+        checksum = 0
 
 printt('entity_vector sent to GeometricModel load function - worker.py')
 
+checksum = 0
+
 # relation_vector 전송 - GeometricModel load
-for i, relation in enumerate(relations_initialized):
-    relation_name = str(relations[i])
-    embedding_sock.send(struct.pack('!i', len(relation_name)))
-    embedding_sock.send(str.encode(relation_name))  # relation string 자체를 전송
+while checksum != 1:
+
+    for i, relation in enumerate(relations_initialized):
+        relation_name = str(relations[i])
+        embedding_sock.send(struct.pack('!i', len(relation_name)))
+        embedding_sock.send(str.encode(relation_name))  # relation string 자체를 전송
 
 
-    #embedding_sock.send(struct.pack('!i', relation2id[relation_name])) # relation id 를 int 로 전송
+        #embedding_sock.send(struct.pack('!i', relation2id[relation_name])) # relation id 를 int 로 전송
 
 
-    for v in relation:
-        embedding_sock.send(struct.pack('d', float(v)))
+        for v in relation:
+            embedding_sock.send(struct.pack('d', float(v)))
 
-printt('relation_vector sent to GeometricModel load function - worker.py')
+    checksum = struct.unpack('!i', embedding_sock.recv(4))[0]
+
+    if checksum == 1234:
+
+        printt('phase 2 (relation) finished - worker.py, ' + worker_id)
+        checksum = 1
+
+    elif checksum == 9876:
+
+        printt('retry phase 2 (relation) - worker.py, ' + worker_id)
+        checksum = 0
+
+    else:
+
+        printt('unknown error in phase 2 (relation) - worker.py, ' + worker_id)
+        checksum = 0
+
+printt('relation_vector sent to Geome tricModel load function - worker.py')
 
 del entities_initialized
 del relations_initialized

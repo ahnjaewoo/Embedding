@@ -343,10 +343,10 @@ public:
                             }
                         }   
 
-                        success = 1;
                         flag = 1234;
                         flag = htonl(flag);
                         send(fd, &flag, sizeof(flag), 0);
+                        success = 1;
                     }
                     catch{
 
@@ -444,10 +444,10 @@ public:
                             data_train_parts.push_back(tmp);
                         }
 
-                        success = 1;
                         flag = 1234;
                         flag = htonl(flag);
                         send(fd, &flag, sizeof(flag), 0);
+                        success = 1;
                     }
                     catch{
 
@@ -459,7 +459,6 @@ public:
                     }
                 }
 
-                
             }
             cout << "relation preprocessing let's get it! - DataModel.hpp" << endl;
         }
