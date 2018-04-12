@@ -302,8 +302,11 @@ if int(cur_iter) % 2 == 0:
 
         except Exception as e:
 
-            printt('retry phase 3 (entity) - worker.py, ' + worker_id)
-            printt(e.message)
+            if tempcount > 5:
+
+                printt('retry phase 3 (entity) - worker.py, ' + worker_id)
+                printt(e.message)
+
             tempcount = tempcount + 1
             flag = 9876
             embedding_sock.send(struct.pack('!i', flag))
@@ -333,7 +336,7 @@ else:
             if len(count_relation_data) is not 4:
                 printt('length of count_relation_data is ' + str(len(count_relation_data)) + ' - worker.py')
             count_relation = struct.unpack('!i', count_relation_data)[0]
-            printt('count_relation is ' + count_relation + ' - worker.py')
+            printt('count_relation is ' + str(count_relation) + ' - worker.py')
 
             for relation_idx in range(count_relation):
                 temp_relation_vector = list()
@@ -356,8 +359,12 @@ else:
     
         except Exception as e:
 
-            printt('retry phase 3 (relation) - worker.py, ' + worker_id)
-            printt(e.message)
+            if tempcount > 5:
+
+                printt('retry phase 3 (relation) - worker.py, ' + worker_id)
+                printt(e.message)
+
+            tempcount = tempcount + 1
             flag = 9876
             embedding_sock.send(struct.pack('!i', flag))
             sucess = 0
