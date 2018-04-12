@@ -80,8 +80,6 @@ t_ = time()
 embedding_addr = '0.0.0.0'
 embedding_port = 49900 + 5 * int(worker_id.split('_')[1]) + int(cur_iter) % 5
 
-printt('port number of ' + worker_id + ' : ' + str(embedding_port) + ' - worker.py')
-
 while True:
     try:
         embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -101,6 +99,7 @@ while True:
         ci = ci + 1
         embedding_port = 49900 + 5 * int(worker_id.split('_')[1]) + ci % 5
 
+printt('port number of ' + worker_id + ' : ' + str(embedding_port) + ' - worker.py')
 printt('socket connected to embedding.cpp to worker.py - worker.py')
 
 # 연산 요청 메시지
