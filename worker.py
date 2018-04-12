@@ -84,9 +84,10 @@ while True:
     try:
         embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         break
-    except (TimeoutError, ConnectionRefusedError):
+    except Exception as e:
         tt.sleep(1)
         printt('[error] worker.py > exception occured in worker <-> embedding')
+        printt('[error] worker.py > ' + e.message)
 
 ci = int(cur_iter)
 
@@ -97,9 +98,11 @@ while True:
     except (TimeoutError, ConnectionRefusedError):
         tt.sleep(1)
         printt('[error] worker.py > exception occured in worker <-> embedding')
+        printt('[error] worker.py > 1111' + e.message)
     except Exception as e:
         tt.sleep(1)
-        print(e.message)
+        printt('[error] worker.py > exception occured in worker <-> embedding')
+        printt('[error] worker.py > 2222' + e.message)
         ci = ci + 1
         embedding_port = 49900 + 5 * int(worker_id.split('_')[1]) + ci % 5
 
