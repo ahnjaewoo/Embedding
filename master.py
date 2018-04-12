@@ -233,6 +233,8 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
         #printt('in first iteration, create embedding.cpp process - master.py')
         print('in first iteration, create embedding.cpp process - master.py')
     
+    print('cur_iter : ' + str(cur_iter) + ' in work function')
+
     proc = Popen([
         "python", worker_code_dir, chunk_data,
         str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter), redis_ip_address, root_dir, str(data_root_id)])
