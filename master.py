@@ -238,7 +238,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
         str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter), redis_ip_address, root_dir, str(data_root_id)])
     proc.wait()
 
-    return "[info] master.py > %s : iteration %d finished (time : %f)" % (worker_id, cur_iter, time())
+    return "[info] master.py > %s: iteration %d finished, time: %f" % (worker_id, cur_iter, time())
 
 
 # def savePreprocessedData(data, worker_id):
