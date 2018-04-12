@@ -66,7 +66,7 @@ relation_id = {relation: int(relation_id[i])
 entities_initialized = [pickle.loads(v) for v in entities_initialized]
 relations_initialized = [pickle.loads(v) for v in relations_initialized]
 
-printt('redis server connection time: %f' % (time() - t_))
+printt('redis server connection time: %f - worker.py' % (time() - t_))
 
 t_ = time()
 
