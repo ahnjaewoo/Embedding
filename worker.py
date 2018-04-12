@@ -78,7 +78,7 @@ t_ = time()
 
 # worker_id 를 기반으로 포트를 생성
 embedding_addr = '0.0.0.0'
-embedding_port = 49000 + 5 * int(worker_id.split('_')[1]) + int(cur_iter) % 5
+embedding_port = 49900 + 5 * int(worker_id.split('_')[1]) + int(cur_iter) % 5
 
 while True:
     try:
@@ -98,13 +98,13 @@ while True:
     except (TimeoutError, ConnectionRefusedError):
         tt.sleep(1)
         printt('[error] worker.py > exception occured in worker <-> embedding')
-        printt('[error] worker.py > 1111' + str(e))
+        printt('[error] worker.py > TimeoutError or ConnectionRefusedError')
     except Exception as e:
         tt.sleep(1)
         printt('[error] worker.py > exception occured in worker <-> embedding')
         printt('[error] worker.py > 2222' + str(e))
         ci = ci + 1
-        embedding_port = 49000 + 5 * int(worker_id.split('_')[1]) + ci % 5
+        embedding_port = 49900 + 5 * int(worker_id.split('_')[1]) + ci % 5
 
 printt('[info] worker.py > port number of ' + worker_id + ' = ' + str(embedding_port))
 printt('[info] worker.py > socket connected (worker <-> embedding)')
