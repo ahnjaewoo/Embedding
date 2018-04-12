@@ -98,6 +98,7 @@ while True:
         tt.sleep(1)
         printt('exception occured in worker and embedding connection - worker.py')
     except Exception as e:
+        tt.sleep(1)
         print(e.message)
         ci = ci + 1
         embedding_port = 49900 + 5 * int(worker_id.split('_')[1]) + ci % 5
