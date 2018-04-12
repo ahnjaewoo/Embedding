@@ -435,23 +435,23 @@ proc = Popen([
     cwd=preprocess_folder_dir)
 tt.sleep(2)
 
+
+
 while True:
     try:
         test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         break
     except (TimeoutError, ConnectionRefusedError):
+        printt('[error] master.py > exception occured in master <-> test')
         tt.sleep(1)
 
-"""
 while True:
     try:
-        test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        test_sock.connect((test_addr, test_port))
         break
     except (TimeoutError, ConnectionRefusedError):
+        printt('[error] master.py > exception occured in master <-> test')
         tt.sleep(1)
-"""
-
-test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 test_sock.send(struct.pack('!i', 0))                        # 연산 요청 메시지
 # int 임시 땜빵, 매우 큰 문제
