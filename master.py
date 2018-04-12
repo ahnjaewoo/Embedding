@@ -304,7 +304,7 @@ while True:
     except (TimeoutError, ConnectionRefusedError):
         printt('exception occured in master and maxmin connection - master.py')
         tt.sleep(1)
-
+"""
 while True:
     try:
         maxmin_sock.connect((maxmin_addr, maxmin_port))
@@ -312,6 +312,10 @@ while True:
     except (TimeoutError, ConnectionRefusedError):
         printt('exception occured in master and maxmin connection - master.py')
         tt.sleep(1)
+"""
+
+maxmin_sock.connect((maxmin_addr, maxmin_port))
+
 
 printt('socket between master and maxmin connected - master.py')
 
