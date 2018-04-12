@@ -291,7 +291,7 @@ public:
 
                         if (recv(fd, &anchor_num, sizeof(anchor_num), 0) < 0){
 
-                            printf("[error] recv anchor_num in DataModel.hpp\n");
+                            printf("[error] DataModel.hpp > recv anchor_num\n");
                             close(fd);
                             return;
                         }
@@ -300,7 +300,7 @@ public:
 
                             if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
 
-                                printf("[error] recv temp_value for anchor in DataModel.hpp\n");
+                                printf("[error] DataModel.hpp > recv temp_value for anchor\n");
                                 close(fd);
                                 return;
                             }
@@ -313,7 +313,7 @@ public:
 
                         if (recv(fd, &entity_num, sizeof(entity_num), 0) < 0){
 
-                            printf("[error] recv entity_num in DataModel.hpp\n");
+                            printf("[error] DataModel.hpp > recv entity_num\n");
                             close(fd);
                             return;
                         }
@@ -322,7 +322,7 @@ public:
 
                             if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
 
-                                printf("[error] recv temp_value for entity in DataModel.hpp\n");
+                                printf("[error] DataModel.hpp >  recv temp_value for entity\n");
                                 close(fd);
                                 return;
                             }
@@ -350,7 +350,7 @@ public:
                     }
                     catch(std::exception& e){
 
-                        printf("[error] entity : exception occured in DataModel.hpp\n");
+                        printf("[error] DataModel.hpp >  entity : exception occured\n");
                         printf("%s\n", e.what());
                         success = 0;
                         flag = 9876;
@@ -360,7 +360,7 @@ public:
                 }
             }
 
-            cout << "entity preprocesing let's get it! - DataModel.hpp" << endl;   
+            cout << "[info] DataModel.hpp > entity preprocesing let's get it!" << endl;   
         }
         else {
             //relation
@@ -404,7 +404,7 @@ public:
 
                         if (recv(fd, &triplet_num, sizeof(triplet_num), 0) < 0){
 
-                            printf("[error] recv triplet_num in DataModel.hpp\n");
+                            printf("[error] DataModel.hpp > recv triplet_num\n");
                             close(fd);
                             return;
                         }
@@ -413,21 +413,21 @@ public:
 
                             if (recv(fd, &temp_value_head, sizeof(temp_value_head), 0) < 0){
 
-                                printf("[error] recv temp_value_head in DataModel.hpp\n");
+                                printf("[error] DataModel.hpp > recv temp_value_head\n");
                                 close(fd);
                                 break;
                             }
 
                             if (recv(fd, &temp_value_relation, sizeof(temp_value_relation), 0) < 0){
 
-                                printf("[error] recv temp_value_relation in DataModel.hpp\n");
+                                printf("[error] DataModel.hpp > recv temp_value_relation\n");
                                 close(fd);
                                 break;
                             }
 
                             if (recv(fd, &temp_value_tail, sizeof(temp_value_tail), 0) < 0){
 
-                                printf("[error] recv temp_value_tail in DataModel.hpp\n");
+                                printf("[error] DataModel.hpp > recv temp_value_tail\n");
                                 close(fd);
                                 break;
                             }
@@ -452,7 +452,7 @@ public:
                     }
                     catch(std::exception& e){
 
-                        printf("[error] relation : exception occured in DataModel.hpp\n");
+                        printf("[error] DataModel.hpp > relation : exception occured\n");
                         printf("%s\n", e.what());
                         success = 0;
                         flag = 9876;
@@ -462,11 +462,11 @@ public:
                 }
 
             }
-            cout << "relation preprocessing let's get it! - DataModel.hpp" << endl;
+            cout << "[info] DataModel.hpp > relation preprocessing let's get it!" << endl;
         }
         vector_entity_parts.assign(set_entity_parts.begin(), set_entity_parts.end());
         vector_relation_parts.assign(set_relation_parts.begin(), set_relation_parts.end());
-        cout << "# of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << " - DataModel.hpp" << endl;
+        cout << "[info] DataModel.hpp > # of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << endl;
     }
 
     DataModel(const Dataset& dataset, const string& file_zero_shot, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd)

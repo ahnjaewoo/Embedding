@@ -52,7 +52,7 @@ args = parser.parse_args()
 install = args.install
 data_root = args.data_root
 if data_root[0] != '/':
-    print("[error] data root directory must start with /")
+    print("[error] master.py > data root directory must start with /")
     sys.exit(1)
 
 root_dir = args.root_dir
@@ -117,7 +117,7 @@ def data2id(data_root):
     elif 'dbpedia' in data_root_split:
         return 2
     else:
-        print("[error] data root mismatch")
+        print("[error] master.py > data root mismatch")
         sys.exit(1)
 
 data_root_id = data2id(data_root)
@@ -126,11 +126,11 @@ data_root_id = data2id(data_root)
 master_start = time()
 t_ = time()
 
-printt('Preprocessing start! - master.py')
+printt('[info] master.py > Preprocessing started')
 proc = Popen(["%spreprocess.out" % preprocess_folder_dir,
               str(data_root_id)], cwd=preprocess_folder_dir)
 
-printt('Read files - master.py')
+printt('[info] master.py > Read files')
 entities = list()
 relations = list()
 entity2id = dict()
@@ -175,7 +175,7 @@ for i, (relation, num) in enumerate(relation_each_num):
 
 # printing # of relations per each partitions
 
-printt('# of relations per each partitions: [%s]' %
+printt('[info] master.py > # of relations per each partitions : [%s]' %
       " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
 
 sub_graphs = {}
@@ -223,7 +223,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     
     # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
     #printt('work function called - master.py')
-    print('work function called - master.py')
+    print('[info] master.py > work function called, cur_iter = ' + str(cur_iter))
 
     if cur_iter == 0:
         proc = Popen([train_code_dir, worker_id,
@@ -231,10 +231,8 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
         
         # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
         #printt('in first iteration, create embedding.cpp process - master.py')
-        print('in first iteration, create embedding.cpp process - master.py')
+        print('[info] master.py > first iteration, create embedding process')
     
-    print('cur_iter : ' + str(cur_iter) + ' in work function')
-
     proc = Popen([
         "python", worker_code_dir, chunk_data,
         str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter), redis_ip_address, root_dir, str(data_root_id)])
@@ -270,7 +268,7 @@ proc.wait()
 # with open("%s/data_model.bin" % temp_folder_dir, 'rb') as f:
 #     data = f.read()
 
-printt('Preprocessing time : %f' % (time() - t_))
+printt('[info] master.py > Preprocessing time : %f' % (time() - t_))
 
 # workers = list()
 
@@ -289,20 +287,20 @@ chunks = list()
 
 proc = Popen([pypy_dir, 'maxmin.py', str(num_worker),
               '0', str(anchor_num), str(anchor_interval), root_dir, data_root])
-printt('popen maxmin.py complete - master.py')
+printt('[info] master.py > popen maxmin.py complete')
 
 maxmin_addr = '127.0.0.1'
 maxmin_port = 7847
 tt.sleep(2)
 
-printt('try to connect maxmin socket - master.py')
+printt('[info] master.py > try to connect socket (master <-> maxmin)')
 
 while True:
     try:
         maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         break
     except (TimeoutError, ConnectionRefusedError):
-        printt('exception occured in master and maxmin connection - master.py')
+        printt('[error] master.py > exception occured in master <-> maxmin')
         tt.sleep(1)
 
 while True:
@@ -310,10 +308,10 @@ while True:
         maxmin_sock.connect((maxmin_addr, maxmin_port))
         break
     except (TimeoutError, ConnectionRefusedError):
-        printt('exception occured in master and maxmin connection - master.py')
+        printt('[error] master.py > exception occured in master <-> maxmin')
         tt.sleep(1)
 
-printt('socket between master and maxmin connected - master.py')
+printt('[info] master.py > socket connected (master <-> maxmin)')
 
 maxmin_sock.send(struct.pack('!i', 0))
 maxmin_sock.send(struct.pack('!i', num_worker))
@@ -323,7 +321,7 @@ maxmin_sock.send(struct.pack('!i', anchor_interval))
 
 # maxmin 의 결과를 소켓으로 받음
 anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
-printt('anchor_len : ' + str(anchor_len) + ' - master.py')
+printt('[info] master.py > anchor_len = ' + str(anchor_len))
 
 for anchor_idx in range(anchor_len):
     anchors += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
@@ -338,11 +336,11 @@ for part_idx in range(num_worker):
     chunk = chunk[:-1]
     chunks.append(chunk)
 
-printt('maxmin finished - master.py')
-printt('worker training iteration epoch: {} - master.py'.format(train_iter))
+printt('[info] master.py > maxmin finished')
+printt('[info] master.py > worker training iteration epoch : {}'.format(train_iter))
 
 for cur_iter in range(niter):
-    printt('%d iteration - master.py' % cur_iter)
+    printt('[info] master.py > iteration %d' % cur_iter)
 
     t_ = time()
     if cur_iter > 0:
@@ -350,8 +348,8 @@ for cur_iter in range(niter):
         for worker in workers:
             idle_t = t_ - float(worker.result().split(':')[-1])
             avg_idle_t += idle_t
-            printt('%s idle time : %f - master.py' % (':'.join(worker.result().split(':')[:2]), idle_t))
-        printt('average idle time : %f - master.py' % (avg_idle_t / len(workers)))
+            printt('[info] master.py > %s idle time : %f' % (':'.join(worker.result().split(':')[:2]), idle_t))
+        printt('[info] master.py > average idle time : %f' % (avg_idle_t / len(workers)))
 
     # 작업 배정
     # chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id
@@ -380,8 +378,7 @@ for cur_iter in range(niter):
         logger.warning(str(anchor_len)+'\n')
 
         for anchor_idx in range(anchor_len):
-            anchors += str(struct.unpack('!i',
-                                         maxmin_sock.recv(4))[0]) + " "
+            anchors += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
         anchors = anchors[:-1]
 
         for part_idx in range(num_worker):
@@ -389,8 +386,7 @@ for cur_iter in range(niter):
             chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
             for nas_idx in range(chunk_len):
-                chunk += str(struct.unpack('!i',
-                                           maxmin_sock.recv(4))[0]) + " "
+                chunk += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
             chunk = chunk[:-1]
             chunks.append(chunk)
 
@@ -404,10 +400,10 @@ for cur_iter in range(niter):
     for worker in workers:
         printt(worker.result() + ' - master.py')
 
-    printt('iteration time : %f - master.py' % (time() - t_))
+    printt('[info] master.py > iteration time : %f' % (time() - t_))
 
 # test part
-printt('test start - master.py')
+printt('[info] master.py > test start')
 
 # load entity vector
 entities = pickle.loads(r.get('entities'))
@@ -489,17 +485,17 @@ if int(cur_iter) % 2 == 0:
 
         if checksum == 1234:
 
-            printt('phase 1 finished - master.py (for test)')
+            printt('[info] master.py > phase 1 finished (for test)')
             checksum = 1
 
         elif checksum == 9876:
 
-            printt('retry phase 1 - master.py (for test)')
+            printt('[error] master.py > retry phase 1 (for test)')
             checksum = 0
 
         else:
 
-            printt('unknown error in phase 1 - master.py (for test)')
+            printt('[error] master.py > unknown error in phase 1 (for test)')
             checksum = 0
 
 else:
@@ -518,20 +514,20 @@ else:
 
         if checksum == 1234:
 
-            printt('phase 1 finished - master.py (for test)')
+            printt('[info] master.py > phase 1 finished (for test)')
             checksum = 1
 
         elif checksum == 9876:
 
-            printt('retry phase 1 - master.py (for test)')
+            printt('[error] master.py > retry phase 1 (for test)')
             checksum = 0
 
         else:
 
-            printt('unknown error in phase 1 - master.py (for test)')
+            printt('[error] master.py > unknown error in phase 1 (for test)')
             checksum = 0
 
-printt('chunk or relation sent to DataModel - master.py (for test)')
+printt('[info] master.py > chunk or relation sent to DataModel (for test)')
 
 checksum = 0
 
@@ -554,20 +550,20 @@ while checksum != 1:
 
     if checksum == 1234:
 
-        printt('phase 2 (entity) finished - master.py (for test)')
+        printt('[info] master.py > phase 2 (entity) finished (for test)')
         checksum = 1
 
     elif checksum == 9876:
 
-        printt('retry phase 2 (entity) - master.py (for test)')
+        printt('[error] master.py > retry phase 2 (entity) (for test)')
         checksum = 0
 
     else:
 
-        printt('unknown error in phase 2 (entity) - master.py (for test)')
+        printt('[error] master.py > unknown error in phase 2 (entity) (for test)')
         checksum = 0
 
-printt('entity_vector sent to GeometricModel load function - master.py (for test)')
+printt('[info] master.py > entity_vector sent to GeometricModel load function (for test)')
 
 checksum = 0
 
@@ -590,23 +586,23 @@ while checksum != 1:
 
     if checksum == 1234:
 
-        printt('phase 2 (relation) finished - master.py (for test)')
+        printt('[info] master.py > phase 2 (relation) finished (for test)')
         checksum = 1
 
     elif checksum == 9876:
 
-        printt('retry phase 2 (relation) - master.py (for test)')
+        printt('[error] master.py > retry phase 2 (relation) (for test)')
         checksum = 0
 
     else:
 
-        printt('unknown error in phase 2 (relation) - master.py (for test)')
+        printt('[error] master.py > unknown error in phase 2 (relation) (for test)')
         checksum = 0
 
-printt('relation_vector sent to Geome tricModel load function - master.py (for test)')
+printt('[info] master.py > relation_vector sent to Geome tricModel load function (for test)')
 
 del entities_initialized
 del relations_initialized
 
 proc.wait()
-printt('Total elapsed time: %f - master.py' % (time() - master_start))
+printt('[info] master.py > Total elapsed time : %f' % (time() - master_start))

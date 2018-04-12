@@ -482,7 +482,7 @@ public:
 						}
 					}
 
-					printf("count_entity in GeometricModel save function is %d\n", count);
+					printf("[info] GeometricModel.hpp > count_entity in save function is %d\n", count);
 					count = htonl(count);
 					send(fd, &count, sizeof(count), 0);
 
@@ -518,7 +518,7 @@ public:
 
 	                if (recv(fd, &flag, sizeof(flag), 0) < 0){
 
-	                	printf("[error] recv flag (phase 3) in GeometricModel.hpp\n");
+	                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
 	                    
 	                	// 여기서 소켓이 끊어지면 어떻게 해야하나
 	                    //close(fd);
@@ -529,22 +529,21 @@ public:
 
 	                if(flag == 1234){
 
-	                	printf("phase 3 (entity) finished in GeometricModel.hpp\n");
 	                	checksum = 1;
 	                }
 	                else if(flag == 9876){
 
-	                	printf("retry phase 3 (entity) in GeometricModel.hpp\n");
+	                	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
 	                	checksum = 0;
 	                }
 	                else{
 
-	                	printf("unknown error of phase 3 (entity) GeometricModel.hpp\n");
+	                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
 	                	checksum = 0;
 	                }
 				}
 
-				printf("entity save finish - GeometricModel.hpp\n");
+				printf("[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
 			}
 			// master_epoch이 홀수일 때 (relation embedding ㄱㄱ)
 			else{
@@ -563,7 +562,7 @@ public:
 						}
 					}
 
-					printf("count_relation in GeometricModel save function is %d\n", count);
+					printf("[info] GeometricModel.hpp > count_relation in save function is %d\n", count);
 					count = htonl(count);
 					send(fd, &count, sizeof(count), 0);
 
@@ -598,7 +597,7 @@ public:
 
 	                if (recv(fd, &flag, sizeof(flag), 0) < 0){
 
-	                	printf("[error] recv flag (phase 3) in GeometricModel.hpp\n");
+	                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
 	                    
 	                	// 여기서 소켓이 끊어지면 어떻게 해야하나
 	                    //close(fd);
@@ -609,22 +608,21 @@ public:
 
 	                if(flag == 1234){
 
-	                	printf("phase 3 (relation) finished in GeometricModel.hpp\n");
 	                	checksum = 1;
 	                }
 	                else if(flag == 9876){
 
-	                	printf("retry phase 3 (relation) in GeometricModel.hpp\n");
+	                	printf("[error] GeometricModel.hpp > retry phase 3 (relation)\n");
 	                	checksum = 0;
 	                }
 	                else{
 
-	                	printf("unknown error of phase 3 (relation) GeometricModel.hpp\n");
+	                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (relation)\n");
 	                	checksum = 0;
 	                }
 				}
 
-				printf("relation save finish - GeometricModel.hpp\n");
+				printf("[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
 			}
 		}
 	}
@@ -697,7 +695,7 @@ public:
 						// entity key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
 		                if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
 
-		                	printf("[error] recv key_length in GeometricModel.hpp\n");
+		                	printf("[error] GeometricModel.hpp > recv key_length\n");
 		                    close(fd);
 		                    break;
 		                }
@@ -706,7 +704,7 @@ public:
 
 		                if (recv(fd, &(temp_buff[0]), sizeof(char) * key_length, 0) < 0){
 
-		                	printf("[error] recv temp_buff in GeometricModel.hpp\n");
+		                	printf("[error] GeometricModel.hpp > recv temp_buff\n");
 		                    close(fd);
 		                    break;
 		                }
@@ -717,7 +715,7 @@ public:
 						if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
 						{
 
-							cout << "entity key does not exist! entity number : " << i << endl;
+							cout << "[error] GeometricModel.hpp > entity key does not exist! entity number : " << i << endl;
 							return;
 						}
 
@@ -740,7 +738,7 @@ public:
 
 			                if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
 
-			                	printf("[error] recv temp_vector for loop of dim in GeometricModel.hpp\n");
+			                	printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
 			                    close(fd);
 			                    break;
 			                }
@@ -756,7 +754,7 @@ public:
             	}
             	catch(std::exception& e){
 
-                    printf("[error] exception occured in GeometricModel.hpp\n");
+                    printf("[error] GeometricModel.hpp > exception occured\n");
                     printf("%s\n", e.what());
                     success = 0;
                     flag = 9876;
@@ -764,7 +762,7 @@ public:
                     send(fd, &flag, sizeof(flag), 0);
             	}
             }
-			printf("load entity finish - GeometricModel.hpp\n");
+			printf("[info] GeometricModel.hpp > load entity finish\n");
 
 
 			success = 0;
@@ -780,7 +778,7 @@ public:
 						// relation key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
 		                if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
 
-		                	printf("[error] recv key_length in GeometricModel.hpp\n");
+		                	printf("[error] GeometricModel.hpp > recv key_length\n");
 		                    close(fd);
 		                    break;
 		                }
@@ -789,7 +787,7 @@ public:
 
 		                if (recv(fd, &temp_buff[0], sizeof(char) * key_length, 0) < 0){
 
-		                	printf("[error] recv temp_buff in GeometricModel.hpp\n");
+		                	printf("[error] GeometricModel.hpp > recv temp_buff\n");
 		                    close(fd);
 		                    break;
 		                }
@@ -800,7 +798,7 @@ public:
 						if (data_model.relation_name_to_id.find(key) == data_model.relation_name_to_id.end())
 						{
 
-							cout << "relation key does not exist! relation number : " << i << endl;
+							cout << "[error] GeometricModel.hpp > relation key does not exist! relation number : " << i << endl;
 							return;
 						}
 
@@ -823,7 +821,7 @@ public:
 
 			                if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
 
-			                	printf("[error] recv temp_vector for loop of dim in GeometricModel.hpp\n");
+			                	printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
 			                    close(fd);
 			                    break;
 			                }
@@ -839,7 +837,7 @@ public:
 				}
 				catch(std::exception& e){
 
-                    printf("[error] exception occured in GeometricModel.hpp\n");
+                    printf("[error] GeometricModel.hpp > exception occured\n");
                     printf("%s\n", e.what());
                     success = 0;
                     flag = 9876;
@@ -847,10 +845,10 @@ public:
                     send(fd, &flag, sizeof(flag), 0);
 				}
 			}
-			printf("load relation finish - GeometricModel.hpp\n");
+			printf("[info] GeometricModel.hpp > load relation finish\n");
 		}
 
-		printf("load function finish - GeometricModel.hpp\n");
+		printf("[info] GeometricModel.hpp > load function finish\n");
 	}
 	
 	/*
