@@ -299,17 +299,19 @@ while True:
     try:
         maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         break
-    except (TimeoutError, ConnectionRefusedError):
-        printt('[error] master.py > exception occured in master <-> maxmin')
+    except Exception as e:
         tt.sleep(1)
+        printt('[error] master.py > exception occured in master <-> maxmin')
+        printt('[error] master.py > ' + str(e))
 
 while True:
     try:
         maxmin_sock.connect((maxmin_addr, maxmin_port))
         break
-    except (TimeoutError, ConnectionRefusedError):
-        printt('[error] master.py > exception occured in master <-> maxmin')
+    except Exception as e:
         tt.sleep(1)
+        printt('[error] master.py > exception occured in master <-> maxmin')
+        printt('[error] master.py > ' + str(e))
 
 printt('[info] master.py > socket connected (master <-> maxmin)')
 
@@ -435,23 +437,23 @@ proc = Popen([
     cwd=preprocess_folder_dir)
 tt.sleep(2)
 
-
-
 while True:
     try:
         test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         break
-    except (TimeoutError, ConnectionRefusedError):
-        printt('[error] master.py > exception occured in master <-> test')
+    except Exception as e:
         tt.sleep(1)
+        printt('[error] master.py > exception occured in master <-> test')
+        printt('[error] master.py > ' + str(e))
 
 while True:
     try:
         test_sock.connect((test_addr, test_port))
         break
-    except (TimeoutError, ConnectionRefusedError):
-        printt('[error] master.py > exception occured in master <-> test')
+    except Exception as e:
         tt.sleep(1)
+        printt('[error] master.py > exception occured in master <-> test')
+        printt('[error] master.py > ' + str(e))
 
 test_sock.send(struct.pack('!i', 0))                        # 연산 요청 메시지
 # int 임시 땜빵, 매우 큰 문제

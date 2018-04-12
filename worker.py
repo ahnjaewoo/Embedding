@@ -104,7 +104,7 @@ while True:
     except Exception as e:
         tt.sleep(1)
         printt('[error] worker.py > exception occured in worker <-> embedding')
-        printt('[error] worker.py > 2222' + str(e))
+        printt('[error] worker.py > ' + str(e))
         ci = ci + 1
         embedding_port = 49900 + 5 * int(worker_id.split('_')[1]) + ci % 5
 
@@ -331,7 +331,7 @@ if int(cur_iter) % 2 == 0:
             if tempcount < 3:
 
                 printt('[error] worker.py > retry phase 3 (entity) - ' + worker_id)
-                printt('[error] worker.py > 3333' + str(e))
+                printt('[error] worker.py > ' + str(e))
 
             tempcount = tempcount + 1
             flag = 9876
