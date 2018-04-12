@@ -78,7 +78,7 @@ t_ = time()
 
 # worker_id 를 기반으로 포트를 생성
 embedding_addr = '0.0.0.0'
-embedding_port = 49900 + 5 * int(worker_id.split('_')[1]) + int(cur_iter) % 5
+embedding_port = 49000 + 5 * int(worker_id.split('_')[1]) + int(cur_iter) % 5
 
 while True:
     try:
