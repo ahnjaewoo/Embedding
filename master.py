@@ -422,17 +422,17 @@ relation_id = {relation: int(relation_id[i])
 entities_initialized = [pickle.loads(v) for v in entities_initialized]
 relations_initialized = [pickle.loads(v) for v in relations_initialized]
 
-worker_id = 'worker_0'
-proc = Popen([
-    test_code_dir,
-    worker_id, str(cur_iter), str(n_dim), str(lr), str(margin), str(data_root_id)],
-    cwd=preprocess_folder_dir)
-
 maxmin_sock.send(struct.pack('!i', 1))
 maxmin_sock.close()
 
 test_addr = '0.0.0.0'
 test_port = 7874  # 임의로 7874 로 포트를 정함
+
+worker_id = 'worker_0'
+proc = Popen([
+    test_code_dir,
+    worker_id, str(cur_iter), str(n_dim), str(lr), str(margin), str(data_root_id)],
+    cwd=preprocess_folder_dir)
 tt.sleep(2)
 
 while True:
@@ -442,12 +442,16 @@ while True:
     except (TimeoutError, ConnectionRefusedError):
         tt.sleep(1)
 
+"""
 while True:
     try:
         test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         break
     except (TimeoutError, ConnectionRefusedError):
         tt.sleep(1)
+"""
+
+test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 test_sock.send(struct.pack('!i', 0))                        # 연산 요청 메시지
 # int 임시 땜빵, 매우 큰 문제
