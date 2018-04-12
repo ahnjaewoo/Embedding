@@ -86,6 +86,7 @@ while True:
         break
     except (TimeoutError, ConnectionRefusedError):
         tt.sleep(1)
+        printt('exception occured in worker and embedding connection - worker.py')
 
 ci = int(cur_iter)
 
@@ -95,6 +96,7 @@ while True:
         break
     except (TimeoutError, ConnectionRefusedError):
         tt.sleep(1)
+        printt('exception occured in worker and embedding connection - worker.py')
     except Exception as e:
         ci = ci + 1
         embedding_port = 49900 + 5 * int(worker_id.split('_')[1]) + ci % 5
@@ -282,7 +284,6 @@ if int(cur_iter) % 2 == 0:
             count_entity_data = embedding_sock.recv(4)
             if len(count_entity_data) is not 4:
                 printt('length of count_entity_data is ' + str(len(count_entity_data)) + ' - worker.py')
-                printt(str(embedding_port) + ' - worker.py')
             count_entity = struct.unpack('!i', count_entity_data)[0]
             printt('count_entity is ' + str(count_entity) + ' - worker.py')
 
