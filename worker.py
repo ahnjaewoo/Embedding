@@ -295,6 +295,7 @@ if int(cur_iter) % 2 == 0:
             if len(count_entity_data) != 4:
                 
                 printt('[info] worker.py > length of count_entity_data = ' + str(len(count_entity_data)))
+                printt('[info] worker.py > embedding_port = ' + str(embedding_port))
             
             count_entity = struct.unpack('!i', count_entity_data)[0]
             printt('[info] worker.py > count_entity = ' + str(count_entity))
