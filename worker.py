@@ -278,6 +278,7 @@ if int(cur_iter) % 2 == 0:
             count_entity_data = embedding_sock.recv(4)
             if len(count_entity_data) is not 4:
                 printt('length of count_entity_data is ' + str(len(count_entity_data)) + ' - worker.py')
+                printt(str(embedding_port) + ' - worker.py')
             count_entity = struct.unpack('!i', count_entity_data)[0]
             printt('count_entity is ' + str(count_entity) + ' - worker.py')
 
@@ -381,4 +382,6 @@ else:
 printt('recieved result from GeometricModel save function - worker.py')
 
 printt('redis server connection time : %f - worker.py' % (time() - t_))
-printt('{}: {} iteration finished! - worker.py'.format(worker_id, cur_iter))
+printt('{}: {} iteration finished! - worker.py'.format(worker_id, cur_iter))\
+
+sys.exit(0)
