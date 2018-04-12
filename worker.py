@@ -328,7 +328,7 @@ if int(cur_iter) % 2 == 0:
             if tempcount > 5:
 
                 printt('[error] worker.py > retry phase 3 (entity) - ' + worker_id)
-                printt(e.message)
+                printt('[error] worker.py > 3333' + e.message)
 
             tempcount = tempcount + 1
             flag = 9876
