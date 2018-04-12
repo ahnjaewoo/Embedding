@@ -400,14 +400,14 @@ else:
             tempcount = tempcount + 1
             flag = 9876
             embedding_sock.send(struct.pack('!i', flag))
-            sucess = 0
+            success = 0
 
         else:
 
             printt('[info] worker.py > phase 3 (relation) finished - ' + worker_id)
             flag = 1234
             embedding_sock.send(struct.pack('!i', flag))
-            sucess = 1
+            success = 1
 
     r.mset(relation_vectors)
 
