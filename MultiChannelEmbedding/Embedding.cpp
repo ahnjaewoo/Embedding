@@ -93,6 +93,7 @@ int main(int argc, char* argv[])
 		while (1){
 
 			printf("master_epoch : %d in embedding.cpp\n", epoch);
+			printf("port number : %d in embedding.cpp\n", 49000 + worker_num * 5 + epoch % 5);
 
 			len = sizeof(worker_addr);
 
