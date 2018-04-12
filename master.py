@@ -64,7 +64,7 @@ logger = logging.getLogger()
 handler = logging.StreamHandler(stream=sys.stdout)
 logger.addHandler(handler)
 
-loggerOn = True
+loggerOn = False
 
 def printt(str):
 

@@ -25,7 +25,7 @@ logger = logging.getLogger()
 handler = logging.StreamHandler(stream=sys.stdout)
 logger.addHandler(handler)
 
-loggerOn = True
+loggerOn = False
 
 def printt(str):
 
@@ -66,7 +66,7 @@ relation_id = {relation: int(relation_id[i])
 entities_initialized = [pickle.loads(v) for v in entities_initialized]
 relations_initialized = [pickle.loads(v) for v in relations_initialized]
 
-printt('tredis server connection time: %f' % (time() - t_))
+printt('redis server connection time: %f' % (time() - t_))
 
 t_ = time()
 
