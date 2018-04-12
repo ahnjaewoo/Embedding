@@ -400,7 +400,7 @@ for cur_iter in range(niter):
     print('\n')
 
     for worker in workers:
-        printt(worker.result() + ' - master.py')
+        printt(worker.result())
 
     printt('[info] master.py > iteration time : %f' % (time() - t_))
 

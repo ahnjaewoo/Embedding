@@ -80,6 +80,8 @@ t_ = time()
 embedding_addr = '0.0.0.0'
 embedding_port = 49900 + 5 * int(worker_id.split('_')[1]) + int(cur_iter) % 5
 
+printt('[info] worker.py > cur_iter = ' + str(cur_iter))
+
 while True:
     try:
         embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
