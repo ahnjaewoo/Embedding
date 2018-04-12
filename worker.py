@@ -262,6 +262,8 @@ del relations_initialized
 w_id = worker_id.split('_')[1]
 t_ = time()
 
+tempcount = 0
+
 if int(cur_iter) % 2 == 0:
 
     success = 0
@@ -302,6 +304,7 @@ if int(cur_iter) % 2 == 0:
 
             printt('retry phase 3 (entity) - worker.py, ' + worker_id)
             printt(e.message)
+            tempcount = tempcount + 1
             flag = 9876
             embedding_sock.send(struct.pack('!i', flag))
             sucess = 0
