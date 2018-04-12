@@ -346,7 +346,7 @@ for cur_iter in range(niter):
     if cur_iter > 0:
         avg_idle_t = 0
         for worker in workers:
-            idle_t = t_ - float(worker.result().split('=')[-1])
+            idle_t = t_ - float(worker.result().split(':')[-1])
             avg_idle_t += idle_t
             printt('[info] master.py > %s idle time : %f' % (':'.join(worker.result().split(':')[:2]), idle_t))
         printt('[info] master.py > average idle time : %f' % (avg_idle_t / len(workers)))
