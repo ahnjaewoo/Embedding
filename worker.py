@@ -97,7 +97,7 @@ while True:
         break
     except (TimeoutError, ConnectionRefusedError):
         tt.sleep(1)
-    except Exception e:
+    except Exception as e:
         ci = ci + 1
         embedding_port = 49900 + 5 * int(worker_id.split('_')[1]) + ci % 5
 
