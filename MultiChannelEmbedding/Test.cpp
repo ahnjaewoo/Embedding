@@ -87,6 +87,10 @@ int main(int argc, char* argv[])
 		printf("[error] test.cpp > accept socket\n");
 		return -1;
 	}
+	else{
+
+		printf("[info] test.cpp > accept socket successfully\n");
+	}
 
 	if (recv(worker_sock, &flag_iter, sizeof(flag_iter), 0) < 0){
 
