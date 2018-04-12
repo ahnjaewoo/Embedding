@@ -340,6 +340,8 @@ printt('[info] master.py > maxmin finished')
 printt('[info] master.py > worker training iteration epoch : {}'.format(train_iter))
 
 for cur_iter in range(niter):
+    printt('====================================================')
+    printt('====================================================')
     printt('[info] master.py > iteration %d' % cur_iter)
 
     t_ = time()
