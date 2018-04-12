@@ -325,7 +325,7 @@ if int(cur_iter) % 2 == 0:
 
         except Exception as e:
 
-            if tempcount > 5:
+            if tempcount < 3:
 
                 printt('[error] worker.py > retry phase 3 (entity) - ' + worker_id)
                 printt('[error] worker.py > 3333' + e.message)
@@ -389,7 +389,7 @@ else:
     
         except Exception as e:
 
-            if tempcount > 5:
+            if tempcount < 3:
 
                 printt('[error] worker.py > retry phase 3 (relation) - ' + worker_id)
                 printt(e.message)
