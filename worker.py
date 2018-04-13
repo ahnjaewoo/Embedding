@@ -97,10 +97,14 @@ while True:
     try:
         embedding_sock.connect((embedding_addr, embedding_port))
         break
-    except (TimeoutError, ConnectionRefusedError):
+    except ConnectionRefusedError:
         tt.sleep(1)
         printt('[error] worker.py > exception occured in worker <-> embedding')
-        printt('[error] worker.py > TimeoutError or ConnectionRefusedError')
+        printt('[error] worker.py > ConnectionRefusedError')
+    except TimeoutError:
+        tt.sleep(1)
+        printt('[error] worker.py > exception occured in worker <-> embedding')
+        printt('[error] worker.py > TimeoutError')
     except Exception as e:
         tt.sleep(1)
         printt('[error] worker.py > exception occured in worker <-> embedding')
