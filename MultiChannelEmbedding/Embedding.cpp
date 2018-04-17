@@ -206,6 +206,7 @@ int main(int argc, char* argv[])
 		close(worker_sock);
 
 		epoch = epoch + 1;
+		cout << "[info] embedding.cpp > remove model, close socket, iteration end" << endl;
 	}
 	
 
