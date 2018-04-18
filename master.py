@@ -369,6 +369,7 @@ printt('[info] master.py > maxmin finished')
 printt('[info] master.py > worker training iteration epoch : {}'.format(train_iter))
 
 cur_iter = 0
+success = False
 
 while True:
 
@@ -380,27 +381,20 @@ while True:
     printt('=====================================================================')
     printt('[info] master.py > iteration %d' % cur_iter)
 
-
-
-
-
-    # 이 부분 그냥 돌리면 에러남
     t_ = time()
-    if cur_iter > 0:
-        avg_idle_t = 0
-        for worker in workers:
-            idle_t = t_ - float(worker.result().split(':')[-1])
-            avg_idle_t += idle_t
-            printt('[info] master.py > %s idle time : %f' % (':'.join(worker.result().split(':')[:2]), idle_t))
-        printt('[info] master.py > average idle time : %f' % (avg_idle_t / len(workers)))
+    
+    if cur_iter > 0 and success == True:
+        
+        idle_times = [t_ - float(e[2].split(':')[-1]) for e in result]
+        avg_idle_time = sum(idle_times) / len(idle_times)
+            
+        for idx in range(len(result)):
 
-
-
-
-
-
-
-
+            printt('[info] master.py > %s' % result[idx][2])
+            printt('[info] master.py > idle time : %f' % idle_times[idx])
+        
+        success = False
+        printt('[info] master.py > average idle time : %f' % avg_idle_time)
 
     # 작업 배정
     workers = [client.submit(work,
@@ -427,15 +421,20 @@ while True:
         logger.warning(str(anchor_len)+'\n')
 
         for anchor_idx in range(anchor_len):
-            anchors += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
+            
+            anchors += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + ' '
+        
         anchors = anchors[:-1]
 
         for part_idx in range(num_worker):
-            chunk = ""
+
+            chunk = ''
             chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 
             for nas_idx in range(chunk_len):
-                chunk += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
+            
+                chunk += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + ' '
+            
             chunk = chunk[:-1]
             chunks.append(chunk)
 
@@ -464,6 +463,7 @@ while True:
 
         printt('[info] master.py > iteration %d finished' % cur_iter)
         printt('[info] master.py > iteration time : %f' % (time() - t_))
+        success = True
         cur_iter = cur_iter + 1
 
     else:
@@ -494,11 +494,8 @@ relations_initialized = [pickle.loads(v) for v in relations_initialized]
 maxmin_sock.send(struct.pack('!i', 1))
 maxmin_sock.close()
 
-####################################################################################
-####################################################################################
-
-test_addr = '0.0.0.0'
-test_port = 7874  # 임의로 7874 로 포트를 정함
+###############################################################################
+###############################################################################
 
 worker_id = 'worker_0'
 proc = Popen([test_code_dir,
@@ -527,7 +524,7 @@ while True:
 
     try:
 
-        test_sock.connect((test_addr, test_port))
+        test_sock.connect(('0.0.0.0', 7874))
         break
 
     except Exception as e:

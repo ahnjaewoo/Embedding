@@ -18,13 +18,12 @@
 void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id);
 
 // 400s for each experiment.
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]){
+	
 	srand(time(nullptr));
 	//omp_set_num_threads(6);
 
 	Model* model = nullptr;
-
 
 	int dim = 20;
 	double alpha = 0.01;
@@ -124,37 +123,36 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id)
-{
-	if (argc == 2)
-	{
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id){
+
+	if (argc == 2){
 		// very big problem for scaling!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		string worker = argv[1];
 		worker_num = worker.back() - '0';
 	}
-	if (argc == 3)
-	{
+	if (argc == 3){
+
 		string worker = argv[1];
         worker_num = worker.back() - '0';
 		master_epoch = atoi(argv[2]);
 	}
-	if (argc == 4)
-	{
+	if (argc == 4){
+
 		string worker = argv[1];
         worker_num = worker.back() - '0';
 		master_epoch = atoi(argv[2]);
 		dim = atoi(argv[3]);
 	}
-	if (argc == 5)
-	{
+	if (argc == 5){
+
 		string worker = argv[1];
         worker_num = worker.back() - '0';
 		master_epoch = atoi(argv[2]);
 		dim = atoi(argv[3]);
 		alpha = atof(argv[4]);
 	}
-	if (argc == 6)
-	{
+	if (argc == 6){
+
 		string worker = argv[1];
         worker_num = worker.back() - '0';
 		master_epoch = atoi(argv[2]);
@@ -162,8 +160,8 @@ void getParams(int argc, char* argv[], int& dim, double& alpha, double& training
 		alpha = atof(argv[4]);
 		training_threshold = atof(argv[5]);
 	}
-	if (argc == 7)
-	{
+	if (argc == 7){
+
 		string worker = argv[1];
 		worker_num = worker.back() - '0';
 		master_epoch = atoi(argv[2]);
@@ -172,8 +170,8 @@ void getParams(int argc, char* argv[], int& dim, double& alpha, double& training
 		training_threshold = atof(argv[5]);
 		train_iter = atoi(argv[6]);
 	}
-	if (argc == 8)
-    {
+	if (argc == 8){
+
         string worker = argv[1];
         worker_num = worker.back() - '0';
         master_epoch = atoi(argv[2]);
@@ -183,8 +181,8 @@ void getParams(int argc, char* argv[], int& dim, double& alpha, double& training
         train_iter = atoi(argv[6]);
 		data_root_id = atoi(argv[7]);
     }
-	if (argc == 9)
-    {
+	if (argc == 9){
+
         string worker = argv[1];
         worker_num = worker.back() - '0';
         master_epoch = atoi(argv[2]);
@@ -195,4 +193,4 @@ void getParams(int argc, char* argv[], int& dim, double& alpha, double& training
 		data_root_id = atoi(argv[7]);
 		socket_port = atoi(argv[8]);
     }	
-} 
+}

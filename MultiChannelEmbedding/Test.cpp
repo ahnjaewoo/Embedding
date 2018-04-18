@@ -20,8 +20,8 @@
 void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& data_root_id);
 
 // 400s for each experiment.
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]){
+	
 	srand(time(nullptr));
 	//omp_set_num_threads(6);
 
@@ -39,12 +39,10 @@ int main(int argc, char* argv[])
 	// test.cpp is server
 	// worker.py is client
 	// IP addr / port are from master.py
-	int flag_iter;
-	int end_iter;
 	unsigned int len;
-	int test_sock, worker_sock;
+	int test_sock, master_sock;
 	struct sockaddr_in test_addr;
-	struct sockaddr_in worker_addr;
+	struct sockaddr_in master_addr;
 
 	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, data_root_id);
 
@@ -80,9 +78,9 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	len = sizeof(worker_addr);
+	len = sizeof(master_addr);
 
-	if ((worker_sock = accept(test_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
+	if ((master_sock = accept(test_sock, (struct sockaddr *)&master_addr, &len)) < 0){
 
 		printf("[error] test.cpp > accept socket\n");
 		return -1;
@@ -95,15 +93,15 @@ int main(int argc, char* argv[])
 	// choosing data root by data root id
 	if (data_root_id == 0){
 
-		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
+		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock);
 	}
 	else if (data_root_id == 1){
 
-		model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
+		model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock);
 	}
 	//else if (data_root_id == 2){
 	//
-	//	model = new TransE(Dbpedia, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
+	//	model = new TransE(Dbpedia, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock);
 	//}
 	else{
 
@@ -121,58 +119,56 @@ int main(int argc, char* argv[])
 	gettimeofday(&after, NULL);
 	cout << "[info] test.cpp > testing time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
 	delete model;
-	close(worker_sock);	
-
+	close(master_sock);	
 
 	return 0;
 }
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& data_root_id)
-{
-	if (argc == 2)
-	{
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& data_root_id){
+
+	if (argc == 2){
 		// very big problem for scaling!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		string worker = argv[1];
 		worker_num = worker.back() - '0';
 	}
-	if (argc == 3)
-	{
+	if (argc == 3){
+
 		string worker = argv[1];
-                worker_num = worker.back() - '0';
+        worker_num = worker.back() - '0';
 		master_epoch = atoi(argv[2]);
 	}
-	if (argc == 4)
-	{
+	if (argc == 4){
+
 		string worker = argv[1];
-                worker_num = worker.back() - '0';
+        worker_num = worker.back() - '0';
 		master_epoch = atoi(argv[2]);
 		dim = atoi(argv[3]);
 	}
-	if (argc == 5)
-	{
+	if (argc == 5){
+
 		string worker = argv[1];
-                worker_num = worker.back() - '0';
+        worker_num = worker.back() - '0';
 		master_epoch = atoi(argv[2]);
 		dim = atoi(argv[3]);
 		alpha = atof(argv[4]);
 	}
-	if (argc == 6)
-	{
+	if (argc == 6){
+
 		string worker = argv[1];
-                worker_num = worker.back() - '0';
+        worker_num = worker.back() - '0';
 		master_epoch = atoi(argv[2]);
 		dim = atoi(argv[3]);
 		alpha = atof(argv[4]);
 		training_threshold = atof(argv[5]);
 	}
-	if (argc == 7)
-        {
-                string worker = argv[1];
-                worker_num = worker.back() - '0';
-                master_epoch = atoi(argv[2]);
-                dim = atoi(argv[3]);
-                alpha = atof(argv[4]);
-                training_threshold = atof(argv[5]);
+	if (argc == 7){
+
+        string worker = argv[1];
+        worker_num = worker.back() - '0';
+        master_epoch = atoi(argv[2]);
+        dim = atoi(argv[3]);
+        alpha = atof(argv[4]);
+        training_threshold = atof(argv[5]);
 		data_root_id = atoi(argv[6]);
-        }
-}  
+    }
+} 
