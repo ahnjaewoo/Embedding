@@ -19,7 +19,8 @@ margin = sys.argv[6]
 train_iter = sys.argv[7]
 redis_ip_address = sys.argv[8]
 root_dir = sys.argv[9]
-data_root_id = sys.argv[10] 
+data_root_id = sys.argv[10]
+socket_port = sys.argv[11]
 logging.basicConfig(filename='%s/worker_%s.log' % (root_dir, worker_id), filemode='w', level=logging.DEBUG)
 logger = logging.getLogger()
 handler = logging.StreamHandler(stream=sys.stdout)
@@ -76,60 +77,64 @@ t_ = time()
 # worker.py 가 client
 # 첫 iteration 에서눈 Embedding.cpp 의 실행, 소켓 생성을 기다림
 
-# worker_id 를 기반으로 포트를 생성
-embedding_addr = '0.0.0.0'
-embedding_port = 49900 + 5 * int(worker_id.split('_')[1]) + int(cur_iter) % 5
-
-printt('[info] worker.py > cur_iter = ' + str(cur_iter))
-
+trial = 0
 while True:
+    
     try:
+
         embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         break
+
     except Exception as e:
+        
         tt.sleep(1)
+        trial = trial + 1
         printt('[error] worker.py > exception occured in worker <-> embedding')
         printt('[error] worker.py > ' + str(e))
 
-ci = int(cur_iter)
+    if trial == 5:
 
+        printt('[error] worker.py > iteration ' + str(cur_iter) + ' failed - ' + worker_id)
+        return -1
+
+trial = 0
 while True:
+    
     try:
-        embedding_sock.connect((embedding_addr, embedding_port))
+        
+        embedding_sock.connect(('0.0.0.0', socket_port))
         break
+
     except ConnectionRefusedError:
+        
         tt.sleep(1)
+        trial = trial + 1
         printt('[error] worker.py > exception occured in worker <-> embedding')
         printt('[error] worker.py > ConnectionRefusedError')
+
     except TimeoutError:
+        
         tt.sleep(1)
+        trial = trial + 1
         printt('[error] worker.py > exception occured in worker <-> embedding')
         printt('[error] worker.py > TimeoutError')
+
     except Exception as e:
+        
         tt.sleep(1)
+        trial = trial + 1
         printt('[error] worker.py > exception occured in worker <-> embedding')
         printt('[error] worker.py > ' + str(e))
-        ci = ci + 1
-        embedding_port = 49900 + 5 * int(worker_id.split('_')[1]) + ci % 5
+
+    if trial == 5:
+
+        printt('[error] worker.py > iteration ' + str(cur_iter) + ' failed - ' + worker_id)
+        return -1
 
 printt('[info] worker.py > port number of ' + worker_id + ' = ' + str(embedding_port))
 printt('[info] worker.py > socket connected (worker <-> embedding)')
 
-# 연산 요청 메시지
-
-embedding_sock.send(struct.pack('!i', 0))
-# int 임시 땜빵, 매우 큰 문제
-embedding_sock.send(struct.pack('!i', int(worker_id.split('_')[1])))
-embedding_sock.send(struct.pack('!i', int(cur_iter)))            # int
-embedding_sock.send(struct.pack('!i', int(embedding_dim)))       # int
-embedding_sock.send(struct.pack('d', float(learning_rate)))      # double
-embedding_sock.send(struct.pack('d', float(margin)))             # double
-embedding_sock.send(struct.pack('!i', int(data_root_id)))        # int
-
-printt('[info] worker.py > sent params to embedding - ' + worker_id)
-
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
-
 try:
 
     checksum = 0
@@ -282,9 +287,6 @@ try:
     del entities_initialized
     del relations_initialized
 
-    w_id = worker_id.split('_')[1]
-    t_ = time()
-
     tempcount = 0
 
     if int(cur_iter) % 2 == 0:
@@ -351,7 +353,10 @@ try:
                 embedding_sock.send(struct.pack('!i', flag))
                 success = 1
         
-        r.mset(entity_vectors)
+        # 여기서 커밋하지 않고 entity_vectors 를 work 함수에 리턴하고 master 에서 커밋
+        #r.mset(entity_vectors)
+
+        return entity_vectors
 
     else:
 
@@ -415,14 +420,15 @@ try:
                 embedding_sock.send(struct.pack('!i', flag))
                 success = 1
 
-        r.mset(relation_vectors)
+        # 여기서 커밋하지 않고 relation_vectors 를 work 함수에 리턴하고 master 에서 커밋
+        #r.mset(relation_vectors)
+        return relation_vectors
 
-    printt('[info] worker.py > recieved result from GeometricModel save function')
+    #printt('[info] worker.py > recieved result from GeometricModel save function')
+    #printt('[info] worker.py > {}: {} iteration finished!'.format(worker_id, cur_iter))
 
-    printt('[info] worker.py > redis server connection time : %f' % (time() - t_))
-    printt('[info] worker.py > {}: {} iteration finished!'.format(worker_id, cur_iter))
+except Exception as e:
 
-except:
-
-    popen 의 return 값으로 여기서 exception 이 발생했는 지르 ㄹ체크함
-    실패하면 이 이터레이션을 재실행
+    printt('[error] worker.py > exception occured in iteration - ' + str(worker_id))
+    printt('[error] worker.py > ' + str(e))
+    return -1

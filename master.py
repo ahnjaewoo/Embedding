@@ -3,6 +3,7 @@ from distributed import Client
 from distributed.diagnostics import progress
 from sklearn.preprocessing import normalize
 from subprocess import Popen
+from subprocess import check_output
 from argparse import ArgumentParser
 from collections import defaultdict
 import logging
@@ -219,27 +220,53 @@ def install_libs():
     os.system("pip install hiredis")
 
 def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id):
-    # 첫 iter 에서 embedding.cpp 를 실행해놓음
-    
+
     # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
-    #printt('work function called - master.py')
     print('[info] master.py > work function called, cur_iter = ' + str(cur_iter))
+    socket_port = 50000 + 5 * int(worker_id.split('_')[1]) + (cur_iter % 5)
 
-    if cur_iter == 0:
-        proc = Popen([train_code_dir, worker_id,
-                      str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter), str(data_root_id)], cwd=preprocess_folder_dir)
-        
-        # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
-        #printt('in first iteration, create embedding.cpp process - master.py')
-        print('[info] master.py > first iteration, create embedding process')
-    
-    proc = Popen([
-        "python", worker_code_dir, chunk_data,
-        str(worker_id), str(cur_iter), str(n_dim), str(lr), str(margin), str(train_iter), redis_ip_address, root_dir, str(data_root_id)])
-    proc.wait()
+    embedding_return = check_output([train_code_dir, 
+                                    worker_id,
+                                    str(cur_iter),
+                                    str(n_dim),
+                                    str(lr),
+                                    str(margin),
+                                    str(train_iter),
+                                    str(data_root_id),
+                                    str(socket_port)],
+                                    cwd=preprocess_folder_dir)
 
-    return "[info] master.py > %s: iteration %d finished, time: %f" % (worker_id, cur_iter, time())
+    worker_return = check_output(["python",
+                                worker_code_dir,
+                                chunk_data,
+                                str(worker_id),
+                                str(cur_iter),
+                                str(n_dim),
+                                str(lr),
+                                str(margin),
+                                str(train_iter),
+                                redis_ip_address,
+                                root_dir,
+                                str(data_root_id),
+                                str(socket_port)])
 
+    if embedding_return in [-1, '-1']:
+
+        # embedding.cpp 가 비정상 종료
+        # 이번 이터레이션을 한 번 더 수행
+        return (False, None, None)
+
+    elif worker_return in [-1, '-1']:
+
+        # worker.py 가 비정상 종료
+        # 이번 이터레이션을 한 번 더 수행
+        return (False, None, None)
+
+    else:
+
+        # 모두 성공적으로 수행
+        # worker_return 은 string 형태? byte 형태? 의 pickle 을 가지고 있음
+        return (True, worker_return, '[info] master.py > %s: iteration %d finished, time: %f' % (worker_id, cur_iter, time()))
 
 # def savePreprocessedData(data, worker_id):
 #     from threading import Thread
@@ -268,16 +295,7 @@ proc.wait()
 # with open("%s/data_model.bin" % temp_folder_dir, 'rb') as f:
 #     data = f.read()
 
-printt('[info] master.py > Preprocessing time : %f' % (time() - t_))
-
-# workers = list()
-
-# for i in range(num_worker):
-#     worker_id = 'worker_%d' % i
-#     workers.append(client.submit(savePreprocessedData, data, worker_id))
-
-# for worker in as_completed(workers):
-#     print(worker.result())
+printt('[info] master.py > preprocessing time : %f' % (time() - t_))
 
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
@@ -285,30 +303,39 @@ printt('[info] master.py > Preprocessing time : %f' % (time() - t_))
 anchors = ""
 chunks = list()
 
-proc = Popen([pypy_dir, 'maxmin.py', str(num_worker),
-              '0', str(anchor_num), str(anchor_interval), root_dir, data_root])
+proc = Popen([pypy_dir,
+            'maxmin.py',
+            str(num_worker),
+            '0',
+            str(anchor_num),
+            str(anchor_interval),
+            root_dir,
+            data_root])
+
 printt('[info] master.py > popen maxmin.py complete')
 
-maxmin_addr = '127.0.0.1'
-maxmin_port = 7847
-tt.sleep(2)
-
-printt('[info] master.py > try to connect socket (master <-> maxmin)')
-
 while True:
+
     try:
+
         maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         break
+    
     except Exception as e:
+    
         tt.sleep(1)
-        printt('[error] master.py > exception occured in master <-> maxmin')
+        printt('[error] master.py > exception occured in master <-> maxmin (%s)' % worker_num)
         printt('[error] master.py > ' + str(e))
 
 while True:
+    
     try:
-        maxmin_sock.connect((maxmin_addr, maxmin_port))
+    
+        maxmin_sock.connect(('127.0.0.1', 7847))
         break
+    
     except Exception as e:
+    
         tt.sleep(1)
         printt('[error] master.py > exception occured in master <-> maxmin')
         printt('[error] master.py > ' + str(e))
@@ -341,11 +368,23 @@ for part_idx in range(num_worker):
 printt('[info] master.py > maxmin finished')
 printt('[info] master.py > worker training iteration epoch : {}'.format(train_iter))
 
-for cur_iter in range(niter):
-    printt('====================================================')
-    printt('====================================================')
+cur_iter = 0
+
+while True:
+
+    if cur_iter == niter:
+
+        break
+
+    printt('=====================================================================')
+    printt('=====================================================================')
     printt('[info] master.py > iteration %d' % cur_iter)
 
+
+
+
+
+    # 이 부분 그냥 돌리면 에러남
     t_ = time()
     if cur_iter > 0:
         avg_idle_t = 0
@@ -355,8 +394,15 @@ for cur_iter in range(niter):
             printt('[info] master.py > %s idle time : %f' % (':'.join(worker.result().split(':')[:2]), idle_t))
         printt('[info] master.py > average idle time : %f' % (avg_idle_t / len(workers)))
 
+
+
+
+
+
+
+
+
     # 작업 배정
-    # chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id
     workers = [client.submit(work,
                              "{}\n{}".format(anchors, chunks[i]),
                              'worker_%d' % i,
@@ -372,7 +418,6 @@ for cur_iter in range(niter):
         # try 가 들어가야 함
         maxmin_sock.send(struct.pack('!i', 0))
         maxmin_sock.send(struct.pack('!i', num_worker))
-        # 이 부분은 첫 send 에서는 "0" 으로 교체
         maxmin_sock.send(struct.pack('!i', cur_iter))
         maxmin_sock.send(struct.pack('!i', anchor_num))
         maxmin_sock.send(struct.pack('!i', anchor_interval))
@@ -399,12 +444,34 @@ for cur_iter in range(niter):
         chunk_data = ''
 
     progress(workers)
-    print('\n')
+    result_iter = worker.result()
 
-    for worker in workers:
-        printt(worker.result())
+    if all([e[0] for e in result_iter]) == True:
 
-    printt('[info] master.py > iteration time : %f' % (time() - t_))
+        # 이터레이션 성공
+        # redis 에 값을 모두 업데이트
+        t_ = time()
+
+        for vector in [e[1] for e in result_iter]:
+
+            r.mset(vector)
+
+        printt('[info] master.py > redis server connection time : %f' % (time() - t_))
+
+        for log in [e[2] for e in result_iter]:
+
+            printt(log)
+
+        printt('[info] master.py > iteration %d finished' % cur_iter)
+        printt('[info] master.py > iteration time : %f' % (time() - t_))
+        cur_iter = cur_iter + 1
+
+    else:
+
+        # 이터레이션 실패
+        # 결과 값은 모두 무시
+        printt('[error] master.py > iteration %d is failed' % cur_iter)
+        printt('[Info] master.py > retry iteration %d' % cur_iter)
 
 # test part
 printt('[info] master.py > test start')
@@ -427,42 +494,47 @@ relations_initialized = [pickle.loads(v) for v in relations_initialized]
 maxmin_sock.send(struct.pack('!i', 1))
 maxmin_sock.close()
 
+####################################################################################
+####################################################################################
+
 test_addr = '0.0.0.0'
 test_port = 7874  # 임의로 7874 로 포트를 정함
 
 worker_id = 'worker_0'
-proc = Popen([
-    test_code_dir,
-    worker_id, str(cur_iter), str(n_dim), str(lr), str(margin), str(data_root_id)],
-    cwd=preprocess_folder_dir)
-tt.sleep(2)
+proc = Popen([test_code_dir,
+            worker_id,
+            str(cur_iter),
+            str(n_dim),
+            str(lr),
+            str(margin),
+            str(data_root_id)],
+            cwd=preprocess_folder_dir)
 
 while True:
+
     try:
+
         test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         break
+
     except Exception as e:
+
         tt.sleep(1)
         printt('[error] master.py > exception occured in master <-> test')
         printt('[error] master.py > ' + str(e))
 
 while True:
+
     try:
+
         test_sock.connect((test_addr, test_port))
         break
+
     except Exception as e:
+
         tt.sleep(1)
         printt('[error] master.py > exception occured in master <-> test')
         printt('[error] master.py > ' + str(e))
-
-test_sock.send(struct.pack('!i', 0))                        # 연산 요청 메시지
-# int 임시 땜빵, 매우 큰 문제
-test_sock.send(struct.pack('!i', int(worker_id.split('_')[1])))
-test_sock.send(struct.pack('!i', int(cur_iter)))            # int
-test_sock.send(struct.pack('!i', int(n_dim)))       # int
-test_sock.send(struct.pack('d', float(lr)))      # double
-test_sock.send(struct.pack('d', float(margin)))             # double
-test_sock.send(struct.pack('!i', int(data_root_id)))    # int
 
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 

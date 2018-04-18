@@ -92,86 +92,22 @@ int main(int argc, char* argv[])
 		printf("[info] test.cpp > accept socket successfully\n");
 	}
 
-	if (recv(worker_sock, &flag_iter, sizeof(flag_iter), 0) < 0){
-
-		printf("[error] test.cpp > recv flag_iter\n");
-		close(worker_sock);
-		return -1;
-	}
-
-	if (ntohl(flag_iter) == 1){
-
-		printf("[error] test.cpp > recv quit signal (flag_iter = 1), quit");
-		close(worker_sock);
-		return -1;
-	}
-
-	// receive data
-	if(recv(worker_sock, &worker_num, sizeof(worker_num), 0) < 0){
-
-		printf("[error] test.cpp > recv worker_num\n");
-		close(worker_sock);
-		return -1;
-	}
-
-	if(recv(worker_sock, &master_epoch, sizeof(master_epoch), 0) < 0){
-
-		printf("[error] test.cpp > recv master_epoch\n");
-		close(worker_sock);
-		return -1;
-	}
-
-	if(recv(worker_sock, &dim, sizeof(dim), 0) < 0){
-
-		printf("[error] test.cpp > recv dim\n");
-		close(worker_sock);
-		return -1;
-	}
-
-	if(recv(worker_sock, &alpha, sizeof(alpha), 0) < 0){
-
-		printf("[error] test.cpp > recv alpha\n");
-		close(worker_sock);
-		return -1;
-	}
-
-	if(recv(worker_sock, &training_threshold, sizeof(training_threshold), 0) < 0){
-
-		printf("[error] test.cpp > recv training_threshold\n");
-		close(worker_sock);
-		return -1;
-	}
-
-	if(recv(worker_sock, &data_root_id, sizeof(data_root_id), 0) < 0){
-
-		printf("[error] test.cpp > recv data_root_id\n");
-		close(worker_sock);
-		return -1;
-	}
-
-	worker_num = ntohl(worker_num);
-	master_epoch = ntohl(master_epoch);
-	dim = ntohl(dim);
-	data_root_id = ntohl(data_root_id);
-
 	// choosing data root by data root id
-	if (data_root_id == 0)
-	{
+	if (data_root_id == 0){
+
 		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
 	}
-	else if (data_root_id == 1)
-	{
+	else if (data_root_id == 1){
+
 		model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
 	}
-	/*
-	else if (data_root_id == 2)
-	{
-		model = new TransE(Dbpedia, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
-	}
-	*/
-	else
-	{
-		printf("[error] test.cpp > recv data root id\n");
+	//else if (data_root_id == 2){
+	//
+	//	model = new TransE(Dbpedia, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
+	//}
+	else{
+
+		printf("[error] test.cpp > wrong data_root_id, recieved : %d\n", data_root_id);
 	}
 
 	//calculating testing time
