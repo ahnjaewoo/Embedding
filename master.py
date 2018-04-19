@@ -290,7 +290,7 @@ if install == 'True':
     client.run(install_libs)
 
 # 전처리 끝날때까지 대기
-proc.wait()
+proc.communicate()
 
 # with open("%s/data_model.bin" % temp_folder_dir, 'rb') as f:
 #     data = f.read()
@@ -681,5 +681,5 @@ printt('[info] master.py > relation_vector sent to Geome tricModel load function
 del entities_initialized
 del relations_initialized
 
-proc.wait()
+proc.communicate()
 printt('[info] master.py > Total elapsed time : %f' % (time() - master_start))
