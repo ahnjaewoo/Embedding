@@ -280,6 +280,7 @@ try:
         else:
 
             printt('[error] worker.py > unknown error in phase 2 (relation) - ' + worker_id)
+            printt('[error] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id)
             checksum = 0
 
     printt('[info] worker.py > relation_vector sent to GeometricModel load function')
