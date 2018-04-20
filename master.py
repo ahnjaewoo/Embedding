@@ -471,6 +471,7 @@ while True:
         printt('[info] master.py > iteration %d finished' % cur_iter)
         printt('[info] master.py > iteration time : %f' % (time() - t_))
         success = True
+        trial = 0
         cur_iter = cur_iter + 1
 
     else:
