@@ -538,11 +538,13 @@ checksum = 0
 
 if int(cur_iter) % 2 == 0:
     # entity 전송 - DataModel 생성자
+    chunk_data = "{}\n{}".format(anchors, ' '.join(chunks[i]))
     chunk_anchor, chunk_entity = chunk_data.split('\n')
     chunk_anchor = chunk_anchor.split(' ')
     chunk_entity = chunk_entity.split(' ')
 
     if len(chunk_anchor) is 1 and chunk_anchor[0] is '':
+        
         chunk_anchor = []
 
     while checksum != 1:
@@ -550,11 +552,13 @@ if int(cur_iter) % 2 == 0:
         test_sock.send(struct.pack('!i', len(chunk_anchor)))
 
         for iter_anchor in chunk_anchor:
+            
             test_sock.send(struct.pack('!i', int(iter_anchor)))
 
         test_sock.send(struct.pack('!i', len(chunk_entity)))
 
         for iter_entity in chunk_entity:
+            
             test_sock.send(struct.pack('!i', int(iter_entity)))
 
         checksum = struct.unpack('!i', test_sock.recv(4))[0]
