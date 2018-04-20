@@ -222,8 +222,8 @@ def install_libs():
 def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id):
 
     # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
-    print('[info] master.py > work function called, cur_iter = ' + str(cur_iter))
     socket_port = 50000 + 5 * int(worker_id.split('_')[1]) + (cur_iter % 5)
+    print('[info] master.py > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
 
     embedding_return = check_output([train_code_dir, 
                                     worker_id,
@@ -249,6 +249,8 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
                                 root_dir,
                                 str(data_root_id),
                                 str(socket_port)])
+
+    print('[info] master.py > embedding.cpp, worker.py generated - ' + str(worker_id))
 
     if embedding_return in [-1, '-1']:
 
