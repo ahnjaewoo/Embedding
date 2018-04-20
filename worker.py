@@ -102,7 +102,7 @@ while True:
     
     try:
         
-        embedding_sock.connect(('0.0.0.0', socket_port))
+        embedding_sock.connect(('0.0.0.0', int(socket_port)))
         break
 
     except ConnectionRefusedError:
