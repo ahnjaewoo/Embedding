@@ -353,10 +353,9 @@ try:
                 embedding_sock.send(struct.pack('!i', flag))
                 success = 1
         
-        # 여기서 커밋하지 않고 entity_vectors 를 work 함수에 리턴하고 master 에서 커밋
-        #r.mset(entity_vectors)
+        r.mset(entity_vectors)
 
-        return entity_vectors
+        return 0
 
     else:
 
@@ -420,9 +419,9 @@ try:
                 embedding_sock.send(struct.pack('!i', flag))
                 success = 1
 
-        # 여기서 커밋하지 않고 relation_vectors 를 work 함수에 리턴하고 master 에서 커밋
-        #r.mset(relation_vectors)
-        return relation_vectors
+        r.mset(relation_vectors)
+        
+        return 0
 
     #printt('[info] worker.py > recieved result from GeometricModel save function')
     #printt('[info] worker.py > {}: {} iteration finished!'.format(worker_id, cur_iter))

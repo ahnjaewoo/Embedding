@@ -225,7 +225,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     socket_port = 50000 + 5 * int(worker_id.split('_')[1]) + (cur_iter % 5)
     print('[info] master.py > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
 
-    embedding_return = check_output([train_code_dir, 
+    embedding_proc = Popen([train_code_dir, 
                                     worker_id,
                                     str(cur_iter),
                                     str(n_dim),
@@ -236,7 +236,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
                                     str(socket_port)],
                                     cwd=preprocess_folder_dir)
 
-    worker_return = check_output(["python",
+    worker_proc = Popen(["python",
                                 worker_code_dir,
                                 chunk_data,
                                 str(worker_id),
@@ -252,23 +252,20 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
 
     print('[info] master.py > embedding.cpp, worker.py generated - ' + str(worker_id))
 
-    if embedding_return in [-1, '-1']:
+    embedding_return = embedding_proc.communicate()
+    worker_return = worker_proc.communicate()
 
-        # embedding.cpp 가 비정상 종료
-        # 이번 이터레이션을 한 번 더 수행
-        return (False, None, None)
+    if embedding_return in [-1, '-1'] or worker_return in [-1, '-1']:
 
-    elif worker_return in [-1, '-1']:
-
-        # worker.py 가 비정상 종료
-        # 이번 이터레이션을 한 번 더 수행
-        return (False, None, None)
+        # embedding.cpp 또는 worker.py 가 비정상 종료
+        # 이번 이터레이션을 취소, 한 번 더 수행
+        return (False, None)
 
     else:
 
         # 모두 성공적으로 수행
         # worker_return 은 string 형태? byte 형태? 의 pickle 을 가지고 있음
-        return (True, worker_return, '[info] master.py > %s: iteration %d finished, time: %f' % (worker_id, cur_iter, time()))
+        return (True, '[info] master.py > %s: iteration %d finished, time: %f' % (worker_id, cur_iter, time()))
 
 # def savePreprocessedData(data, worker_id):
 #     from threading import Thread
@@ -383,6 +380,23 @@ while True:
     printt('=====================================================================')
     printt('[info] master.py > iteration %d' % cur_iter)
 
+    # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     t_ = time()
     
     if cur_iter > 0 and success == True:
@@ -420,7 +434,7 @@ while True:
 
         # maxmin 의 결과를 소켓으로 받음
         anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
-        logger.warning(str(anchor_len)+'\n')
+        printt('[info] master.py > anchor_len = ' + str(anchor_len))
 
         for anchor_idx in range(anchor_len):
             
@@ -450,14 +464,7 @@ while True:
     if all([e[0] for e in result_iter]) == True:
 
         # 이터레이션 성공
-        # redis 에 값을 모두 업데이트
         t_ = time()
-
-        for vector in [e[1] for e in result_iter]:
-
-            r.mset(vector)
-
-        printt('[info] master.py > redis server connection time : %f' % (time() - t_))
 
         for log in [e[2] for e in result_iter]:
 
@@ -471,7 +478,20 @@ while True:
     else:
 
         # 이터레이션 실패
-        # 결과 값은 모두 무시
+        # redis 에 저장된 결과를 백업된 값으로 되돌림
+
+
+
+
+
+
+
+
+
+
+
+
+
         printt('[error] master.py > iteration %d is failed' % cur_iter)
         printt('[Info] master.py > retry iteration %d' % cur_iter)
 
