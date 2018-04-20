@@ -354,6 +354,7 @@ try:
                 success = 1
         
         r.mset(entity_vectors)
+        printt('[info] worker.py > entity_vectors updated - ' + worker_id)
         sys.exit(0)
 
     else:
@@ -419,6 +420,7 @@ try:
                 success = 1
 
         r.mset(relation_vectors)
+        printt('[info] worker.py > relation_vectors updated - ' + worker_id)
         sys.exit(0)
 
     #printt('[info] worker.py > recieved result from GeometricModel save function')

@@ -117,7 +117,6 @@ int main(int argc, char* argv[]){
 	cout << "[info] embedding.cpp > model->save end" << endl;
 
 	delete model;
-	sleep(2000);
 	close(worker_sock);
 
 	return 0;

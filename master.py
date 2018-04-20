@@ -370,6 +370,11 @@ printt('[info] master.py > worker training iteration epoch : {}'.format(train_it
 cur_iter = 0
 success = False
 
+entities = pickle.loads(r.get('entities'))
+relations = pickle.loads(r.get('relations'))
+entity_id = r.mget(entities)
+relation_id = r.mget(relations)
+
 while True:
 
     if cur_iter == niter:
@@ -381,21 +386,8 @@ while True:
     printt('[info] master.py > iteration %d' % cur_iter)
 
     # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    entities_initialized_bak = r.mget([entity + '_v' for entity in entities])
+    relations_initialized_bak = r.mget([relation + '_v' for relation in relations])
 
     t_ = time()
     
@@ -479,19 +471,8 @@ while True:
 
         # 이터레이션 실패
         # redis 에 저장된 결과를 백업된 값으로 되돌림
-
-
-
-
-
-
-
-
-
-
-
-
-
+        r.mset(entities_initialized_bak)
+        r.mset(relations_initialized_bak)
         printt('[error] master.py > iteration %d is failed' % cur_iter)
         printt('[Info] master.py > retry iteration %d' % cur_iter)
 
@@ -499,10 +480,6 @@ while True:
 printt('[info] master.py > test start')
 
 # load entity vector
-entities = pickle.loads(r.get('entities'))
-relations = pickle.loads(r.get('relations'))
-entity_id = r.mget(entities)
-relation_id = r.mget(relations)
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
