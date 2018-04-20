@@ -368,6 +368,7 @@ printt('[info] master.py > maxmin finished')
 printt('[info] master.py > worker training iteration epoch : {}'.format(train_iter))
 
 cur_iter = 0
+trial  = 0
 success = False
 
 entities = pickle.loads(r.get('entities'))
@@ -390,6 +391,11 @@ while True:
     relations_initialized_bak = r.mget([relation + '_v' for relation in relations])
 
     t_ = time()
+
+    if trial == 5:
+
+        printt('[error] master.py > training failed, exit')
+        sys.exit(-1)
     
     if cur_iter > 0 and success == True:
         
@@ -471,6 +477,7 @@ while True:
 
         # 이터레이션 실패
         # redis 에 저장된 결과를 백업된 값으로 되돌림
+        trial = trial + 1
         r.mset(entities_initialized_bak)
         r.mset(relations_initialized_bak)
         printt('[error] master.py > iteration %d is failed' % cur_iter)
