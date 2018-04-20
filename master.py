@@ -451,7 +451,7 @@ while True:
         chunk_data = ''
 
     progress(workers)
-    result_iter = worker.result()
+    result_iter = workers.result()
 
     if all([e[0] for e in result_iter]) == True:
 
