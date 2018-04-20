@@ -95,7 +95,7 @@ while True:
     if trial == 5:
 
         printt('[error] worker.py > iteration ' + str(cur_iter) + ' failed - ' + worker_id)
-        return -1
+        sys.exit(-1)
 
 trial = 0
 while True:
@@ -129,7 +129,7 @@ while True:
     if trial == 5:
 
         printt('[error] worker.py > iteration ' + str(cur_iter) + ' failed - ' + worker_id)
-        return -1
+        sys.exit(-1)
 
 printt('[info] worker.py > port number of ' + worker_id + ' = ' + str(embedding_port))
 printt('[info] worker.py > socket connected (worker <-> embedding)')
@@ -354,8 +354,7 @@ try:
                 success = 1
         
         r.mset(entity_vectors)
-
-        return 0
+        sys.exit(0)
 
     else:
 
@@ -420,8 +419,7 @@ try:
                 success = 1
 
         r.mset(relation_vectors)
-        
-        return 0
+        sys.exit(0)
 
     #printt('[info] worker.py > recieved result from GeometricModel save function')
     #printt('[info] worker.py > {}: {} iteration finished!'.format(worker_id, cur_iter))
@@ -430,4 +428,4 @@ except Exception as e:
 
     printt('[error] worker.py > exception occured in iteration - ' + str(worker_id))
     printt('[error] worker.py > ' + str(e))
-    return -1
+    sys.exit(-1)
