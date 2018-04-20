@@ -15,7 +15,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id);
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id, int& socket_port);
 
 // 400s for each experiment.
 int main(int argc, char* argv[]){
@@ -123,7 +123,7 @@ int main(int argc, char* argv[]){
 	return 0;
 }
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id){
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id, int& socket_port){
 
 	if (argc == 2){
 		// very big problem for scaling!!!!!!!!!!!!!!!!!!!!!!!!!!!
