@@ -131,7 +131,7 @@ while True:
         printt('[error] worker.py > iteration ' + str(cur_iter) + ' failed - ' + worker_id)
         sys.exit(-1)
 
-printt('[info] worker.py > port number of ' + worker_id + ' = ' + str(embedding_port))
+printt('[info] worker.py > port number of ' + worker_id + ' = ' + socket_port)
 printt('[info] worker.py > socket connected (worker <-> embedding)')
 
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
@@ -305,7 +305,7 @@ try:
                 if len(count_entity_data) != 4:
                     
                     printt('[info] worker.py > length of count_entity_data = ' + str(len(count_entity_data)))
-                    printt('[info] worker.py > embedding_port = ' + str(embedding_port))
+                    printt('[info] worker.py > embedding_port = ' + socket_port)
                 
                 count_entity = struct.unpack('!i', count_entity_data)[0]
                 printt('[info] worker.py > count_entity = ' + str(count_entity))
