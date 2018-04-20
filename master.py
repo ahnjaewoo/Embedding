@@ -393,12 +393,12 @@ while True:
     
     if cur_iter > 0 and success == True:
         
-        idle_times = [t_ - float(e[2].split(':')[-1]) for e in result]
+        idle_times = [t_ - float(e[2].split(':')[-1]) for e in result_iter]
         avg_idle_time = sum(idle_times) / len(idle_times)
             
-        for idx in range(len(result)):
+        for idx in range(len(result_iter)):
 
-            printt('[info] master.py > %s' % result[idx][2])
+            printt('[info] master.py > %s' % result_iter[idx][1])
             printt('[info] master.py > idle time : %f' % idle_times[idx])
         
         success = False
