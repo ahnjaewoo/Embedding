@@ -458,7 +458,7 @@ while True:
         # 이터레이션 성공
         t_ = time()
 
-        for log in [e[2] for e in result_iter]:
+        for log in [e[1] for e in result_iter]:
 
             printt(log)
 
