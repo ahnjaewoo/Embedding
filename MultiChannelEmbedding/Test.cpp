@@ -44,6 +44,9 @@ int main(int argc, char* argv[]){
 	struct sockaddr_in test_addr;
 	struct sockaddr_in master_addr;
 
+	int trial;
+	int success;
+
 	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, data_root_id);
 
 	bzero((char *)&test_addr, sizeof(test_addr));
@@ -66,9 +69,28 @@ int main(int argc, char* argv[]){
 		return -1;
 	}
 
-	if (bind(test_sock, (struct sockaddr *)&test_addr, sizeof(test_addr)) < 0){
+	success = 0;
+	trial = 0;
 
-		printf("[error] test.cpp > bind socket\n");
+	while(trial < 5 && !success){
+
+		if (bind(test_sock, (struct sockaddr *)&test_addr, sizeof(test_addr)) < 0){
+
+			printf("[error] test.cpp > bind socket, retry\n");
+			trial = trial + 1;
+			success = 0;
+		}
+		else{
+
+			success = 1;
+			trial = 0;
+			break;
+		}
+	}
+	
+	if(trial >= 5){
+
+		print("[error] test.cpp > cannot bind socket, terminate");
 		return -1;
 	}
 

@@ -543,6 +543,7 @@ while True:
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 
 checksum = 0
+success = 0
 
 if int(cur_iter) % 2 == 0:
     # entity 전송 - DataModel 생성자
@@ -556,7 +557,7 @@ if int(cur_iter) % 2 == 0:
         
         chunk_anchor = []
 
-    while checksum != 1:
+    while success != 1:
 
         test_sock.send(struct.pack('!i', len(chunk_anchor)))
 
@@ -575,24 +576,24 @@ if int(cur_iter) % 2 == 0:
         if checksum == 1234:
 
             printt('[info] master.py > phase 1 finished (for test)')
-            checksum = 1
+            success = 1
 
         elif checksum == 9876:
 
             printt('[error] master.py > retry phase 1 (for test)')
-            checksum = 0
+            success = 0
 
         else:
 
             printt('[error] master.py > unknown error in phase 1 (for test)')
-            checksum = 0
+            success = 0
 
 else:
     # relation 전송 - DataModel 생성자
     sub_graphs = pickle.loads(r.get('sub_graph_{}'.format(worker_id)))
     test_sock.send(struct.pack('!i', len(sub_graphs)))
 
-    while checksum != 1:
+    while success != 1:
 
         for (head_id, relation_id, tail_id) in sub_graphs:
             test_sock.send(struct.pack('!i', int(head_id)))
@@ -604,24 +605,25 @@ else:
         if checksum == 1234:
 
             printt('[info] master.py > phase 1 finished (for test)')
-            checksum = 1
+            success = 1
 
         elif checksum == 9876:
 
             printt('[error] master.py > retry phase 1 (for test)')
-            checksum = 0
+            success = 0
 
         else:
 
             printt('[error] master.py > unknown error in phase 1 (for test)')
-            checksum = 0
+            success = 0
 
 printt('[info] master.py > chunk or relation sent to DataModel (for test)')
 
 checksum = 0
+success = 0
 
 # entity_vector 전송 - GeometricModel load
-while checksum != 1:
+while success != 1:
 
     for i, vector in enumerate(entities_initialized):
         entity_name = str(entities[i])
@@ -640,24 +642,25 @@ while checksum != 1:
     if checksum == 1234:
 
         printt('[info] master.py > phase 2 (entity) finished (for test)')
-        checksum = 1
+        success = 1
 
     elif checksum == 9876:
 
         printt('[error] master.py > retry phase 2 (entity) (for test)')
-        checksum = 0
+        success = 0
 
     else:
 
         printt('[error] master.py > unknown error in phase 2 (entity) (for test)')
-        checksum = 0
+        success = 0
 
 printt('[info] master.py > entity_vector sent to GeometricModel load function (for test)')
 
 checksum = 0
+success = 0
 
 # relation_vector 전송 - GeometricModel load
-while checksum != 1:
+while success != 1:
 
     for i, relation in enumerate(relations_initialized):
         relation_name = str(relations[i])
@@ -676,22 +679,28 @@ while checksum != 1:
     if checksum == 1234:
 
         printt('[info] master.py > phase 2 (relation) finished (for test)')
-        checksum = 1
+        success = 1
 
     elif checksum == 9876:
 
         printt('[error] master.py > retry phase 2 (relation) (for test)')
-        checksum = 0
+        success = 0
 
     else:
 
         printt('[error] master.py > unknown error in phase 2 (relation) (for test)')
-        checksum = 0
+        success = 0
 
 printt('[info] master.py > relation_vector sent to Geome tricModel load function (for test)')
 
 del entities_initialized
 del relations_initialized
 
-proc.communicate()
+test_return = proc.communicate()
+
+if test_return == -1:
+
+    printt('[error] master.py > test failed, exit')
+    sys.exit(-1)
+    
 printt('[info] master.py > Total elapsed time : %f' % (time() - master_start))
