@@ -87,10 +87,10 @@ int main(int argc, char* argv[]){
 			break;
 		}
 	}
-	
+
 	if(trial >= 5){
 
-		print("[error] test.cpp > cannot bind socket, terminate");
+		printf("[error] test.cpp > cannot bind socket, terminate");
 		return -1;
 	}
 
