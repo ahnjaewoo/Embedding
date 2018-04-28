@@ -178,7 +178,8 @@ try:
             else:
 
                 printt('[error] worker.py > unknown error in phase 1 - ' + worker_id)
-                checksum = 0
+                printt('[error] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id)
+                sys.exit(-1)
 
     else:
         # relation 전송 - DataModel 생성자
@@ -208,7 +209,8 @@ try:
             else:
 
                 printt('[error] worker.py > unknown error in phase 1 - ' + worker_id)
-                checksum = 0
+                printt('[error] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id)
+                sys.exit(-1)
 
     printt('[info] worker.py > chunk or relation sent to DataModel')
 
@@ -245,7 +247,7 @@ try:
 
             printt('[error] worker.py > unknown error in phase 2 (entity) - ' + worker_id)
             printt('[error] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id)
-            checksum = 0
+            sys.exit(-1)
 
     printt('[info] worker.py > entity_vector sent to GeometricModel load function')
 

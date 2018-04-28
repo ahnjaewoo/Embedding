@@ -539,7 +539,7 @@ public:
 	                else{
 
 	                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
-	                	checksum = 0;
+	                	exit(-1);
 	                }
 				}
 
@@ -618,7 +618,7 @@ public:
 	                else{
 
 	                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (relation)\n");
-	                	checksum = 0;
+	                	exit(-1);
 	                }
 				}
 
