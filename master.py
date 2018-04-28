@@ -457,7 +457,10 @@ while True:
         chunk_data = ''
 
     progress(workers)
+    printt('')
     result_iter = [worker.result() for worker in workers]
+
+    printt('[info] master.py result array : ' + str([e[0] for e in result_iter]))
 
     if all([e[0] for e in result_iter]) == True:
 
