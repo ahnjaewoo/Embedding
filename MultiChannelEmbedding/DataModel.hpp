@@ -86,7 +86,7 @@ public:
     DataModel(const Dataset& dataset, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd) {
     	if (is_preprocessed)
     	{
-    		ifstream input("../tmp/data_model.bin", ios_base::binary);
+    		ifstream input("/users/npark2/workspace/distributedKGE/Embedding/tmp/data_model.bin", ios_base::binary);
         boost::archive::binary_iarchive ia(input);
         ia >> entity_name_to_id;
         ia >> entity_id_to_name;
@@ -118,7 +118,7 @@ public:
     	}
     	else
     	{
-    		ofstream output("../tmp/data_model.bin", ios::binary);
+    		ofstream output("/users/npark2/workspace/distributedKGE/Embedding/tmp/data_model.bin", ios::binary);
 	        boost::archive::binary_oarchive oa(output);
 
 	        load_training(dataset.base_dir + dataset.training);
@@ -243,7 +243,7 @@ public:
             if (fd == 0) {
 
                 // 파일로 가져옴
-                ifstream input("../tmp/Embedding/maxmin_worker_"+ to_string(worker_num) + ".txt");
+                ifstream input("/users/npark2/workspace/distributedKGE/Embedding/maxmin_worker_"+ to_string(worker_num) + ".txt");
                 string str;
                 vector<string> anchor;
 
@@ -367,7 +367,7 @@ public:
             if (fd == 0) {
 
                 // 파일로 가져옴
-                ifstream input("../tmp/sub_graph_worker_"+ to_string(worker_num) + ".txt");
+                ifstream input("/users/npark2/workspace/distributedKGE/Embedding/tmp/sub_graph_worker_"+ to_string(worker_num) + ".txt");
                 string str;
                 pair<pair<int,int>, int> tmp;
 

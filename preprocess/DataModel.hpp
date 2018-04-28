@@ -70,7 +70,7 @@ public:
     {   
     	if (is_preprocessed)
     	{
-    		ifstream input("../tmp/data_model.bin", ios_base::binary);
+    		ifstream input("/users/npark2/workspace/distributedKGE/Embedding/tmp/data_model.bin", ios_base::binary);
         	boost::archive::binary_iarchive ia(input);
 		
 		ia >> entity_name_to_id;
@@ -104,7 +104,7 @@ public:
     	}
     	else
     	{
-    		ofstream output("../tmp/data_model.bin", ios::binary);
+    		ofstream output("/users/npark2/workspace/distributedKGE/Embedding/tmp/data_model.bin", ios::binary);
 	        boost::archive::binary_oarchive oa(output);
 
 	        load_training(dataset.base_dir + dataset.training);
