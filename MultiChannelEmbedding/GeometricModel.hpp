@@ -847,7 +847,7 @@ public:
 			}
 			printf("[info] GeometricModel.hpp > load relation finish\n");
 		}
-
+		logging.record() << "entity num: " << embedding_relation.size();
 		printf("[info] GeometricModel.hpp > load function finish\n");
 	}
 	
