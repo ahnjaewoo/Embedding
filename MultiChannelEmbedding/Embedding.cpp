@@ -61,16 +61,19 @@ int main(int argc, char* argv[]){
 	if ((embedding_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
 
 		printf("[error] embedding.cpp > create socket - worker_%d\n", worker_num);
+		printf("[error] embedding.cpp > return -1\n");
 		return -1;
 	}
 	if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
 
 		printf("[error] embedding.cpp > bind socket - worker_%d\n", worker_num);
+		printf("[error] embedding.cpp > return -1\n");
 		return -1;
 	}
 	if (listen(embedding_sock, 1) < 0){
 
 		printf("[error] embedding.cpp > listen socket - worker_%d\n", worker_num);
+		printf("[error] embedding.cpp > return -1\n");
 		return -1;
 	}
 
@@ -78,6 +81,7 @@ int main(int argc, char* argv[]){
 	if ((worker_sock = accept(embedding_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
 
 		printf("[error] embedding.cpp > accept socket - worker_%d\n", worker_num);
+		printf("[error] embedding.cpp > return -1\n");
 		return -1;
 	}
 	else{
@@ -101,6 +105,7 @@ int main(int argc, char* argv[]){
 	else{
 
 		printf("[error] embedding.cpp > wrong data_root_id, recieved : %d\n", data_root_id);
+		printf("[error] embedding.cpp > return -1\n");
 		return -1;
 	}
 

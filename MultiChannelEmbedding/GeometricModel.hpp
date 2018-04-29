@@ -519,10 +519,9 @@ public:
 	                if (recv(fd, &flag, sizeof(flag), 0) < 0){
 
 	                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
-	                    
-	                	// 여기서 소켓이 끊어지면 어떻게 해야하나
-	                    //close(fd);
-	                    //break;
+                        printf("[error] GeometricModel.hpp > return -1\n");
+                        close(fd);
+                        std::exit(-1);
 	                }
 
 	                flag = ntohl(flag);
@@ -539,7 +538,9 @@ public:
 	                else{
 
 	                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
-	                	exit(-1);
+                        printf("[error] GeometricModel.hpp > return -1\n");
+                        close(fd);
+                        std::exit(-1);
 	                }
 				}
 
@@ -598,10 +599,9 @@ public:
 	                if (recv(fd, &flag, sizeof(flag), 0) < 0){
 
 	                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
-	                    
-	                	// 여기서 소켓이 끊어지면 어떻게 해야하나
-	                    //close(fd);
-	                    //break;
+                        printf("[error] GeometricModel.hpp > return -1\n");
+                        close(fd);
+                        std::exit(-1);
 	                }
 
 	                flag = ntohl(flag);
@@ -618,7 +618,9 @@ public:
 	                else{
 
 	                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (relation)\n");
-	                	exit(-1);
+                        printf("[error] GeometricModel.hpp > return -1\n");
+                        close(fd);
+                        std::exit(-1);
 	                }
 				}
 
@@ -696,8 +698,9 @@ public:
 		                if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
 
 		                	printf("[error] GeometricModel.hpp > recv key_length\n");
-		                    close(fd);
-		                    break;
+                            printf("[error] GeometricModel.hpp > return -1\n");
+                        	close(fd);
+                        	std::exit(-1);
 		                }
 
 		                key_length = ntohl(key_length);
@@ -705,8 +708,9 @@ public:
 		                if (recv(fd, &(temp_buff[0]), sizeof(char) * key_length, 0) < 0){
 
 		                	printf("[error] GeometricModel.hpp > recv temp_buff\n");
-		                    close(fd);
-		                    break;
+                            printf("[error] GeometricModel.hpp > return -1\n");
+                        	close(fd);
+                        	std::exit(-1);
 		                }
 
 		                key.assign(&(temp_buff[0]), key_length);
@@ -716,7 +720,9 @@ public:
 						{
 
 							cout << "[error] GeometricModel.hpp > entity key does not exist! entity number : " << i << endl;
-							return;
+	                        printf("[error] GeometricModel.hpp > return -1\n");
+                        	close(fd);
+                        	std::exit(-1);
 						}
 
 						int entity_id = data_model.entity_name_to_id.at(key);
@@ -739,8 +745,9 @@ public:
 			                if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
 
 			                	printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
-			                    close(fd);
-			                    break;
+                                printf("[error] GeometricModel.hpp > return -1\n");
+                        		close(fd);
+                        		std::exit(-1);
 			                }
 
 							embedding_entity[entity_id](j) = temp_vector;
@@ -764,7 +771,6 @@ public:
             }
 			printf("[info] GeometricModel.hpp > load entity finish\n");
 
-
 			success = 0;
 			flag = 0;
 
@@ -779,8 +785,9 @@ public:
 		                if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
 
 		                	printf("[error] GeometricModel.hpp > recv key_length\n");
-		                    close(fd);
-		                    break;
+                            printf("[error] GeometricModel.hpp > return -1\n");
+                        	close(fd);
+                        	std::exit(-1);
 		                }
 
 		                key_length = ntohl(key_length);
@@ -788,8 +795,9 @@ public:
 		                if (recv(fd, &temp_buff[0], sizeof(char) * key_length, 0) < 0){
 
 		                	printf("[error] GeometricModel.hpp > recv temp_buff\n");
-		                    close(fd);
-		                    break;
+                            printf("[error] GeometricModel.hpp > return -1\n");
+                        	close(fd);
+                        	std::exit(-1);
 		                }
 
 		                key.assign(&(temp_buff[0]), key_length);
@@ -799,7 +807,9 @@ public:
 						{
 
 							cout << "[error] GeometricModel.hpp > relation key does not exist! relation number : " << i << endl;
-							return;
+	                        printf("[error] GeometricModel.hpp > return -1\n");
+                        	close(fd);
+                        	std::exit(-1);
 						}
 
 						int relation_id = data_model.relation_name_to_id.at(key);
@@ -822,8 +832,9 @@ public:
 			                if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
 
 			                	printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
-			                    close(fd);
-			                    break;
+                                printf("[error] GeometricModel.hpp > return -1\n");
+                        		close(fd);
+                        		std::exit(-1);
 			                }
 
 							embedding_relation[relation_id](j) = temp_vector;

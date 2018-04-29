@@ -95,6 +95,7 @@ while True:
     if trial == 5:
 
         printt('[error] worker.py > iteration ' + str(cur_iter) + ' failed - ' + worker_id)
+        printt('[error] worker.py > return -1')
         sys.exit(-1)
 
 trial = 0
@@ -129,6 +130,7 @@ while True:
     if trial == 5:
 
         printt('[error] worker.py > iteration ' + str(cur_iter) + ' failed - ' + worker_id)
+        printt('[error] worker.py > return -1')
         sys.exit(-1)
 
 printt('[info] worker.py > port number of ' + worker_id + ' = ' + socket_port)
@@ -179,6 +181,7 @@ try:
 
                 printt('[error] worker.py > unknown error in phase 1 - ' + worker_id)
                 printt('[error] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id)
+                printt('[error] worker.py > return -1')
                 sys.exit(-1)
 
     else:
@@ -210,6 +213,7 @@ try:
 
                 printt('[error] worker.py > unknown error in phase 1 - ' + worker_id)
                 printt('[error] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id)
+                printt('[error] worker.py > return -1')
                 sys.exit(-1)
 
     printt('[info] worker.py > chunk or relation sent to DataModel')
@@ -247,6 +251,7 @@ try:
 
             printt('[error] worker.py > unknown error in phase 2 (entity) - ' + worker_id)
             printt('[error] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id)
+            printt('[error] worker.py > return -1')
             sys.exit(-1)
 
     printt('[info] worker.py > entity_vector sent to GeometricModel load function')
@@ -284,6 +289,7 @@ try:
 
             printt('[error] worker.py > unknown error in phase 2 (relation) - ' + worker_id)
             printt('[error] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id)
+            printt('[error] worker.py > return -1')
             sys.exit(-1)
 
     printt('[info] worker.py > relation_vector sent to GeometricModel load function')
@@ -434,4 +440,5 @@ except Exception as e:
 
     printt('[error] worker.py > exception occured in iteration - ' + str(worker_id))
     printt('[error] worker.py > ' + str(e))
+    printt('[error] worker.py > return -1')
     sys.exit(-1)

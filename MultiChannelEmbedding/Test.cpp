@@ -66,6 +66,7 @@ int main(int argc, char* argv[]){
 	if ((test_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
 
 		printf("[error] test.cpp > create socket\n");
+		printf("[error] test.cpp > return -1\n");
 		return -1;
 	}
 
@@ -91,12 +92,14 @@ int main(int argc, char* argv[]){
 	if(trial >= 5){
 
 		printf("[error] test.cpp > cannot bind socket, terminate");
+		printf("[error] test.cpp > return -1\n");
 		return -1;
 	}
 
 	if (listen(test_sock, 1) < 0){
 
 		printf("[error] test.cpp > listen socket\n");
+		printf("[error] test.cpp > return -1\n");
 		return -1;
 	}
 
@@ -105,6 +108,7 @@ int main(int argc, char* argv[]){
 	if ((master_sock = accept(test_sock, (struct sockaddr *)&master_addr, &len)) < 0){
 
 		printf("[error] test.cpp > accept socket\n");
+		printf("[error] test.cpp > return -1\n");
 		return -1;
 	}
 	else{

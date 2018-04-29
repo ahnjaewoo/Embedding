@@ -292,7 +292,9 @@ public:
                         if (recv(fd, &anchor_num, sizeof(anchor_num), 0) < 0){
 
                             printf("[error] DataModel.hpp > recv anchor_num\n");
+                            printf("[error] DataModel.hpp > return -1\n");
                             close(fd);
+                            std::exit(-1);
                             return;
                         }
 
@@ -301,7 +303,9 @@ public:
                             if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
 
                                 printf("[error] DataModel.hpp > recv temp_value for anchor\n");
+                                printf("[error] DataModel.hpp > return -1\n");
                                 close(fd);
+                                std::exit(-1);
                                 return;
                             }
 
@@ -314,6 +318,8 @@ public:
                         if (recv(fd, &entity_num, sizeof(entity_num), 0) < 0){
 
                             printf("[error] DataModel.hpp > recv entity_num\n");
+                            printf("[error] DataModel.hpp > return -1\n");
+                            std::exit(-1);
                             close(fd);
                             return;
                         }
@@ -323,7 +329,9 @@ public:
                             if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
 
                                 printf("[error] DataModel.hpp >  recv temp_value for entity\n");
+                                printf("[error] DataModel.hpp > return -1\n");
                                 close(fd);
+                                std::exit(-1);
                                 return;
                             }
 
@@ -405,7 +413,9 @@ public:
                         if (recv(fd, &triplet_num, sizeof(triplet_num), 0) < 0){
 
                             cout << "[error] DataModel.hpp > recv triplet_num" << endl;
+                            printf("[error] DataModel.hpp > return -1\n");
                             close(fd);
+                            std::exit(-1);
                             return;
                         }
 
@@ -414,21 +424,27 @@ public:
                             if (recv(fd, &temp_value_head, sizeof(temp_value_head), 0) < 0){
 
                                 cout << "[error] DataModel.hpp > recv temp_value_head" << endl;
+                                printf("[error] DataModel.hpp > return -1\n");
                                 close(fd);
+                                std::exit(-1);
                                 break;
                             }
 
                             if (recv(fd, &temp_value_relation, sizeof(temp_value_relation), 0) < 0){
 
                                 cout <<"[error] DataModel.hpp > recv temp_value_relation" << endl;
+                                printf("[error] DataModel.hpp > return -1\n");
                                 close(fd);
+                                std::exit(-1);
                                 break;
                             }
 
                             if (recv(fd, &temp_value_tail, sizeof(temp_value_tail), 0) < 0){
 
                                 cout << "[error] DataModel.hpp > recv temp_value_tail" << endl;
+                                printf("[error] DataModel.hpp > return -1\n");
                                 close(fd);
+                                std::exit(-1);
                                 break;
                             }
 
