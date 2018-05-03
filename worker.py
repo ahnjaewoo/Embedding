@@ -444,6 +444,6 @@ except Exception as e:
 
     printt('[error] worker.py > exception occured in iteration - ' + str(worker_id))
     printt('[error] worker.py > ' + str(e))
-    printt('[error] worker.py > line : ' + str(exc_tb.tb_lineno))
+    printt('[error] worker.py > exception occured in line ' + str(exc_tb.tb_lineno))
     printt('[error] worker.py > return -1')
     sys.exit(-1)

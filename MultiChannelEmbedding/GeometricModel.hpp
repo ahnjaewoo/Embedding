@@ -713,8 +713,12 @@ public:
                         	std::exit(-1);
 		                }
 
+
+						if (i ==0 || key_length < 1){
+
+							cout << "[info] GeometricModel.hpp > key = " << temp_buff << ", length = " << key_length << endl;
+						}  
 		                key.assign(&(temp_buff[0]), key_length);
-						if (i ==0 || key_length < 1)  cout << "[info] GeometricModel.hpp > key = " << key << ", length = " << key_length << endl;
 
 						if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
 						{
