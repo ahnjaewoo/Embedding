@@ -826,6 +826,8 @@ public:
 						relation_id = ntohl(relation_id);
 						*/
 
+						printf("[info] GeometricModel.hpp > start receiving relation vector\n");
+
 						for (int j = 0; j < dim; j++)
 						{
 
