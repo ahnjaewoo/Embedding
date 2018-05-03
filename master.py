@@ -252,8 +252,11 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
 
     print('[info] master.py > embedding.cpp, worker.py generated - ' + str(worker_id))
 
-    embedding_return = embedding_proc.communicate()
-    worker_return = worker_proc.communicate()
+    embedding_proc.wait()
+    worker_proc.wait()
+
+    embedding_return = embedding_proc.returncode
+    worker_return = worker_proc.returncode
 
     if embedding_return in [-1, '-1'] or worker_return in [-1, '-1']:
 
