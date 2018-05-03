@@ -842,6 +842,7 @@ public:
 							embedding_relation[relation_id](j) = temp_vector;
 						}
 					}
+					printf("[info] GeometricModel.hpp > receiving relation vector end, send flag\n");
 
                     flag = 1234;
                     flag = htonl(flag);
