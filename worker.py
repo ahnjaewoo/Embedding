@@ -1,4 +1,5 @@
 # coding: utf-8
+import os
 from subprocess import Popen
 from time import time
 import logging
@@ -438,7 +439,11 @@ try:
 
 except Exception as e:
 
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+
     printt('[error] worker.py > exception occured in iteration - ' + str(worker_id))
     printt('[error] worker.py > ' + str(e))
+    printt('[error] worker.py > line : ' + str(exc_tb.tb_lineno))
     printt('[error] worker.py > return -1')
     sys.exit(-1)
