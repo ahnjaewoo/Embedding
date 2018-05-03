@@ -216,8 +216,9 @@ r.mset({
 
 def install_libs():
     import os
-    os.system("pip install redis")
-    os.system("pip install hiredis")
+    os.system("pip install --upgrade pip")
+    os.system("pip install --upgrade redis")
+    os.system("pip install --upgrade hiredis")
 
 def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id):
 
