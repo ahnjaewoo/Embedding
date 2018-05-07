@@ -111,7 +111,7 @@ public:
 		if (master_epoch % 2 == 0)
 		{
 			logging.record() << "\t[Epos]\t" << total_epos;
-			cout << "[info] Model.hpp > train entity at master epoch " << master_epoch << " - worker_" << worker_num << endl;
+			cout << "[info] Model.hpp > train entity at master epoch " << master_epoch << endl;
 			--total_epos;
 			boost::progress_display	cons_bar(total_epos);
 			while (total_epos-- > 0)
@@ -129,7 +129,7 @@ public:
 		else
 		{
 			logging.record() << "\t[Epos]\t" << total_epos;
-			cout << "[info] Model.hpp > train relation at master epoch " << master_epoch << " - worker_" << worker_num << endl;
+			cout << "[info] Model.hpp > train relation at master epoch " << master_epoch << endl;
 			--total_epos;
 			boost::progress_display	cons_bar(total_epos);
 			while (total_epos-- > 0)
