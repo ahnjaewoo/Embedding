@@ -39,7 +39,7 @@ public:
 	{
 		epos = 0;
 		best_triplet_result = 0;
-		std::cout << "Ready" << endl;
+		std::cout << "[info] Model.hpp > Ready" << endl;
 
 		logging.record() << "\t[Dataset]\t" << dataset.name;
 		logging.record() << TaskTypeName(task_type);
@@ -59,7 +59,7 @@ public:
 	{
 		epos = 0;
 		best_triplet_result = 0;
-		std::cout << "Ready" << endl;
+		std::cout << "[info] Model.hpp > Ready" << endl;
 
 		logging.record() << "\t[Dataset]\t" << dataset.name;
 		logging.record() << TaskTypeName(task_type);
@@ -111,7 +111,7 @@ public:
 		if (master_epoch % 2 == 0)
 		{
 			logging.record() << "\t[Epos]\t" << total_epos;
-			cout << "entity training let's get it" << endl;
+			cout << "[info] Model.hpp > train entity at master epoch " << master_epoch << " - worker_" << worker_num << endl;
 			--total_epos;
 			boost::progress_display	cons_bar(total_epos);
 			while (total_epos-- > 0)
@@ -129,7 +129,7 @@ public:
 		else
 		{
 			logging.record() << "\t[Epos]\t" << total_epos;
-			cout << "relation training let's get it" << endl;
+			cout << "[info] Model.hpp > train relation at master epoch " << master_epoch << " - worker_" << worker_num << endl;
 			--total_epos;
 			boost::progress_display	cons_bar(total_epos);
 			while (total_epos-- > 0)
