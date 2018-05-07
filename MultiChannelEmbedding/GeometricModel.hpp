@@ -549,7 +549,7 @@ public:
 			// master_epoch이 홀수일 때 (relation embedding ㄱㄱ)
 			else{
 
-				
+
 				int checksum = 0;
 				int flag = 0;
 
@@ -684,49 +684,44 @@ public:
 			int key_length;
 			double temp_vector;
 			vector<char> temp_buff(256);
-            int success = 0;
-            int flag = 0;
+      int success = 0;
+			int flag = 0;
 
-            while(!success){
-
-            	try{
-
+			while(!success){
+				try{
 					for (int i = 0; i < count_entity(); i++) {
-
 						// entity key 를 string 으로 받는 경우
 						// entity key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
-		                if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
+						if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
+							printf("[error] GeometricModel.hpp > recv key_length\n");
+							printf("[error] GeometricModel.hpp > return -1\n");
+							close(fd);
+							std::exit(-1);
+						}
 
-		                	printf("[error] GeometricModel.hpp > recv key_length\n");
-                            printf("[error] GeometricModel.hpp > return -1\n");
-                        	close(fd);
-                        	std::exit(-1);
-		                }
+						key_length = ntohl(key_length);
 
-		                key_length = ntohl(key_length);
-
-		                if (recv(fd, &(temp_buff[0]), sizeof(char) * key_length, 0) < 0){
-
-		                	printf("[error] GeometricModel.hpp > recv temp_buff\n");
-                            printf("[error] GeometricModel.hpp > return -1\n");
-                        	close(fd);
-                        	std::exit(-1);
-		                }
+						if (recv(fd, &(temp_buff[0]), sizeof(char) * key_length, 0) < 0) {
+							printf("[error] GeometricModel.hpp > recv temp_buff\n");
+							printf("[error] GeometricModel.hpp > return -1\n");
+							close(fd);
+							std::exit(-1);
+						}
 
 
 						if (i ==0 || key_length < 1){
 							string temp_str(temp_buff.begin(), temp_buff.end());
 							cout << "[info] GeometricModel.hpp > key = " << temp_str << ", length = " << key_length << endl;
-						}  
-		                key.assign(&(temp_buff[0]), key_length);
+						}
+
+						key.assign(&(temp_buff[0]), key_length);
 
 						if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
 						{
-
 							cout << "[error] GeometricModel.hpp > entity key does not exist! entity number : " << i << endl;
-	                        printf("[error] GeometricModel.hpp > return -1\n");
-                        	close(fd);
-                        	std::exit(-1);
+							printf("[error] GeometricModel.hpp > return -1\n");
+							close(fd);
+							std::exit(-1);
 						}
 
 						int entity_id = data_model.entity_name_to_id.at(key);
@@ -745,24 +740,22 @@ public:
 
 						for (int j = 0; j < dim; j++)
 						{
-
-			                if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
-
-			                	printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
-                                printf("[error] GeometricModel.hpp > return -1\n");
-                        		close(fd);
-                        		std::exit(-1);
-			                }
+							if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
+								printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
+								printf("[error] GeometricModel.hpp > return -1\n");
+								close(fd);
+								std::exit(-1);
+							}
 
 							embedding_entity[entity_id](j) = temp_vector;
 						}
 					}
 
-                    flag = 1234;
-                    flag = htonl(flag);
-                    send(fd, &flag, sizeof(flag), 0);
-                    success = 1;
-            	}
+					flag = 1234;
+					flag = htonl(flag);
+					send(fd, &flag, sizeof(flag), 0);
+					success = 1;
+				}
             	catch(std::exception& e){
 
                     printf("[error] GeometricModel.hpp > exception occured\n");
@@ -783,7 +776,6 @@ public:
 				try{
 
 					for (int i = 0; i < count_relation(); i++) {
-
 						// relation key 를 string 으로 받는 경우
 						// relation key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
 		                if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
@@ -830,7 +822,7 @@ public:
 						relation_id = ntohl(relation_id);
 						*/
 
-						printf("[info] GeometricModel.hpp > start receiving relation vector\n");
+						// printf("[info] GeometricModel.hpp > start receiving relation vector\n");
 
 						for (int j = 0; j < dim; j++)
 						{
@@ -854,13 +846,12 @@ public:
                     success = 1;
 				}
 				catch(std::exception& e){
-
-                    printf("[error] GeometricModel.hpp > exception occured\n");
-                    printf("%s\n", e.what());
-                    success = 0;
-                    flag = 9876;
-                    flag = htonl(flag);
-                    send(fd, &flag, sizeof(flag), 0);
+					printf("[error] GeometricModel.hpp > exception occured\n");
+					printf("%s\n", e.what());
+					success = 0;
+					flag = 9876;
+					flag = htonl(flag);
+					send(fd, &flag, sizeof(flag), 0);
 				}
 			}
 			printf("[info] GeometricModel.hpp > load relation finish\n");
@@ -868,7 +859,7 @@ public:
 		logging.record() << "entity num: " << embedding_relation.size();
 		printf("[info] GeometricModel.hpp > load function finish\n");
 	}
-	
+
 	/*
 	// 원본 load 함수
 	virtual void load(const string& filename) override
@@ -2450,4 +2441,3 @@ public:
 		}
 	}
 };
-  
