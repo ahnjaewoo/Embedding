@@ -263,6 +263,8 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
 
         # embedding.cpp 또는 worker.py 가 비정상 종료
         # 이번 이터레이션을 취소, 한 번 더 수행
+        print('embedding_return', embedding_return)
+        print('worker_return', worker_return)
         return (False, None)
 
     else:
