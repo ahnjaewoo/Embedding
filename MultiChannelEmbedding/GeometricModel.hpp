@@ -715,8 +715,8 @@ public:
 
 
 						if (i ==0 || key_length < 1){
-
-							cout << "[info] GeometricModel.hpp > key = " << temp_buff << ", length = " << key_length << endl;
+							string temp_str(temp_buff.begin(), temp_buff.end());
+							cout << "[info] GeometricModel.hpp > key = " << temp_str << ", length = " << key_length << endl;
 						}  
 		                key.assign(&(temp_buff[0]), key_length);
 
