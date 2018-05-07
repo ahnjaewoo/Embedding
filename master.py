@@ -256,10 +256,10 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     embedding_proc.wait()
     worker_proc.wait()
 
-    embedding_return = embedding_proc.returncode
-    worker_return = worker_proc.returncode
+    embedding_return = int(embedding_proc.returncode)
+    worker_return = int(worker_proc.returncode)
 
-    if embedding_return in [-1, '-1'] or worker_return in [-1, '-1']:
+    if embedding_return < 0 or worker_return < 0:
 
         # embedding.cpp 또는 worker.py 가 비정상 종료
         # 이번 이터레이션을 취소, 한 번 더 수행
