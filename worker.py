@@ -267,6 +267,12 @@ try:
             embedding_sock.send(struct.pack('!i', len(relation_name)))
             embedding_sock.send(str.encode(relation_name))  # relation string 자체를 전송
 
+            if len(relation_name) > 1000 or len(relation_name) < 0:
+
+                printt('[error] length of relation_name is strange')
+                printt('[error] relation_name = ' + str(relation_name))
+                printt('[error] len(relation_name) = ' + str(len(relation_name)))
+
 
             #embedding_sock.send(struct.pack('!i', relation2id[relation_name])) # relation id 를 int 로 전송
 
