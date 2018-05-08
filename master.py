@@ -394,7 +394,9 @@ while True:
 
     # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
     entities_initialized_bak = r.mget([entity + '_v' for entity in entities])
+    entities_initialized_bak = [pickle.loads(v) for v in entities_initialized_bak]
     relations_initialized_bak = r.mget([relation + '_v' for relation in relations])
+    relations_initialized_bak = [pickle.loads(v) for v in relations_initialized_bak]
 
     t_ = time()
 
@@ -488,8 +490,9 @@ while True:
         # 이터레이션 실패
         # redis 에 저장된 결과를 백업된 값으로 되돌림
         trial = trial + 1
-        r.mset(entities_initialized_bak)
-        r.mset(relations_initialized_bak)
+        r.mset({entities[i]: pickle.dumps(entities_initialized_bak[i]) for i in range(entities_initialized_bak)})
+        r.mset({relations[i]: pickle.dumps(relations_initialized_bak[i]) for i in range(relations_initialized_bak)})
+        
         printt('[error] master.py > iteration %d is failed' % cur_iter)
         printt('[Info] master.py > retry iteration %d' % cur_iter)
 
