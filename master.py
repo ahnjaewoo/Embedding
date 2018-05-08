@@ -403,6 +403,8 @@ while True:
     if trial == 5:
 
         printt('[error] master.py > training failed, exit')
+        maxmin_sock.send(struct.pack('!i', 1))
+        maxmin_sock.close()
         sys.exit(-1)
     
     if cur_iter > 0 and success == True:
