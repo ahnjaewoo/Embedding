@@ -226,11 +226,11 @@ try:
 
         for i, vector in enumerate(entities_initialized):
             entity_name = str(entities[i])
-            embedding_sock.send(struct.pack('!i', len(entity_name)))
-            embedding_sock.send(str.encode(entity_name))    # entity string 자체를 전송
+            #embedding_sock.send(struct.pack('!i', len(entity_name)))
+            #embedding_sock.send(str.encode(entity_name))    # entity string 자체를 전송
 
 
-            #embedding_sock.send(struct.pack('!i', entity2id[entity_name])) # entity id 를 int 로 전송
+            embedding_sock.send(struct.pack('!i', entity2id[entity_name])) # entity id 를 int 로 전송
 
 
             for v in vector:
@@ -264,11 +264,11 @@ try:
 
         for i, relation in enumerate(relations_initialized):
             relation_name = str(relations[i])
-            embedding_sock.send(struct.pack('!i', len(relation_name)))
-            embedding_sock.send(str.encode(relation_name))  # relation string 자체를 전송
+            #embedding_sock.send(struct.pack('!i', len(relation_name)))
+            #embedding_sock.send(str.encode(relation_name))  # relation string 자체를 전송
 
 
-            #embedding_sock.send(struct.pack('!i', relation2id[relation_name])) # relation id 를 int 로 전송
+            embedding_sock.send(struct.pack('!i', relation2id[relation_name])) # relation id 를 int 로 전송
 
 
             for v in relation:
@@ -324,11 +324,12 @@ try:
                 for entity_idx in range(count_entity):
                     
                     temp_entity_vector = list()
-                    entity_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
-                    entity_id = embedding_sock.recv(entity_id_len).decode()
+                    
+                    #entity_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
+                    #entity_id = embedding_sock.recv(entity_id_len).decode()
 
 
-                    #entity_id = struct.unpack('!i', embedding_sock.recv(4))[0]     # entity_id 를 int 로 받음
+                    entity_id = str(struct.unpack('!i', embedding_sock.recv(4))[0])     # entity_id 를 int 로 받음
 
 
                     for dim_idx in range(int(embedding_dim)):
@@ -390,11 +391,11 @@ try:
                 for relation_idx in range(count_relation):
                     
                     temp_relation_vector = list()
-                    relation_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
-                    relation_id = embedding_sock.recv(relation_id_len).decode()
+                    #relation_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
+                    #relation_id = embedding_sock.recv(relation_id_len).decode()
 
 
-                    #relation_id = struct.unpack('!i', embedding_sock.recv(4))[0]   # relation_id 를 int 로 바음
+                    relation_id = str(struct.unpack('!i', embedding_sock.recv(4))[0])   # relation_id 를 int 로 받음
 
 
                     for dim_idx in range(int(embedding_dim)):
