@@ -733,7 +733,6 @@ public:
 
 						
 						// entity key 가 int 형식으로 주어짐
-						int entity_id;
 		                if (recv(fd, &entity_id, sizeof(int), 0) < 0){
 
 		                	printf("[error] recv entity_id in GeometricModel.hpp\n");
@@ -824,8 +823,9 @@ public:
 						int relation_id = data_model.relation_name_to_id.at(key);
 						*/
 
+
+						
 						// relation key 가 int 형식으로 주어짐
-						int relation_id;
 		                if (recv(fd, &relation_id, sizeof(int), 0) < 0){
 
 		                	printf("[error] recv relation_id in GeometricModel.hpp\n");
