@@ -29,14 +29,14 @@ logger.addHandler(handler)
 
 loggerOn = True
 
-def printt(str):
+def printt(str_):
 
     global loggerOn
 
-    print(str)
+    print(str_)
 
     if loggerOn:
-        logger.warning(str + '\n')
+        logger.warning(str_ + '\n')
 
 def handle_exception(exc_type, exc_value, exc_traceback):
     if issubclass(exc_type, KeyboardInterrupt):
@@ -61,8 +61,8 @@ relation_id = r.mget(relations)
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
-entity_id = {entity: int(entity_id[i]) for i, entity in enumerate(entity_id)}
-relation_id = {relation: int(relation_id[i]) for i, relation in enumerate(relation_id)}
+entity_id = {relations[i]: int(id_) for i, id_ in enumerate(entity_id)}
+relation_id = {relations[i]: int(id_) for i, id_ in enumerate(relation_id)}
 
 entities_initialized = [pickle.loads(v) for v in entities_initialized]
 relations_initialized = [pickle.loads(v) for v in relations_initialized]
