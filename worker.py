@@ -413,7 +413,7 @@ try:
                         
                         if len(temp_relation_double) != 8:
                             
-                            printt('[info] worker.py > length of temp_relation_double = ' + len(temp_relation_double))
+                            printt('[info] worker.py > length of temp_relation_double = ' + str(len(temp_relation_double)))
 
                         temp_relation = struct.unpack('d', temp_relation_double)[0]
                         temp_relation_vector.append(temp_relation)
