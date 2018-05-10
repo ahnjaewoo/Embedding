@@ -279,6 +279,8 @@ try:
             for v in relation:
                 embedding_sock.send(struct.pack('d', float(v)))
 
+        printt('jsdlfjasdjffkdlasjfklajfklajfkljfkljfkljfklajsfa')
+
         checksum = struct.unpack('!i', embedding_sock.recv(4))[0]
 
         if checksum == 1234:
