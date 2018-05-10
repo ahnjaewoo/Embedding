@@ -854,12 +854,13 @@ public:
 							embedding_relation[relation_id](j) = temp_vector;
 						}
 					}
-					printf("[info] GeometricModel.hpp > receiving relation vector end, send flag\n");
+					printf("[info] GeometricModel.hpp > receiving relation vector end\n");
 
                     flag = 1234;
                     flag = htonl(flag);
                     send(fd, &flag, sizeof(flag), 0);
                     success = 1;
+                    printf("[info] GeometricModel.hpp > send flag\n");
 				}
 				catch(std::exception& e){
 					printf("[error] GeometricModel.hpp > exception occured\n");
