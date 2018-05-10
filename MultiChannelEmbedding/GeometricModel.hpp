@@ -852,8 +852,18 @@ public:
                         		std::exit(-1);
 			                }
 
-			                printf("%d\n", relation_id);
-							embedding_relation[relation_id](j) = temp_vector;
+			                try{
+
+			                	embedding_relation[relation_id](j) = temp_vector;
+			                }
+			                catch(std::exception& e){
+
+        	                    printf("[error] GeometricModel.hpp > exception occured!!!!!!!!!!!!\n");
+                    			printf("%s\n", e.what());
+                    			printf("%d\n", relation_id);
+
+			                }
+							
 						}
 					}
 					printf("[info] GeometricModel.hpp > receiving relation vector end\n");
