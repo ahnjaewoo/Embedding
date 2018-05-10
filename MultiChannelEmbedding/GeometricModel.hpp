@@ -782,6 +782,8 @@ public:
 
 				try{
 
+					printf("[info] GeometricModel.hpp > start receiving relation vector\n");
+
 					for (int i = 0; i < count_relation(); i++) {
 						// relation key 를 string 으로 받는 경우
 						// relation key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
@@ -829,7 +831,7 @@ public:
 						
 						// relation key 가 int 형식으로 주어짐
 						int relation_id;
-		                if (recv(fd, &relation_id, sizeof(int), 0); < 0){
+		                if (recv(fd, &relation_id, sizeof(int), 0) < 0){
 
 		                	printf("[error] recv relation_id in GeometricModel.hpp\n");
 		                    close(fd);
@@ -837,8 +839,6 @@ public:
 		                }
 
 						relation_id = ntohl(relation_id);
-
-						printf("[info] GeometricModel.hpp > start receiving relation vector\n");
 
 						for (int j = 0; j < dim; j++)
 						{
