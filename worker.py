@@ -353,6 +353,9 @@ try:
 
             except Exception as e:
 
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+
                 if tempcount < 3:
 
                     printt('[error] worker.py > retry phase 3 (entity) - ' + worker_id)
@@ -419,6 +422,9 @@ try:
                         np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
         
             except Exception as e:
+
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
                 if tempcount < 3:
 
