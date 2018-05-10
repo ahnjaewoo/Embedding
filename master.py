@@ -675,7 +675,7 @@ while success != 1:
         #test_sock.send(str.encode(relation_name))  # relation string 자체를 전송
 
 
-        test_sock.send(struct.pack('!i', relation2id[relation_name])) # relation id 를 int 로 전송
+        #test_sock.send(struct.pack('!i', relation2id[relation_name])) # relation id 를 int 로 전송
 
 
         for v in relation:

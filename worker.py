@@ -273,8 +273,7 @@ try:
                 printt('[error] len(relation_name) = ' + str(len(relation_name)))
 
 
-            embedding_sock.send(struct.pack('!i', relation_id[relation_name])) # relation id 를 int 로 전송
-            printt(str(relation_id[relation_name]) + '/' + relation_name)
+            #embedding_sock.send(struct.pack('!i', relation_id[relation_name])) # relation id 를 int 로 전송
 
 
             for v in relation:

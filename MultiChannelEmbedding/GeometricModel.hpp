@@ -829,6 +829,7 @@ public:
 
 						
 						// relation key 가 int 형식으로 주어짐
+						/*
 						int relation_id;
 		                if (recv(fd, &relation_id, sizeof(int), 0) < 0){
 
@@ -839,8 +840,7 @@ public:
 
 						relation_id = ntohl(relation_id);
 
-						printf("%d/%d/%d\n", i, count_relation(), relation_id);
-
+						*/
 
 
 						for (int j = 0; j < dim; j++)
@@ -856,7 +856,8 @@ public:
 
 			                try{
 
-			                	embedding_relation[relation_id](j) = temp_vector;
+			                	//embedding_relation[relation_id](j) = temp_vector;
+			                	embedding_relation[i](j) = temp_vector;
 			                }
 			                catch(std::exception& e){
 
