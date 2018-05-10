@@ -61,6 +61,8 @@ relation_id = r.mget(relations)
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
+
+printt(entities)
 entity_id = {entity: int(entity_id[i]) for i, entity in enumerate(entities)}
 relation_id = {relation: int(relation_id[i]) for i, relation in enumerate(relations)}
 
