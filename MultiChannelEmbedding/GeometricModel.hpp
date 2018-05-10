@@ -827,7 +827,6 @@ public:
 						int relation_id = data_model.relation_name_to_id.at(key);
 						*/
 
-						printf("%d/%d\n", i, count_relation());
 						
 						// relation key 가 int 형식으로 주어짐
 						int relation_id;
@@ -839,6 +838,10 @@ public:
 		                }
 
 						relation_id = ntohl(relation_id);
+
+						printf("%d/%d/%d\n", i, count_relation(), relation_id);
+
+
 
 						for (int j = 0; j < dim; j++)
 						{
