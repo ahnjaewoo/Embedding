@@ -191,10 +191,10 @@ try:
 
         while checksum != 1:
 
-            for (head_id, relation_id, tail_id) in sub_graphs:
+            for (head_id, relation_id_, tail_id) in sub_graphs:
                 
                 embedding_sock.send(struct.pack('!i', int(head_id)))
-                embedding_sock.send(struct.pack('!i', int(relation_id)))
+                embedding_sock.send(struct.pack('!i', int(relation_id_)))
                 embedding_sock.send(struct.pack('!i', int(tail_id)))
 
             checksum = struct.unpack('!i', embedding_sock.recv(4))[0]
