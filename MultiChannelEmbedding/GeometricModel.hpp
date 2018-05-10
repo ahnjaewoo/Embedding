@@ -852,6 +852,7 @@ public:
                         		std::exit(-1);
 			                }
 
+			                printf("%d\n", relation_id);
 							embedding_relation[relation_id](j) = temp_vector;
 						}
 					}
