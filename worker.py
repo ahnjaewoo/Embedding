@@ -64,7 +64,7 @@ relations_initialized = r.mget([relation + '_v' for relation in relations])
 entity_id = {entity: int(entity_id[i]) for i, entity in enumerate(entities)}
 relation_id = {relation: int(relation_id[i]) for i, relation in enumerate(relations)}
 
-printt(str(entities))
+printt(str(entity_id))
 
 entities_initialized = [pickle.loads(v) for v in entities_initialized]
 relations_initialized = [pickle.loads(v) for v in relations_initialized]
