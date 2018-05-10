@@ -829,7 +829,17 @@ public:
 						
 						// relation key 가 int 형식으로 주어짐
 						int relation_id;
-		                if (recv(fd, &relation_id, sizeof(int), 0) < 0){
+						int recv_test;
+
+
+						recv_test = recv(fd, &relation_id, sizeof(int), 0);
+						if (recv_test <= 0) {
+
+							printf("%d!!!!!!!!!!!!!!!!!!\n", recv_test);
+
+						}
+
+		                if (recv_test < 0){
 
 		                	printf("[error] recv relation_id in GeometricModel.hpp\n");
 		                    close(fd);
