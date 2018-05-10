@@ -199,6 +199,7 @@ del sub_graphs
 
 r.mset(entity2id)
 r.mset(relation2id)
+
 r.set('entities', pickle.dumps(entities, protocol=pickle.HIGHEST_PROTOCOL))
 r.set('relations', pickle.dumps(relations, protocol=pickle.HIGHEST_PROTOCOL))
 
@@ -377,8 +378,6 @@ success = False
 
 entities = pickle.loads(r.get('entities'))
 relations = pickle.loads(r.get('relations'))
-entity_id = r.mget(entities)
-relation_id = r.mget(relations)
 
 while True:
 
@@ -502,10 +501,6 @@ printt('[info] master.py > test start')
 # load entity vector
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
-
-entity_id = {entity: int(entity_id[i]) for i, entity in enumerate(entities)}
-relation_id = {relation: int(relation_id[i])
-               for i, relation in enumerate(relations)}
 
 entities_initialized = [pickle.loads(v) for v in entities_initialized]
 relations_initialized = [pickle.loads(v) for v in relations_initialized]
