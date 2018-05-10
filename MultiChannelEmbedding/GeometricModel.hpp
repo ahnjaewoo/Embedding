@@ -860,8 +860,8 @@ public:
 
         	                    printf("[error] GeometricModel.hpp > exception occured!!!!!!!!!!!!\n");
                     			printf("%s\n", e.what());
-                    			printf("%d\n", relation_id);
-
+                    			//printf("%d\n", relation_id);
+								return -1;
 			                }
 							
 						}
