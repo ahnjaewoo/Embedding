@@ -357,6 +357,7 @@ try:
 
                     printt('[error] worker.py > retry phase 3 (entity) - ' + worker_id)
                     printt('[error] worker.py > ' + str(e))
+                    printt('[error] worker.py > exception occured in line ' + str(exc_tb.tb_lineno))
 
                 tempcount = tempcount + 1
                 flag = 9876
@@ -423,6 +424,7 @@ try:
 
                     printt('[error] worker.py > retry phase 3 (relation) - ' + worker_id)
                     printt('[error] worker.py > ' + str(e))
+                    printt('[error] worker.py > exception occured in line ' + str(exc_tb.tb_lineno))
 
                 tempcount = tempcount + 1
                 flag = 9876
