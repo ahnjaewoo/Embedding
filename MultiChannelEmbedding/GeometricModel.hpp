@@ -506,6 +506,7 @@ public:
 							// 그냥 그대로 보냄
 							i = htonl(i);
 							send(fd, &i, sizeof(int), 0);
+							i = ntohl(i);
 							
 
 
