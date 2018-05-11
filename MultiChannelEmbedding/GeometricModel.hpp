@@ -688,7 +688,7 @@ public:
 			int key_length;
 			double temp_vector;
 			vector<char> temp_buff(256);
-      int success = 0;
+      		int success = 0;
 			int flag = 0;
 
 			while(!success){

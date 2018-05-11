@@ -136,6 +136,15 @@ while True:
 printt('[info] worker.py > port number of ' + worker_id + ' = ' + socket_port)
 printt('[info] worker.py > socket connected (worker <-> embedding)')
 
+
+
+# 파일로 로그를 저장하기 위한 부분
+fsLog = open(os.path.join(root_dir, 'worker_log_' + worker_id + 'iter_' + cur_iter + '.txt'), 'w')
+fsLog.write('line 143 start\n')
+
+
+
+
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 try:
 
@@ -170,11 +179,13 @@ try:
             if checksum == 1234:
 
                 printt('[info] worker.py > phase 1 finished - ' + worker_id)
+                fsLog.write('[info] worker.py > phase 1 finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
 
                 printt('[error] worker.py > retry phase 1 - ' + worker_id)
+                fsLog.write('[error] worker.py > retry phase 1 - ' + worker_id + '\n')
                 checksum = 0
 
             else:
@@ -182,7 +193,14 @@ try:
                 printt('[error] worker.py > unknown error in phase 1 - ' + worker_id)
                 printt('[error] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id)
                 printt('[error] worker.py > return -1')
+                fsLog.write('[error] worker.py > unknown error in phase 1 - ' + worker_id + '\n')
+                fsLog.write('[error] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+                fsLog.write('[error] worker.py > return -1\n')
+                fsLog.close()
                 sys.exit(-1)
+
+        printt('[info] worker.py > phase 1 : entity sent to DataModel finished')
+        fsLog.write('[info] worker.py > phase 1 : entity sent to DataModel finished\n')
 
     else:
         # relation 전송 - DataModel 생성자
@@ -202,11 +220,13 @@ try:
             if checksum == 1234:
 
                 printt('[info] worker.py > phase 1 finished - ' + worker_id)
+                fsLog.write('[info] worker.py > phase 1 finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
 
                 printt('[error] worker.py > retry phase 1 - ' + worker_id)
+                fsLog.write('[error] worker.py > retry phase 1 - ' + worker_id + '\n')
                 checksum = 0
 
             else:
@@ -214,9 +234,14 @@ try:
                 printt('[error] worker.py > unknown error in phase 1 - ' + worker_id)
                 printt('[error] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id)
                 printt('[error] worker.py > return -1')
+                fsLog.write('[error] worker.py > unknown error in phase 1 - ' + worker_id + '\n')
+                fsLog.write('[error] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+                fsLog.write('[error] worker.py > return -1\n')
+                fsLog.close()
                 sys.exit(-1)
 
-    printt('[info] worker.py > chunk or relation sent to DataModel')
+        printt('[info] worker.py > phase 1 : relation sent to DataModel finished')
+        fsLog.write('[info] worker.py > phase 1 : relation sent to DataModel finished\n')
 
     checksum = 0
 
@@ -240,11 +265,13 @@ try:
         if checksum == 1234:
 
             printt('[info] worker.py > phase 2 (entity) finished - ' + worker_id)
+            fsLog.write('[info] worker.py > phase 2 (entity) finished - ' + worker_id + '\n')
             checksum = 1
 
         elif checksum == 9876:
 
             printt('[error] worker.py > retry phase 2 (entity) - ' + worker_id)
+            fsLog.write('[error] worker.py > retry phase 2 (entity) - ' + worker_id + '\n')
             checksum = 0
 
         else:
@@ -252,9 +279,14 @@ try:
             printt('[error] worker.py > unknown error in phase 2 (entity) - ' + worker_id)
             printt('[error] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id)
             printt('[error] worker.py > return -1')
+            fsLog.write('[error] worker.py > unknown error in phase 2 (entity) - ' + worker_id + '\n')
+            fsLog.write('[error] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+            fsLog.write('[error] worker.py > return -1\n')
+            fsLog.close()
             sys.exit(-1)
 
-    printt('[info] worker.py > entity_vector sent to GeometricModel load function')
+    printt('[info] worker.py > phase 2.1 : entity_vector sent to GeometricModel load function')
+    fsLog.write('[info] worker.py > phase 2.1 : entity_vector sent to GeometricModel load function\n')
 
     checksum = 0
 
@@ -284,11 +316,13 @@ try:
         if checksum == 1234:
 
             printt('[info] worker.py > phase 2 (relation) finished - ' + worker_id)
+            fsLog.write('[info] worker.py > phase 2 (relation) finished - ' + worker_id + '\n')
             checksum = 1
 
         elif checksum == 9876:
 
             printt('[error] worker.py > retry phase 2 (relation) - worker.py - ' + worker_id)
+            fsLog.write('[error] worker.py > retry phase 2 (relation) - ' + worker_id + '\n')
             checksum = 0
 
         else:
@@ -296,9 +330,14 @@ try:
             printt('[error] worker.py > unknown error in phase 2 (relation) - ' + worker_id)
             printt('[error] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id)
             printt('[error] worker.py > return -1')
+            fsLog.write('[error] worker.py > unknown error in phase 2 (relation) - ' + worker_id + '\n')
+            fsLog.write('[error] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+            fsLog.write('[error] worker.py > return -1\n')
+            fsLog.close()
             sys.exit(-1)
 
-    printt('[info] worker.py > relation_vector sent to GeometricModel load function')
+    printt('[info] worker.py > phase 2.2 : relation_vector sent to GeometricModel load function')
+    fsLog.write('[info] worker.py > phase 2.2 : relation_vector sent to GeometricModel load function\n')
 
     del entities_initialized
     del relations_initialized
@@ -322,9 +361,12 @@ try:
                     
                     printt('[info] worker.py > length of count_entity_data = ' + str(len(count_entity_data)))
                     printt('[info] worker.py > embedding_port = ' + socket_port)
+                    fsLog.write('[info] worker.py > length of count_entity_data = ' + str(len(count_entity_data)) + '\n')
+                    fsLog.write('[info] worker.py > embedding_port = ' + socket_port + '\n')
                 
                 count_entity = struct.unpack('!i', count_entity_data)[0]
                 printt('[info] worker.py > count_entity = ' + str(count_entity))
+                fsLog.write('[info] worker.py > count_entity = ' + str(count_entity) + '\n')
 
                 for entity_idx in range(count_entity):
                     
@@ -344,6 +386,7 @@ try:
                         if len(temp_entity_double) != 8:
                             
                             printt('[info] worker.py > length of temp_entity_double = ' + str(len(temp_entity_double)))
+                            fsLog.write('[info] worker.py > length of temp_entity_double = ' + str(len(temp_entity_double)) + '\n')
                         
                         temp_entity = struct.unpack('d', temp_entity_double)[0]
                         temp_entity_vector.append(temp_entity)
@@ -361,6 +404,22 @@ try:
                     printt('[error] worker.py > retry phase 3 (entity) - ' + worker_id)
                     printt('[error] worker.py > ' + str(e))
                     printt('[error] worker.py > exception occured in line ' + str(exc_tb.tb_lineno))
+                    fsLog.write('[error] worker.py > retry phase 3 (entity) - ' + worker_id + '\n')
+                    fsLog.write('[error] worker.py > ' + str(e) + '\n')
+                    fsLog.write('[error] worker.py > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
+
+                else:
+
+                    printt('[error] worker.py > failed phase 3 (entity) - ' + worker_id)
+                    printt('[error] worker.py > ' + str(e))
+                    printt('[error] worker.py > exception occured in line ' + str(exc_tb.tb_lineno))
+                    printt('[error] worker.py > return -1')
+                    fsLog.write('[error] worker.py > retry phase 3 (entity) - ' + worker_id + '\n')
+                    fsLog.write('[error] worker.py > ' + str(e) + '\n')
+                    fsLog.write('[error] worker.py > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
+                    fsLog.write('[error] worker.py > return -1\n')
+                    fsLog.close()
+                    sys.exit(-1)
 
                 tempcount = tempcount + 1
                 flag = 9876
@@ -370,12 +429,17 @@ try:
             else:
 
                 printt('[info] worker.py > phase 3 (entity) finished - ' + worker_id)
+                fsLog.write('[info] worker.py > phase 3 (entity) finished - ' + worker_id + '\n')
                 flag = 1234
                 embedding_sock.send(struct.pack('!i', flag))
                 success = 1
         
         r.mset(entity_vectors)
         printt('[info] worker.py > entity_vectors updated - ' + worker_id)
+        printt('[info] worker.py > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
+        fsLog.write('[info] worker.py > entity_vectors updated - ' + worker_id + '\n')
+        fsLog.write('[info] worker.py > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
+        fsLog.close()
         sys.exit(0)
 
     else:
@@ -393,9 +457,11 @@ try:
                 
                 if len(count_relation_data) != 4:
                     printt('[info] worker.py > length of count_relation_data = ' + str(len(count_relation_data)))
+                    fsLog.write('[info] worker.py > length of count_relation_data = ' + str(len(count_relation_data)) + '\n')
 
                 count_relation = struct.unpack('!i', count_relation_data)[0]
                 printt('[info] worker.py > count_relation is ' + str(count_relation))
+                fsLog.write('[info] worker.py > count_relation is ' + str(count_relation) + '\n')
 
                 for relation_idx in range(count_relation):
                     
@@ -414,6 +480,7 @@ try:
                         if len(temp_relation_double) != 8:
                             
                             printt('[info] worker.py > length of temp_relation_double = ' + str(len(temp_relation_double)))
+                            fsLog.write('[info] worker.py > length of temp_relation_double = ' + str(len(temp_relation_double)) + '\n')
 
                         temp_relation = struct.unpack('d', temp_relation_double)[0]
                         temp_relation_vector.append(temp_relation)
@@ -431,6 +498,22 @@ try:
                     printt('[error] worker.py > retry phase 3 (relation) - ' + worker_id)
                     printt('[error] worker.py > ' + str(e))
                     printt('[error] worker.py > exception occured in line ' + str(exc_tb.tb_lineno))
+                    fsLog.write('[error] worker.py > retry phase 3 (relation) - ' + worker_id + '\n')
+                    fsLog.write('[error] worker.py > ' + str(e) + '\n')
+                    fsLog.write('[error] worker.py > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
+
+                else:
+
+                    printt('[error] worker.py > failed phase 3 (relation) - ' + worker_id)
+                    printt('[error] worker.py > ' + str(e))
+                    printt('[error] worker.py > exception occured in line ' + str(exc_tb.tb_lineno))
+                    printt('[error] worker.py > return -1')
+                    fsLog.write('[error] worker.py > retry phase 3 (relation) - ' + worker_id + '\n')
+                    fsLog.write('[error] worker.py > ' + str(e) + '\n')
+                    fsLog.write('[error] worker.py > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
+                    fsLog.write('[error] worker.py > return -1\n')
+                    fsLog.close()
+                    sys.exit(-1)
 
                 tempcount = tempcount + 1
                 flag = 9876
@@ -440,16 +523,18 @@ try:
             else:
 
                 printt('[info] worker.py > phase 3 (relation) finished - ' + worker_id)
+                fsLog.write('[info] worker.py > phase 3 (relation) finished - ' + worker_id + '\n')
                 flag = 1234
                 embedding_sock.send(struct.pack('!i', flag))
                 success = 1
 
         r.mset(relation_vectors)
         printt('[info] worker.py > relation_vectors updated - ' + worker_id)
+        printt('[info] worker.py > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
+        fsLog.write('[info] worker.py > relation_vectors updated - ' + worker_id + '\n')
+        fsLog.write('[info] worker.py > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
+        fsLog.close()
         sys.exit(0)
-
-    #printt('[info] worker.py > recieved result from GeometricModel save function')
-    #printt('[info] worker.py > {}: {} iteration finished!'.format(worker_id, cur_iter))
 
 except Exception as e:
 
@@ -460,4 +545,9 @@ except Exception as e:
     printt('[error] worker.py > ' + str(e))
     printt('[error] worker.py > exception occured in line ' + str(exc_tb.tb_lineno))
     printt('[error] worker.py > return -1')
+    fsLog.write('[error] worker.py > exception occured in iteration - ' + str(worker_id) + '\n')
+    fsLog.write('[error] worker.py > ' + str(e) + '\n')
+    fsLog.write('[error] worker.py > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
+    fsLog.write('[error] worker.py > return -1\n')
+    fsLog.close()
     sys.exit(-1)
