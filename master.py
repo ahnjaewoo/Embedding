@@ -489,8 +489,8 @@ while True:
         # 이터레이션 실패
         # redis 에 저장된 결과를 백업된 값으로 되돌림
         trial = trial + 1
-        r.mset({str(entities[i]) + '_bak' : pickle.dumps(entities_initialized_bak[i]) for i in range(len(entities_initialized_bak))})
-        r.mset({str(relations[i]) + '_bak' : pickle.dumps(relations_initialized_bak[i]) for i in range(len(relations_initialized_bak))})
+        r.mset({str(entities[i]) : pickle.dumps(entities_initialized_bak[i]) for i in range(len(entities_initialized_bak))})
+        r.mset({str(relations[i]) : pickle.dumps(relations_initialized_bak[i]) for i in range(len(relations_initialized_bak))})
         
         printt('[error] master.py > iteration %d is failed' % cur_iter)
         printt('[Info] master.py > retry iteration %d' % cur_iter)
