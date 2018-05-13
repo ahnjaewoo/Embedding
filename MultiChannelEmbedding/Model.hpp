@@ -18,7 +18,7 @@ public:
 	const int		worker_num;
 	const int		master_epoch;
 	const int		fd;
-	std::fstream 	fs_log
+	std::fstream 	fs_log;	
 
 public:
 	ModelLogging&		logging;
