@@ -34,6 +34,7 @@ int main(int argc, char* argv[]){
 	int worker_num = 0;
 	int master_epoch = 0;
 	int data_root_id = 0;
+	string log_dir;
 
 	// test.cpp is server
 	// worker.py is client
@@ -63,7 +64,7 @@ int main(int argc, char* argv[]){
 
 	// open log txt file
 	std::fstream fs_log;
-  	fs_log.open ("test.txt", std::fstream::in | std::fstream::out | std::fstream::trun);
+  	fs_log.open (log_dir, std::fstream::in | std::fstream::out | std::fstream::trun);
 
 	// create socket and check it is valid
 	if ((test_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
@@ -168,7 +169,7 @@ int main(int argc, char* argv[]){
 	return 0;
 }
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& data_root_id){
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& data_root_id, string log_dir){
 
 	if (argc == 2){
 		// very big problem for scaling!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -214,5 +215,16 @@ void getParams(int argc, char* argv[], int& dim, double& alpha, double& training
         alpha = atof(argv[4]);
         training_threshold = atof(argv[5]);
 		data_root_id = atoi(argv[6]);
+    }
+	if (argc == 8){
+
+        string worker = argv[1];
+        worker_num = worker.back() - '0';
+        master_epoch = atoi(argv[2]);
+        dim = atoi(argv[3]);
+        alpha = atof(argv[4]);
+        training_threshold = atof(argv[5]);
+		data_root_id = atoi(argv[6]);
+		log_dir = argv[7];
     }
 } 

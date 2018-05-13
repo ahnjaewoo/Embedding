@@ -34,6 +34,7 @@ int main(int argc, char* argv[]){
 	int train_iter = 10;
 	int data_root_id = 0;
 	int socket_port = 0;
+	string log_dir;
 
 	int flag_iter;
 	unsigned int len;
@@ -58,7 +59,7 @@ int main(int argc, char* argv[]){
 
 	// open log txt file
 	std::fstream fs_log;
-  	fs_log.open ("test.txt", std::fstream::in | std::fstream::out | std::fstream::trun);
+  	fs_log.open (log_dir, std::fstream::in | std::fstream::out | std::fstream::trun);
 
 	// embedding.cpp is server
 	// worker.py is client
@@ -146,7 +147,7 @@ int main(int argc, char* argv[]){
 	return 0;
 }
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id, int& socket_port){
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id, int& socket_port, string log_dir){
 
 	if (argc == 2){
 		// very big problem for scaling!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -215,5 +216,18 @@ void getParams(int argc, char* argv[], int& dim, double& alpha, double& training
         train_iter = atoi(argv[6]);
 		data_root_id = atoi(argv[7]);
 		socket_port = atoi(argv[8]);
+    }	
+	if (argc == 10){
+
+        string worker = argv[1];
+        worker_num = worker.back() - '0';
+        master_epoch = atoi(argv[2]);
+        dim = atoi(argv[3]);
+        alpha = atof(argv[4]);
+        training_threshold = atof(argv[5]);
+        train_iter = atoi(argv[6]);
+		data_root_id = atoi(argv[7]);
+		socket_port = atoi(argv[8]);
+		log_dir = argv[9];
     }	
 }
