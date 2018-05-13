@@ -16,7 +16,7 @@
 #include <unistd.h>
 #include <fstream>
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& data_root_id);
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& data_root_id, string log_dir);
 
 // 400s for each experiment.
 int main(int argc, char* argv[]){
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]){
 	int trial;
 	int success;
 
-	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, data_root_id);
+	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, data_root_id, log_dir);
 
 	bzero((char *)&test_addr, sizeof(test_addr));
 	test_addr.sin_family = AF_INET;
