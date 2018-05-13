@@ -14,6 +14,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <fstream>
 
 void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id, int& socket_port);
 
@@ -55,6 +56,10 @@ int main(int argc, char* argv[]){
 	//	printf("[error] setsocketopt in embedding.cpp\n");
 	//}
 
+	// open log txt file
+	std::fstream fs_log;
+  	fs_log.open ("test.txt", std::fstream::in | std::fstream::out | std::fstream::trun);
+
 	// embedding.cpp is server
 	// worker.py is client
 	// IP addr / port are from master.py
@@ -62,18 +67,24 @@ int main(int argc, char* argv[]){
 
 		printf("[error] embedding.cpp > create socket - worker_%d\n", worker_num);
 		printf("[error] embedding.cpp > return -1\n");
+		fs_log << "[error] embedding.cpp > create socket - worker_" << worker_num << endl;
+		fs_log << "[error] embedding.cpp > return -1" << endl;
 		return -1;
 	}
 	if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
 
 		printf("[error] embedding.cpp > bind socket - worker_%d\n", worker_num);
 		printf("[error] embedding.cpp > return -1\n");
+		fs_log << "[error] embedding.cpp > bind socket - worker_" << worker_num << endl;
+		fs_log << "[error] embedding.cpp > return -1" << endl;
 		return -1;
 	}
 	if (listen(embedding_sock, 1) < 0){
 
 		printf("[error] embedding.cpp > listen socket - worker_%d\n", worker_num);
 		printf("[error] embedding.cpp > return -1\n");
+		fs_log << "[error] embedding.cpp > listen socket - worker_" << worker_num << endl;
+		fs_log << "[error] embedding.cpp > return -1" << endl;
 		return -1;
 	}
 
@@ -82,30 +93,35 @@ int main(int argc, char* argv[]){
 
 		printf("[error] embedding.cpp > accept socket - worker_%d\n", worker_num);
 		printf("[error] embedding.cpp > return -1\n");
+		fs_log << "[error] embedding.cpp > accept socket - worker_" << worker_num << endl;
+		fs_log << "[error] embedding.cpp > return -1" << endl;
 		return -1;
 	}
 	else{
 
 		printf("[info] embedding.cpp > accept socket successfully - worker_%d\n", worker_num);
+		fs_log << "[info] embedding.cpp > accept socket successfully - worker_" << worker_num << endl;
 	}
 
 	// choosing data root by data root id
 	if (data_root_id == 0){
 
-		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
+		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock, fs_log);
 	}
 	else if (data_root_id == 1){
 
-		model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
+		model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock, fs_log);
 	}
 	//else if (data_root_id == 2){
 	//
-	//	model = new TransE(Dbpedia, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock);
+	//	model = new TransE(Dbpedia, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock, fs_log);
 	//}
 	else{
 
 		printf("[error] embedding.cpp > wrong data_root_id, recieved : %d\n", data_root_id);
 		printf("[error] embedding.cpp > return -1\n");
+		fs_log << "[error] wrong data_root_id, recieved : " << data_root_id << endl;
+		fs_log << "[error] embedding.cpp > return -1" << endl;
 		return -1;
 	}
 
@@ -117,11 +133,14 @@ int main(int argc, char* argv[]){
 
 	gettimeofday(&after, NULL);
 	cout << "[info] embedding.cpp > model->run end, training time : " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
-
+	fs_log << "[info] embedding.cpp > model->run end, training time : " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
+	
 	model->save(to_string(worker_num));
 	cout << "[info] embedding.cpp > model->save end" << endl;
+	fs_log << "[info] embedding.cpp > model->save end" << endl;
 
 	delete model;
+	fs_log.close();
 	close(worker_sock);
 
 	return 0;

@@ -12,6 +12,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <fstream>
 
 class TransE
 	:public Model
@@ -36,8 +37,9 @@ public:
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
 		const int master_epoch = 0,
-		const int fd = 0)
-		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd),
+		const int fd = 0,
+		std::fstream fs_log)
+		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd, fs_log),
 		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
 	{
 		logging.record() << "\t[Name]\tTransE";
@@ -57,7 +59,7 @@ public:
 
 
 			// load 함수 부분이 소켓과 연동되어야 함, load 함수 자체에서 처리
-			load("");
+			load("", fs_log);
 		}
 		else
 		{
@@ -77,8 +79,9 @@ public:
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
 		const int master_epoch = 0,
-		const int fd = 0)
-		:Model(dataset, file_zero_shot, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd),
+		const int fd = 0,
+		std::fstream fs_log)
+		:Model(dataset, file_zero_shot, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd, fs_log),
 		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
 	{
 		logging.record() << "\t[Name]\tTransE";
@@ -412,7 +415,7 @@ public:
 	}
 	*/
 
-	virtual void save(const string& filename) override
+	virtual void save(const string& filename, std::fstream fs_log) override
 	{
 
 		int string_len;
@@ -483,6 +486,7 @@ public:
 					}
 
 					printf("[info] GeometricModel.hpp > count_entity in save function is %d\n", count);
+					fs_log << "[info] GeometricModel.hpp > count_entity in save function is " << count << endl;
 					count = htonl(count);
 					send(fd, &count, sizeof(count), 0);
 
@@ -522,6 +526,8 @@ public:
 
 	                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
                         printf("[error] GeometricModel.hpp > return -1\n");
+                        fs_log << "[error] GeometricModel.hpp > recv flag (phase 3)" << endl;
+                        fs_log << "[error] GeometricModel.hpp > return -1" << endl;
                         close(fd);
                         std::exit(-1);
 	                }
@@ -535,18 +541,22 @@ public:
 	                else if(flag == 9876){
 
 	                	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+	                	fs_log <<"[error] GeometricModel.hpp > retry phase 3 (entity)" << endl;
 	                	checksum = 0;
 	                }
 	                else{
 
 	                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
                         printf("[error] GeometricModel.hpp > return -1\n");
+                        fs_log << "[error] GeometricModel.hpp > unknown error of phase 3 (entity)" << endl;
+                        fs_log << "[error] GeometricModel.hpp > return -1" << endl;
                         close(fd);
                         std::exit(-1);
 	                }
 				}
 
 				printf("[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
+				fs_log << "[info] GeometricModel.hpp > phase 3 (entity save) finish" << endl;
 			}
 			// master_epoch이 홀수일 때 (relation embedding ㄱㄱ)
 			else{
@@ -566,6 +576,7 @@ public:
 					}
 
 					printf("[info] GeometricModel.hpp > count_relation in save function is %d\n", count);
+					fs_log << "[info] GeometricModel.hpp > count_relation in save function is " << count << endl;
 					count = htonl(count);
 					send(fd, &count, sizeof(count), 0);
 
@@ -604,6 +615,8 @@ public:
 
 	                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
                         printf("[error] GeometricModel.hpp > return -1\n");
+                        fs_log << "[error] GeometricModel.hpp > recv flag (phase 3)" << endl;
+                        fs_log << "[error] GeometricModel.hpp > return -1" << endl;
                         close(fd);
                         std::exit(-1);
 	                }
@@ -617,23 +630,27 @@ public:
 	                else if(flag == 9876){
 
 	                	printf("[error] GeometricModel.hpp > retry phase 3 (relation)\n");
+	                	fs_log << "[error] GeometricModel.hpp > retry phase 3 (relation)" << endl;
 	                	checksum = 0;
 	                }
 	                else{
 
 	                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (relation)\n");
                         printf("[error] GeometricModel.hpp > return -1\n");
+                        fs_log << "[error] GeometricModel.hpp > unknown error of phase 3 (relation)" << endl;
+                        fs_log << "[error] GeometricModel.hpp > return -1" << endl;
                         close(fd);
                         std::exit(-1);
 	                }
 				}
 
 				printf("[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
+				fs_log << "[info] GeometricModel.hpp > phase 3 (relation save) finish" << endl;
 			}
 		}
 	}
 
-	virtual void load(const string& filename) override
+	virtual void load(const string& filename, std::fstream fs_log) override
 	{
 
 		// filename 가 전혀 사용되지 않음을 참고
@@ -701,6 +718,8 @@ public:
 						if (recv(fd, &key_length, sizeof(key_length), 0) < 0){
 							printf("[error] GeometricModel.hpp > recv key_length\n");
 							printf("[error] GeometricModel.hpp > return -1\n");
+							fs_log << "[error] GeometricModel.hpp > recv key_length" << endl;
+							fs_log << "[error] GeometricModel.hpp > return -1" << endl;
 							close(fd);
 							std::exit(-1);
 						}
@@ -710,6 +729,8 @@ public:
 						if (recv(fd, &(temp_buff[0]), sizeof(char) * key_length, 0) < 0) {
 							printf("[error] GeometricModel.hpp > recv temp_buff\n");
 							printf("[error] GeometricModel.hpp > return -1\n");
+							fs_log << "[error] GeometricModel.hpp > recv temp_buff" << endl;
+							fs_log << "[error] GeometricModel.hpp > return -1" << endl;
 							close(fd);
 							std::exit(-1);
 						}
@@ -718,6 +739,7 @@ public:
 						if (i ==0 || key_length < 1){
 							string temp_str(temp_buff.begin(), temp_buff.end());
 							cout << "[info] GeometricModel.hpp > key = " << temp_str << ", length = " << key_length << endl;
+							fs_log << "[info] GeometricModel.hpp > key = " << temp_str << ", length = " << key_length << endl;
 						}
 
 						key.assign(&(temp_buff[0]), key_length);
@@ -726,6 +748,8 @@ public:
 						{
 							cout << "[error] GeometricModel.hpp > entity key does not exist! entity number : " << i << endl;
 							printf("[error] GeometricModel.hpp > return -1\n");
+							fs_log << "[error] GeometricModel.hpp > entity key does not exist! entity number : " << i << endl;
+							fs_log << "[error] GeometricModel.hpp > return -1" << endl;
 							close(fd);
 							std::exit(-1);
 						}
@@ -739,6 +763,7 @@ public:
 		                if (recv(fd, &entity_id, sizeof(int), 0) < 0){
 
 		                	printf("[error] recv entity_id in GeometricModel.hpp\n");
+		                	fs_log << "[error] recv entity_id in GeometricModel.hpp" << endl;
 		                    close(fd);
 		                    break;
 		                }
@@ -751,6 +776,8 @@ public:
 							if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
 								printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
 								printf("[error] GeometricModel.hpp > return -1\n");
+								fs_log << "[error] GeometricModel.hpp > recv temp_vector for loop of dim" << endl;
+								fs_log << "[error] GeometricModel.hpp > return -1" << endl;
 								close(fd);
 								std::exit(-1);
 							}
@@ -768,6 +795,8 @@ public:
 
                     printf("[error] GeometricModel.hpp > exception occured\n");
                     printf("%s\n", e.what());
+                    fs_log << "[error] GeometricModel.hpp > exception occured" << endl;
+                    fs_log << e.what() << endl;
                     success = 0;
                     flag = 9876;
                     flag = htonl(flag);
@@ -775,6 +804,7 @@ public:
             	}
             }
 			printf("[info] GeometricModel.hpp > load entity finish\n");
+			fs_log << "[info] GeometricModel.hpp > load entity finish" << endl;
 
 			success = 0;
 			flag = 0;
@@ -784,6 +814,7 @@ public:
 				try{
 
 					printf("[info] GeometricModel.hpp > start receiving relation vector\n");
+					fs_log << "[info] GeometricModel.hpp > start receiving relation vector" << endl;
 
 					for (int i = 0; i < count_relation(); i++) {
 						// relation key 를 string 으로 받는 경우
@@ -793,6 +824,8 @@ public:
 
 		                	printf("[error] GeometricModel.hpp > recv key_length\n");
                             printf("[error] GeometricModel.hpp > return -1\n");
+                            fs_log << "[error] GeometricModel.hpp > recv key_length" << endl;
+                            fs_log << "[error] GeometricModel.hpp > return -1" << endl;
                         	close(fd);
                         	std::exit(-1);
 		                }
@@ -803,6 +836,8 @@ public:
 
 		                	printf("[error] GeometricModel.hpp > recv temp_buff\n");
                             printf("[error] GeometricModel.hpp > return -1\n");
+                            fs_log << "[error] GeometricModel.hpp > recv temp_buff" << endl;
+                            fs_log << "[error] GeometricModel.hpp > return -1" << endl;
                         	close(fd);
                         	std::exit(-1);
 		                }
@@ -810,8 +845,10 @@ public:
 						if (key_length < 0 || key_length > 1000){
 							
 							cout << "[error] GeometricModel.hpp > key_length is strange, length = " << key_length << endl;
+							fs_log << "[error] GeometricModel.hpp > key_length is strange, length = " << key_length << endl;
 							string temp_str(temp_buff.begin(), temp_buff.end());
 							cout << "[info] GeometricModel.hpp > key = " << temp_str << ", length = " << key_length << endl;
+							fs_log << "[info] GeometricModel.hpp > key = " << temp_str << ", length = " << key_length << endl;
 						}
 		                key.assign(&(temp_buff[0]), key_length);
 
@@ -821,6 +858,8 @@ public:
 
 							cout << "[error] GeometricModel.hpp > relation key does not exist! relation number : " << i << endl;
 	                        printf("[error] GeometricModel.hpp > return -1\n");
+							fs_log << "[error] GeometricModel.hpp > relation key does not exist! relation number : " << i << endl;
+	                        fs_log << "[error] GeometricModel.hpp > return -1" << endl;
                         	close(fd);
                         	std::exit(-1);
 						}
@@ -835,6 +874,7 @@ public:
 		                if (recv(fd, &relation_id, sizeof(int), 0) < 0){
 
 		                	printf("[error] recv relation_id in GeometricModel.hpp\n");
+		                	fs_log << "[error] recv relation_id in GeometricModel.hpp" << endl;
 		                    close(fd);
 		                    break;
 		                }
@@ -851,6 +891,8 @@ public:
 
 			                	printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
                                 printf("[error] GeometricModel.hpp > return -1\n");
+                                fs_log << "[error] GeometricModel.hpp > recv temp_vector for loop of dim" << endl;
+                                fs_log << "[error] GeometricModel.hpp > return -1" << endl;
                         		close(fd);
                         		std::exit(-1);
 			                }
@@ -865,22 +907,29 @@ public:
         	                    printf("[error] GeometricModel.hpp > exception occured!!!!!!!!!!!!\n");
                     			printf("%s\n", e.what());
                     			//printf("%d\n", relation_id);
+                    			fs_log << "[error] GeometricModel.hpp > exception occured!!!!!!!!!!!!" << endl;
+                    			fs_log << e.what() << endl;
+                    			//fs_log << relation_id << endl;
 								std::exit(-1);
 			                }
 							
 						}
 					}
 					printf("[info] GeometricModel.hpp > receiving relation vector end\n");
+					fs_log << "[info] GeometricModel.hpp > receiving relation vector end" << endl;
 
                     flag = 1234;
                     flag = htonl(flag);
                     send(fd, &flag, sizeof(flag), 0);
                     success = 1;
                     printf("[info] GeometricModel.hpp > send flag\n");
+                    fs_log << "[info] GeometricModel.hpp > send flag" << endl;
 				}
 				catch(std::exception& e){
 					printf("[error] GeometricModel.hpp > exception occured\n");
 					printf("%s\n", e.what());
+					fs_log << "[error] GeometricModel.hpp > exception occured" << endl;
+					fs_log << e.what() << endl;
 					success = 0;
 					flag = 9876;
 					flag = htonl(flag);
@@ -888,9 +937,11 @@ public:
 				}
 			}
 			printf("[info] GeometricModel.hpp > load relation finish\n");
+			fs_log << "[info] GeometricModel.hpp > load relation finish" << endl;
 		}
 		logging.record() << "entity num: " << embedding_relation.size();
 		printf("[info] GeometricModel.hpp > load function finish\n");
+		fs_log << "[info] GeometricModel.hpp > load function finish" << endl;
 	}
 
 	/*

@@ -6,7 +6,6 @@
 #include <omp.h>
 #include <sys/time.h>
 
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -15,7 +14,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-
+#include <fstream>
 
 void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& data_root_id);
 
@@ -62,11 +61,17 @@ int main(int argc, char* argv[]){
 	//	printf("[error] setsocketopt in test.cpp\n");
 	//}
 
+	// open log txt file
+	std::fstream fs_log;
+  	fs_log.open ("test.txt", std::fstream::in | std::fstream::out | std::fstream::trun);
+
 	// create socket and check it is valid
 	if ((test_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
 
 		printf("[error] test.cpp > create socket\n");
 		printf("[error] test.cpp > return -1\n");
+		fs_log << "[error] test.cpp > create socket" << endl;
+		fs_log << "[error] test.cpp > return -1" << endl;
 		return -1;
 	}
 
@@ -78,6 +83,7 @@ int main(int argc, char* argv[]){
 		if (bind(test_sock, (struct sockaddr *)&test_addr, sizeof(test_addr)) < 0){
 
 			printf("[error] test.cpp > bind socket, retry\n");
+			fs_log << "[error] test.cpp > bind socket, retry" << endl;
 			trial = trial + 1;
 			success = 0;
 		}
@@ -93,6 +99,8 @@ int main(int argc, char* argv[]){
 
 		printf("[error] test.cpp > cannot bind socket, terminate");
 		printf("[error] test.cpp > return -1\n");
+		fs_log << "[error] test.cpp > cannot bind socket, terminate" << endl;
+		fs_log << "[error] test.cpp > return -1" << endl;
 		return -1;
 	}
 
@@ -100,6 +108,8 @@ int main(int argc, char* argv[]){
 
 		printf("[error] test.cpp > listen socket\n");
 		printf("[error] test.cpp > return -1\n");
+		fs_log << "[error] test.cpp > listen socket" << endl;
+		fs_log << "[error] test.cpp > return -1" << endl;
 		return -1;
 	}
 
@@ -109,29 +119,33 @@ int main(int argc, char* argv[]){
 
 		printf("[error] test.cpp > accept socket\n");
 		printf("[error] test.cpp > return -1\n");
+		fs_log << "[error] test.cpp > accept socket" << endl;
+		fs_log << "[error] test.cpp > return -1" << endl;
 		return -1;
 	}
 	else{
 
 		printf("[info] test.cpp > accept socket successfully\n");
+		fs_log << "[error] test.cpp > accept socket successfully" << endl;
 	}
 
 	// choosing data root by data root id
 	if (data_root_id == 0){
 
-		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock);
+		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock, fs_log);
 	}
 	else if (data_root_id == 1){
 
-		model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock);
+		model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock, fs_log);
 	}
 	//else if (data_root_id == 2){
 	//
-	//	model = new TransE(Dbpedia, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock);
+	//	model = new TransE(Dbpedia, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock, fs_log);
 	//}
 	else{
 
 		printf("[error] test.cpp > wrong data_root_id, recieved : %d\n", data_root_id);
+		fs_log << "[error] test.cpp > wrong data_root_id, recieved : " << data_root_id << endl;
 	}
 
 	//calculating testing time
@@ -139,12 +153,16 @@ int main(int argc, char* argv[]){
 	gettimeofday(&before, NULL);
 
     printf("[info] test.cpp > test start\n");
+    fs_log << "[info] test.cpp > test start" << endl;
 
 	model->test();
 
 	gettimeofday(&after, NULL);
 	cout << "[info] test.cpp > testing time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
+	fs_log << "[info] test.cpp > testing time :  " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
+	
 	delete model;
+	fs_log.close();
 	close(master_sock);	
 
 	return 0;
