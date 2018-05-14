@@ -59,7 +59,7 @@ int main(int argc, char* argv[]){
 
 	// open log txt file
 	std::fstream fs_log;
-  	fs_log.open (log_dir, std::fstream::in | std::fstream::out | std::fstream::trun);
+  	fs_log.open (log_dir, std::fstream::in | std::fstream::out | std::fstream::trunc);
 
 	// embedding.cpp is server
 	// worker.py is client
