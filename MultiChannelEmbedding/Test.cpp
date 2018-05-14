@@ -64,7 +64,7 @@ int main(int argc, char* argv[]){
 
 	// open log txt file
 	std::fstream fs_log;
-  	fs_log.open (log_dir, std::fstream::in | std::fstream::out | std::fstream::trunc);
+  	fs_log.open (log_dir, std::fstream::in | std::fstream::out | std::fstream::trun);
 
 	// create socket and check it is valid
 	if ((test_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
