@@ -38,7 +38,7 @@ public:
 		const int worker_num = 0,
 		const int master_epoch = 0,
 		const int fd = 0,
-		std::fstream fs_log)
+		std::fstream *fs_log)
 		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd, fs_log),
 		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
 	{

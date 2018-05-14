@@ -107,15 +107,15 @@ int main(int argc, char* argv[]){
 	// choosing data root by data root id
 	if (data_root_id == 0){
 
-		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock, fs_log);
+		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock, *fs_log);
 	}
 	else if (data_root_id == 1){
 
-		model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock, fs_log);
+		model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock, *fs_log);
 	}
 	//else if (data_root_id == 2){
 	//
-	//	model = new TransE(Dbpedia, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock, fs_log);
+	//	model = new TransE(Dbpedia, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock, *fs_log);
 	//}
 	else{
 
