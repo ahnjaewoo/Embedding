@@ -58,7 +58,15 @@ int main(int argc, char* argv[]){
 
 	// open log txt file
 	FILE * fs_log;
-  	fs_log = fopen(log_dir, "w");
+
+	if(master_epoch == 0){
+
+  		fs_log = fopen(log_dir, "w");
+	}
+	else{
+
+  		fs_log = fopen(log_dir, "w+");
+	}
 
 	// embedding.cpp is server
 	// worker.py is client
