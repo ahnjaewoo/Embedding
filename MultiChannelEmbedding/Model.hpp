@@ -56,7 +56,7 @@ public:
 		const int master_epoch = 0,
 		const int fd = 0,
 		std::fstream fs_log = std::fstream())
-		:data_model(*(new DataModel(dataset, is_preprocessed, worker_num, master_epoch, fd, fs_log))), task_type(task_type),
+		:data_model(*(new DataModel(dataset, is_preprocessed, worker_num, master_epoch, fd))), task_type(task_type),
 		logging(*(new ModelLogging(logging_base_path))), be_deleted_data_model(true),
 		is_preprocessed(is_preprocessed), worker_num(worker_num), master_epoch(master_epoch), fd(fd), fs_log(fs_log)
 	{
