@@ -143,7 +143,7 @@ int main(int argc, char* argv[]){
 	cout << "[info] embedding.cpp > model->run end, training time : " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
 	fprintf(fs_log, "[info] embedding.cpp > testing time : %lf seconds\n", after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0);
 	
-	model->save(to_string(worker_num));
+	model->save(to_string(worker_num), fs_log);
 	cout << "[info] embedding.cpp > model->save end" << endl;
 	fprintf(fs_log, "[info] embedding.cpp > model->save end\n");
 
