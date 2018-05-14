@@ -617,8 +617,8 @@ public:
 
 	                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
                         printf("[error] GeometricModel.hpp > return -1\n");
-                        fprintf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
-                        fprintf("[error] GeometricModel.hpp > return -1\n");
+                        fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
+                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
                         close(fd);
                         fclose(fs_log);
                         std::exit(-1);
