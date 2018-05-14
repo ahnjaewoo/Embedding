@@ -581,13 +581,13 @@ public:
 	}
 
 public:
-	virtual void save(const string& filename, std::fstream &fs_log)
+	virtual void save(const string& filename, std::fstream fs_log)
 	{
 		cout << "BAD" << endl;
 		return;
 	}
 
-	virtual void load(const string& filename, std::fstream &fs_log)
+	virtual void load(const string& filename, std::fstream fs_log)
 	{
 		cout << "BAD!" << endl;
 		return;

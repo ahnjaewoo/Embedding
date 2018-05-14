@@ -84,7 +84,7 @@ public:
     int zeroshot_pointer;
 
 public:
-    DataModel(const Dataset& dataset, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd, std::fstream &fs_log) {
+    DataModel(const Dataset& dataset, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd, std::fstream fs_log) {
     	if (is_preprocessed)
     	{
     		ifstream input("../tmp/data_model.bin", ios_base::binary);
