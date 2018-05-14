@@ -373,7 +373,7 @@ public:
 	}
 
 	/* original save function
-	virtual void save(const string& filename, std::fstream fs_log) override
+	virtual void save(const string& filename, std::fstream &fs_log) override
 	{
 		// master_epoch이 짝수일 때 (entity embedding ㄱㄱ)
 		if (master_epoch % 2 == 0)
@@ -415,7 +415,7 @@ public:
 	}
 	*/
 
-	virtual void save(const string& filename, std::fstream fs_log) override
+	virtual void save(const string& filename, std::fstream &fs_log) override
 	{
 
 		int string_len;
@@ -650,7 +650,7 @@ public:
 		}
 	}
 
-	virtual void load(const string& filename, std::fstream fs_log) override
+	virtual void load(const string& filename, std::fstream &fs_log) override
 	{
 
 		// filename 가 전혀 사용되지 않음을 참고
@@ -946,7 +946,7 @@ public:
 
 	/*
 	// 원본 load 함수
-	virtual void load(const string& filename, std::fstream fs_log) override
+	virtual void load(const string& filename, std::fstream &fs_log) override
 	{
 
 		ifstream fin_entity("../tmp/entity_vectors.txt", ios::binary);
@@ -2041,7 +2041,7 @@ public:
 		record.save(filename + replace_all(relation_name, "/", "_") + ".ppm", pgm_binary);
 	}
 
-	virtual void save(const string& filename, std::fstream fs_log) override
+	virtual void save(const string& filename, std::fstream &fs_log) override
 	{
 		ofstream fout(filename, ios::binary);
 		storage_vmat<double>::save(embedding_entity, fout);
@@ -2049,7 +2049,7 @@ public:
 		fout.close();
 	}
 
-	virtual void load(const string& filename, std::fstream fs_log) override
+	virtual void load(const string& filename, std::fstream &fs_log) override
 	{
 		ifstream fin(filename, ios::binary);
 		storage_vmat<double>::load(embedding_entity, fin);
