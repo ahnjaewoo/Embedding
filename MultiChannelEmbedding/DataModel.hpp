@@ -518,7 +518,7 @@ public:
         fprintf(fs_log, "[info] DataModel.hpp > # of test triples : %d\n", data_test_true.size());
     }
 
-    DataModel(const Dataset& dataset, const string& file_zero_shot, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd)
+    DataModel(const Dataset& dataset, const string& file_zero_shot, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd, FILE * fs_log)
     {
         load_training(dataset.base_dir + dataset.training);
 

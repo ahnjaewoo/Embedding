@@ -581,13 +581,13 @@ public:
 	}
 
 public:
-	virtual void save(const string& filename)
+	virtual void save(const string& filename, FILE * fs_log)
 	{
 		cout << "BAD" << endl;
 		return;
 	}
 
-	virtual void load(const string& filename)
+	virtual void load(const string& filename, FILE * fs_log)
 	{
 		cout << "BAD!" << endl;
 		return;
