@@ -2052,7 +2052,7 @@ public:
 		record.save(filename + replace_all(relation_name, "/", "_") + ".ppm", pgm_binary);
 	}
 
-	virtual void save(const string& filename) override
+	virtual void save(const string& filename, FILE * fs_log) override
 	{
 		ofstream fout(filename, ios::binary);
 		storage_vmat<double>::save(embedding_entity, fout);
@@ -2060,7 +2060,7 @@ public:
 		fout.close();
 	}
 
-	virtual void load(const string& filename) override
+	virtual void load(const string& filename, FILE * fs_log) override
 	{
 		ifstream fin(filename, ios::binary);
 		storage_vmat<double>::load(embedding_entity, fin);
