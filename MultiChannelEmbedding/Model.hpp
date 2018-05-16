@@ -46,7 +46,7 @@ public:
 		std::cout << "\t[Dataset]\t" << dataset.name;
 		std::cout << TaskTypeName(task_type);
 
-		logging.record() << "[info] Model.hpp > Model constructor called" << endl;
+		logging.record() << "[info] Model.hpp > Model constructor called";
 		logging.record() << "\t[Dataset]\t" << dataset.name;
 		logging.record() << TaskTypeName(task_type);
 	}
