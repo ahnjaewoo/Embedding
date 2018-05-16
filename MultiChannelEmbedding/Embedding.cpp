@@ -60,6 +60,7 @@ int main(int argc, char* argv[]){
 	// open log txt file
 	FILE * fs_log;
 	log_dir_char = log_dir.c_str();
+	printf("%s\n", log_dir_char);
 
 	if(master_epoch == 0){
 
