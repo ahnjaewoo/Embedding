@@ -227,7 +227,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
     socket_port = 50000 + 5 * int(worker_id.split('_')[1]) + (cur_iter % 5)
     print('[info] master.py > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
-    log_dir = os.path.join(root_dir, 'embedding_log_' + worker_id + 'iter_' + cur_iter + '.txt')
+    log_dir = os.path.join(root_dir, 'embedding_log_' + worker_id + 'iter_' + str(cur_iter) + '.txt')
 
     embedding_proc = Popen([train_code_dir, 
                                     worker_id,
