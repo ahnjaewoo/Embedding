@@ -59,16 +59,16 @@ int main(int argc, char* argv[]){
 
 	// open log txt file
 	FILE * fs_log;
-	log_dir_char = log_dir.c_str();
-	printf("%s\n", log_dir_char);
+	//log_dir_char = log_dir.c_str();
+	printf("%s\n", argv[9]);
 
 	if(master_epoch == 0){
 
-  		fs_log = fopen(log_dir_char, "w");
+  		fs_log = fopen(argv[9], "w");
 	}
 	else{
 
-  		fs_log = fopen(log_dir_char, "w+");
+  		fs_log = fopen(argv[9], "w+");
 	}
 
 	// embedding.cpp is server
