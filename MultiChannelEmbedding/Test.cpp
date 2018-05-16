@@ -34,6 +34,7 @@ int main(int argc, char* argv[]){
 	int master_epoch = 0;
 	int data_root_id = 0;
 	string log_dir;
+	const char * log_dir_char;
 
 	// test.cpp is server
 	// worker.py is client
@@ -63,7 +64,8 @@ int main(int argc, char* argv[]){
 
 	// open log txt file
 	FILE * fs_log;
-  	fs_log = fopen(log_dir, "w");
+	log_dir_char = log_dir.c_str();
+  	fs_log = fopen(log_dir_char, "w");
 
 	// create socket and check it is valid
 	if ((test_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){

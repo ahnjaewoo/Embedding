@@ -34,6 +34,7 @@ int main(int argc, char* argv[]){
 	int data_root_id = 0;
 	int socket_port = 0;
 	string log_dir;
+	const char * log_dir_char;
 
 	int flag_iter;
 	unsigned int len;
@@ -58,14 +59,15 @@ int main(int argc, char* argv[]){
 
 	// open log txt file
 	FILE * fs_log;
+	log_dir_char = log_dir.c_str();
 
 	if(master_epoch == 0){
 
-  		fs_log = fopen(log_dir, "w");
+  		fs_log = fopen(log_dir_char, "w");
 	}
 	else{
 
-  		fs_log = fopen(log_dir, "w+");
+  		fs_log = fopen(log_dir_char, "w+");
 	}
 
 	// embedding.cpp is server
