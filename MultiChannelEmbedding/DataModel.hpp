@@ -278,6 +278,9 @@ public:
             }
             else {
 
+                printf("[info] DataModel.hpp > DataModel constructor called\n");
+                fprintf(fs_log, "[info] DataModel.hpp > DataModel constructor called\n");
+
                 // 소켓으로 가져옴
                 int anchor_num;
                 int entity_num;

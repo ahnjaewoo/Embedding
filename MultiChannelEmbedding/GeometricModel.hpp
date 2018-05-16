@@ -42,6 +42,10 @@ public:
 		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd, fs_log),
 		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
 	{
+
+		printf("[info] GeometricModel.hpp > TransE constructor called");
+		fprintf(fs_log, "[info] GeometricModel.hpp > TransE constructor called");
+
 		logging.record() << "\t[Name]\tTransE";
 		logging.record() << "\t[Dimension]\t" << dim;
 		logging.record() << "\t[Learning Rate]\t" << alpha;
@@ -84,6 +88,10 @@ public:
 		:Model(dataset, file_zero_shot, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd, fs_log),
 		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
 	{
+
+		printf("[info] GeometricModel.hpp > TransE constructor called");
+		fprintf(fs_log, "[info] GeometricModel.hpp > TransE constructor called");
+		
 		logging.record() << "\t[Name]\tTransE";
 		logging.record() << "\t[Dimension]\t" << dim;
 		logging.record() << "\t[Learning Rate]\t" << alpha;

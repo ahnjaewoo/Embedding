@@ -139,7 +139,7 @@ printt('[info] worker.py > socket connected (worker <-> embedding)')
 
 
 # 파일로 로그를 저장하기 위한 부분
-fsLog = open(os.path.join(root_dir, 'worker_log_' + worker_id + 'iter_' + cur_iter + '.txt'), 'w')
+fsLog = open(os.path.join(root_dir, 'worker_log_' + worker_id + '_iter_' + cur_iter + '.txt'), 'w')
 fsLog.write('line 143 start\n')
 
 

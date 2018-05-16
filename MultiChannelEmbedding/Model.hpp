@@ -41,8 +41,12 @@ public:
 	{
 		epos = 0;
 		best_triplet_result = 0;
-		std::cout << "[info] Model.hpp > Ready" << endl;
+		
+		std::cout << "[info] Model.hpp > Model constructor called" << endl;
+		std::cout << "\t[Dataset]\t" << dataset.name;
+		std::cout << TaskTypeName(task_type);
 
+		logging.record() << "[info] Model.hpp > Model constructor called" << endl;
 		logging.record() << "\t[Dataset]\t" << dataset.name;
 		logging.record() << TaskTypeName(task_type);
 	}
@@ -62,7 +66,7 @@ public:
 	{
 		epos = 0;
 		best_triplet_result = 0;
-		std::cout << "[info] Model.hpp > Ready" << endl;
+		std::cout << "[info] Model.hpp > Model constructor called" << endl;
 
 		logging.record() << "\t[Dataset]\t" << dataset.name;
 		logging.record() << TaskTypeName(task_type);
