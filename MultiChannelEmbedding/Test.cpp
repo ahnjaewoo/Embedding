@@ -47,7 +47,7 @@ int main(int argc, char* argv[]){
 	int trial;
 	int success;
 
-	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, data_root_id);
+	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, data_root_id, log_dir);
 
 	bzero((char *)&test_addr, sizeof(test_addr));
 	test_addr.sin_family = AF_INET;

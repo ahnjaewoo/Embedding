@@ -42,7 +42,7 @@ int main(int argc, char* argv[]){
 	struct sockaddr_in embedding_addr;
 	struct sockaddr_in worker_addr;
 
-	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter, data_root_id, socket_port);
+	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter, data_root_id, socket_port, log_dir);
 
 	bzero((char *)&embedding_addr, sizeof(embedding_addr));
 	embedding_addr.sin_family = AF_INET;
