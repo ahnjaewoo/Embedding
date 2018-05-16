@@ -760,14 +760,13 @@ public:
 
 						int entity_id = data_model.entity_name_to_id.at(key);
 						*/
-
 						
 						// entity key 가 int 형식으로 주어짐
 						int entity_id;
 		                if (recv(fd, &entity_id, sizeof(int), 0) < 0){
 
-		                	printf("[error] recv entity_id in GeometricModel.hpp\n");
-		                	fprintf(fs_log, "[error] recv entity_id in GeometricModel.hpp\n");
+		                	printf("[error] GeometricModel.hpp > recv entity_id\n");
+		                	fprintf(fs_log, "[error] GeometricModel.hpp > recv entity_id\n");
 		                    close(fd);
 		                    fclose(fs_log);
 		                    break;
@@ -891,6 +890,8 @@ public:
 						relation_id = ntohl(relation_id);
 
 						*/
+
+						fprintf(fs_log, "GeometricModel.hpp > index = %d\n", i);
 
 
 						for (int j = 0; j < dim; j++)

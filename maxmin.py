@@ -9,6 +9,7 @@ import random
 import socket
 import struct
 import logging
+import os
 
 root_dir = sys.argv[5]
 data_root = sys.argv[6]

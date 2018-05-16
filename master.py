@@ -16,6 +16,7 @@ import time as tt
 import struct
 import sys
 import threading
+import os
 
 # argument parse
 parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
