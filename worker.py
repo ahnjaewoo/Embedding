@@ -247,7 +247,7 @@ try:
 
     # entity_vector 전송 - GeometricModel load
     while checksum != 1:
-
+        fsLog.write('[info] worker.py > total send entities - ' + str(len(entities_initialized)) + '\n')
         for i, vector in enumerate(entities_initialized):
             entity_name = str(entities[i])
             #embedding_sock.send(struct.pack('!i', len(entity_name)))
