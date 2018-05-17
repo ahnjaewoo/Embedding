@@ -791,6 +791,7 @@ public:
 		                }
 
 						entity_id = ntohl(entity_id);
+						fprintf(fs_log, "GeometricModel.hpp > entity id = %d\n", entity_id);
 						
 						for (int j = 0; j < dim; j++)
 						{
@@ -909,13 +910,14 @@ public:
 
 						*/
 
-						fprintf(fs_log, "GeometricModel.hpp > index = %d\n", i);
-
+						fprintf(fs_log, "GeometricModel.hpp > relation index = %d\n", i);
+						int recv_return = recv(fd, &temp_vector, sizeof(temp_vector), 0);
+						fprintf(fs_log, "GeometricModel.hpp > recv return value = %d\n", recv_return);
 
 						for (int j = 0; j < dim; j++)
 						{
 
-			                if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
+			                if (recv_return < 0){
 
 			                	printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
                                 printf("[error] GeometricModel.hpp > return -1\n");
