@@ -360,10 +360,10 @@ try:
                 
                 if len(count_entity_data) != 4:
                     
-                    printt('[info] worker.py > length of count_entity_data = ' + str(len(count_entity_data)))
-                    printt('[info] worker.py > embedding_port = ' + socket_port)
-                    fsLog.write('[info] worker.py > length of count_entity_data = ' + str(len(count_entity_data)) + '\n')
-                    fsLog.write('[info] worker.py > embedding_port = ' + socket_port + '\n')
+                    printt('[error] worker.py > length of count_entity_data = ' + str(len(count_entity_data)))
+                    printt('[error] worker.py > embedding_port = ' + socket_port)
+                    fsLog.write('[error] worker.py > length of count_entity_data = ' + str(len(count_entity_data)) + '\n')
+                    fsLog.write('[error] worker.py > embedding_port = ' + socket_port + '\n')
                 
                 count_entity = struct.unpack('!i', count_entity_data)[0]
                 printt('[info] worker.py > count_entity = ' + str(count_entity))
@@ -386,8 +386,8 @@ try:
                         
                         if len(temp_entity_double) != 8:
                             
-                            printt('[info] worker.py > length of temp_entity_double = ' + str(len(temp_entity_double)))
-                            fsLog.write('[info] worker.py > length of temp_entity_double = ' + str(len(temp_entity_double)) + '\n')
+                            printt('[error] worker.py > length of temp_entity_double = ' + str(len(temp_entity_double)))
+                            fsLog.write('[error] worker.py > length of temp_entity_double = ' + str(len(temp_entity_double)) + '\n')
                         
                         temp_entity = struct.unpack('d', temp_entity_double)[0]
                         temp_entity_vector.append(temp_entity)
