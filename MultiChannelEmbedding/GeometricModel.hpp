@@ -534,6 +534,7 @@ public:
 
 	                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
                         printf("[error] GeometricModel.hpp > return -1\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp 537 line\n");
                         fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
                         fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
                         close(fd);
@@ -560,6 +561,7 @@ public:
 						printf("[error] GeometricModel.hpp > recv value = %d\n", recv_val);
 	                	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
                         //printf("[error] GeometricModel.hpp > return -1\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp 564 line\n");
                         fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
                         fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
 						fprintf(fs_log, "[error] GeometricModel.hpp > recv value = %d\n", recv_val);
@@ -632,6 +634,7 @@ public:
 
 	                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
                         printf("[error] GeometricModel.hpp > return -1\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp 637 line\n");
                         fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
                         fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
                         close(fd);
@@ -657,6 +660,7 @@ public:
 	                	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
 	                	printf("[error] GeometricModel.hpp > retry phase 3 (relation)\n");
                         //printf("[error] GeometricModel.hpp > return -1\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp 663 line\n");
                         fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (relation)\n");
                         fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
 						fprintf(fs_log, "[error] GeometricModel.hpp > recv value = %d\n", recv_val);
@@ -802,6 +806,7 @@ public:
 
 								printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
 								printf("[error] GeometricModel.hpp > return -1\n");
+								fprintf(fs_log, "[error] GeometricModel.hpp 809 line\n");
 								fprintf(fs_log, "[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
 								fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
 								close(fd);
@@ -924,6 +929,7 @@ public:
 
 			                	printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
                                 printf("[error] GeometricModel.hpp > return -1\n");
+								fprintf(fs_log, "[error] GeometricModel.hpp 932 line\n");
 			                	fprintf(fs_log, "[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
                                 fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
                         		close(fd);
