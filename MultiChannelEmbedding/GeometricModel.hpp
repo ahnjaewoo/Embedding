@@ -481,7 +481,7 @@ public:
 				int flag = 0;
 
 				while(checksum != 1){
-					
+
 					count = 0;
 
 					for (int i = 0; i < count_entity(); i++){
@@ -619,8 +619,8 @@ public:
 							i = htonl(i);
 							send(fd, &i, sizeof(int), 0);
 							i = ntohl(i);
-							
 
+							fprintf(fs_log, "[info] GeometricModel.hpp > entity id = %d\n", i);
 
 							for (int j = 0; j < dim; j++){
 
