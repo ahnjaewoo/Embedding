@@ -807,21 +807,25 @@ public:
 						entity_id = ntohl(entity_id);
 						fprintf(fs_log, "GeometricModel.hpp > get entity id = %d\n", entity_id);
 						
-						for (int j = 0; j < dim; j++)
-						{
-							if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
+						if (data_model.check_anchor.find(entity_id) == data_model.check_anchor.end()
+						&& data_model.check_parts.find(entity_id) != data_model.check_parts.end()){
 
-								printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
-								printf("[error] GeometricModel.hpp > return -1\n");
-								fprintf(fs_log, "[error] GeometricModel.hpp 809 line\n");
-								fprintf(fs_log, "[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
-								fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-								close(fd);
-								fclose(fs_log);
-								std::exit(-1);
+							for (int j = 0; j < dim; j++)
+							{
+								if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
+
+									printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
+									printf("[error] GeometricModel.hpp > return -1\n");
+									fprintf(fs_log, "[error] GeometricModel.hpp 809 line\n");
+									fprintf(fs_log, "[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
+									fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+									close(fd);
+									fclose(fs_log);
+									std::exit(-1);
+								}
+
+								embedding_entity[entity_id](j) = temp_vector;
 							}
-
-							embedding_entity[entity_id](j) = temp_vector;
 						}
 					}
 
@@ -923,9 +927,6 @@ public:
 
 						relation_id = ntohl(relation_id);
 
-						
-
-
 						for (int j = 0; j < dim; j++)
 						{
 
@@ -947,17 +948,15 @@ public:
 
 			                try{
 
-			                	//embedding_relation[relation_id](j) = temp_vector;
-			                	embedding_relation[i](j) = temp_vector;
+			                	embedding_relation[relation_id](j) = temp_vector;
+			                	//embedding_relation[i](j) = temp_vector;
 			                }
 			                catch(std::exception& e){
 
-        	                    printf("[error] GeometricModel.hpp > exception occured!!!!!!!!!!!!\n");
+        	                    printf("[error] GeometricModel.hpp > exception occured, relation_id = %d\n", relation_id);
                     			printf("%s\n", e.what());
-                    			//printf("%d\n", relation_id);
-        	                    fprintf(fs_log, "[error] GeometricModel.hpp > exception occured!!!!!!!!!!!!\n");
+        	                    fprintf(fs_log, "[error] GeometricModel.hpp > exception occured, relation_id = %d\n", relation_id);
                     			fprintf(fs_log, "%s\n", e.what());
-                    			//fprintf(fs_log, "%d\n", relation_id);
                     			fclose(fs_log);
 								std::exit(-1);
 			                }
