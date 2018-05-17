@@ -378,7 +378,7 @@ try:
 
 
                     entity_id_temp = str(struct.unpack('!i', embedding_sock.recv(4))[0])     # entity_id 를 int 로 받음
-
+                    fsLog.write('[info] worker.py > entity_id = ' + entity_id_temp)
 
                     for dim_idx in range(int(embedding_dim)):
                         
