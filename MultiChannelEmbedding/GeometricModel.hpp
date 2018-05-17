@@ -474,8 +474,6 @@ public:
 		// socket 으로 전송
 		else {
 
-			count = 0;
-
 			// master_epoch이 짝수일 때 (entity embedding ㄱㄱ)
 			if (master_epoch % 2 == 0){
 
@@ -483,6 +481,8 @@ public:
 				int flag = 0;
 
 				while(checksum != 1){
+					
+					count = 0;
 
 					for (int i = 0; i < count_entity(); i++){
 
