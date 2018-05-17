@@ -529,8 +529,8 @@ public:
 							}
 						}
 					}
-
-	                if (recv(fd, &flag, sizeof(flag), 0) < 0){
+					int recv_val = recv(fd, &flag, sizeof(flag), 0);
+	                if (recv_val < 0){
 
 	                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
                         printf("[error] GeometricModel.hpp > return -1\n");
@@ -557,10 +557,12 @@ public:
 
 	                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
 	                	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
+						printf("[error] GeometricModel.hpp > recv value = %d\n", recv_val);
 	                	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
                         //printf("[error] GeometricModel.hpp > return -1\n");
                         fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
                         fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
+						printf("[error] GeometricModel.hpp > recv value = %d\n", recv_val);
                         fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (entity)\n");
                         //fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
                         //close(fd);
