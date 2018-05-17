@@ -443,6 +443,7 @@ try:
         fsLog.write('[info] worker.py > entity_vectors updated - ' + worker_id + '\n')
         fsLog.write('[info] worker.py > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         fsLog.close()
+        tt.sleep(1)
         sys.exit(0)
 
     else:
@@ -537,6 +538,7 @@ try:
         fsLog.write('[info] worker.py > relation_vectors updated - ' + worker_id + '\n')
         fsLog.write('[info] worker.py > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         fsLog.close()
+        tt.sleep(1)
         sys.exit(0)
 
 except Exception as e:

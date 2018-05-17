@@ -472,7 +472,6 @@ public:
 			}
 		}
 
-
 		// socket 으로 전송
 		else {
 
@@ -537,7 +536,7 @@ public:
 
 	                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
                         printf("[error] GeometricModel.hpp > return -1\n");
-						fprintf(fs_log, "[error] GeometricModel.hpp 537 line\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp 534 line\n");
                         fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
                         fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
                         close(fd);
