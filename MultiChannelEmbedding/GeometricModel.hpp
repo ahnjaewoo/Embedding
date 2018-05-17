@@ -951,12 +951,10 @@ public:
 			                }
 			                catch(std::exception& e){
 
-        	                    printf("[error] GeometricModel.hpp > exception occured!!!!!!!!!!!!\n");
+        	                    printf("[error] GeometricModel.hpp > exception occured, relation_id = %d\n", relation_id);
                     			printf("%s\n", e.what());
-                    			printf("%d\n", relation_id);
-        	                    fprintf(fs_log, "[error] GeometricModel.hpp > exception occured!!!!!!!!!!!!\n");
+        	                    fprintf(fs_log, "[error] GeometricModel.hpp > exception occured, relation_id = %d\n", relation_id);
                     			fprintf(fs_log, "%s\n", e.what());
-                    			fprintf(fs_log, "%d\n", relation_id);
                     			fclose(fs_log);
 								std::exit(-1);
 			                }
