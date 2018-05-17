@@ -520,7 +520,7 @@ public:
 							send(fd, &i, sizeof(int), 0);
 							i = ntohl(i);
 							
-
+							fprintf(fs_log, "[info] GeometricModel.hpp > send entity id = %d\n", i);
 
 							for (int j =0; j < dim; j++){
 
@@ -620,7 +620,7 @@ public:
 							send(fd, &i, sizeof(int), 0);
 							i = ntohl(i);
 
-							fprintf(fs_log, "[info] GeometricModel.hpp > entity id = %d\n", i);
+							fprintf(fs_log, "[info] GeometricModel.hpp > send relation id = %d\n", i);
 
 							for (int j = 0; j < dim; j++){
 
@@ -798,7 +798,7 @@ public:
 		                }
 
 						entity_id = ntohl(entity_id);
-						fprintf(fs_log, "GeometricModel.hpp > entity id = %d\n", entity_id);
+						fprintf(fs_log, "GeometricModel.hpp > get entity id = %d\n", entity_id);
 						
 						for (int j = 0; j < dim; j++)
 						{
