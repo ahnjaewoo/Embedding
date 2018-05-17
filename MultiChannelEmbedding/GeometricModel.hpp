@@ -556,12 +556,17 @@ public:
 	                else{
 
 	                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
-                        printf("[error] GeometricModel.hpp > return -1\n");
+	                	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
+	                	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+                        //printf("[error] GeometricModel.hpp > return -1\n");
                         fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
-                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                        close(fd);
-                        fclose(fs_log);
-                        std::exit(-1);
+                        fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
+                        fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+                        //fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+                        //close(fd);
+                        //fclose(fs_log);
+                        //std::exit(-1);
+                        checksum = 0;
 	                }
 				}
 
@@ -647,12 +652,17 @@ public:
 	                else{
 
 	                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (relation)\n");
-                        printf("[error] GeometricModel.hpp > return -1\n");
+	                	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
+	                	printf("[error] GeometricModel.hpp > retry phase 3 (relation)\n");
+                        //printf("[error] GeometricModel.hpp > return -1\n");
                         fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (relation)\n");
-                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                        close(fd);
-                        fclose(fs_log);
-                        std::exit(-1);
+                        fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
+                        fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (relation)\n");
+                        //fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+                        //close(fd);
+                        //fclose(fs_log);
+                        //std::exit(-1);
+                        checksum = 0;
 	                }
 				}
 
