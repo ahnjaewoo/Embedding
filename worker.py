@@ -305,7 +305,7 @@ try:
                 printt('[error] len(relation_name) = ' + str(len(relation_name)))
 
 
-            #embedding_sock.send(struct.pack('!i', relation_id[relation_name])) # relation id 를 int 로 전송
+            embedding_sock.send(struct.pack('!i', relation_id[relation_name])) # relation id 를 int 로 전송
             fsLog.write('[info] worker.py > sending vectors of ' + str(i) + ':' + relation_name + ' : ' + str(relation_id[relation_name]) + '\n')
 
 
@@ -313,6 +313,8 @@ try:
                 embedding_sock.send(struct.pack('d', float(v)))
 
         checksum = struct.unpack('!i', embedding_sock.recv(4))[0]
+        printt('[info] worker.py > received checksum = ' + str(checksum) + ', length = ' + str(len(checksum)) + ' - ' + worker_id)
+        fsLog.write('[info] worker.py > received checksum = ' + str(checksum) + ', length = ' + str(len(checksum)) + ' - ' + worker_id + '\n')
 
         if checksum == 1234:
 

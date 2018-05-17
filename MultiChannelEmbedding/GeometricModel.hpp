@@ -908,7 +908,7 @@ public:
 
 						
 						// relation key 가 int 형식으로 주어짐
-						/*
+						
 						int relation_id;
 		                if (recv(fd, &relation_id, sizeof(int), 0) < 0){
 
@@ -921,14 +921,15 @@ public:
 
 						relation_id = ntohl(relation_id);
 
-						*/
+						
 
-						fprintf(fs_log, "GeometricModel.hpp > relation index = %d\n", i);
-						int recv_return = recv(fd, &temp_vector, sizeof(temp_vector), 0);
-						fprintf(fs_log, "GeometricModel.hpp > recv return value = %d\n", recv_return);
 
 						for (int j = 0; j < dim; j++)
 						{
+
+							fprintf(fs_log, "GeometricModel.hpp > relation index = %d\n", i);
+							int recv_return = recv(fd, &temp_vector, sizeof(temp_vector), 0);
+							fprintf(fs_log, "GeometricModel.hpp > recv_return value = %d\n", recv_return);
 
 			                if (recv_return < 0){
 
