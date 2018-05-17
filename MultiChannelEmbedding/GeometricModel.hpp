@@ -731,7 +731,7 @@ public:
 			fin_relation.close();
 		}
 
-		
+
 		else {
 
 			// 소켓으로 전송
@@ -744,6 +744,7 @@ public:
 
 			while(!success){
 				try{
+					fprintf(fs_log, "GeometricModel.hpp > total entities = %d\n", count_entity());
 					for (int i = 0; i < count_entity(); i++) {
 						// entity key 를 string 으로 받는 경우
 						// entity key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
