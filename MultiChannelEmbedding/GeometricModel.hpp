@@ -946,17 +946,17 @@ public:
 
 			                try{
 
-			                	//embedding_relation[relation_id](j) = temp_vector;
-			                	embedding_relation[i](j) = temp_vector;
+			                	embedding_relation[relation_id](j) = temp_vector;
+			                	//embedding_relation[i](j) = temp_vector;
 			                }
 			                catch(std::exception& e){
 
         	                    printf("[error] GeometricModel.hpp > exception occured!!!!!!!!!!!!\n");
                     			printf("%s\n", e.what());
-                    			//printf("%d\n", relation_id);
+                    			printf("%d\n", relation_id);
         	                    fprintf(fs_log, "[error] GeometricModel.hpp > exception occured!!!!!!!!!!!!\n");
                     			fprintf(fs_log, "%s\n", e.what());
-                    			//fprintf(fs_log, "%d\n", relation_id);
+                    			fprintf(fs_log, "%d\n", relation_id);
                     			fclose(fs_log);
 								std::exit(-1);
 			                }
