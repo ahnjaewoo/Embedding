@@ -471,6 +471,8 @@ public:
 				fout_relation.close();
 			}
 		}
+
+
 		// socket 으로 전송
 		else {
 
@@ -679,6 +681,7 @@ public:
 		}
 	}
 
+
 	virtual void load(const string& filename, FILE * fs_log) override
 	{
 
@@ -727,6 +730,8 @@ public:
 			fin_entity.close();
 			fin_relation.close();
 		}
+
+		
 		else {
 
 			// 소켓으로 전송
