@@ -531,6 +531,7 @@ public:
 							}
 						}
 					}
+					fprintf(fs_log, "[info] GeometricModel.hpp > get flag\n");
 					int recv_val = recv(fd, &flag, sizeof(flag), 0);
 	                if (recv_val < 0){
 
