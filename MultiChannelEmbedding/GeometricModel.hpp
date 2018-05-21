@@ -803,7 +803,7 @@ public:
 		                    break;
 		                }
 
-						entity_id = ntohl(entity_id);
+						//entity_id = ntohl(entity_id);
 						fprintf(fs_log, "GeometricModel.hpp > get entity id = %d\n", entity_id);
 						
 						if (data_model.check_anchor.find(entity_id) == data_model.check_anchor.end()
