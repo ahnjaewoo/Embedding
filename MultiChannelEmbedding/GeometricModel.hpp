@@ -778,7 +778,7 @@ public:
 						if (i ==0 || key_length < 1){
 							string temp_str(temp_buff.begin(), temp_buff.end());
 							cout << "[info] GeometricModel.hpp > key = " << temp_str << ", length = " << key_length << endl;
-							fprintf(fs_log, "[info] GeometricModel.hpp > key = %s, length = %d\n", temp_str, key_length);
+							fprintf(fs_log, "[info] GeometricModel.hpp > key = %s, length = %d\n", temp_str.c_str(), key_length);
 						}
 
 						key.assign(&(temp_buff[0]), key_length);
@@ -898,7 +898,7 @@ public:
 							fprintf(fs_log, "[error] GeometricModel.hpp > key_length is strange, length = %d\n", key_length);
 							string temp_str(temp_buff.begin(), temp_buff.end());
 							cout << "[info] GeometricModel.hpp > key = " << temp_str << ", length = " << key_length << endl;
-							fprintf(fs_log, "[info] GeometricModel.hpp > key = %s, length = %d\n", temp_str, key_length);
+							fprintf(fs_log, "[info] GeometricModel.hpp > key = %s, length = %d\n", temp_str.c_str(), key_length);
 						}
 		                key.assign(&(temp_buff[0]), key_length);
 
