@@ -40,6 +40,7 @@ int main(int argc, char* argv[]){
 	// worker.py is client
 	// IP addr / port are from master.py
 	unsigned int len;
+	int nSockOpt;
 	int test_sock, master_sock;
 	struct sockaddr_in test_addr;
 	struct sockaddr_in master_addr;
