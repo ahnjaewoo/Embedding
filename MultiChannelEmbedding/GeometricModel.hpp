@@ -803,26 +803,26 @@ public:
 		                    break;
 		                }
 
-						//entity_id = ntohl(entity_id);
+						entity_id = ntohl(entity_id);
 						fprintf(fs_log, "GeometricModel.hpp > get entity id = %d\n", entity_id);
-						
-						if (data_model.check_anchor.find(entity_id) == data_model.check_anchor.end()
-						&& data_model.check_parts.find(entity_id) != data_model.check_parts.end()){
 
-							for (int j = 0; j < dim; j++)
-							{
-								if (recv(fd, &temp_vector, sizeof(temp_vector), MSG_WAITALL) < 0){
+						for (int j = 0; j < dim; j++)
+						{
+							if (recv(fd, &temp_vector, sizeof(temp_vector), MSG_WAITALL) < 0){
 
-									printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
-									printf("[error] GeometricModel.hpp > return -1\n");
-									fprintf(fs_log, "[error] GeometricModel.hpp 809 line\n");
-									fprintf(fs_log, "[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
-									fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-									close(fd);
-									fclose(fs_log);
-									std::exit(-1);
-								}
+								printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
+								printf("[error] GeometricModel.hpp > return -1\n");
+								fprintf(fs_log, "[error] GeometricModel.hpp 809 line\n");
+								fprintf(fs_log, "[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
+								fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+								close(fd);
+								fclose(fs_log);
+								std::exit(-1);
+							}
 
+							if (data_model.check_anchor.find(entity_id) == data_model.check_anchor.end()
+							&& data_model.check_parts.find(entity_id) != data_model.check_parts.end()){
+								
 								embedding_entity[entity_id](j) = temp_vector;
 							}
 						}
