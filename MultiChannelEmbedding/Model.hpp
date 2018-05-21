@@ -253,8 +253,10 @@ public:
 			//	<<lreal_hit/lreal_total;
 		}
 
-		fprintf("[Info] Model.hpp > true + false = %d\n", data_model.data_test_true.size() + data_model.data_test_false.size());
-		fprintf("[Info] Model.hpp > real_hit = %lf\n", real_hit);
+		printf("[Info] Model.hpp > true + false = %d\n", data_model.data_test_true.size() + data_model.data_test_false.size());
+		printf("[Info] Model.hpp > real_hit = %lf\n", real_hit);
+		fprintf(fs_log, "[Info] Model.hpp > true + false = %d\n", data_model.data_test_true.size() + data_model.data_test_false.size());
+		fprintf(fs_log, "[Info] Model.hpp > real_hit = %lf\n", real_hit);
 
 		std::cout << epos << "\t Accuracy = "
 			<< real_hit / (data_model.data_test_true.size() + data_model.data_test_false.size());
