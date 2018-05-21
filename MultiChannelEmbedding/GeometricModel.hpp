@@ -531,7 +531,7 @@ public:
 						}
 					}
 					fprintf(fs_log, "[info] GeometricModel.hpp > get flag\n");
-					int recv_val = recv(fd, &flag, sizeof(flag), 0);
+					int recv_val = recv(fd, &flag, sizeof(flag), MSG_WAITALL);
 	                if (recv_val < 0){
 
 	                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
@@ -631,7 +631,7 @@ public:
 							}
 						}
 					}
-					int recv_val = recv(fd, &flag, sizeof(flag), 0);
+					int recv_val = recv(fd, &flag, sizeof(flag), MSG_WAITALL);
 	                if (recv_val < 0){
 
 	                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
@@ -794,7 +794,7 @@ public:
 						
 						// entity key 가 int 형식으로 주어짐
 						int entity_id;
-		                if (recv(fd, &entity_id, sizeof(int), 0) < 0){
+		                if (recv(fd, &entity_id, sizeof(int), MSG_WAITALL) < 0){
 
 		                	printf("[error] GeometricModel.hpp > recv entity_id\n");
 		                	fprintf(fs_log, "[error] GeometricModel.hpp > recv entity_id\n");
@@ -811,7 +811,7 @@ public:
 
 							for (int j = 0; j < dim; j++)
 							{
-								if (recv(fd, &temp_vector, sizeof(temp_vector), 0) < 0){
+								if (recv(fd, &temp_vector, sizeof(temp_vector), MSG_WAITALL) < 0){
 
 									printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
 									printf("[error] GeometricModel.hpp > return -1\n");
@@ -915,7 +915,7 @@ public:
 						// relation key 가 int 형식으로 주어짐
 						
 						int relation_id;
-		                if (recv(fd, &relation_id, sizeof(int), 0) < 0){
+		                if (recv(fd, &relation_id, sizeof(int), MSG_WAITALL) < 0){
 
 		                	printf("[error] recv relation_id in GeometricModel.hpp\n");
 		                	fprintf(fs_log, "[error] recv relation_id in GeometricModel.hpp\n");
@@ -930,7 +930,7 @@ public:
 						{
 
 							fprintf(fs_log, "GeometricModel.hpp > relation index = %d\n", i);
-							int recv_return = recv(fd, &temp_vector, sizeof(temp_vector), 0);
+							int recv_return = recv(fd, &temp_vector, sizeof(temp_vector), MSG_WAITALL);
 							fprintf(fs_log, "GeometricModel.hpp > recv_return value = %d\n", recv_return);
 
 			                if (recv_return < 0){
