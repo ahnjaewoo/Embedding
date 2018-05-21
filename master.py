@@ -411,7 +411,7 @@ printt('[info] master.py > anchor_len = ' + str(anchor_len))
 for anchor_idx in range(anchor_len):
 
     #anchors += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
-    anchors += struct.unpack('!i', sockRecv(maxmin_sock, 4))[0] + " "
+    anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
 anchors = anchors[:-1]
 
 for part_idx in range(num_worker):
