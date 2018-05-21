@@ -757,8 +757,8 @@ public:
 						if (recv(fd, &key_length, sizeof(key_length), MSG_WAITALL) < 0){
 							printf("[error] GeometricModel.hpp > recv key_length\n");
 							printf("[error] GeometricModel.hpp > return -1\n");
-							fs_log << "[error] GeometricModel.hpp > recv key_length" << endl;
-							fs_log << "[error] GeometricModel.hpp > return -1" << endl;
+							fprintf(fs_log, "[error] GeometricModel.hpp > recv key_length\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
 							close(fd);
 							std::exit(-1);
 						}
@@ -768,8 +768,8 @@ public:
 						if (recv(fd, &(temp_buff[0]), sizeof(char) * key_length, MSG_WAITALL) < 0) {
 							printf("[error] GeometricModel.hpp > recv temp_buff\n");
 							printf("[error] GeometricModel.hpp > return -1\n");
-							fs_log << "[error] GeometricModel.hpp > recv temp_buff" << endl;
-							fs_log << "[error] GeometricModel.hpp > return -1" << endl;
+							fprintf(fs_log, "[error] GeometricModel.hpp > recv temp_buff\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
 							close(fd);
 							std::exit(-1);
 						}
@@ -778,7 +778,7 @@ public:
 						if (i ==0 || key_length < 1){
 							string temp_str(temp_buff.begin(), temp_buff.end());
 							cout << "[info] GeometricModel.hpp > key = " << temp_str << ", length = " << key_length << endl;
-							fs_log << "[info] GeometricModel.hpp > key = " << temp_str << ", length = " << key_length << endl;
+							fprintf(fs_log, "[info] GeometricModel.hpp > key = %s, length = %d\n", temp_str, key_length);
 						}
 
 						key.assign(&(temp_buff[0]), key_length);
@@ -787,8 +787,8 @@ public:
 						{
 							cout << "[error] GeometricModel.hpp > entity key does not exist! entity number : " << i << endl;
 							printf("[error] GeometricModel.hpp > return -1\n");
-							fs_log << "[error] GeometricModel.hpp > entity key does not exist! entity number : " << i << endl;
-							fs_log << "[error] GeometricModel.hpp > return -1" << endl;
+							fprintf(fs_log, "[error] GeometricModel.hpp > entity key does not exist! entity number : %d\n", i);
+							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
 							close(fd);
 							std::exit(-1);
 						}
