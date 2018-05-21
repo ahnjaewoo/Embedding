@@ -323,8 +323,8 @@ try:
 
         #checksum = struct.unpack('!i', embedding_sock.recv(4))[0]
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-        printt('[info] worker.py > received checksum = ' + str(checksum) + ', length = ' + str(len(checksum)) + ' - ' + worker_id)
-        fsLog.write('[info] worker.py > received checksum = ' + str(checksum) + ', length = ' + str(len(checksum)) + ' - ' + worker_id + '\n')
+        printt('[info] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id)
+        fsLog.write('[info] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
 
         if checksum == 1234:
 
