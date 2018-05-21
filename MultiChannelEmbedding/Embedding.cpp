@@ -38,6 +38,7 @@ int main(int argc, char* argv[]){
 
 	int flag_iter;
 	unsigned int len;
+	int nSockOpt;
 	int embedding_sock, worker_sock;
 	struct sockaddr_in embedding_addr;
 	struct sockaddr_in worker_addr;
@@ -50,12 +51,8 @@ int main(int argc, char* argv[]){
 	embedding_addr.sin_port = htons(socket_port);
 
 	// to solve bind error
-	//struct linger solinger = { 1, 0 };
-	//if(setsockopt(embedding_sock, SOL_SOCKET, SO_LINGER, &solinger, sizeof(struct linger)) == -1){
-		
-	//	perror("[error] setsockopt(SO_LINGER)\n");
-	//	printf("[error] setsocketopt in embedding.cpp\n");
-	//}
+	nSockOpt = 1;
+	setsockopt(embedding_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt));
 
 	// open log txt file
 	FILE * fs_log;

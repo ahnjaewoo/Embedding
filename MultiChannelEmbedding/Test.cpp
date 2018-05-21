@@ -55,12 +55,8 @@ int main(int argc, char* argv[]){
 	test_addr.sin_port = htons(7874);
 
 	// to solve bind error
-		//struct linger solinger = { 1, 0 };
-	//if(setsockopt(test_sock, SOL_SOCKET, SO_LINGER, &solinger, sizeof(struct linger)) == -1){
-		
-	//	perror("[error] setsockopt(SO_LINGER)\n");
-	//	printf("[error] setsocketopt in test.cpp\n");
-	//}
+	nSockOpt = 1;
+	setsockopt(test_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt));
 
 	// open log txt file
 	FILE * fs_log;
