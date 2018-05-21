@@ -38,8 +38,26 @@ def printt(str_):
     if loggerOn:
         logger.warning(str_ + '\n')
 
+def sockRecv(sock, length):
+
+    data = b''
+
+    while len(data) < length:
+
+        buff = sock.recv(length - len(data))
+
+        if not buff:
+
+            return None
+
+        data = data + buff
+
+    return data
+
 def handle_exception(exc_type, exc_value, exc_traceback):
+
     if issubclass(exc_type, KeyboardInterrupt):
+
         sys.__excepthook__(exc_type, exc_value, exc_traceback)
         return
     
@@ -106,20 +124,6 @@ while True:
         embedding_sock.connect(('0.0.0.0', int(socket_port)))
         break
 
-    except ConnectionRefusedError:
-        
-        tt.sleep(1)
-        trial = trial + 1
-        printt('[error] worker.py > exception occured in worker <-> embedding')
-        printt('[error] worker.py > ConnectionRefusedError')
-
-    except TimeoutError:
-        
-        tt.sleep(1)
-        trial = trial + 1
-        printt('[error] worker.py > exception occured in worker <-> embedding')
-        printt('[error] worker.py > TimeoutError')
-
     except Exception as e:
         
         tt.sleep(1)
@@ -141,7 +145,6 @@ printt('[info] worker.py > socket connected (worker <-> embedding)')
 # 파일로 로그를 저장하기 위한 부분
 fsLog = open(os.path.join(root_dir, 'worker_log_' + worker_id + '_iter_' + cur_iter + '.txt'), 'w')
 fsLog.write('line 143 start\n')
-
 
 
 
@@ -174,7 +177,8 @@ try:
                 
                 embedding_sock.send(struct.pack('!i', int(iter_entity)))
 
-            checksum = struct.unpack('!i', embedding_sock.recv(4))[0]
+            #checksum = struct.unpack('!i', embedding_sock.recv(4))[0]
+            checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
             if checksum == 1234:
 
@@ -215,7 +219,8 @@ try:
                 embedding_sock.send(struct.pack('!i', int(relation_id_)))
                 embedding_sock.send(struct.pack('!i', int(tail_id)))
 
-            checksum = struct.unpack('!i', embedding_sock.recv(4))[0]
+            #checksum = struct.unpack('!i', embedding_sock.recv(4))[0]
+            checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
             if checksum == 1234:
 
@@ -258,9 +263,11 @@ try:
 
 
             for v in vector:
+
                 embedding_sock.send(struct.pack('d', float(v)))
 
-        checksum = struct.unpack('!i', embedding_sock.recv(4))[0]
+        #checksum = struct.unpack('!i', embedding_sock.recv(4))[0]
+        checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
         if checksum == 1234:
 
@@ -294,6 +301,7 @@ try:
     while checksum != 1:
 
         for i, relation in enumerate(relations_initialized):
+
             relation_name = str(relations[i])
             #embedding_sock.send(struct.pack('!i', len(relation_name)))
             #embedding_sock.send(str.encode(relation_name))  # relation string 자체를 전송
@@ -310,9 +318,11 @@ try:
 
 
             for v in relation:
+
                 embedding_sock.send(struct.pack('d', float(v)))
 
-        checksum = struct.unpack('!i', embedding_sock.recv(4))[0]
+        #checksum = struct.unpack('!i', embedding_sock.recv(4))[0]
+        checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
         printt('[info] worker.py > received checksum = ' + str(checksum) + ', length = ' + str(len(checksum)) + ' - ' + worker_id)
         fsLog.write('[info] worker.py > received checksum = ' + str(checksum) + ', length = ' + str(len(checksum)) + ' - ' + worker_id + '\n')
 
@@ -358,7 +368,8 @@ try:
                 entity_vectors = dict()
 
                 # 처리 결과를 받아옴 - GeometricModel save
-                count_entity_data = embedding_sock.recv(4)
+                #count_entity_data = embedding_sock.recv(4)
+                count_entity_data = sockRecv(embedding_sock, 4)
                 
                 if len(count_entity_data) != 4:
                     
@@ -379,12 +390,14 @@ try:
                     #entity_id = embedding_sock.recv(entity_id_len).decode()
 
 
-                    entity_id_temp = str(struct.unpack('!i', embedding_sock.recv(4))[0])     # entity_id 를 int 로 받음
+                    #entity_id_temp = str(struct.unpack('!i', embedding_sock.recv(4))[0])     # entity_id 를 int 로 받음
+                    entity_id_temp = str(struct.unpack('!i', sockRecv(embedding_sock, 4))[0])     # entity_id 를 int 로 받음
                     fsLog.write('[info] worker.py > entity_id = ' + entity_id_temp + '\n')
 
                     for dim_idx in range(int(embedding_dim)):
                         
-                        temp_entity_double = embedding_sock.recv(8)
+                        #temp_entity_double = embedding_sock.recv(8)
+                        temp_entity_double = sockRecv(embedding_sock, 8)
                         
                         if len(temp_entity_double) != 8:
                             
@@ -457,9 +470,11 @@ try:
                 relation_vectors = dict()
 
                 # 처리 결과를 받아옴 - GeometricModel save
-                count_relation_data = embedding_sock.recv(4)
+                #count_relation_data = embedding_sock.recv(4)
+                count_relation_data = sockRecv(embedding_sock, 4)
                 
                 if len(count_relation_data) != 4:
+
                     printt('[info] worker.py > length of count_relation_data = ' + str(len(count_relation_data)))
                     fsLog.write('[info] worker.py > length of count_relation_data = ' + str(len(count_relation_data)) + '\n')
 
@@ -474,12 +489,14 @@ try:
                     #relation_id = embedding_sock.recv(relation_id_len).decode()
 
 
-                    relation_id_temp = str(struct.unpack('!i', embedding_sock.recv(4))[0])   # relation_id 를 int 로 받음
+                    #relation_id_temp = str(struct.unpack('!i', embedding_sock.recv(4))[0])   # relation_id 를 int 로 받음
+                    relation_id_temp = str(struct.unpack('!i', sockRecv(embedding_sock, 4))[0])   # relation_id 를 int 로 받음
 
 
                     for dim_idx in range(int(embedding_dim)):
                         
-                        temp_relation_double = embedding_sock.recv(8)
+                        #temp_relation_double = embedding_sock.recv(8)
+                        temp_relation_double = sockRecv(embedding_sock, 8)
                         
                         if len(temp_relation_double) != 8:
                             
