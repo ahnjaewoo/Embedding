@@ -50,9 +50,6 @@ int main(int argc, char* argv[]){
 	embedding_addr.sin_addr.s_addr = inet_addr("0.0.0.0");
 	embedding_addr.sin_port = htons(socket_port);
 
-	// to solve bind error
-	nSockOpt = 1;
-	setsockopt(embedding_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt));
 
 	// open log txt file
 	FILE * fs_log;
@@ -79,6 +76,11 @@ int main(int argc, char* argv[]){
 		fprintf(fs_log, "[error] embedding.cpp > return -1\n");
 		return -1;
 	}
+
+	// to solve bind error
+	nSockOpt = 1;
+	setsockopt(embedding_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt));
+
 	if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
 
 		printf("[error] embedding.cpp > bind socket - worker_%d\n", worker_num);
@@ -87,6 +89,7 @@ int main(int argc, char* argv[]){
 		fprintf(fs_log, "[error] embedding.cpp > return -1\n");
 		return -1;
 	}
+	
 	if (listen(embedding_sock, 1) < 0){
 
 		printf("[error] embedding.cpp > listen socket - worker_%d\n", worker_num);

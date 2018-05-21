@@ -55,9 +55,6 @@ int main(int argc, char* argv[]){
 	test_addr.sin_addr.s_addr = inet_addr("0.0.0.0");
 	test_addr.sin_port = htons(7874);
 
-	// to solve bind error
-	nSockOpt = 1;
-	setsockopt(test_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt));
 
 	// open log txt file
 	FILE * fs_log;
@@ -74,6 +71,10 @@ int main(int argc, char* argv[]){
 		return -1;
 	}
 
+	// to solve bind error
+	nSockOpt = 1;
+	setsockopt(test_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt));
+	
 	success = 0;
 	trial = 0;
 
