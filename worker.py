@@ -255,11 +255,11 @@ try:
         fsLog.write('[info] worker.py > total send entities - ' + str(len(entities_initialized)) + '\n')
         for i, vector in enumerate(entities_initialized):
             entity_name = str(entities[i])
-            #embedding_sock.send(struct.pack('!i', len(entity_name)))
-            #embedding_sock.send(str.encode(entity_name))    # entity string 자체를 전송
+            embedding_sock.send(struct.pack('!i', len(entity_name)))
+            embedding_sock.send(str.encode(entity_name))    # entity string 자체를 전송
 
 
-            embedding_sock.send(struct.pack('!i', entity_id[entity_name])) # entity id 를 int 로 전송
+            #embedding_sock.send(struct.pack('!i', entity_id[entity_name])) # entity id 를 int 로 전송
 
 
             for v in vector:
@@ -303,8 +303,8 @@ try:
         for i, relation in enumerate(relations_initialized):
 
             relation_name = str(relations[i])
-            #embedding_sock.send(struct.pack('!i', len(relation_name)))
-            #embedding_sock.send(str.encode(relation_name))  # relation string 자체를 전송
+            embedding_sock.send(struct.pack('!i', len(relation_name)))
+            embedding_sock.send(str.encode(relation_name))  # relation string 자체를 전송
 
             if len(relation_name) > 1000 or len(relation_name) < 0:
 
@@ -313,8 +313,8 @@ try:
                 printt('[error] len(relation_name) = ' + str(len(relation_name)))
 
 
-            embedding_sock.send(struct.pack('!i', relation_id[relation_name])) # relation id 를 int 로 전송
-            fsLog.write('[info] worker.py > sending vectors of ' + str(i) + ':' + relation_name + ' : ' + str(relation_id[relation_name]) + '\n')
+            #embedding_sock.send(struct.pack('!i', relation_id[relation_name])) # relation id 를 int 로 전송
+            #fsLog.write('[info] worker.py > sending vectors of ' + str(i) + ':' + relation_name + ' : ' + str(relation_id[relation_name]) + '\n')
 
 
             for v in relation:
@@ -387,12 +387,13 @@ try:
                     temp_entity_vector = list()
                     
                     #entity_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
-                    #entity_id = embedding_sock.recv(entity_id_len).decode()
+                    entity_id_len = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
+                    entity_id = embedding_sock.recv(entity_id_len).decode()
 
 
                     #entity_id_temp = str(struct.unpack('!i', embedding_sock.recv(4))[0])     # entity_id 를 int 로 받음
-                    entity_id_temp = str(struct.unpack('!i', sockRecv(embedding_sock, 4))[0])     # entity_id 를 int 로 받음
-                    fsLog.write('[info] worker.py > entity_id = ' + entity_id_temp + '\n')
+                    #entity_id_temp = str(struct.unpack('!i', sockRecv(embedding_sock, 4))[0])     # entity_id 를 int 로 받음
+                    #fsLog.write('[info] worker.py > entity_id = ' + entity_id_temp + '\n')
 
                     for dim_idx in range(int(embedding_dim)):
                         
@@ -407,8 +408,10 @@ try:
                         temp_entity = struct.unpack('d', temp_entity_double)[0]
                         temp_entity_vector.append(temp_entity)
 
-                    entity_vectors[entity_id_temp + '_v'] = pickle.dumps(
+                    entity_vectors[entity_id + '_v'] = pickle.dumps(                            # string 일 때
                         np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
+                    #entity_vectors[entity_id_temp + '_v'] = pickle.dumps(                      # int 일 때
+                    #    np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
 
             except Exception as e:
 
@@ -486,11 +489,12 @@ try:
                     
                     temp_relation_vector = list()
                     #relation_id_len = struct.unpack('!i', embedding_sock.recv(4))[0]
-                    #relation_id = embedding_sock.recv(relation_id_len).decode()
+                    relation_id_len = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
+                    relation_id = embedding_sock.recv(relation_id_len).decode()
 
 
                     #relation_id_temp = str(struct.unpack('!i', embedding_sock.recv(4))[0])   # relation_id 를 int 로 받음
-                    relation_id_temp = str(struct.unpack('!i', sockRecv(embedding_sock, 4))[0])   # relation_id 를 int 로 받음
+                    #relation_id_temp = str(struct.unpack('!i', sockRecv(embedding_sock, 4))[0])   # relation_id 를 int 로 받음
 
 
                     for dim_idx in range(int(embedding_dim)):
@@ -506,8 +510,10 @@ try:
                         temp_relation = struct.unpack('d', temp_relation_double)[0]
                         temp_relation_vector.append(temp_relation)
 
-                    relation_vectors[relation_id_temp + '_v'] = pickle.dumps(
+                    relation_vectors[relation_id + '_v'] = pickle.dumps(                        # string 일 때
                         np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
+                    #relation_vectors[relation_id_temp + '_v'] = pickle.dumps(                  # int 일 때
+                    #    np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
         
             except Exception as e:
 
