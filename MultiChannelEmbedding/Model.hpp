@@ -235,9 +235,9 @@ public:
 					continue;
 
 				++lreal_total;
-				std::cout << data_model.embedding_entity[i->first->first];
+				std::cout << data_model.embedding_entity[i->first.first];
 				std::cout << data_model.embedding_relation[i->second];
-				std::cout <<  data_model.embedding_entity[i->first->second];
+				std::cout <<  data_model.embedding_entity[i->first.second];
 				if (prob_triplets(*i) > threshold)
 					++real_hit, ++lreal_hit;
 			}
