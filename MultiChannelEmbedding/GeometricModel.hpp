@@ -529,6 +529,7 @@ public:
 
 								value_to_send = embedding_entity[i](j);
 								send(fd, &value_to_send, sizeof(value_to_send), 0);
+								fprintf(fs_log, "[info] GeometricModel.hpp > save : sending element of entity vector = %lf\n", value_to_send);
 							}
 						}
 					}
@@ -633,6 +634,7 @@ public:
 
 								value_to_send = embedding_relation[i](j);
 								send(fd, &value_to_send, sizeof(value_to_send), 0);
+								fprintf(fs_log, "[info] GeometricModel.hpp > save : sending elements of relation vector = %lf\n", value_to_send);
 							}
 						}
 					}
@@ -826,6 +828,12 @@ public:
 								std::exit(-1);
 							}
 
+
+
+							fprintf(fs_log, "[info] GeometricModel.hpp > load : receiving entity vector = %lf\n", temp_vector);
+
+
+
 							if (data_model.check_anchor.find(entity_id) == data_model.check_anchor.end()
 							&& data_model.check_parts.find(entity_id) != data_model.check_parts.end()){
 								
@@ -936,9 +944,17 @@ public:
 						for (int j = 0; j < dim; j++)
 						{
 
-							fprintf(fs_log, "GeometricModel.hpp > relation index = %d\n", i);
+							fprintf(fs_log, "[info] GeometricModel.hpp > relation index = %d\n", i);
 							int recv_return = recv(fd, &temp_vector, sizeof(temp_vector), MSG_WAITALL);
-							fprintf(fs_log, "GeometricModel.hpp > recv_return value = %d\n", recv_return);
+							fprintf(fs_log, "[info] GeometricModel.hpp > recv_return value = %d\n", recv_return);
+
+
+
+
+							fprintf(fs_log, "[info] GeometricModel.hpp > load : receiving elements of relation vector = %lf\n", temp_vector);
+
+
+
 
 			                if (recv_return < 0){
 
