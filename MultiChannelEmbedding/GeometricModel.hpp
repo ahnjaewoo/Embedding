@@ -241,6 +241,21 @@ public:
 		return -sum(abs(error));
 	}
 
+	virtual double prob_triplets_test(const pair<pair<int, int>, int>& triplet)
+	{
+		vec error = embedding_entity[triplet.first.first]
+			+ embedding_relation[triplet.second]
+			- embedding_entity[triplet.first.second];
+
+
+		cout << "embedding_entity[triplet.first.first] = " << embedding_entity[triplet.first.first] << "\n";
+		cout << "embedding_relation[triplet.second] = " << embedding_relation[triplet.second] << "\n";
+		cout << "embedding_entity[triplet.first.second] = " << embedding_entity[triplet.first.second] << "\n";
+		cout << "-sum(abs(error)) = " << -sum(abs(error)) << "\n";
+
+		return -sum(abs(error));
+	}
+
 	virtual void train_triplet(const pair<pair<int, int>, int>& triplet)
 	{
 		vec& head = embedding_entity[triplet.first.first];
