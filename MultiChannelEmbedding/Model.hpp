@@ -190,7 +190,8 @@ public:
 	void test_triplet_classification()
 	{
 		double real_hit = 0;
-		for (auto r = 0; r < data_model.set_relation.size(); ++r)
+		//for (auto r = 0; r < data_model.set_relation.size(); ++r)
+		for (auto r = 0; r < 1; ++r)
 		{
 			vector<pair<double, bool>>	threshold_dev;
 			for (auto i = data_model.data_dev_true.begin(); i != data_model.data_dev_true.end(); ++i)
@@ -244,6 +245,9 @@ public:
 				if (i->second != r)
 					continue;
 
+				std::cout << data_model.embedding_entity[i.first.first];
+				std::cout << data_model.embedding_relation[i.second];
+				std::cout <<  data_model.embedding_entity[i.first.second];
 				++lreal_total;
 				if (prob_triplets(*i) <= threshold)
 					++real_hit, ++lreal_hit;
