@@ -463,8 +463,6 @@ public:
 					}
 				}
 
-				printf("[info] GeometricModel.hpp > count_entity in save function is %d\n", count);
-				fprintf(fs_log, "[info] GeometricModel.hpp > count_entity in save function is %d\n", count);
 				count = htonl(count);
 				send(fd, &count, sizeof(count), 0);
 
@@ -524,7 +522,6 @@ public:
                 	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
 					printf("[error] GeometricModel.hpp > recv value = %d\n", recv_val);
                 	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
-					fprintf(fs_log, "[error] GeometricModel.hpp 564 line\n");
                     fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
                     fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
 					fprintf(fs_log, "[error] GeometricModel.hpp > recv value = %d\n", recv_val);
@@ -551,8 +548,6 @@ public:
 					}
 				}
 
-				printf("[info] GeometricModel.hpp > count_relation in save function is %d\n", count);
-				fprintf(fs_log, "[info] GeometricModel.hpp > count_relation in save function is %d\n", count);
 				count = htonl(count);
 				send(fd, &count, sizeof(count), 0);
 
@@ -578,8 +573,7 @@ public:
 						for (int j = 0; j < dim; j++){
 
 							value_to_send = embedding_relation[i](j);
-							send(fd, &value_to_send, sizeof(value_to_send), 0);
-							fprintf(fs_log, "[info] GeometricModel.hpp > save : sending elements of relation vector = %lf\n", value_to_send);
+							send(fd, &value_to_send, sizeof(value_to_send), 0);;
 						}
 					}
 				}
@@ -613,7 +607,6 @@ public:
                 	printf("[error] GeometricModel.hpp > unknown error of phase 3 (relation)\n");
                 	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
                 	printf("[error] GeometricModel.hpp > retry phase 3 (relation)\n");
-					fprintf(fs_log, "[error] GeometricModel.hpp 663 line\n");
                     fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (relation)\n");
                     fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
 					fprintf(fs_log, "[error] GeometricModel.hpp > recv value = %d\n", recv_val);
@@ -667,13 +660,6 @@ public:
 						std::exit(-1);
 					}
 
-					if (i ==0 || key_length < 1){
-
-						string temp_str(temp_buff.begin(), temp_buff.end());
-						cout << "[info] GeometricModel.hpp > key = " << temp_str << ", length = " << key_length << endl;
-						fprintf(fs_log, "[info] GeometricModel.hpp > key = %s, length = %d\n", temp_str.c_str(), key_length);
-					}
-
 					key.assign(&(temp_buff[0]), key_length);
 
 					if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end()){
@@ -709,7 +695,6 @@ public:
 
 							printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
 							printf("[error] GeometricModel.hpp > return -1\n");
-							fprintf(fs_log, "[error] GeometricModel.hpp 809 line\n");
 							fprintf(fs_log, "[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
 							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
 							close(fd);
@@ -764,6 +749,7 @@ public:
 	                }
 
 	                key_length = ntohl(key_length);
+
 	                if (recv(fd, &temp_buff[0], sizeof(char) * key_length, MSG_WAITALL) < 0){
 
 	                	printf("[error] GeometricModel.hpp > recv temp_buff\n");
@@ -774,15 +760,6 @@ public:
                     	fclose(fs_log);
                     	std::exit(-1);
 	                }
-
-					if (key_length < 0 || key_length > 1000){
-						
-						cout << "[error] GeometricModel.hpp > key_length is strange, length = " << key_length << endl;
-						fprintf(fs_log, "[error] GeometricModel.hpp > key_length is strange, length = %d\n", key_length);
-						string temp_str(temp_buff.begin(), temp_buff.end());
-						cout << "[info] GeometricModel.hpp > key = " << temp_str << ", length = " << key_length << endl;
-						fprintf(fs_log, "[info] GeometricModel.hpp > key = %s, length = %d\n", temp_str.c_str(), key_length);
-					}
 
 	                key.assign(&(temp_buff[0]), key_length);
 
@@ -816,11 +793,7 @@ public:
 
 					for (int j = 0; j < dim; j++){
 
-						fprintf(fs_log, "[info] GeometricModel.hpp > relation index = %d\n", i);
-						int recv_return = recv(fd, &temp_vector, sizeof(temp_vector), MSG_WAITALL);
-						fprintf(fs_log, "[info] GeometricModel.hpp > recv_return value = %d\n", recv_return);
-
-		                if (recv_return < 0){
+		                if (recv(fd, &temp_vector, sizeof(temp_vector), MSG_WAITALL) < 0){
 
 		                	printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
                             printf("[error] GeometricModel.hpp > return -1\n");
@@ -855,8 +828,6 @@ public:
                 flag = htonl(flag);
                 send(fd, &flag, sizeof(flag), 0);
                 success = 1;
-                printf("[info] GeometricModel.hpp > send flag\n");
-                fprintf(fs_log, "[info] GeometricModel.hpp > send flag\n");
 			}
 			catch(std::exception& e){
 
