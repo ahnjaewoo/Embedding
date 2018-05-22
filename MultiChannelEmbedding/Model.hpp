@@ -190,8 +190,7 @@ public:
 	void test_triplet_classification()
 	{
 		double real_hit = 0;
-		//for (auto r = 0; r < data_model.set_relation.size(); ++r)
-		for (auto r = 0; r < 1; ++r)
+		for (auto r = 0; r < data_model.set_relation.size(); ++r)
 		{
 			vector<pair<double, bool>>	threshold_dev;
 			for (auto i = data_model.data_dev_true.begin(); i != data_model.data_dev_true.end(); ++i)
