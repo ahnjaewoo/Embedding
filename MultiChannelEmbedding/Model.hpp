@@ -237,7 +237,7 @@ public:
 
 				++lreal_total;
 
-				if (prob_triplets_test(*i) > threshold)
+				if (prob_triplets(*i) > threshold)
 
 					++real_hit, ++lreal_hit;
 			}
@@ -248,7 +248,7 @@ public:
 					continue;
 
 				++lreal_total;
-				if (prob_triplets_test(*i) <= threshold)
+				if (prob_triplets(*i) <= threshold)
 					++real_hit, ++lreal_hit;
 			}
 
