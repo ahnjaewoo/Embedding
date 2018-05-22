@@ -438,593 +438,441 @@ public:
 	}
 	*/
 
-	virtual void save(const string& filename, FILE * fs_log) override
-	{
+	virtual void save(const string& filename, FILE * fs_log) override{
 
 		int string_len;
 		int count = 0;
 		double value_to_send;
 
-		// 파일로 전송
-		if (fd == 0) {
+		// master_epoch이 짝수일 때, entity embedding
+		if (master_epoch % 2 == 0){
 
-			// master_epoch이 짝수일 때 (entity embedding ㄱㄱ)
-			if (master_epoch % 2 == 0)
-			{
-				ofstream fout_entity("../tmp/entity_vectors_updated_" + filename + ".txt", ios::binary);
-				for (int i = 0; i < count_entity(); i++)
-				{
+			int checksum = 0;
+			int flag = 0;
+
+			while(checksum != 1){
+
+				count = 0;
+
+				for (int i = 0; i < count_entity(); i++){
+
 					if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
-					&& data_model.check_parts.find(i) != data_model.check_parts.end())
-					{
-						fout_entity << data_model.entity_id_to_name[i] << '\t';
-						for (int j =0; j < dim; j++)
-						{
-							fout_entity << embedding_entity[i](j) << " ";
-						}
-						fout_entity << '\n';
+					&& data_model.check_parts.find(i) != data_model.check_parts.end()){
+
+						count++;
 					}
 				}
-				fout_entity.close();
-			}
-			// master_epoch이 홀수일 때 (relation embedding ㄱㄱ)
-			else
-			{
-				ofstream fout_relation("../tmp/relation_vectors_updated_" + filename + ".txt", ios::binary);
-				for (int i = 0; i < count_relation(); i++)
-				{
-					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end())
-					{
-						fout_relation << data_model.relation_id_to_name[i] << '\t';
-						for (int j = 0; j < dim; j++)
-						{
-							fout_relation << embedding_relation[i](j) << " ";
+
+				printf("[info] GeometricModel.hpp > count_entity in save function is %d\n", count);
+				fprintf(fs_log, "[info] GeometricModel.hpp > count_entity in save function is %d\n", count);
+				count = htonl(count);
+				send(fd, &count, sizeof(count), 0);
+
+				for (int i = 0; i < count_entity(); i++){
+
+					if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+					&& data_model.check_parts.find(i) != data_model.check_parts.end()){
+						// entity_id 가 string 으로 주어진 경우
+						// entity_id_to_name 을 이용해 string 을 가져와서 보냄
+						string_len = data_model.entity_id_to_name[i].size();
+						string_len = htonl(string_len);
+						send(fd, &string_len, sizeof(string_len), 0);
+						string_len = ntohl(string_len);
+						send(fd, data_model.entity_id_to_name[i].c_str() , string_len, 0);
+						
+						// entity_id 가 int 로 주어진 경우
+						/*
+						i = htonl(i);
+						send(fd, &i, sizeof(int), 0);
+						i = ntohl(i);
+						*/
+
+						for (int j = 0; j < dim; j++){
+
+							value_to_send = embedding_entity[i](j);
+							send(fd, &value_to_send, sizeof(value_to_send), 0);
 						}
-						fout_relation << '\n';
 					}
 				}
-				fout_relation.close();
+
+                if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
+
+                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
+                    printf("[error] GeometricModel.hpp > return -1\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+                    close(fd);
+                    fclose(fs_log);
+                    std::exit(-1);
+                }
+
+                flag = ntohl(flag);
+
+                if(flag == 1234){
+
+                	checksum = 1;
+                }
+                else if(flag == 9876){
+
+                	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+                	fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+                	checksum = 0;
+                }
+                else{
+
+                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
+                	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
+					printf("[error] GeometricModel.hpp > recv value = %d\n", recv_val);
+                	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+					fprintf(fs_log, "[error] GeometricModel.hpp 564 line\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
+					fprintf(fs_log, "[error] GeometricModel.hpp > recv value = %d\n", recv_val);
+                    fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+                    checksum = 0;
+                }
 			}
+
+			printf("[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
+			fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
 		}
+		else{
+			// master_epoch 이 홀수일 때, relation embedding
+			int checksum = 0;
+			int flag = 0;
 
-		// socket 으로 전송
-		else {
+			while(checksum != 1){
 
-			// master_epoch이 짝수일 때 (entity embedding ㄱㄱ)
-			if (master_epoch % 2 == 0){
+				for (int i = 0; i < count_relation(); i++){
 
-				int checksum = 0;
-				int flag = 0;
+					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
-				while(checksum != 1){
-
-					count = 0;
-
-					for (int i = 0; i < count_entity(); i++){
-
-						if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
-						&& data_model.check_parts.find(i) != data_model.check_parts.end()){
-
-							count++;
-						}
+						count++;
 					}
-
-					printf("[info] GeometricModel.hpp > count_entity in save function is %d\n", count);
-					fprintf(fs_log, "[info] GeometricModel.hpp > count_entity in save function is %d\n", count);
-					count = htonl(count);
-					send(fd, &count, sizeof(count), 0);
-
-					for (int i = 0; i < count_entity(); i++){
-
-						if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
-						&& data_model.check_parts.find(i) != data_model.check_parts.end()){
-
-							// entity_id 가 string 으로 주어진 경우
-							// entity_id_to_name 을 이용해 string 을 가져와서 보냄
-							
-							string_len = data_model.entity_id_to_name[i].size();
-							string_len = htonl(string_len);
-							send(fd, &string_len, sizeof(string_len), 0);
-							string_len = ntohl(string_len);
-							send(fd, data_model.entity_id_to_name[i].c_str() , string_len, 0);
-							
-
-							
-							// entity_id 가 int 로 주어진 경우
-							// 그냥 그대로 보냄
-							/*
-							i = htonl(i);
-							send(fd, &i, sizeof(int), 0);
-							i = ntohl(i);
-							
-							fprintf(fs_log, "[info] GeometricModel.hpp > send entity id = %d\n", i);
-							*/
-
-							for (int j =0; j < dim; j++){
-
-								value_to_send = embedding_entity[i](j);
-								send(fd, &value_to_send, sizeof(value_to_send), 0);
-								fprintf(fs_log, "[info] GeometricModel.hpp > save : sending element of entity vector = %lf\n", value_to_send);
-							}
-						}
-					}
-					fprintf(fs_log, "[info] GeometricModel.hpp > get flag\n");
-					int recv_val = recv(fd, &flag, sizeof(flag), MSG_WAITALL);
-	                if (recv_val < 0){
-
-	                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
-                        printf("[error] GeometricModel.hpp > return -1\n");
-						fprintf(fs_log, "[error] GeometricModel.hpp 534 line\n");
-                        fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
-                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                        close(fd);
-                        fclose(fs_log);
-                        std::exit(-1);
-	                }
-
-	                flag = ntohl(flag);
-
-	                if(flag == 1234){
-
-	                	checksum = 1;
-	                }
-	                else if(flag == 9876){
-
-	                	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
-	                	fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (entity)\n");
-	                	checksum = 0;
-	                }
-	                else{
-
-	                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
-	                	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
-						printf("[error] GeometricModel.hpp > recv value = %d\n", recv_val);
-	                	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
-                        //printf("[error] GeometricModel.hpp > return -1\n");
-						fprintf(fs_log, "[error] GeometricModel.hpp 564 line\n");
-                        fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
-                        fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
-						fprintf(fs_log, "[error] GeometricModel.hpp > recv value = %d\n", recv_val);
-                        fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (entity)\n");
-                        //fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                        //close(fd);
-                        //fclose(fs_log);
-                        //std::exit(-1);
-                        checksum = 0;
-	                }
 				}
 
-				printf("[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
-				fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
-			}
-			// master_epoch이 홀수일 때 (relation embedding ㄱㄱ)
-			else{
+				printf("[info] GeometricModel.hpp > count_relation in save function is %d\n", count);
+				fprintf(fs_log, "[info] GeometricModel.hpp > count_relation in save function is %d\n", count);
+				count = htonl(count);
+				send(fd, &count, sizeof(count), 0);
 
+				for (int i = 0; i < count_relation(); i++){
 
-				int checksum = 0;
-				int flag = 0;
+					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
-				while(checksum != 1){
+						// relation_id 가 string 으로 주어진 경우
+						// relation_id_to_name 을 이용해 string 을 가져와서 보냄
+						string_len = data_model.relation_id_to_name[i].size();
+						string_len = htonl(string_len);
+						send(fd, &string_len, sizeof(string_len), 0);
+						string_len = ntohl(string_len);
+						send(fd, data_model.relation_id_to_name[i].c_str() , string_len, 0);
+						
+						// relation_id 가 int 로 주어진 경우
+						/*
+						i = htonl(i);
+						send(fd, &i, sizeof(int), 0);
+						i = ntohl(i);
+						*/
 
-					for (int i = 0; i < count_relation(); i++){
+						for (int j = 0; j < dim; j++){
 
-						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
-
-							count++;
+							value_to_send = embedding_relation[i](j);
+							send(fd, &value_to_send, sizeof(value_to_send), 0);
+							fprintf(fs_log, "[info] GeometricModel.hpp > save : sending elements of relation vector = %lf\n", value_to_send);
 						}
 					}
-
-					printf("[info] GeometricModel.hpp > count_relation in save function is %d\n", count);
-					fprintf(fs_log, "[info] GeometricModel.hpp > count_relation in save function is %d\n", count);
-					count = htonl(count);
-					send(fd, &count, sizeof(count), 0);
-
-					for (int i = 0; i < count_relation(); i++){
-
-						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
-
-							// relation_id 가 string 으로 주어진 경우
-							// relation_id_to_name 을 이용해 string 을 가져와서 보냄
-							
-							string_len = data_model.relation_id_to_name[i].size();
-							string_len = htonl(string_len);
-							send(fd, &string_len, sizeof(string_len), 0);
-							string_len = ntohl(string_len);
-							send(fd, data_model.relation_id_to_name[i].c_str() , string_len, 0);
-							
-
-							
-							// relation_id 가 int 로 주어진 경우
-							// 그냥 그대로 보냄
-							/*
-							i = htonl(i);
-							send(fd, &i, sizeof(int), 0);
-							i = ntohl(i);
-
-
-							fprintf(fs_log, "[info] GeometricModel.hpp > send relation id = %d\n", i);
-							*/
-
-							for (int j = 0; j < dim; j++){
-
-								value_to_send = embedding_relation[i](j);
-								send(fd, &value_to_send, sizeof(value_to_send), 0);
-								fprintf(fs_log, "[info] GeometricModel.hpp > save : sending elements of relation vector = %lf\n", value_to_send);
-							}
-						}
-					}
-					int recv_val = recv(fd, &flag, sizeof(flag), MSG_WAITALL);
-	                if (recv_val < 0){
-
-	                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
-                        printf("[error] GeometricModel.hpp > return -1\n");
-						fprintf(fs_log, "[error] GeometricModel.hpp 637 line\n");
-                        fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
-                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                        close(fd);
-                        fclose(fs_log);
-                        std::exit(-1);
-	                }
-
-	                flag = ntohl(flag);
-
-	                if(flag == 1234){
-
-	                	checksum = 1;
-	                }
-	                else if(flag == 9876){
-
-	                	printf("[error] GeometricModel.hpp > retry phase 3 (relation)\n");
-	                	fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (relation)\n");
-	                	checksum = 0;
-	                }
-	                else{
-
-	                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (relation)\n");
-	                	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
-	                	printf("[error] GeometricModel.hpp > retry phase 3 (relation)\n");
-                        //printf("[error] GeometricModel.hpp > return -1\n");
-						fprintf(fs_log, "[error] GeometricModel.hpp 663 line\n");
-                        fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (relation)\n");
-                        fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
-						fprintf(fs_log, "[error] GeometricModel.hpp > recv value = %d\n", recv_val);
-                        fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (relation)\n");
-                        //fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                        //close(fd);
-                        //fclose(fs_log);
-                        //std::exit(-1);
-                        checksum = 0;
-	                }
 				}
+				int recv_val = recv(fd, &flag, sizeof(flag), MSG_WAITALL);
+                if (recv_val < 0){
 
-				printf("[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
-				fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
+                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
+                    printf("[error] GeometricModel.hpp > return -1\n");
+					fprintf(fs_log, "[error] GeometricModel.hpp 637 line\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+                    close(fd);
+                    fclose(fs_log);
+                    std::exit(-1);
+                }
+
+                flag = ntohl(flag);
+
+                if(flag == 1234){
+
+                	checksum = 1;
+                }
+                else if(flag == 9876){
+
+                	printf("[error] GeometricModel.hpp > retry phase 3 (relation)\n");
+                	fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (relation)\n");
+                	checksum = 0;
+                }
+                else{
+
+                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (relation)\n");
+                	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
+                	printf("[error] GeometricModel.hpp > retry phase 3 (relation)\n");
+					fprintf(fs_log, "[error] GeometricModel.hpp 663 line\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (relation)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
+					fprintf(fs_log, "[error] GeometricModel.hpp > recv value = %d\n", recv_val);
+                    fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (relation)\n");
+                    checksum = 0;
+                }
 			}
+
+			printf("[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
+			fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
 		}
 	}
-
 
 	virtual void load(const string& filename, FILE * fs_log) override
 	{
 
-		// filename 가 전혀 사용되지 않음을 참고
+		// filename 파라미터가 전혀 사용되지 않음을 참고
+		string key;
+		int key_length;
+		double temp_vector;
+		vector<char> temp_buff(256);
+  		int success = 0;
+		int flag = 0;
 
-		if (fd == 0) {
+		while(!success){
 
-			// 파일로 전송
-			ifstream fin_entity("../tmp/entity_vectors.txt", ios::binary);
-			ifstream fin_relation("../tmp/relation_vectors.txt", ios::binary);
+			try{
 
-			string key;
+				for (int i = 0; i < count_entity(); i++) {
 
-			for (int i = 0; i < count_entity(); i++)
-			{
-				fin_entity >> key;
-				if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
-				{
-					cout << "entity key does not exist! entity number : " << i << endl;
-					return;
-				}
-				int entity_id = data_model.entity_name_to_id.at(key);
-
-				for (int j = 0; j < dim; j++)
-				{
-					fin_entity >> embedding_entity[entity_id](j);
-				}
-			}
-
-			for (int i = 0; i < count_relation(); i++)
-			{
-				fin_relation >> key;
-				if (data_model.relation_name_to_id.find(key) == data_model.relation_name_to_id.end())
-				{
-					cout << "relation key does not exist!" << endl;
-					return;
-				}
-				int relation_id = data_model.relation_name_to_id.at(key);
-
-				for (int j = 0; j < dim; j++)
-				{
-					fin_relation >> embedding_relation[relation_id](j);
-				}
-			}
-
-			fin_entity.close();
-			fin_relation.close();
-		}
-
-
-		else {
-
-			// 소켓으로 전송
-			string key;
-			int key_length;
-			double temp_vector;
-			vector<char> temp_buff(256);
-      		int success = 0;
-			int flag = 0;
-
-			while(!success){
-				try{
-					fprintf(fs_log, "GeometricModel.hpp > total entities = %d\n", count_entity());
-					for (int i = 0; i < count_entity(); i++) {
-						// entity key 를 string 으로 받는 경우
-						// entity key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
-						
-						if (recv(fd, &key_length, sizeof(key_length), MSG_WAITALL) < 0){
-							printf("[error] GeometricModel.hpp > recv key_length\n");
-							printf("[error] GeometricModel.hpp > return -1\n");
-							fprintf(fs_log, "[error] GeometricModel.hpp > recv key_length\n");
-							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-							close(fd);
-							std::exit(-1);
-						}
-
-						key_length = ntohl(key_length);
-
-						if (recv(fd, &(temp_buff[0]), sizeof(char) * key_length, MSG_WAITALL) < 0) {
-							printf("[error] GeometricModel.hpp > recv temp_buff\n");
-							printf("[error] GeometricModel.hpp > return -1\n");
-							fprintf(fs_log, "[error] GeometricModel.hpp > recv temp_buff\n");
-							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-							close(fd);
-							std::exit(-1);
-						}
-
-
-						if (i ==0 || key_length < 1){
-							string temp_str(temp_buff.begin(), temp_buff.end());
-							cout << "[info] GeometricModel.hpp > key = " << temp_str << ", length = " << key_length << endl;
-							fprintf(fs_log, "[info] GeometricModel.hpp > key = %s, length = %d\n", temp_str.c_str(), key_length);
-						}
-
-						key.assign(&(temp_buff[0]), key_length);
-
-						if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end())
-						{
-							cout << "[error] GeometricModel.hpp > entity key does not exist! entity number : " << i << endl;
-							printf("[error] GeometricModel.hpp > return -1\n");
-							fprintf(fs_log, "[error] GeometricModel.hpp > entity key does not exist! entity number : %d\n", i);
-							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-							close(fd);
-							std::exit(-1);
-						}
-
-						int entity_id = data_model.entity_name_to_id.at(key);
-						
-						
-						// entity key 가 int 형식으로 주어짐
-						/*
-						int entity_id;
-		                if (recv(fd, &entity_id, sizeof(int), MSG_WAITALL) < 0){
-
-		                	printf("[error] GeometricModel.hpp > recv entity_id\n");
-		                	fprintf(fs_log, "[error] GeometricModel.hpp > recv entity_id\n");
-		                    close(fd);
-		                    fclose(fs_log);
-		                    break;
-		                }
-
-						entity_id = ntohl(entity_id);
-						fprintf(fs_log, "GeometricModel.hpp > get entity id = %d\n", entity_id);
-						*/
-
-						for (int j = 0; j < dim; j++)
-						{
-							if (recv(fd, &temp_vector, sizeof(temp_vector), MSG_WAITALL) < 0){
-
-								printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
-								printf("[error] GeometricModel.hpp > return -1\n");
-								fprintf(fs_log, "[error] GeometricModel.hpp 809 line\n");
-								fprintf(fs_log, "[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
-								fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-								close(fd);
-								fclose(fs_log);
-								std::exit(-1);
-							}
-
-
-
-							fprintf(fs_log, "[info] GeometricModel.hpp > load : receiving entity vector = %lf\n", temp_vector);
-
-
-
-							//if (data_model.check_anchor.find(entity_id) == data_model.check_anchor.end()
-							//&& data_model.check_parts.find(entity_id) != data_model.check_parts.end()){
-								
-								embedding_entity[entity_id](j) = temp_vector;
-							//}
-						}
+					// entity key 를 string 으로 받는 경우
+					// entity key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
+					if (recv(fd, &key_length, sizeof(key_length), MSG_WAITALL) < 0){
+					
+						printf("[error] GeometricModel.hpp > recv key_length\n");
+						printf("[error] GeometricModel.hpp > return -1\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > recv key_length\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						std::exit(-1);
 					}
 
-					flag = 1234;
-					flag = htonl(flag);
-					send(fd, &flag, sizeof(flag), 0);
-					success = 1;
-				}
-            	catch(std::exception& e){
+					key_length = ntohl(key_length);
+					if (recv(fd, &(temp_buff[0]), sizeof(char) * key_length, MSG_WAITALL) < 0) {
 
-                    printf("[error] GeometricModel.hpp > exception occured\n");
-                    printf("%s\n", e.what());
-                    fprintf(fs_log, "[error] GeometricModel.hpp > exception occured\n");
-                    fprintf(fs_log, "%s\n", e.what());
-                    success = 0;
-                    flag = 9876;
-                    flag = htonl(flag);
-                    send(fd, &flag, sizeof(flag), 0);
-            	}
-            }
-			printf("[info] GeometricModel.hpp > load entity finish\n");
-			fprintf(fs_log, "[info] GeometricModel.hpp > load entity finish\n");
-
-			success = 0;
-			flag = 0;
-
-			while(!success){
-
-				try{
-
-					printf("[info] GeometricModel.hpp > start receiving relation vector\n");
-					fprintf(fs_log, "[info] GeometricModel.hpp > start receiving relation vector\n");
-
-					for (int i = 0; i < count_relation(); i++) {
-						// relation key 를 string 으로 받는 경우
-						// relation key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
-						
-		                if (recv(fd, &key_length, sizeof(key_length), MSG_WAITALL) < 0){
-
-		                	printf("[error] GeometricModel.hpp > recv key_length\n");
-                            printf("[error] GeometricModel.hpp > return -1\n");
-		                	fprintf(fs_log, "[error] GeometricModel.hpp > recv key_length\n");
-                            fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                        	close(fd);
-                        	fclose(fs_log);
-                        	std::exit(-1);
-		                }
-
-		                key_length = ntohl(key_length);
-
-		                if (recv(fd, &temp_buff[0], sizeof(char) * key_length, MSG_WAITALL) < 0){
-
-		                	printf("[error] GeometricModel.hpp > recv temp_buff\n");
-                            printf("[error] GeometricModel.hpp > return -1\n");
-		                	fprintf(fs_log, "[error] GeometricModel.hpp > recv temp_buff\n");
-                            fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                        	close(fd);
-                        	fclose(fs_log);
-                        	std::exit(-1);
-		                }
-
-						if (key_length < 0 || key_length > 1000){
-							
-							cout << "[error] GeometricModel.hpp > key_length is strange, length = " << key_length << endl;
-							fprintf(fs_log, "[error] GeometricModel.hpp > key_length is strange, length = %d\n", key_length);
-							string temp_str(temp_buff.begin(), temp_buff.end());
-							cout << "[info] GeometricModel.hpp > key = " << temp_str << ", length = " << key_length << endl;
-							fprintf(fs_log, "[info] GeometricModel.hpp > key = %s, length = %d\n", temp_str.c_str(), key_length);
-						}
-		                key.assign(&(temp_buff[0]), key_length);
-
-						if (data_model.relation_name_to_id.find(key) == data_model.relation_name_to_id.end())
-						{
-
-							cout << "[error] GeometricModel.hpp > relation key does not exist! relation number : " << i << endl;
-	                        printf("[error] GeometricModel.hpp > return -1\n");
-							fprintf(fs_log, "[error] GeometricModel.hpp > relation key does not exist! relation number : %d\n", i);
-	                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                        	close(fd);
-                        	fclose(fs_log);
-                        	std::exit(-1);
-						}
-
-						int relation_id = data_model.relation_name_to_id.at(key);
-						
-
-						
-						// relation key 가 int 형식으로 주어짐
-						/*
-						int relation_id;
-		                if (recv(fd, &relation_id, sizeof(int), MSG_WAITALL) < 0){
-
-		                	printf("[error] recv relation_id in GeometricModel.hpp\n");
-		                	fprintf(fs_log, "[error] recv relation_id in GeometricModel.hpp\n");
-		                    close(fd);
-		                    fclose(fs_log);
-		                    break;
-		                }
-
-						relation_id = ntohl(relation_id);
-						*/
-
-						for (int j = 0; j < dim; j++)
-						{
-
-							fprintf(fs_log, "[info] GeometricModel.hpp > relation index = %d\n", i);
-							int recv_return = recv(fd, &temp_vector, sizeof(temp_vector), MSG_WAITALL);
-							fprintf(fs_log, "[info] GeometricModel.hpp > recv_return value = %d\n", recv_return);
-
-
-
-
-							fprintf(fs_log, "[info] GeometricModel.hpp > load : receiving elements of relation vector = %lf\n", temp_vector);
-
-
-
-
-			                if (recv_return < 0){
-
-			                	printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
-                                printf("[error] GeometricModel.hpp > return -1\n");
-								fprintf(fs_log, "[error] GeometricModel.hpp 932 line\n");
-			                	fprintf(fs_log, "[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
-                                fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                        		close(fd);
-                        		fclose(fs_log);
-                        		std::exit(-1);
-			                }
-
-			                try{
-
-			                	embedding_relation[relation_id](j) = temp_vector;
-			                	//embedding_relation[i](j) = temp_vector;
-			                }
-			                catch(std::exception& e){
-
-        	                    printf("[error] GeometricModel.hpp > exception occured, relation_id = %d\n", relation_id);
-                    			printf("%s\n", e.what());
-        	                    fprintf(fs_log, "[error] GeometricModel.hpp > exception occured, relation_id = %d\n", relation_id);
-                    			fprintf(fs_log, "%s\n", e.what());
-                    			fclose(fs_log);
-								std::exit(-1);
-			                }
-							
-						}
+						printf("[error] GeometricModel.hpp > recv temp_buff\n");
+						printf("[error] GeometricModel.hpp > return -1\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > recv temp_buff\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						std::exit(-1);
 					}
-					printf("[info] GeometricModel.hpp > receiving relation vector end\n");
-					fprintf(fs_log, "[info] GeometricModel.hpp > receiving relation vector end\n");
 
-                    flag = 1234;
-                    flag = htonl(flag);
-                    send(fd, &flag, sizeof(flag), 0);
-                    success = 1;
-                    printf("[info] GeometricModel.hpp > send flag\n");
-                    fprintf(fs_log, "[info] GeometricModel.hpp > send flag\n");
+					if (i ==0 || key_length < 1){
+
+						string temp_str(temp_buff.begin(), temp_buff.end());
+						cout << "[info] GeometricModel.hpp > key = " << temp_str << ", length = " << key_length << endl;
+						fprintf(fs_log, "[info] GeometricModel.hpp > key = %s, length = %d\n", temp_str.c_str(), key_length);
+					}
+
+					key.assign(&(temp_buff[0]), key_length);
+
+					if (data_model.entity_name_to_id.find(key) == data_model.entity_name_to_id.end()){
+
+						cout << "[error] GeometricModel.hpp > entity key does not exist! entity number : " << i << endl;
+						printf("[error] GeometricModel.hpp > return -1\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > entity key does not exist! entity number : %d\n", i);
+						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						std::exit(-1);
+					}
+
+					int entity_id = data_model.entity_name_to_id.at(key);
+					
+					// entity key 를 int 로 받는 경우
+					/*
+					int entity_id;
+	                if (recv(fd, &entity_id, sizeof(int), MSG_WAITALL) < 0){
+
+	                	printf("[error] GeometricModel.hpp > recv entity_id\n");
+	                	fprintf(fs_log, "[error] GeometricModel.hpp > recv entity_id\n");
+	                    close(fd);
+	                    fclose(fs_log);
+	                    break;
+	                }
+
+					entity_id = ntohl(entity_id);
+					*/
+
+					for (int j = 0; j < dim; j++)
+					{
+						if (recv(fd, &temp_vector, sizeof(temp_vector), MSG_WAITALL) < 0){
+
+							printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
+							printf("[error] GeometricModel.hpp > return -1\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp 809 line\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+							close(fd);
+							fclose(fs_log);
+							std::exit(-1);
+						}
+
+						embedding_entity[entity_id](j) = temp_vector;						
+					}
 				}
-				catch(std::exception& e){
-					printf("[error] GeometricModel.hpp > exception occured\n");
-					printf("%s\n", e.what());
-					fprintf(fs_log, "[error] GeometricModel.hpp > exception occured\n");
-					fprintf(fs_log, "%s\n", e.what());
-					success = 0;
-					flag = 9876;
-					flag = htonl(flag);
-					send(fd, &flag, sizeof(flag), 0);
-				}
+
+				flag = 1234;
+				flag = htonl(flag);
+				send(fd, &flag, sizeof(flag), 0);
+				success = 1;
 			}
-			printf("[info] GeometricModel.hpp > load relation finish\n");
-			fprintf(fs_log, "[info] GeometricModel.hpp > load relation finish\n");
+        	catch(std::exception& e){
+
+                printf("[error] GeometricModel.hpp > exception occured\n");
+                printf("%s\n", e.what());
+                fprintf(fs_log, "[error] GeometricModel.hpp > exception occured\n");
+                fprintf(fs_log, "%s\n", e.what());
+                success = 0;
+                flag = 9876;
+                flag = htonl(flag);
+                send(fd, &flag, sizeof(flag), 0);
+        	}
+        }
+		printf("[info] GeometricModel.hpp > load entity finish\n");
+		fprintf(fs_log, "[info] GeometricModel.hpp > load entity finish\n");
+
+		success = 0;
+		flag = 0;
+
+		while(!success){
+
+			try{
+
+				for (int i = 0; i < count_relation(); i++) {
+
+					// relation key 를 string 으로 받는 경우
+					// relation key 의 문자열 길이를 받은 후에 그만큼 key 를 받음					
+	                if (recv(fd, &key_length, sizeof(key_length), MSG_WAITALL) < 0){
+
+	                	printf("[error] GeometricModel.hpp > recv key_length\n");
+                        printf("[error] GeometricModel.hpp > return -1\n");
+	                	fprintf(fs_log, "[error] GeometricModel.hpp > recv key_length\n");
+                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+                    	close(fd); 
+                    	fclose(fs_log);
+                    	std::exit(-1);
+	                }
+
+	                key_length = ntohl(key_length);
+	                if (recv(fd, &temp_buff[0], sizeof(char) * key_length, MSG_WAITALL) < 0){
+
+	                	printf("[error] GeometricModel.hpp > recv temp_buff\n");
+                        printf("[error] GeometricModel.hpp > return -1\n");
+	                	fprintf(fs_log, "[error] GeometricModel.hpp > recv temp_buff\n");
+                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+                    	close(fd);
+                    	fclose(fs_log);
+                    	std::exit(-1);
+	                }
+
+					if (key_length < 0 || key_length > 1000){
+						
+						cout << "[error] GeometricModel.hpp > key_length is strange, length = " << key_length << endl;
+						fprintf(fs_log, "[error] GeometricModel.hpp > key_length is strange, length = %d\n", key_length);
+						string temp_str(temp_buff.begin(), temp_buff.end());
+						cout << "[info] GeometricModel.hpp > key = " << temp_str << ", length = " << key_length << endl;
+						fprintf(fs_log, "[info] GeometricModel.hpp > key = %s, length = %d\n", temp_str.c_str(), key_length);
+					}
+
+	                key.assign(&(temp_buff[0]), key_length);
+
+					if (data_model.relation_name_to_id.find(key) == data_model.relation_name_to_id.end()){
+
+						cout << "[error] GeometricModel.hpp > relation key does not exist! relation number : " << i << endl;
+                        printf("[error] GeometricModel.hpp > return -1\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > relation key does not exist! relation number : %d\n", i);
+                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+                    	close(fd);
+                    	fclose(fs_log);
+                    	std::exit(-1);
+					}
+
+					int relation_id = data_model.relation_name_to_id.at(key);
+					
+					// relation key 를 int 로 받음
+					/*
+					int relation_id;
+	                if (recv(fd, &relation_id, sizeof(int), MSG_WAITALL) < 0){
+
+	                	printf("[error] recv relation_id in GeometricModel.hpp\n");
+	                	fprintf(fs_log, "[error] recv relation_id in GeometricModel.hpp\n");
+	                    close(fd);
+	                    fclose(fs_log);
+	                    break;
+	                }
+
+					relation_id = ntohl(relation_id);
+					*/
+
+					for (int j = 0; j < dim; j++){
+
+						fprintf(fs_log, "[info] GeometricModel.hpp > relation index = %d\n", i);
+						int recv_return = recv(fd, &temp_vector, sizeof(temp_vector), MSG_WAITALL);
+						fprintf(fs_log, "[info] GeometricModel.hpp > recv_return value = %d\n", recv_return);
+
+		                if (recv_return < 0){
+
+		                	printf("[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
+                            printf("[error] GeometricModel.hpp > return -1\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp 932 line\n");
+		                	fprintf(fs_log, "[error] GeometricModel.hpp > recv temp_vector for loop of dim\n");
+                            fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+                    		close(fd);
+                    		fclose(fs_log);
+                    		std::exit(-1);
+		                }
+
+		                try{
+
+		                	embedding_relation[relation_id](j) = temp_vector;
+		                }
+		                catch(std::exception& e){
+
+    	                    printf("[error] GeometricModel.hpp > exception occured, relation_id = %d\n", relation_id);
+                			printf("%s\n", e.what());
+    	                    fprintf(fs_log, "[error] GeometricModel.hpp > exception occured, relation_id = %d\n", relation_id);
+                			fprintf(fs_log, "%s\n", e.what());
+                			fclose(fs_log);
+							std::exit(-1);
+		                }
+						
+					}
+				}
+				printf("[info] GeometricModel.hpp > receiving relation vector end\n");
+				fprintf(fs_log, "[info] GeometricModel.hpp > receiving relation vector end\n");
+
+                flag = 1234;
+                flag = htonl(flag);
+                send(fd, &flag, sizeof(flag), 0);
+                success = 1;
+                printf("[info] GeometricModel.hpp > send flag\n");
+                fprintf(fs_log, "[info] GeometricModel.hpp > send flag\n");
+			}
+			catch(std::exception& e){
+
+				printf("[error] GeometricModel.hpp > exception occured\n");
+				printf("%s\n", e.what());
+				fprintf(fs_log, "[error] GeometricModel.hpp > exception occured\n");
+				fprintf(fs_log, "%s\n", e.what());
+				success = 0;
+				flag = 9876;
+				flag = htonl(flag);
+				send(fd, &flag, sizeof(flag), 0);
+			}
 		}
-		logging.record() << "entity num: " << embedding_relation.size();
+		printf("[info] GeometricModel.hpp > load relation finish\n");
+		fprintf(fs_log, "[info] GeometricModel.hpp > load relation finish\n");
+		
 		printf("[info] GeometricModel.hpp > load function finish\n");
 		fprintf(fs_log, "[info] GeometricModel.hpp > load function finish\n");
 	}
