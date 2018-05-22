@@ -849,11 +849,11 @@ public:
 
 
 
-							if (data_model.check_anchor.find(entity_id) == data_model.check_anchor.end()
-							&& data_model.check_parts.find(entity_id) != data_model.check_parts.end()){
+							//if (data_model.check_anchor.find(entity_id) == data_model.check_anchor.end()
+							//&& data_model.check_parts.find(entity_id) != data_model.check_parts.end()){
 								
 								embedding_entity[entity_id](j) = temp_vector;
-							}
+							//}
 						}
 					}
 
