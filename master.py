@@ -404,25 +404,21 @@ maxmin_sock.send(struct.pack('!i', anchor_num))
 maxmin_sock.send(struct.pack('!i', anchor_interval))
 
 # maxmin 의 결과를 소켓으로 받음
-#anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
 anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
 printt('[info] master.py > anchor_len = ' + str(anchor_len))
 
 for anchor_idx in range(anchor_len):
 
-    #anchors += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
     anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
 anchors = anchors[:-1]
 
 for part_idx in range(num_worker):
 
     chunk = ""
-    #chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
     chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
 
     for nas_idx in range(chunk_len):
 
-        #chunk += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + " "
         chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
     chunk = chunk[:-1]
     chunks.append(chunk)
@@ -496,13 +492,11 @@ while True:
         maxmin_sock.send(struct.pack('!i', anchor_interval))
 
         # maxmin 의 결과를 소켓으로 받음
-        #anchor_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
         anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
         printt('[info] master.py > anchor_len = ' + str(anchor_len))
 
         for anchor_idx in range(anchor_len):
             
-            #anchors += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + ' '
             anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
         
         anchors = anchors[:-1]
@@ -510,12 +504,10 @@ while True:
         for part_idx in range(num_worker):
 
             chunk = ''
-            #chunk_len = struct.unpack('!i', maxmin_sock.recv(4))[0]
             chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
 
             for nas_idx in range(chunk_len):
             
-                #chunk += str(struct.unpack('!i', maxmin_sock.recv(4))[0]) + ' '
                 chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
             
             chunk = chunk[:-1]
@@ -618,9 +610,6 @@ success = 0
 
 if int(cur_iter) % 2 == 0:
     # entity 전송 - DataModel 생성자
-    #chunk_anchor, chunk_entity = chunk_data.split('\n')
-    #chunk_anchor = chunk_anchor.split(' ')
-    #chunk_entity = chunk_entity.split(' ')
     chunk_anchor = list()
     chunk_entity = list()
 
@@ -642,7 +631,6 @@ if int(cur_iter) % 2 == 0:
             
             test_sock.send(struct.pack('!i', int(iter_entity)))
 
-        #checksum = struct.unpack('!i', test_sock.recv(4))[0]
         checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
         if checksum == 1234:
@@ -673,7 +661,6 @@ else:
             test_sock.send(struct.pack('!i', int(relation_id)))
             test_sock.send(struct.pack('!i', int(tail_id)))
 
-        #checksum = struct.unpack('!i', test_sock.recv(4))[0]
         checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
         if checksum == 1234:
@@ -701,18 +688,17 @@ while success != 1:
 
     for i, vector in enumerate(entities_initialized):
         entity_name = str(entities[i])
-        test_sock.send(struct.pack('!i', len(entity_name)))
-        test_sock.send(str.encode(entity_name))    # entity string 자체를 전송
+        test_sock.send(struct.pack('!i', len(entity_name)))         # entity string 자체를 전송
+        test_sock.send(str.encode(entity_name))                     # entity string 자체를 전송
 
 
-        #test_sock.send(struct.pack('!i', entity2id[entity_name])) # entity id 를 int 로 전송
+        #test_sock.send(struct.pack('!i', entity2id[entity_name]))  # entity id 를 int 로 전송
 
 
         for v in vector:
 
             test_sock.send(struct.pack('d', float(v)))
 
-    #checksum = struct.unpack('!i', test_sock.recv(4))[0]
     checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
     if checksum == 1234:
@@ -740,11 +726,11 @@ while success != 1:
 
     for i, relation in enumerate(relations_initialized):
         relation_name = str(relations[i])
-        test_sock.send(struct.pack('!i', len(relation_name)))
-        test_sock.send(str.encode(relation_name))  # relation string 자체를 전송
+        test_sock.send(struct.pack('!i', len(relation_name)))           # relation string 자체를 전송
+        test_sock.send(str.encode(relation_name))                       # relation string 자체를 전송
 
 
-        #test_sock.send(struct.pack('!i', relation2id[relation_name])) # relation id 를 int 로 전송
+        #test_sock.send(struct.pack('!i', relation2id[relation_name]))  # relation id 를 int 로 전송
 
 
         for v in relation:

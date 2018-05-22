@@ -238,202 +238,41 @@ public:
 	        output.close();
     	}
 
+        printf("[info] DataModel.hpp > DataModel constructor called\n");
+        fprintf(fs_log, "[info] DataModel.hpp > DataModel constructor called\n");
+        
         if (master_epoch % 2 == 0) {
-            
             // entity
-            if (fd == 0) {
+            int anchor_num;
+            int entity_num;
+            int temp_value;
+            int success = 0;
+            int flag = 0;
 
-                // 파일로 가져옴
-                ifstream input("../maxmin_worker_"+ to_string(worker_num) + ".txt");
-                string str;
-                vector<string> anchor;
+            // try catch 에서 exception 발생시 이 구간을 반복
+            while(!success){
 
-                getline(input, str);
-                anchor = split(str, ' ');
+                try{
 
-                for (string e : anchor)
-                {
-                    set_entity_parts.insert(stoi(e));
-                    check_anchor[stoi(e)] = true;
-                    check_parts[stoi(e)] = true;
-                }
+                    if (recv(fd, &anchor_num, sizeof(anchor_num), 0) < 0){
 
-                while (!input.eof())
-                {
-                    input >> str;
-                    set_entity_parts.insert(stoi(str));
-                    check_parts[stoi(str)] = true;
-                }
-
-                for (auto i = data_train.begin(); i != data_train.end(); ++i) {
-                
-                    int head = (*i).first.first;
-                    int tail = (*i).first.second;
-                    
-                    if (check_parts.find(head) != check_parts.end() && check_parts.find(tail) != check_parts.end()){
-                    
-                        data_train_parts.push_back(*i);
+                        printf("[error] DataModel.hpp > recv anchor_num\n");
+                        printf("[error] DataModel.hpp > return -1\n");
+                        fprintf(fs_log, "[error] DataModel.hpp > recv anchor_num\n");
+                        fprintf(fs_log,  "[error] DataModel.hpp > return -1\n");
+                        close(fd);
+                        fclose(fs_log);
+                        std::exit(-1);
+                        return;
                     }
-                }         
-            }
-            else {
 
-                printf("[info] DataModel.hpp > DataModel constructor called\n");
-                fprintf(fs_log, "[info] DataModel.hpp > DataModel constructor called\n");
+                    for (int idx = 0; idx < ntohl(anchor_num); idx++) {
 
-                // 소켓으로 가져옴
-                int anchor_num;
-                int entity_num;
-                int temp_value;
-                int success = 0;
-                int flag = 0;
+                        if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
 
-                // try catch 에서 exception 발생시 이 구간을 반복
-                while(!success){
-
-                    try{
-
-                        if (recv(fd, &anchor_num, sizeof(anchor_num), 0) < 0){
-
-                            printf("[error] DataModel.hpp > recv anchor_num\n");
+                            printf("[error] DataModel.hpp > recv temp_value for anchor\n");
                             printf("[error] DataModel.hpp > return -1\n");
-                            fprintf(fs_log, "[error] DataModel.hpp > recv anchor_num\n");
-                            fprintf(fs_log,  "[error] DataModel.hpp > return -1\n");
-                            close(fd);
-                            fclose(fs_log);
-                            std::exit(-1);
-                            return;
-                        }
-
-                        for (int idx = 0; idx < ntohl(anchor_num); idx++) {
-
-                            if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
-
-                                printf("[error] DataModel.hpp > recv temp_value for anchor\n");
-                                printf("[error] DataModel.hpp > return -1\n");
-                                fprintf(fs_log, "[error] DataModel.hpp > recv temp_value for anchor\n");
-                                fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
-                                close(fd);
-                                fclose(fs_log);
-                                std::exit(-1);
-                                return;
-                            }
-
-                            temp_value = ntohl(temp_value);
-                            set_entity_parts.insert(temp_value);
-                            check_anchor[temp_value] = true;
-                            check_parts[temp_value] = true;
-                        }
-
-                        if (recv(fd, &entity_num, sizeof(entity_num), 0) < 0){
-
-                            printf("[error] DataModel.hpp > recv entity_num\n");
-                            printf("[error] DataModel.hpp > return -1\n");
-                            fprintf(fs_log, "[error] DataModel.hpp > recv entity_num\n");
-                            fprintf(fs_log, "[error] DataModel.hpp > return -1\n");   
-                            std::exit(-1);
-                            close(fd);
-                            fclose(fs_log);
-                            return;
-                        }
-
-                        for (int idx = 0; idx < ntohl(entity_num); idx++) {
-
-                            if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
-
-                                printf("[error] DataModel.hpp > recv temp_value for entity\n");
-                                printf("[error] DataModel.hpp > return -1\n");
-                                fprintf(fs_log, "[error] DataModel.hpp > recv temp_value for entity\n");
-                                fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
-                                close(fd);
-                                fclose(fs_log);
-                                std::exit(-1);
-                                return;
-                            }
-
-                            temp_value = ntohl(temp_value);
-                            set_entity_parts.insert(temp_value);
-                            check_parts[temp_value] = true;
-                        }
-
-                        for (auto i = data_train.begin(); i != data_train.end(); ++i) {
-                        
-                            int head = (*i).first.first;
-                            int tail = (*i).first.second;
-                            
-                            if (check_parts.find(head) != check_parts.end() && check_parts.find(tail) != check_parts.end()){
-                            
-                                data_train_parts.push_back(*i);
-                            }
-                        }   
-
-                        flag = 1234;
-                        flag = htonl(flag);
-                        send(fd, &flag, sizeof(flag), 0);
-                        success = 1;
-                    }
-                    catch(std::exception& e){
-
-                        printf("[error] DataModel.hpp >  entity : exception occured\n");
-                        printf("%s\n", e.what());
-                        fprintf(fs_log, "[error] DataModel.hpp >  entity : exception occured\n");
-                        fprintf(fs_log, "%s\n", e.what());
-                        success = 0;
-                        flag = 9876;
-                        flag = htonl(flag);
-                        send(fd, &flag, sizeof(flag), 0);
-                    }
-                }
-            }
-
-            cout << "[info] DataModel.hpp > entity preprocesing let's get it!" << endl;
-            fprintf(fs_log, "[info] DataModel.hpp > entity preprocesing let's get it!\n");
-        }
-        else {
-            //relation
-            if (fd == 0) {
-
-                // 파일로 가져옴
-                ifstream input("../tmp/sub_graph_worker_"+ to_string(worker_num) + ".txt");
-                string str;
-                pair<pair<int,int>, int> tmp;
-
-                while (!input.eof())
-                {
-                    string head, tail, relation;
-                    input >> head >> relation >> tail;
-                    if (head == "" && relation == "" && tail == "") break;
-
-                    set_entity_parts.insert(stoi(head));
-                    set_entity_parts.insert(stoi(tail));
-                    set_relation_parts.insert(stoi(relation));
-                    tmp.first.first = stoi(head);
-                    tmp.second = stoi(relation);
-                    tmp.first.second = stoi(tail);
-                    data_train_parts.push_back(tmp);
-                }
-            }
-            else {
-
-                // 소켓으로 가져옴
-                int triplet_num = 0;
-                int temp_value_head;
-                int temp_value_relation;
-                int temp_value_tail;
-                int success = 0;
-                int flag = 0;
-
-                while(!success){
-
-                    pair<pair<int,int>, int> tmp;
-
-                    try{
-
-                        if (recv(fd, &triplet_num, sizeof(triplet_num), 0) < 0){
-
-                            cout << "[error] DataModel.hpp > recv triplet_num" << endl;
-                            printf("[error] DataModel.hpp > return -1\n");
-                            fprintf(fs_log, "[error] DataModel.hpp > recv triplet_num\n");
+                            fprintf(fs_log, "[error] DataModel.hpp > recv temp_value for anchor\n");
                             fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
                             close(fd);
                             fclose(fs_log);
@@ -441,75 +280,168 @@ public:
                             return;
                         }
 
-                        for (int idx = 0; idx < ntohl(triplet_num); idx++) {
+                        temp_value = ntohl(temp_value);
+                        set_entity_parts.insert(temp_value);
+                        check_anchor[temp_value] = true;
+                        check_parts[temp_value] = true;
+                    }
 
-                            if (recv(fd, &temp_value_head, sizeof(temp_value_head), 0) < 0){
+                    if (recv(fd, &entity_num, sizeof(entity_num), 0) < 0){
 
-                                cout << "[error] DataModel.hpp > recv temp_value_head" << endl;
-                                printf("[error] DataModel.hpp > return -1\n");
-                                fprintf(fs_log, "[error] DataModel.hpp > recv temp_value_head\n");
-                                fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
-                                close(fd);
-                                fclose(fs_log);
-                                std::exit(-1);
-                                break;
-                            }
+                        printf("[error] DataModel.hpp > recv entity_num\n");
+                        printf("[error] DataModel.hpp > return -1\n");
+                        fprintf(fs_log, "[error] DataModel.hpp > recv entity_num\n");
+                        fprintf(fs_log, "[error] DataModel.hpp > return -1\n");   
+                        std::exit(-1);
+                        close(fd);
+                        fclose(fs_log);
+                        return;
+                    }
 
-                            if (recv(fd, &temp_value_relation, sizeof(temp_value_relation), 0) < 0){
+                    for (int idx = 0; idx < ntohl(entity_num); idx++) {
 
-                                cout <<"[error] DataModel.hpp > recv temp_value_relation" << endl;
-                                printf("[error] DataModel.hpp > return -1\n");
-                                fprintf(fs_log, "[error] DataModel.hpp > recv temp_value_relation\n");
-                                fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
-                                close(fd);
-                                fclose(fs_log);
-                                std::exit(-1);
-                                break;
-                            }
+                        if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
 
-                            if (recv(fd, &temp_value_tail, sizeof(temp_value_tail), 0) < 0){
-
-                                cout << "[error] DataModel.hpp > recv temp_value_tail" << endl;
-                                printf("[error] DataModel.hpp > return -1\n");
-                                fprintf(fs_log, "[error] DataModel.hpp > recv temp_value_tail\n");
-                                fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
-                                close(fd);
-                                fclose(fs_log);
-                                std::exit(-1);
-                                break;
-                            }
-
-                            temp_value_head = ntohl(temp_value_head);
-                            temp_value_relation = ntohl(temp_value_relation);
-                            temp_value_tail = ntohl(temp_value_tail);
-
-                            set_entity_parts.insert(temp_value_head);
-                            set_entity_parts.insert(temp_value_tail);
-                            set_relation_parts.insert(temp_value_relation);
-                            tmp.first.first = temp_value_head;
-                            tmp.second = temp_value_relation;
-                            tmp.first.second = temp_value_tail;
-                            data_train_parts.push_back(tmp);
+                            printf("[error] DataModel.hpp > recv temp_value for entity\n");
+                            printf("[error] DataModel.hpp > return -1\n");
+                            fprintf(fs_log, "[error] DataModel.hpp > recv temp_value for entity\n");
+                            fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
+                            close(fd);
+                            fclose(fs_log);
+                            std::exit(-1);
+                            return;
                         }
 
-                        flag = 1234;
-                        flag = htonl(flag);
-                        send(fd, &flag, sizeof(flag), 0);
-                        success = 1;
+                        temp_value = ntohl(temp_value);
+                        set_entity_parts.insert(temp_value);
+                        check_parts[temp_value] = true;
                     }
-                    catch(std::exception& e){
 
-                        printf("[error] DataModel.hpp > relation : exception occured\n");
-                        printf("%s\n", e.what());
-                        fprintf(fs_log, "[error] DataModel.hpp > relation : exception occured\n");
-                        fprintf(fs_log, "%s\n", e.what());
-                        success = 0;
-                        flag = 9876;
-                        flag = htonl(flag);
-                        send(fd, &flag, sizeof(flag), 0);
-                    }
+                    for (auto i = data_train.begin(); i != data_train.end(); ++i) {
+                    
+                        int head = (*i).first.first;
+                        int tail = (*i).first.second;
+                        
+                        if (check_parts.find(head) != check_parts.end() && check_parts.find(tail) != check_parts.end()){
+                        
+                            data_train_parts.push_back(*i);
+                        }
+                    }   
+
+                    flag = 1234;
+                    flag = htonl(flag);
+                    send(fd, &flag, sizeof(flag), 0);
+                    success = 1;
                 }
+                catch(std::exception& e){
 
+                    printf("[error] DataModel.hpp >  entity : exception occured\n");
+                    printf("%s\n", e.what());
+                    fprintf(fs_log, "[error] DataModel.hpp >  entity : exception occured\n");
+                    fprintf(fs_log, "%s\n", e.what());
+                    success = 0;
+                    flag = 9876;
+                    flag = htonl(flag);
+                    send(fd, &flag, sizeof(flag), 0);
+                }
+            }
+            cout << "[info] DataModel.hpp > entity preprocesing let's get it!" << endl;
+            fprintf(fs_log, "[info] DataModel.hpp > entity preprocesing let's get it!\n");
+        }
+        else {
+            //relation
+            int triplet_num = 0;
+            int temp_value_head;
+            int temp_value_relation;
+            int temp_value_tail;
+            int success = 0;
+            int flag = 0;
+
+            while(!success){
+
+                pair<pair<int,int>, int> tmp;
+
+                try{
+
+                    if (recv(fd, &triplet_num, sizeof(triplet_num), 0) < 0){
+
+                        cout << "[error] DataModel.hpp > recv triplet_num" << endl;
+                        printf("[error] DataModel.hpp > return -1\n");
+                        fprintf(fs_log, "[error] DataModel.hpp > recv triplet_num\n");
+                        fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
+                        close(fd);
+                        fclose(fs_log);
+                        std::exit(-1);
+                        return;
+                    }
+
+                    for (int idx = 0; idx < ntohl(triplet_num); idx++) {
+
+                        if (recv(fd, &temp_value_head, sizeof(temp_value_head), 0) < 0){
+
+                            cout << "[error] DataModel.hpp > recv temp_value_head" << endl;
+                            printf("[error] DataModel.hpp > return -1\n");
+                            fprintf(fs_log, "[error] DataModel.hpp > recv temp_value_head\n");
+                            fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
+                            close(fd);
+                            fclose(fs_log);
+                            std::exit(-1);
+                            break;
+                        }
+
+                        if (recv(fd, &temp_value_relation, sizeof(temp_value_relation), 0) < 0){
+
+                            cout <<"[error] DataModel.hpp > recv temp_value_relation" << endl;
+                            printf("[error] DataModel.hpp > return -1\n");
+                            fprintf(fs_log, "[error] DataModel.hpp > recv temp_value_relation\n");
+                            fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
+                            close(fd);
+                            fclose(fs_log);
+                            std::exit(-1);
+                            break;
+                        }
+
+                        if (recv(fd, &temp_value_tail, sizeof(temp_value_tail), 0) < 0){
+
+                            cout << "[error] DataModel.hpp > recv temp_value_tail" << endl;
+                            printf("[error] DataModel.hpp > return -1\n");
+                            fprintf(fs_log, "[error] DataModel.hpp > recv temp_value_tail\n");
+                            fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
+                            close(fd);
+                            fclose(fs_log);
+                            std::exit(-1);
+                            break;
+                        }
+
+                        temp_value_head = ntohl(temp_value_head);
+                        temp_value_relation = ntohl(temp_value_relation);
+                        temp_value_tail = ntohl(temp_value_tail);
+
+                        set_entity_parts.insert(temp_value_head);
+                        set_entity_parts.insert(temp_value_tail);
+                        set_relation_parts.insert(temp_value_relation);
+                        tmp.first.first = temp_value_head;
+                        tmp.second = temp_value_relation;
+                        tmp.first.second = temp_value_tail;
+                        data_train_parts.push_back(tmp);
+                    }
+
+                    flag = 1234;
+                    flag = htonl(flag);
+                    send(fd, &flag, sizeof(flag), 0);
+                    success = 1;
+                }
+                catch(std::exception& e){
+
+                    printf("[error] DataModel.hpp > relation : exception occured\n");
+                    printf("%s\n", e.what());
+                    fprintf(fs_log, "[error] DataModel.hpp > relation : exception occured\n");
+                    fprintf(fs_log, "%s\n", e.what());
+                    success = 0;
+                    flag = 9876;
+                    flag = htonl(flag);
+                    send(fd, &flag, sizeof(flag), 0);
+                }
             }
             cout << "[info] DataModel.hpp > relation preprocessing let's get it!" << endl;
         }
