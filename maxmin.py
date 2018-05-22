@@ -30,8 +30,26 @@ def printt(str):
     if loggerOn:
         logger.warning(str + '\n')
 
+def sockRecv(sock, length):
+
+    data = b''
+
+    while len(data) < length:
+
+        buff = sock.recv(length - len(data))
+
+        if not buff:
+
+            return None
+
+        data = data + buff
+
+    return data
+
 def handle_exception(exc_type, exc_value, exc_traceback):
+
     if issubclass(exc_type, KeyboardInterrupt):
+
         sys.__excepthook__(exc_type, exc_value, exc_traceback)
         return
     
@@ -71,15 +89,22 @@ entity_cnt = 0
 entity_degree = defaultdict(int)
 
 for file in data_files:
+
     with open(root_dir+file, 'r') as f:
+
         for line in f:
+
             head, relation, tail = line[:-1].split("\t")
             entities.add(head)
             entities.add(tail)
+
             if head not in entity2id:
+
                 entity2id[head] = entity_cnt
                 entity_cnt += 1
+
             if tail not in entity2id:
+
                 entity2id[tail] = entity_cnt
                 entity_cnt += 1
             
@@ -87,7 +112,9 @@ for file in data_files:
             entity_degree[entity2id[tail]] += 1
 
 with open(root_dir+data_files[0], 'r') as f:
+
     for line in f:
+
         head, relation, tail = line[:-1].split("\t")
         entity_graph.append((head, tail))
         connected_entity[entity2id[head]].add(entity2id[tail])
@@ -96,11 +123,14 @@ with open(root_dir+data_files[0], 'r') as f:
 entities_id = {entity2id[v] for v in entities}
 
 for (hd, tl) in entity_graph:
+
     edge_list.append((entity2id[hd], entity2id[tl]))
 printt('[info] maxmin.py > max-min cut data preprocessing finished (time : {})'.format((time()-t_)))
 
 while True:
-    master_status = struct.unpack('!i', master_sock.recv(4))[0]
+
+    #master_status = struct.unpack('!i', master_sock.recv(4))[0]
+    master_status = struct.unpack('!i', sockRecv(master_sock, 4))[0]
     logger.warning(str(master_status)+'\n')
     t_ = time()
 
@@ -111,38 +141,55 @@ while True:
         maxmin_sock.close()
         sys.exit(0)
 
-    partition_num = struct.unpack('!i', master_sock.recv(4))[0]
-    cur_iter = (struct.unpack('!i', master_sock.recv(4))[0] + 1) // 2
-    anchor_num = struct.unpack('!i', master_sock.recv(4))[0]
-    anchor_interval = struct.unpack('!i', master_sock.recv(4))[0]
+    #partition_num = struct.unpack('!i', master_sock.recv(4))[0]
+    #cur_iter = (struct.unpack('!i', master_sock.recv(4))[0] + 1) // 2
+    #anchor_num = struct.unpack('!i', master_sock.recv(4))[0]
+    #anchor_interval = struct.unpack('!i', master_sock.recv(4))[0]
+    partition_num = struct.unpack('!i', sockRecv(master_sock, 4))[0]
+    cur_iter = (struct.unpack('!i', sockRecv(master_sock, 4))[0] + 1) // 2
+    anchor_num = struct.unpack('!i', sockRecv(master_sock, 4))[0]
+    anchor_interval = struct.unpack('!i', sockRecv(master_sock, 4))[0]
 
     if cur_iter == 0:
+
         anchor_dict = dict()
 
     else:
+
         anchor_dict = old_anchor_dict
 
         for it in range(anchor_interval):
+
             if it in anchor_dict.keys():
+
                 for a in anchor_dict[it]:
+
                     old_anchor.add(a)
 
     for i in range(anchor_num):
+
         best = None
         best_score = 0
+
         for vertex in entities_id.difference(anchor.union(old_anchor)):
             # getting degree(v)
             if len(connected_entity[vertex]) <= best_score:
+
                 continue
 
             score = len(connected_entity[vertex].difference(anchor))
+
             if score > best_score or (score == best_score and random.choice([True, False])):
+
                 best = vertex
                 best_score = score
 
         if best == None:
+
             printt('[error] maxmin.py > no vertex added to anchor')
+
         else:
+
             anchor.add(best)
 
     # printing # of 1st connected entity of anchors
@@ -194,7 +241,9 @@ while True:
     # solve the min-cut partition problem of A~, finding A~ and edges
     non_anchor_id = entities_id.difference(anchor)
     non_anchor_edge_list = [(h, t) for (h, t) in edge_list if h in non_anchor_id and t in non_anchor_id]
+
     for (h, t) in non_anchor_edge_list:
+
         non_anchor_edge_included_vertex.add(h)
         non_anchor_edge_included_vertex.add(t) 
 
@@ -203,7 +252,9 @@ while True:
     G.add_edges_from(non_anchor_edge_list)
 
     for node, degree in entity_degree.items():
+
         if node in G:
+
             G.node[node]['node_weight'] = degree
 
     options = nxmetis.MetisOptions(     # objtype=1 => vol
@@ -215,7 +266,9 @@ while True:
 
     # putting residue randomly into non anchor set
     residue = non_anchor_id.difference(non_anchor_edge_included_vertex)
+    
     for v in residue:
+
         parts[randint(0, partition_num - 1)].append(v)
 
     # printing the number of entities in each paritions

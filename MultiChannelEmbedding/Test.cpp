@@ -40,6 +40,7 @@ int main(int argc, char* argv[]){
 	// worker.py is client
 	// IP addr / port are from master.py
 	unsigned int len;
+	int nSockOpt;
 	int test_sock, master_sock;
 	struct sockaddr_in test_addr;
 	struct sockaddr_in master_addr;
@@ -54,13 +55,6 @@ int main(int argc, char* argv[]){
 	test_addr.sin_addr.s_addr = inet_addr("0.0.0.0");
 	test_addr.sin_port = htons(7874);
 
-	// to solve bind error
-		//struct linger solinger = { 1, 0 };
-	//if(setsockopt(test_sock, SOL_SOCKET, SO_LINGER, &solinger, sizeof(struct linger)) == -1){
-		
-	//	perror("[error] setsockopt(SO_LINGER)\n");
-	//	printf("[error] setsocketopt in test.cpp\n");
-	//}
 
 	// open log txt file
 	FILE * fs_log;
@@ -77,6 +71,10 @@ int main(int argc, char* argv[]){
 		return -1;
 	}
 
+	// to solve bind error
+	nSockOpt = 1;
+	setsockopt(test_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt));
+	
 	success = 0;
 	trial = 0;
 
