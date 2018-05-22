@@ -235,7 +235,9 @@ public:
 					continue;
 
 				++lreal_total;
+
 				if (prob_triplets_test(*i) > threshold)
+
 					++real_hit, ++lreal_hit;
 			}
 
@@ -244,9 +246,6 @@ public:
 				if (i->second != r)
 					continue;
 
-				std::cout << data_model.embedding_entity[i.first.first];
-				std::cout << data_model.embedding_relation[i.second];
-				std::cout <<  data_model.embedding_entity[i.first.second];
 				++lreal_total;
 				if (prob_triplets_test(*i) <= threshold)
 					++real_hit, ++lreal_hit;
