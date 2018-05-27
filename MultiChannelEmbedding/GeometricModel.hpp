@@ -520,11 +520,11 @@ public:
 
                 	printf("[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
                 	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
-					printf("[error] GeometricModel.hpp > recv value = %d\n", recv_val);
+					//printf("[error] GeometricModel.hpp > recv value = %d\n", recv_val);
                 	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
                     fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
                     fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
-					fprintf(fs_log, "[error] GeometricModel.hpp > recv value = %d\n", recv_val);
+					//fprintf(fs_log, "[error] GeometricModel.hpp > recv value = %d\n", recv_val);
                     fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (entity)\n");
                     checksum = 0;
                 }
