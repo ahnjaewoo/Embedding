@@ -433,6 +433,7 @@ success = False
 entities = pickle.loads(r.get('entities'))
 relations = pickle.loads(r.get('relations'))
 
+train_time = time()
 while True:
 
     if cur_iter == niter:
@@ -548,6 +549,8 @@ while True:
         
         printt('[error] master.py > iteration %d is failed' % cur_iter)
         printt('[Info] master.py > retry iteration %d' % cur_iter)
+
+train_time = time() - train_time
 
 # test part
 printt('[info] master.py > test start')
@@ -766,4 +769,8 @@ if test_return == -1:
     printt('[error] master.py > test failed, exit')
     sys.exit(-1)
     
+
+with open("logs/test_log.txt", 'a') as f:
+    f.write("\ntrain_time: {}\n".format(train_time))
+
 printt('[info] master.py > Total elapsed time : %f' % (time() - master_start))
