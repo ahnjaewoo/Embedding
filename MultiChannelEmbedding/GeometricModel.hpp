@@ -248,10 +248,10 @@ public:
 			- embedding_entity[triplet.first.second];
 
 
-		cout << "embedding_entity[triplet.first.first] = " << embedding_entity[triplet.first.first] << "\n";
-		cout << "embedding_relation[triplet.second] = " << embedding_relation[triplet.second] << "\n";
-		cout << "embedding_entity[triplet.first.second] = " << embedding_entity[triplet.first.second] << "\n";
-		cout << "-sum(abs(error)) = " << -sum(abs(error)) << "\n";
+		//cout << "embedding_entity[triplet.first.first] = " << embedding_entity[triplet.first.first] << "\n";
+		//cout << "embedding_relation[triplet.second] = " << embedding_relation[triplet.second] << "\n";
+		//cout << "embedding_entity[triplet.first.second] = " << embedding_entity[triplet.first.second] << "\n";
+		//cout << "-sum(abs(error)) = " << -sum(abs(error)) << "\n";
 
 		return -sum(abs(error));
 	}
