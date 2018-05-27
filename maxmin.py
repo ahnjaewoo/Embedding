@@ -90,7 +90,7 @@ entity_degree = defaultdict(int)
 
 for file in data_files:
 
-    with open(root_dir+file, 'r') as f:
+    with open(root_dir + file, 'r') as f:
 
         for line in f:
 
@@ -111,7 +111,7 @@ for file in data_files:
             entity_degree[entity2id[head]] += 1
             entity_degree[entity2id[tail]] += 1
 
-with open(root_dir+data_files[0], 'r') as f:
+with open(root_dir + data_files[0], 'r') as f:
 
     for line in f:
 
@@ -129,7 +129,6 @@ printt('[info] maxmin.py > max-min cut data preprocessing finished (time : {})'.
 
 while True:
 
-    #master_status = struct.unpack('!i', master_sock.recv(4))[0]
     master_status = struct.unpack('!i', sockRecv(master_sock, 4))[0]
     logger.warning(str(master_status)+'\n')
     t_ = time()
@@ -141,10 +140,6 @@ while True:
         maxmin_sock.close()
         sys.exit(0)
 
-    #partition_num = struct.unpack('!i', master_sock.recv(4))[0]
-    #cur_iter = (struct.unpack('!i', master_sock.recv(4))[0] + 1) // 2
-    #anchor_num = struct.unpack('!i', master_sock.recv(4))[0]
-    #anchor_interval = struct.unpack('!i', master_sock.recv(4))[0]
     partition_num = struct.unpack('!i', sockRecv(master_sock, 4))[0]
     cur_iter = (struct.unpack('!i', sockRecv(master_sock, 4))[0] + 1) // 2
     anchor_num = struct.unpack('!i', sockRecv(master_sock, 4))[0]
