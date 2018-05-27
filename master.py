@@ -771,6 +771,6 @@ if test_return == -1:
     
 
 with open("logs/test_log.txt", 'a') as f:
-    f.write("\ntrain_time: {}\n".format(train_time))
+    f.write("\n== train_time = {}\n".format(train_time))
 
 printt('[info] master.py > Total elapsed time : %f' % (time() - master_start))

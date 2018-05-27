@@ -273,8 +273,8 @@ public:
 			best_triplet_result,
 			real_hit / (data_model.data_test_true.size() + data_model.data_test_false.size()));
 		std::cout << ", Best = " << best_triplet_result << endl;
-		fprintf(fs_log, "[Info] Model.hpp > Accuracy = %lf\n", real_hit / (data_model.data_test_true.size() + data_model.data_test_false.size()));
-		fprintf(fs_log, "[Info] Model.hpp > Best = %lf\n", best_triplet_result);
+		fprintf(fs_log, "== Accuracy = %lf\n", real_hit / (data_model.data_test_true.size() + data_model.data_test_false.size()));
+		fprintf(fs_log, "== Best = %lf\n", best_triplet_result);
 
 		logging.record() << epos << "\t Accuracy = "
 			<< real_hit / (data_model.data_test_true.size() + data_model.data_test_false.size())
@@ -401,14 +401,14 @@ public:
 		logging.record() << "Filter.BestMRR= " << fmrr / total;
 		logging.record() << "Filter.BestHITS = " << best_link_fhitatten;
 
-		fprintf(fs_log, "[Info] Model.hpp > Link prediction\n");
-		fprintf(fs_log, "[Info] Model.hpp > Raw.BestMEANS = %lf\n", best_link_mean);
-		fprintf(fs_log, "[Info] Model.hpp > Raw.BestMRR = %lf\n", rmrr / total);
-		fprintf(fs_log, "[Info] Model.hpp > Raw.BestHITS = %lf\n", best_link_hitatten);
+		fprintf(fs_log, "== Link prediction\n");
+		fprintf(fs_log, "== Raw.BestMEANS = %lf\n", best_link_mean);
+		fprintf(fs_log, "== Raw.BestMRR = %lf\n", rmrr / total);
+		fprintf(fs_log, "== Raw.BestHITS = %lf\n", best_link_hitatten);
 
-		fprintf(fs_log, "[Info] Model.hpp > Filter.BestMEANS = %lf\n", best_link_fmean);
-		fprintf(fs_log, "[Info] Model.hpp > Filter.BestMRR = %lf\n", fmrr / total);
-		fprintf(fs_log, "[Info] Model.hpp > Filter.BestHITS = %lf\n", best_link_fhitatten);
+		fprintf(fs_log, "== Filter.BestMEANS = %lf\n", best_link_fmean);
+		fprintf(fs_log, "== Filter.BestMRR = %lf\n", fmrr / total);
+		fprintf(fs_log, "== Filter.BestHITS = %lf\n", best_link_fhitatten);
 
 		std::cout.flush();
 	}
