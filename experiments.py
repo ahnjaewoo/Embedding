@@ -25,14 +25,9 @@ with open("result.csv", 'w') as result_file:
     result_file.write("\n")
 
     for dataset in datasets:
-        result_file.write(f"{dataset}, ")
         for num_worker in num_workers:
-            result_file.write(f"{num_worker}, ")
             for train_iter, niter in worker_master_epochs:
-                result_file.write(f"{train_iter}, {niter}, ")
                 for ndim in ndims:
-                    result_file.write(f"{ndim}, ")
-
                     process = Popen(['python', 'master.py', '--data_root',
                                      dataset, '--num_worker', str(num_worker),
                                      '--train_iter', str(
@@ -45,6 +40,10 @@ with open("result.csv", 'w') as result_file:
                     print(f"train_iter: {train_iter}")
                     print(f"niter: {niter}")
                     print(f"ndim: {ndim}")
+                    result_file.write(f"{dataset}, ")
+                    result_file.write(f"{num_worker}, ")
+                    result_file.write(f"{train_iter}, {niter}, ")
+                    result_file.write(f"{ndim}, ")
 
                     with open("logs/test_log.txt", 'r') as f:
                         for line in f:
