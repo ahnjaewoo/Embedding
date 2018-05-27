@@ -401,7 +401,7 @@ public:
 		logging.record() << "Filter.BestMRR= " << fmrr / total;
 		logging.record() << "Filter.BestHITS = " << best_link_fhitatten;
 
-		fprintf(fs_log, "== Link prediction\n");
+		fprintf(fs_log, "Link prediction\n");
 		fprintf(fs_log, "== Raw.BestMEANS = %lf\n", best_link_mean);
 		fprintf(fs_log, "== Raw.BestMRR = %lf\n", rmrr / total);
 		fprintf(fs_log, "== Raw.BestHITS = %lf\n", best_link_hitatten);
