@@ -650,7 +650,7 @@ if int(cur_iter) % 2 == 0:
 
 else:
     # relation 전송 - DataModel 생성자
-    sub_graphs = pickle.loads(r.get('sub_graph_{}'.format(worker_id)))
+    sub_graphs = pickle.loads(r.get('sub_graph_{}'.format('worker_0')))
     test_sock.send(struct.pack('!i', len(sub_graphs)))
 
     while success != 1:
