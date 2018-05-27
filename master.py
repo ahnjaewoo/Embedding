@@ -566,7 +566,7 @@ maxmin_sock.close()
 ###############################################################################
 
 worker_id = 'tester_0'
-log_dir = os.path.join(root_dir, 'logs/test_log_' + worker_id + '.txt')
+log_dir = os.path.join(root_dir, 'logs/test_log_' + '.txt')
 proc = Popen([test_code_dir,
             worker_id,
             str(cur_iter),
