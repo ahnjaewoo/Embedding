@@ -32,7 +32,7 @@ with open("result.csv", 'w') as result_file:
                                      dataset, '--num_worker', str(num_worker),
                                      '--train_iter', str(
                                          train_iter), '--niter', str(niter),
-                                     '--ndim', str(ndim)])
+                                     '--ndim', str(ndim), '--lr', str(lr)])
                     process.communicate()
 
                     print(f"dataset: {dataset}")
@@ -44,6 +44,7 @@ with open("result.csv", 'w') as result_file:
                     result_file.write(f"{num_worker}, ")
                     result_file.write(f"{train_iter}, {niter}, ")
                     result_file.write(f"{ndim}, ")
+                    result_file.write(f"{lr}, ")
 
                     with open("logs/test_log.txt", 'r') as f:
                         for line in f:

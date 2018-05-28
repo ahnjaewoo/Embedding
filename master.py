@@ -159,11 +159,11 @@ data_root_id = data2id(data_root)
 master_start = time()
 t_ = time()
 
-printt('[info] master.py > Preprocessing started')
+# printt('[info] master.py > Preprocessing started')
 proc = Popen(["%spreprocess.out" % preprocess_folder_dir,
               str(data_root_id)], cwd=preprocess_folder_dir)
 
-printt('[info] master.py > Read files')
+# printt('[info] master.py > Read files')
 entities = list()
 relations = list()
 entity2id = dict()
@@ -440,8 +440,8 @@ while True:
 
         break
 
-    printt('=====================================================================')
-    printt('=====================================================================')
+    #printt('=====================================================================')
+    #printt('=====================================================================')
     printt('[info] master.py > iteration %d' % cur_iter)
 
     # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
@@ -522,7 +522,7 @@ while True:
     printt('')
     result_iter = [worker.result() for worker in workers]
 
-    printt('[info] master.py result array : ' + str([e[0] for e in result_iter]))
+    # printt('[info] master.py result array : ' + str([e[0] for e in result_iter]))
 
     if all([e[0] for e in result_iter]) == True:
 
@@ -533,7 +533,7 @@ while True:
 
             printt(log)
 
-        printt('[info] master.py > iteration %d finished' % cur_iter)
+        # printt('[info] master.py > iteration %d finished' % cur_iter)
         printt('[info] master.py > iteration time : %f' % (time() - t_))
         success = True
         trial = 0
@@ -553,7 +553,7 @@ while True:
 train_time = time() - train_time
 
 # test part
-printt('[info] master.py > test start')
+# printt('[info] master.py > test start')
 
 # load entity vector
 entities_initialized = r.mget([entity + '_v' for entity in entities])
