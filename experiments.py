@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from subprocess import Popen
+from time import time
 
 #FB15K, WN18
 # 워커 갯수 2,4,6,8
@@ -24,6 +25,7 @@ with open("result.csv", 'w') as result_file:
     result_file.write(", ".join(key_list))
     result_file.write("\n")
 
+    t = time()
     for dataset in datasets:
         for num_worker in num_workers:
             for train_iter, niter in worker_master_epochs:
@@ -56,3 +58,5 @@ with open("result.csv", 'w') as result_file:
                                     result_file.write(f"{value}\n")
                                 else:
                                     result_file.write(f"{value}, ")
+
+    print(f"total - {t-time()} seconds")
