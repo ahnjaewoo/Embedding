@@ -70,7 +70,7 @@ maxmin_sock.listen(1)
 
 master_sock, master_addr = maxmin_sock.accept()
 
-printt('[info] maxmin.py > socket connected (master <-> maxmin)')
+# printt('[info] maxmin.py > socket connected (master <-> maxmin)')
 data_files = ['%s/train.txt' % data_root, '%s/dev.txt' % data_root, '%s/test.txt' % data_root]
 output_file = '%s/maxmin_output.txt' % temp_folder_dir
 old_anchor_file = '%s/old_anchor.txt' % temp_folder_dir
@@ -125,7 +125,7 @@ entities_id = {entity2id[v] for v in entities}
 for (hd, tl) in entity_graph:
 
     edge_list.append((entity2id[hd], entity2id[tl]))
-printt('[info] maxmin.py > max-min cut data preprocessing finished (time : {})'.format((time()-t_)))
+# printt('[info] maxmin.py > max-min cut data preprocessing finished (time : {})'.format((time()-t_)))
 
 while True:
 
@@ -135,7 +135,7 @@ while True:
 
     if master_status == 1:
         # 연결을 끊음
-        printt('[info] maxmin.py > received disconnect signal (master_status = 1)')
+        # printt('[info] maxmin.py > received disconnect signal (master_status = 1)')
 
         maxmin_sock.close()
         sys.exit(0)
@@ -267,7 +267,7 @@ while True:
         parts[randint(0, partition_num - 1)].append(v)
 
     # printing the number of entities in each paritions
-    printt('[info] maxmin.py > # of entities in each partitions : [%s]' % " ".join([str(len(p)) for p in parts]))
+    # printt('[info] maxmin.py > # of entities in each partitions : [%s]' % " ".join([str(len(p)) for p in parts]))
     master_sock.send(struct.pack('!i', len(list(anchor))))
 
     for anchor_val in list(anchor):
@@ -282,5 +282,5 @@ while True:
 
             master_sock.send(struct.pack('!i', nas_val))
 
-    printt('[info] maxmin.py > sent anchor and nas to master')          
-    printt('[info] maxmin.py > max-min cut finished (time : {})'.format((time()-t_)))
+    # printt('[info] maxmin.py > sent anchor and nas to master')          
+    # printt('[info] maxmin.py > max-min cut finished (time : {})'.format((time()-t_)))

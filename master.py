@@ -493,7 +493,7 @@ while True:
 
         # maxmin 의 결과를 소켓으로 받음
         anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        printt('[info] master.py > anchor_len = ' + str(anchor_len))
+        # printt('[info] master.py > anchor_len = ' + str(anchor_len))
 
         for anchor_idx in range(anchor_len):
             
@@ -637,7 +637,7 @@ if int(cur_iter) % 2 == 0:
 
         if checksum == 1234:
 
-            printt('[info] master.py > phase 1 finished (for test)')
+            # printt('[info] master.py > phase 1 finished (for test)')
             success = 1
 
         elif checksum == 9876:
@@ -667,7 +667,7 @@ else:
 
         if checksum == 1234:
 
-            printt('[info] master.py > phase 1 finished (for test)')
+            # printt('[info] master.py > phase 1 finished (for test)')
             success = 1
 
         elif checksum == 9876:
@@ -680,7 +680,7 @@ else:
             printt('[error] master.py > unknown error in phase 1 (for test)')
             success = 0
 
-printt('[info] master.py > chunk or relation sent to DataModel (for test)')
+# printt('[info] master.py > chunk or relation sent to DataModel (for test)')
 
 checksum = 0
 success = 0
@@ -705,7 +705,7 @@ while success != 1:
 
     if checksum == 1234:
 
-        printt('[info] master.py > phase 2 (entity) finished (for test)')
+        # printt('[info] master.py > phase 2 (entity) finished (for test)')
         success = 1
 
     elif checksum == 9876:
@@ -718,7 +718,7 @@ while success != 1:
         printt('[error] master.py > unknown error in phase 2 (entity) (for test)')
         success = 0
 
-printt('[info] master.py > entity_vector sent to GeometricModel load function (for test)')
+# printt('[info] master.py > entity_vector sent to GeometricModel load function (for test)')
 
 checksum = 0
 success = 0
