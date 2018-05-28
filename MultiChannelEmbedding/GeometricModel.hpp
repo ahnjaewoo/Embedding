@@ -43,13 +43,13 @@ public:
 		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
 	{
 
-		printf("[info] GeometricModel.hpp > TransE constructor called");
-		fprintf(fs_log, "[info] GeometricModel.hpp > TransE constructor called");
+		// printf("[info] GeometricModel.hpp > TransE constructor called");
+		// fprintf(fs_log, "[info] GeometricModel.hpp > TransE constructor called");
 
-		logging.record() << "\t[Name]\tTransE";
-		logging.record() << "\t[Dimension]\t" << dim;
-		logging.record() << "\t[Learning Rate]\t" << alpha;
-		logging.record() << "\t[Training Threshold]\t" << training_threshold;
+		// logging.record() << "\t[Name]\tTransE";
+		// logging.record() << "\t[Dimension]\t" << dim;
+		// logging.record() << "\t[Learning Rate]\t" << alpha;
+		// logging.record() << "\t[Training Threshold]\t" << training_threshold;
 
 		embedding_entity.resize(count_entity());
 		embedding_relation.resize(count_relation());
@@ -89,13 +89,13 @@ public:
 		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
 	{
 
-		printf("[info] GeometricModel.hpp > TransE constructor called");
-		fprintf(fs_log, "[info] GeometricModel.hpp > TransE constructor called");
+		// printf("[info] GeometricModel.hpp > TransE constructor called");
+		// fprintf(fs_log, "[info] GeometricModel.hpp > TransE constructor called");
 		
-		logging.record() << "\t[Name]\tTransE";
-		logging.record() << "\t[Dimension]\t" << dim;
-		logging.record() << "\t[Learning Rate]\t" << alpha;
-		logging.record() << "\t[Training Threshold]\t" << training_threshold;
+		// logging.record() << "\t[Name]\tTransE";
+		// logging.record() << "\t[Dimension]\t" << dim;
+		// logging.record() << "\t[Learning Rate]\t" << alpha;
+		// logging.record() << "\t[Training Threshold]\t" << training_threshold;
 
 		embedding_entity.resize(count_entity());
 		for_each(embedding_entity.begin(), embedding_entity.end(), [=](vec& elem) {elem = (2 * randu(dim, 1) - 1)*sqrt(6.0 / dim); });
@@ -530,8 +530,8 @@ public:
                 }
 			}
 
-			printf("[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
-			fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
+			// printf("[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
+			// fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
 		}
 		else{
 			// master_epoch 이 홀수일 때, relation embedding
@@ -615,8 +615,8 @@ public:
                 }
 			}
 
-			printf("[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
-			fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
+			// printf("[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
+			// fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
 		}
 	}
 
@@ -723,8 +723,8 @@ public:
                 send(fd, &flag, sizeof(flag), 0);
         	}
         }
-		printf("[info] GeometricModel.hpp > load entity finish\n");
-		fprintf(fs_log, "[info] GeometricModel.hpp > load entity finish\n");
+		// printf("[info] GeometricModel.hpp > load entity finish\n");
+		// fprintf(fs_log, "[info] GeometricModel.hpp > load entity finish\n");
 
 		success = 0;
 		flag = 0;
@@ -821,8 +821,8 @@ public:
 						
 					}
 				}
-				printf("[info] GeometricModel.hpp > receiving relation vector end\n");
-				fprintf(fs_log, "[info] GeometricModel.hpp > receiving relation vector end\n");
+				// printf("[info] GeometricModel.hpp > receiving relation vector end\n");
+				// fprintf(fs_log, "[info] GeometricModel.hpp > receiving relation vector end\n");
 
                 flag = 1234;
                 flag = htonl(flag);
@@ -841,11 +841,11 @@ public:
 				send(fd, &flag, sizeof(flag), 0);
 			}
 		}
-		printf("[info] GeometricModel.hpp > load relation finish\n");
-		fprintf(fs_log, "[info] GeometricModel.hpp > load relation finish\n");
+		// printf("[info] GeometricModel.hpp > load relation finish\n");
+		// fprintf(fs_log, "[info] GeometricModel.hpp > load relation finish\n");
 		
-		printf("[info] GeometricModel.hpp > load function finish\n");
-		fprintf(fs_log, "[info] GeometricModel.hpp > load function finish\n");
+		// printf("[info] GeometricModel.hpp > load function finish\n");
+		// fprintf(fs_log, "[info] GeometricModel.hpp > load function finish\n");
 	}
 
 	/*

@@ -181,8 +181,8 @@ try:
 
             if checksum == 1234:
 
-                printt('[info] worker.py > phase 1 finished - ' + worker_id)
-                fsLog.write('[info] worker.py > phase 1 finished - ' + worker_id + '\n')
+                #printt('[info] worker.py > phase 1 finished - ' + worker_id)
+                #fsLog.write('[info] worker.py > phase 1 finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
@@ -202,8 +202,8 @@ try:
                 fsLog.close()
                 sys.exit(-1)
 
-        printt('[info] worker.py > phase 1 : entity sent to DataModel finished')
-        fsLog.write('[info] worker.py > phase 1 : entity sent to DataModel finished\n')
+        #printt('[info] worker.py > phase 1 : entity sent to DataModel finished')
+        #fsLog.write('[info] worker.py > phase 1 : entity sent to DataModel finished\n')
 
     else:
         # relation 전송 - DataModel 생성자
@@ -222,8 +222,8 @@ try:
 
             if checksum == 1234:
 
-                printt('[info] worker.py > phase 1 finished - ' + worker_id)
-                fsLog.write('[info] worker.py > phase 1 finished - ' + worker_id + '\n')
+                #printt('[info] worker.py > phase 1 finished - ' + worker_id)
+                #fsLog.write('[info] worker.py > phase 1 finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
@@ -243,8 +243,8 @@ try:
                 fsLog.close()
                 sys.exit(-1)
 
-        printt('[info] worker.py > phase 1 : relation sent to DataModel finished')
-        fsLog.write('[info] worker.py > phase 1 : relation sent to DataModel finished\n')
+        #printt('[info] worker.py > phase 1 : relation sent to DataModel finished')
+        #fsLog.write('[info] worker.py > phase 1 : relation sent to DataModel finished\n')
 
     checksum = 0
 
@@ -271,8 +271,8 @@ try:
 
         if checksum == 1234:
 
-            printt('[info] worker.py > phase 2 (entity) finished - ' + worker_id)
-            fsLog.write('[info] worker.py > phase 2 (entity) finished - ' + worker_id + '\n')
+            #printt('[info] worker.py > phase 2 (entity) finished - ' + worker_id)
+            #fsLog.write('[info] worker.py > phase 2 (entity) finished - ' + worker_id + '\n')
             checksum = 1
 
         elif checksum == 9876:
@@ -292,8 +292,8 @@ try:
             fsLog.close()
             sys.exit(-1)
 
-    printt('[info] worker.py > phase 2.1 : entity_vector sent to GeometricModel load function')
-    fsLog.write('[info] worker.py > phase 2.1 : entity_vector sent to GeometricModel load function\n')
+    #printt('[info] worker.py > phase 2.1 : entity_vector sent to GeometricModel load function')
+    #fsLog.write('[info] worker.py > phase 2.1 : entity_vector sent to GeometricModel load function\n')
 
     checksum = 0
 
@@ -313,13 +313,13 @@ try:
                 embedding_sock.send(struct.pack('d', float(v)))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-        printt('[info] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id)
-        fsLog.write('[info] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+        #printt('[info] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id)
+        #fsLog.write('[info] worker.py > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
 
         if checksum == 1234:
 
-            printt('[info] worker.py > phase 2 (relation) finished - ' + worker_id)
-            fsLog.write('[info] worker.py > phase 2 (relation) finished - ' + worker_id + '\n')
+            #printt('[info] worker.py > phase 2 (relation) finished - ' + worker_id)
+            #fsLog.write('[info] worker.py > phase 2 (relation) finished - ' + worker_id + '\n')
             checksum = 1
 
         elif checksum == 9876:
@@ -339,8 +339,8 @@ try:
             fsLog.close()
             sys.exit(-1)
 
-    printt('[info] worker.py > phase 2.2 : relation_vector sent to GeometricModel load function')
-    fsLog.write('[info] worker.py > phase 2.2 : relation_vector sent to GeometricModel load function\n')
+    #printt('[info] worker.py > phase 2.2 : relation_vector sent to GeometricModel load function')
+    #fsLog.write('[info] worker.py > phase 2.2 : relation_vector sent to GeometricModel load function\n')
 
     del entities_initialized
     del relations_initialized
@@ -368,8 +368,8 @@ try:
                     fsLog.write('[error] worker.py > embedding_port = ' + socket_port + '\n')
                 
                 count_entity = struct.unpack('!i', count_entity_data)[0]
-                printt('[info] worker.py > count_entity = ' + str(count_entity))
-                fsLog.write('[info] worker.py > count_entity = ' + str(count_entity) + '\n')
+                #printt('[info] worker.py > count_entity = ' + str(count_entity))
+                #fsLog.write('[info] worker.py > count_entity = ' + str(count_entity) + '\n')
 
                 for entity_idx in range(count_entity):
                     
@@ -433,17 +433,17 @@ try:
 
             else:
 
-                printt('[info] worker.py > phase 3 (entity) finished - ' + worker_id)
-                fsLog.write('[info] worker.py > phase 3 (entity) finished - ' + worker_id + '\n')
+                #printt('[info] worker.py > phase 3 (entity) finished - ' + worker_id)
+                #fsLog.write('[info] worker.py > phase 3 (entity) finished - ' + worker_id + '\n')
                 flag = 1234
                 embedding_sock.send(struct.pack('!i', flag))
                 success = 1
         
         r.mset(entity_vectors)
-        printt('[info] worker.py > entity_vectors updated - ' + worker_id)
-        printt('[info] worker.py > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
-        fsLog.write('[info] worker.py > entity_vectors updated - ' + worker_id + '\n')
-        fsLog.write('[info] worker.py > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
+        #printt('[info] worker.py > entity_vectors updated - ' + worker_id)
+        #printt('[info] worker.py > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
+        #fsLog.write('[info] worker.py > entity_vectors updated - ' + worker_id + '\n')
+        #fsLog.write('[info] worker.py > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         fsLog.close()
         tt.sleep(1)
         sys.exit(0)
@@ -461,8 +461,8 @@ try:
                 # 처리 결과를 받아옴 - GeometricModel save
                 count_relation_data = sockRecv(embedding_sock, 4)
                 count_relation = struct.unpack('!i', count_relation_data)[0]
-                printt('[info] worker.py > count_relation is ' + str(count_relation))
-                fsLog.write('[info] worker.py > count_relation is ' + str(count_relation) + '\n')
+                #printt('[info] worker.py > count_relation is ' + str(count_relation))
+                #fsLog.write('[info] worker.py > count_relation is ' + str(count_relation) + '\n')
 
                 for relation_idx in range(count_relation):
                     
@@ -525,17 +525,17 @@ try:
 
             else:
 
-                printt('[info] worker.py > phase 3 (relation) finished - ' + worker_id)
-                fsLog.write('[info] worker.py > phase 3 (relation) finished - ' + worker_id + '\n')
+                #printt('[info] worker.py > phase 3 (relation) finished - ' + worker_id)
+                #fsLog.write('[info] worker.py > phase 3 (relation) finished - ' + worker_id + '\n')
                 flag = 1234
                 embedding_sock.send(struct.pack('!i', flag))
                 success = 1
 
         r.mset(relation_vectors)
-        printt('[info] worker.py > relation_vectors updated - ' + worker_id)
-        printt('[info] worker.py > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
-        fsLog.write('[info] worker.py > relation_vectors updated - ' + worker_id + '\n')
-        fsLog.write('[info] worker.py > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
+        #printt('[info] worker.py > relation_vectors updated - ' + worker_id)
+        #printt('[info] worker.py > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
+        #fsLog.write('[info] worker.py > relation_vectors updated - ' + worker_id + '\n')
+        #fsLog.write('[info] worker.py > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         fsLog.close()
         tt.sleep(1)
         sys.exit(0)

@@ -1,6 +1,5 @@
 # coding: utf-8
 from distributed import Client
-from distributed.diagnostics import progress
 from sklearn.preprocessing import normalize
 from subprocess import Popen
 from subprocess import check_output
@@ -518,7 +517,7 @@ while True:
         # relation partitioning
         chunk_data = ''
 
-    progress(workers)
+    client.gather(workers)
     printt('')
     result_iter = [worker.result() for worker in workers]
 

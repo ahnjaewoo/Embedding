@@ -110,8 +110,8 @@ int main(int argc, char* argv[]){
 	}
 	else{
 
-		printf("[info] embedding.cpp > accept socket successfully - worker_%d\n", worker_num);
-		fprintf(fs_log, "[info] embedding.cpp > accept socket successfully - worker_%d\n", worker_num);
+		// printf("[info] embedding.cpp > accept socket successfully - worker_%d\n", worker_num);
+		// fprintf(fs_log, "[info] embedding.cpp > accept socket successfully - worker_%d\n", worker_num);
 	}
 
 	// choosing data root by data root id
@@ -147,8 +147,8 @@ int main(int argc, char* argv[]){
 	fprintf(fs_log, "[info] embedding.cpp > testing time : %lf seconds\n", after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0);
 	
 	model->save(to_string(worker_num), fs_log);
-	cout << "[info] embedding.cpp > model->save end" << endl;
-	fprintf(fs_log, "[info] embedding.cpp > model->save end\n");
+	// cout << "[info] embedding.cpp > model->save end" << endl;
+	// fprintf(fs_log, "[info] embedding.cpp > model->save end\n");
 
 	delete model;
 	fclose(fs_log);
