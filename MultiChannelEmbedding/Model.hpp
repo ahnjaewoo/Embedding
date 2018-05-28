@@ -42,13 +42,13 @@ public:
 		epos = 0;
 		best_triplet_result = 0;
 		
-		std::cout << "[info] Model.hpp > Model constructor called" << endl;
-		std::cout << "\t[Dataset]\t" << dataset.name;
-		std::cout << TaskTypeName(task_type);
+		// std::cout << "[info] Model.hpp > Model constructor called" << endl;
+		// std::cout << "\t[Dataset]\t" << dataset.name;
+		// std::cout << TaskTypeName(task_type);
 
-		logging.record() << "[info] Model.hpp > Model constructor called";
-		logging.record() << "\t[Dataset]\t" << dataset.name;
-		logging.record() << TaskTypeName(task_type);
+		// logging.record() << "[info] Model.hpp > Model constructor called";
+		// logging.record() << "\t[Dataset]\t" << dataset.name;
+		// logging.record() << TaskTypeName(task_type);
 	}
 
 	Model(const Dataset& dataset,
@@ -66,10 +66,10 @@ public:
 	{
 		epos = 0;
 		best_triplet_result = 0;
-		std::cout << "[info] Model.hpp > Model constructor called" << endl;
+		// std::cout << "[info] Model.hpp > Model constructor called" << endl;
 
-		logging.record() << "\t[Dataset]\t" << dataset.name;
-		logging.record() << TaskTypeName(task_type);
+		// logging.record() << "\t[Dataset]\t" << dataset.name;
+		// logging.record() << TaskTypeName(task_type);
 	}
 
 public:
@@ -118,13 +118,13 @@ public:
 		//epoch is an even : entity by anchor
 		if (master_epoch % 2 == 0)
 		{
-			logging.record() << "\t[Epos]\t" << total_epos;
-			cout << "[info] Model.hpp > train entity at master epoch " << master_epoch << endl;
+			// logging.record() << "\t[Epos]\t" << total_epos;
+			// cout << "[info] Model.hpp > train entity at master epoch " << master_epoch << endl;
 			--total_epos;
-			boost::progress_display	cons_bar(total_epos);
+			//boost::progress_display	cons_bar(total_epos);
 			while (total_epos-- > 0)
 			{
-				++cons_bar;
+				//++cons_bar;
 				train_parts();
 
 				if (task_type == TripletClassification)
@@ -136,13 +136,13 @@ public:
 		//epoch is an odd : relation
 		else
 		{
-			logging.record() << "\t[Epos]\t" << total_epos;
-			cout << "[info] Model.hpp > train relation at master epoch " << master_epoch << endl;
+			// logging.record() << "\t[Epos]\t" << total_epos;
+			// cout << "[info] Model.hpp > train relation at master epoch " << master_epoch << endl;
 			--total_epos;
-			boost::progress_display	cons_bar(total_epos);
+			//boost::progress_display	cons_bar(total_epos);
 			while (total_epos-- > 0)
 			{
-				++cons_bar;
+				//++cons_bar;
 				//train();
 				train_parts_relation();
 
@@ -256,10 +256,10 @@ public:
 			//	<<lreal_hit/lreal_total;
 		}
 
-		printf("[Info] Model.hpp > true = %d\n", data_model.data_test_true.size());
-		printf("[Info] Model.hpp > false = %d\n", data_model.data_test_false.size());
-		printf("[Info] Model.hpp > true + false = %d\n", data_model.data_test_true.size() + data_model.data_test_false.size());
-		printf("[Info] Model.hpp > real_hit = %lf\n", real_hit);
+		// printf("[Info] Model.hpp > true = %d\n", data_model.data_test_true.size());
+		// printf("[Info] Model.hpp > false = %d\n", data_model.data_test_false.size());
+		// printf("[Info] Model.hpp > true + false = %d\n", data_model.data_test_true.size() + data_model.data_test_false.size());
+		// printf("[Info] Model.hpp > real_hit = %lf\n", real_hit);
 		
 		fprintf(fs_log, "[Info] Model.hpp > Triplet classification\n");
 		fprintf(fs_log, "[Info] Model.hpp > true = %d\n", data_model.data_test_true.size());
@@ -303,7 +303,7 @@ public:
 
 		int cnt = 0;
 
-		boost::progress_display cons_bar(data_model.data_test_true.size() / 100);
+		// boost::progress_display cons_bar(data_model.data_test_true.size() / 100);
 
 #pragma omp parallel for
 		for (auto i = data_model.data_test_true.begin(); i != data_model.data_test_true.end(); ++i)
@@ -311,7 +311,7 @@ public:
 			++cnt;
 			if (cnt % 100 == 0)
 			{
-				++cons_bar;
+				//++cons_bar;
 			}
 
 			pair<pair<int, int>, int> t = *i;
@@ -387,19 +387,19 @@ public:
 		best_link_fmean = min(best_link_fmean, fmean / total);
 		best_link_fhitatten = max(best_link_fhitatten, fhits / total);
 
-		std::cout << "Raw.BestMEANS = " << best_link_mean << endl;
-		std::cout << "Raw.BestMRR = " << rmrr / total << endl;
-		std::cout << "Raw.BestHITS = " << best_link_hitatten << endl;
-		logging.record() << "Raw.BestMEANS = " << best_link_mean;
-		logging.record() << "Raw.BestMRR = " << rmrr / total;
-		logging.record() << "Raw.BestHITS = " << best_link_hitatten;
+		// std::cout << "Raw.BestMEANS = " << best_link_mean << endl;
+		// std::cout << "Raw.BestMRR = " << rmrr / total << endl;
+		// std::cout << "Raw.BestHITS = " << best_link_hitatten << endl;
+		// logging.record() << "Raw.BestMEANS = " << best_link_mean;
+		// logging.record() << "Raw.BestMRR = " << rmrr / total;
+		// logging.record() << "Raw.BestHITS = " << best_link_hitatten;
 
-		std::cout << "Filter.BestMEANS = " << best_link_fmean << endl;
-		std::cout << "Filter.BestMRR= " << fmrr / total << endl;
-		std::cout << "Filter.BestHITS = " << best_link_fhitatten << endl;
-		logging.record() << "Filter.BestMEANS = " << best_link_fmean;
-		logging.record() << "Filter.BestMRR= " << fmrr / total;
-		logging.record() << "Filter.BestHITS = " << best_link_fhitatten;
+		// std::cout << "Filter.BestMEANS = " << best_link_fmean << endl;
+		// std::cout << "Filter.BestMRR= " << fmrr / total << endl;
+		// std::cout << "Filter.BestHITS = " << best_link_fhitatten << endl;
+		// logging.record() << "Filter.BestMEANS = " << best_link_fmean;
+		// logging.record() << "Filter.BestMRR= " << fmrr / total;
+		// logging.record() << "Filter.BestHITS = " << best_link_fhitatten;
 
 		fprintf(fs_log, "Link prediction\n");
 		fprintf(fs_log, "== Raw.BestMEANS = %lf\n", best_link_mean);
