@@ -16,7 +16,7 @@ worker_master_epochs = [(5, 100), (10, 50), (20, 25)]
 lr = 0.001
 ndims = [50, 100]
 
-key_list = ['dataset', 'num_worker', 'train_iter', 'worker_iter', 'ndim',
+key_list = ['dataset', 'num_worker', 'train_iter', 'worker_iter', 'ndim', 'lr',
             'Raw.BestMEANS', 'Raw.BestMRR',
             'Raw.BestHITS', 'Filter.BestMEANS', 'Filter.BestMRR', 'Filter.BestHITS',
             'Accuracy', 'Best', 'train_time']
@@ -42,6 +42,7 @@ with open("result.csv", 'w') as result_file:
                     print(f"train_iter: {train_iter}")
                     print(f"niter: {niter}")
                     print(f"ndim: {ndim}")
+                    print(f"lr: {lr}")
                     result_file.write(f"{dataset}, ")
                     result_file.write(f"{num_worker}, ")
                     result_file.write(f"{train_iter}, {niter}, ")
