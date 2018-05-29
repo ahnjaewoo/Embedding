@@ -261,11 +261,11 @@ public:
 		// printf("[Info] Model.hpp > true + false = %d\n", data_model.data_test_true.size() + data_model.data_test_false.size());
 		// printf("[Info] Model.hpp > real_hit = %lf\n", real_hit);
 		
-		fprintf(fs_log, "[Info] Model.hpp > Triplet classification\n");
-		fprintf(fs_log, "[Info] Model.hpp > true = %d\n", data_model.data_test_true.size());
-		fprintf(fs_log, "[Info] Model.hpp > false = %d\n", data_model.data_test_false.size());
-		fprintf(fs_log, "[Info] Model.hpp > true + false = %d\n", data_model.data_test_true.size() + data_model.data_test_false.size());
-		fprintf(fs_log, "[Info] Model.hpp > real_hit = %lf\n", real_hit);
+		// fprintf(fs_log, "[Info] Model.hpp > Triplet classification\n");
+		// fprintf(fs_log, "[Info] Model.hpp > true = %d\n", data_model.data_test_true.size());
+		// fprintf(fs_log, "[Info] Model.hpp > false = %d\n", data_model.data_test_false.size());
+		// fprintf(fs_log, "[Info] Model.hpp > true + false = %d\n", data_model.data_test_true.size() + data_model.data_test_false.size());
+		// fprintf(fs_log, "[Info] Model.hpp > real_hit = %lf\n", real_hit);
 
 		std::cout << epos << "\t Accuracy = "
 			<< real_hit / (data_model.data_test_true.size() + data_model.data_test_false.size());
@@ -309,10 +309,10 @@ public:
 		for (auto i = data_model.data_test_true.begin(); i != data_model.data_test_true.end(); ++i)
 		{
 			++cnt;
-			if (cnt % 100 == 0)
-			{
-				//++cons_bar;
-			}
+			// if (cnt % 100 == 0)
+			// {
+			// 	++cons_bar;
+			// }
 
 			pair<pair<int, int>, int> t = *i;
 			int frmean = 0;
@@ -401,7 +401,7 @@ public:
 		// logging.record() << "Filter.BestMRR= " << fmrr / total;
 		// logging.record() << "Filter.BestHITS = " << best_link_fhitatten;
 
-		fprintf(fs_log, "Link prediction\n");
+		// fprintf(fs_log, "Link prediction\n");
 		fprintf(fs_log, "== Raw.BestMEANS = %lf\n", best_link_mean);
 		fprintf(fs_log, "== Raw.BestMRR = %lf\n", rmrr / total);
 		fprintf(fs_log, "== Raw.BestHITS = %lf\n", best_link_hitatten);
