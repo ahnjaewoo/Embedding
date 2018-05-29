@@ -273,6 +273,8 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     print('[info] master.py > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
     log_dir = os.path.join(root_dir, 'logs/embedding_log_' + worker_id + '_iter_' + str(cur_iter) + '.txt')
 
+    t_ = time()
+
     embedding_proc = Popen([train_code_dir, 
                                     worker_id,
                                     str(cur_iter),
@@ -304,6 +306,8 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     embedding_proc.wait()
     worker_proc.wait()
 
+    idle_time_worker = time()
+
     embedding_return = int(embedding_proc.returncode)
     worker_return = int(worker_proc.returncode)
 
@@ -317,7 +321,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
 
         # 모두 성공적으로 수행
         # worker_return 은 string 형태? byte 형태? 의 pickle 을 가지고 있음
-        return (True, '[info] master.py > %s: iteration %d finished, time: %f' % (worker_id, cur_iter, time()))
+        return (True, '[info] master.py > %s: iteration %d finished, time: %f' % (worker_id, cur_iter, t_ - time()), idle_time_worker)
 
 # def savePreprocessedData(data, worker_id):
 #     from threading import Thread
@@ -537,6 +541,10 @@ while True:
         success = True
         trial = 0
         cur_iter = cur_iter + 1
+
+        idle_times = [e[2] - t_ for e in result_iter]
+
+        printt('[info] master.py > idle times : ' + str(idle_times))
 
     else:
 
