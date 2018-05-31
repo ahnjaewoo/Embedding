@@ -19,6 +19,7 @@ int main(int argc, char* argv[])
 	int data_root_id = 0;
 
 	getParams(argc, argv, data_root_id, dim, lr);
+
 	if(data_root_id == 0){
 		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, lr, 1);
 	} else if(data_root_id == 1) {

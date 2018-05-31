@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from subprocess import Popen
+from subprocess import Popen, PIPE
 from time import time
 
 #FB15K, WN18
@@ -25,7 +25,6 @@ with open("result.csv", 'w') as result_file:
     result_file.write(", ".join(key_list))
     result_file.write("\n")
 
-    t = time()
     for dataset in datasets:
         for num_worker in num_workers:
             for train_iter, niter in worker_master_epochs:
@@ -60,4 +59,32 @@ with open("result.csv", 'w') as result_file:
                                 else:
                                     result_file.write(f"{value}, ")
 
-    print(f"total - {t-time()} seconds")
+
+key_list = ['dataset', 'train_iter', 'ndim', 'lr',
+            'Raw.BestMEANS', 'Raw.BestMRR',
+            'Raw.BestHITS', 'Filter.BestMEANS', 'Filter.BestMRR', 'Filter.BestHITS',
+            'Accuracy', 'Best', 'train_time']
+
+with open("baseline_result.csv", 'w') as result_file:
+    result_file.write(", ".join(key_list))
+    result_file.write("\n")
+
+    for dataset_id, dataset in enumerate(datasets):
+        for ndim in ndims:
+            process = Popen(['./baseline/master.cpp', str(dataset_id),
+                                str(ndim), str(lr)],
+                                stdout=PIPE, stderr=PIPE, cwd='./baseline/')
+            out, _ = process.communicate()
+            out = out.decode('utf-8')
+
+            print(f"dataset: {dataset}")
+            print(f"train_iter: {train_iter}")
+            print(f"ndim: {ndim}")
+            print(f"lr: {lr}")
+            result_file.write(f"{dataset}, ")
+            result_file.write(f"{train_iter}, ")
+            result_file.write(f"{ndim}, ")
+            result_file.write(f"{lr}, ")
+
+            # parsing
+            
