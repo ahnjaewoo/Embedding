@@ -7,7 +7,7 @@
 #include <sys/time.h>
 
 
-void getParams(int argc, char* argv[], int& dim, double& lr);
+void getParams(int argc, char* argv[], int& data_root_id, int& dim, double& lr);
 int main(int argc, char* argv[])
 {
 	srand(time(nullptr));
@@ -16,9 +16,14 @@ int main(int argc, char* argv[])
 	Model* model = nullptr;
 	int dim = 50;
 	double lr = 0.001;
+	int data_root_id = 0;
 
 	getParams(argc, argv, dim, lr);
-	model = new TransE(WN18, LinkPredictionTail, report_path, dim, lr, 1);
+	if(data_root_id == 0){
+		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, lr, 1);
+	} else if(data_root_id == 1) {
+		model = new TransE(WN18, LinkPredictionTail, report_path, dim, lr, 1);
+	}
 
 	struct timeval after, before;
 	gettimeofday(&before, NULL);
@@ -33,10 +38,12 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void getParams(int argc, char* argv[], int& dim, double& lr){
-	if (argc == 2){
-		dim = atof(argv[1]);
-	} else if(argc == 3){
-		lr = atoi(argv[2]);
+void getParams(int argc, char* argv[], int& data_root_id, int& dim, double& lr){
+	if (argc == 2) {
+		data_root_id = atoi(argv[1])
+	} else if (argc == 3){
+		dim = atof(argv[2]);
+	} else if(argc == 4){
+		lr = atoi(argv[3]);
 	}
 }
