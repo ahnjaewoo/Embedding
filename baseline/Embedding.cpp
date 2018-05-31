@@ -34,6 +34,9 @@ int main(int argc, char* argv[])
 }
 
 void getParams(int argc, char* argv[], int& dim, int& lr){
-	dim = argv[1];
-	lr = argv[2];
+	if (argc == 2){
+		dim = atof(argv[1]);
+	} else if(argc == 3){
+		lr = atoi(argv[2]);
+	}
 }
