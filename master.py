@@ -557,6 +557,9 @@ while True:
         printt('[error] master.py > iteration %d is failed' % cur_iter)
         printt('[Info] master.py > retry iteration %d' % cur_iter)
 
+with open("logs/test_log.txt", 'a') as f:
+    f.write("\n== train_time = {}\n".format(train_time))
+
 train_time = time() - train_time
 
 # test part
@@ -775,9 +778,5 @@ if test_return == -1:
 
     printt('[error] master.py > test failed, exit')
     sys.exit(-1)
-    
-
-with open("logs/test_log.txt", 'a') as f:
-    f.write("\n== train_time = {}\n".format(train_time))
 
 printt('[info] master.py > Total elapsed time : %f' % (time() - master_start))

@@ -42,8 +42,8 @@ void getParams(int argc, char* argv[], int& data_root_id, int& dim, double& lr){
 	if (argc == 2) {
 		data_root_id = atoi(argv[1]);
 	} else if (argc == 3){
-		dim = atof(argv[2]);
+		dim = atoi(argv[2]);
 	} else if(argc == 4){
-		lr = atoi(argv[3]);
+		lr = atof(argv[3]);
 	}
 }
