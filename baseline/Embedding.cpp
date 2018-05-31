@@ -7,7 +7,7 @@
 #include <sys/time.h>
 
 
-void getParams(int argc, char* argv[], int& dim, int& lr);
+void getParams(int argc, char* argv[], int& dim, double& lr);
 int main(int argc, char* argv[])
 {
 	srand(time(nullptr));
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void getParams(int argc, char* argv[], int& dim, int& lr){
+void getParams(int argc, char* argv[], int& dim, double& lr){
 	if (argc == 2){
 		dim = atof(argv[1]);
 	} else if(argc == 3){
