@@ -447,12 +447,6 @@ while True:
     #printt('=====================================================================')
     printt('[info] master.py > iteration %d' % cur_iter)
 
-    # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
-    entities_initialized_bak = r.mget([entity + '_v' for entity in entities])
-    entities_initialized_bak = [pickle.loads(v) for v in entities_initialized_bak]
-    relations_initialized_bak = r.mget([relation + '_v' for relation in relations])
-    relations_initialized_bak = [pickle.loads(v) for v in relations_initialized_bak]
-
     t_ = time()
 
     if trial == 5:
@@ -521,6 +515,12 @@ while True:
         # relation partitioning
         chunk_data = ''
 
+    # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
+    entities_initialized_bak = r.mget([entity + '_v' for entity in entities])
+    entities_initialized_bak = [pickle.loads(v) for v in entities_initialized_bak]
+    relations_initialized_bak = r.mget([relation + '_v' for relation in relations])
+    relations_initialized_bak = [pickle.loads(v) for v in relations_initialized_bak]
+    
     client.gather(workers)
     printt('')
     result_iter = [worker.result() for worker in workers]
