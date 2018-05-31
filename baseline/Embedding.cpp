@@ -6,15 +6,19 @@
 #include <omp.h>
 #include <sys/time.h>
 
-// 400s for each experiment.
+
+void getParams(int argc, char* argv[], int& dim, int& lr);
 int main(int argc, char* argv[])
 {
 	srand(time(nullptr));
 	//omp_set_num_threads(6);
 
 	Model* model = nullptr;
+	int dim;
+	double lr;
 
-	model = new TransE(WN18, LinkPredictionTail, report_path, 50, 0.001, 1);
+	getParams(argc, argv, dim, lr);
+	model = new TransE(WN18, LinkPredictionTail, report_path, dim, lr, 1);
 
 	struct timeval after, before;
 	gettimeofday(&before, NULL);
@@ -27,4 +31,9 @@ int main(int argc, char* argv[])
 	model->test();
 
 	return 0;
+}
+
+void getParams(int argc, char* argv[], int& dim, int& lr){
+	dim = argv[1];
+	lr = argv[2];
 }
