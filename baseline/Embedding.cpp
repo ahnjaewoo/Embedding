@@ -14,8 +14,8 @@ int main(int argc, char* argv[])
 	//omp_set_num_threads(6);
 
 	Model* model = nullptr;
-	int dim;
-	double lr;
+	int dim = 50;
+	double lr = 0.001;
 
 	getParams(argc, argv, dim, lr);
 	model = new TransE(WN18, LinkPredictionTail, report_path, dim, lr, 1);
