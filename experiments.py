@@ -75,7 +75,7 @@ with open("baseline_result.csv", 'w') as result_file:
                                 str(ndim), str(lr)],
                                 stdout=PIPE, stderr=PIPE, cwd='./baseline/')
             out, _ = process.communicate()
-            out = out.decode('utf-8')
+            lines = out.decode('utf-8').split("\n")
 
             print(f"dataset: {dataset}")
             print(f"train_iter: {train_iter}")
@@ -86,5 +86,13 @@ with open("baseline_result.csv", 'w') as result_file:
             result_file.write(f"{ndim}, ")
             result_file.write(f"{lr}, ")
 
-            # parsing
+            for line in lines:
+                line = line[:-1]
+                if line[:3] == '== ':
+                    key, value = line[3:].split(" = ")
+
+                    if key == 'train_time':
+                        result_file.write(f"{value}\n")
+                    else:
+                        result_file.write(f"{value}, ")
             
