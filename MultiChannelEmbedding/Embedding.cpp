@@ -1,7 +1,5 @@
 #include "Import.hpp"
 #include "DetailedConfig.hpp"
-// #include "LatentModel.hpp"
-// #include "OrbitModel.hpp"
 #include "Task.hpp"
 #include <omp.h>
 #include <sys/time.h>
@@ -17,7 +15,6 @@
 
 void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id, int& socket_port, string log_dir);
 
-// 400s for each experiment.
 int main(int argc, char* argv[]){
 	
 	srand(time(nullptr));
@@ -48,10 +45,8 @@ int main(int argc, char* argv[]){
 	embedding_addr.sin_addr.s_addr = inet_addr("0.0.0.0");
 	embedding_addr.sin_port = htons(socket_port);
 
-
 	// open log txt file
 	FILE * fs_log;
-	
 	if(master_epoch == 0){
 
   		fs_log = fopen(log_dir.c_str(), "w");
