@@ -9,7 +9,7 @@ void getParams(int argc, char* argv[], int& data_root_id, int& dim, double& lr);
 int main(int argc, char* argv[])
 {
 	srand(time(nullptr));
-	omp_set_num_threads(1);
+	// omp_set_num_threads(1);
 
 	Model* model = nullptr;
 	int dim = 50;
