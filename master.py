@@ -426,8 +426,6 @@ for part_idx in range(num_worker):
     chunk = chunk[:-1]
     chunks.append(chunk)
 
-print(anchors)
-print(chunks)
 printt('[info] master.py > maxmin finished')
 printt('[info] master.py > worker training iteration epoch : {}'.format(train_iter))
 
