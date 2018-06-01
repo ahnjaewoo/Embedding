@@ -29,10 +29,11 @@ int main(int argc, char* argv[])
 	model->run(500);
 
 	gettimeofday(&after, NULL);
-	cout << "== train_time = " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
 	
 	model->save("./model.bin");
 	model->test();
+
+	cout << "== train_time = " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
 
 	return 0;
 }
