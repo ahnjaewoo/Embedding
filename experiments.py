@@ -15,7 +15,7 @@ num_workers = [2, 4, 6, 8]
 worker_master_epochs = [(5, 100), (10, 50), (20, 25)]
 lr = 0.001
 ndims = [50, 100]
-
+"""
 key_list = ['dataset', 'num_worker', 'train_iter', 'worker_iter', 'ndim', 'lr',
             'Raw.BestMEANS', 'Raw.BestMRR',
             'Raw.BestHITS', 'Filter.BestMEANS', 'Filter.BestMRR', 'Filter.BestHITS',
@@ -58,7 +58,7 @@ with open("result.csv", 'w') as result_file:
                                     result_file.write(f"{value}\n")
                                 else:
                                     result_file.write(f"{value}, ")
-
+"""
 
 key_list = ['dataset', 'train_iter', 'ndim', 'lr',
             'Raw.BestMEANS', 'Raw.BestMRR',
@@ -71,7 +71,7 @@ with open("baseline_result.csv", 'w') as result_file:
 
     for dataset_id, dataset in enumerate(datasets):
         for ndim in ndims:
-            process = Popen(['./baseline/master.cpp', str(dataset_id),
+            process = Popen(['./baseline/Embedding.out', str(dataset_id),
                                 str(ndim), str(lr)],
                                 stdout=PIPE, stderr=PIPE, cwd='./baseline/')
             out, _ = process.communicate()
