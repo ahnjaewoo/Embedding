@@ -379,7 +379,7 @@ try:
                     #entity_id = embedding_sock.recv(entity_id_len).decode()
 
 
-                    entity_id_temp = str(struct.unpack('!i', sockRecv(embedding_sock, 4))[0])     # entity_id 를 int 로 받음
+                    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]     # entity_id 를 int 로 받음
                     
 
                     for dim_idx in range(int(embedding_dim)):
@@ -471,7 +471,7 @@ try:
                     #relation_id = embedding_sock.recv(relation_id_len).decode()
 
 
-                    relation_id_temp = str(struct.unpack('!i', sockRecv(embedding_sock, 4))[0])   # relation_id 를 int 로 받음
+                    relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]   # relation_id 를 int 로 받음
 
 
                     for dim_idx in range(int(embedding_dim)):
