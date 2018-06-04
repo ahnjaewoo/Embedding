@@ -472,18 +472,20 @@ public:
 					&& data_model.check_parts.find(i) != data_model.check_parts.end()){
 						// entity_id 가 string 으로 주어진 경우
 						// entity_id_to_name 을 이용해 string 을 가져와서 보냄
+						/*
 						string_len = data_model.entity_id_to_name[i].size();
 						string_len = htonl(string_len);
 						send(fd, &string_len, sizeof(string_len), 0);
 						string_len = ntohl(string_len);
 						send(fd, data_model.entity_id_to_name[i].c_str() , string_len, 0);
-						
+						*/
+
 						// entity_id 가 int 로 주어진 경우
-						/*
+						
 						i = htonl(i);
 						send(fd, &i, sizeof(int), 0);
 						i = ntohl(i);
-						*/
+						
 
 						for (int j = 0; j < dim; j++){
 
@@ -557,18 +559,20 @@ public:
 
 						// relation_id 가 string 으로 주어진 경우
 						// relation_id_to_name 을 이용해 string 을 가져와서 보냄
+						/*
 						string_len = data_model.relation_id_to_name[i].size();
 						string_len = htonl(string_len);
 						send(fd, &string_len, sizeof(string_len), 0);
 						string_len = ntohl(string_len);
 						send(fd, data_model.relation_id_to_name[i].c_str() , string_len, 0);
-						
+						*/
+
 						// relation_id 가 int 로 주어진 경우
-						/*
+						
 						i = htonl(i);
 						send(fd, &i, sizeof(int), 0);
 						i = ntohl(i);
-						*/
+						
 
 						for (int j = 0; j < dim; j++){
 
