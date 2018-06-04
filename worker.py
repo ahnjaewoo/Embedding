@@ -251,11 +251,12 @@ try:
     # entity_vector 전송 - GeometricModel load
     while checksum != 1:
 
-        # fsLog.write('[info] worker.py > total send entities - ' + str(len(entities_initialized)) + '\n')
+        id_entity = dict()
 
         for i, vector in enumerate(entities_initialized):
 
             entity_name = str(entities[i])
+            id_entity[entity_id[entity_name]] = entity_name
             #embedding_sock.send(struct.pack('!i', len(entity_name)))        # entity string 자체를 전송
             #embedding_sock.send(str.encode(entity_name))                    # entity string 자체를 전송
 
@@ -300,9 +301,12 @@ try:
     # relation_vector 전송 - GeometricModel load
     while checksum != 1:
 
+        id_relation = dict()
+
         for i, relation in enumerate(relations_initialized):
 
             relation_name = str(relations[i])
+            id_relation[entity_id[relation_name]] = relation_name
             #embedding_sock.send(struct.pack('!i', len(relation_name)))          # relation string 자체를 전송
             #embedding_sock.send(str.encode(relation_name))                      # relation string 자체를 전송
 
@@ -396,7 +400,7 @@ try:
 
                     #entity_vectors[entity_id + '_v'] = pickle.dumps(                            # string 일 때
                     #    np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
-                    entity_vectors[entities[entity_id_temp] + '_v'] = pickle.dumps(                      # int 일 때
+                    entity_vectors[id_entity[entity_id_temp] + '_v'] = pickle.dumps(                      # int 일 때
                         np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
 
             except Exception as e:
@@ -488,7 +492,7 @@ try:
 
                     #relation_vectors[relation_id + '_v'] = pickle.dumps(                        # string 일 때
                     #    np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
-                    relation_vectors[relations[relation_id_temp] + '_v'] = pickle.dumps(                  # int 일 때
+                    relation_vectors[id_relation[relation_id_temp] + '_v'] = pickle.dumps(                  # int 일 때
                         np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
         
             except Exception as e:
