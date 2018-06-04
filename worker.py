@@ -396,7 +396,7 @@ try:
 
                     #entity_vectors[entity_id + '_v'] = pickle.dumps(                            # string 일 때
                     #    np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
-                    entity_vectors[entity_id_temp + '_v'] = pickle.dumps(                      # int 일 때
+                    entity_vectors[entities[entity_id_temp] + '_v'] = pickle.dumps(                      # int 일 때
                         np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
 
             except Exception as e:
@@ -488,7 +488,7 @@ try:
 
                     #relation_vectors[relation_id + '_v'] = pickle.dumps(                        # string 일 때
                     #    np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
-                    relation_vectors[relation_id_temp + '_v'] = pickle.dumps(                  # int 일 때
+                    relation_vectors[relations[relation_id_temp] + '_v'] = pickle.dumps(                  # int 일 때
                         np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
         
             except Exception as e:
