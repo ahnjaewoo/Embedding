@@ -49,11 +49,11 @@ int main(int argc, char* argv[]){
 	FILE * fs_log;
 	if(master_epoch == 0){
 
-  		fs_log = fopen(log_dir.c_str(), "w");
+  		fs_log = fopen(argv[9], "w");
 	}
 	else{
 
-  		fs_log = fopen(log_dir.c_str(), "w+");
+  		fs_log = fopen(argv[9], "w+");
 	}
 
 	// embedding.cpp is server
