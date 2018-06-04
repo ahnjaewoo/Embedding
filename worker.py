@@ -306,7 +306,7 @@ try:
         for i, relation in enumerate(relations_initialized):
 
             relation_name = str(relations[i])
-            id_relation[entity_id[relation_name]] = relation_name
+            id_relation[relation_id[relation_name]] = relation_name
             #embedding_sock.send(struct.pack('!i', len(relation_name)))          # relation string 자체를 전송
             #embedding_sock.send(str.encode(relation_name))                      # relation string 자체를 전송
 
