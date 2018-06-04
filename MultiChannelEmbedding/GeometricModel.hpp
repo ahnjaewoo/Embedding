@@ -672,9 +672,9 @@ public:
 						close(fd);
 						std::exit(-1);
 					}
-					*/
 
 					int entity_id = data_model.entity_name_to_id.at(key);
+					*/
 					
 					// entity key 를 int 로 받는 경우
 					
@@ -690,7 +690,7 @@ public:
 
 					entity_id = ntohl(entity_id);
 					
-
+					
 					for (int j = 0; j < dim; j++)
 					{
 						if (recv(fd, &temp_vector, sizeof(temp_vector), MSG_WAITALL) < 0){
@@ -776,9 +776,9 @@ public:
                     	fclose(fs_log);
                     	std::exit(-1);
 					}
-					*/
 
 					int relation_id = data_model.relation_name_to_id.at(key);
+					*/
 					
 					// relation key 를 int 로 받음
 					
