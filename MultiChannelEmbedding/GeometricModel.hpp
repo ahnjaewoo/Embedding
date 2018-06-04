@@ -639,6 +639,7 @@ public:
 
 					// entity key 를 string 으로 받는 경우
 					// entity key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
+					/*
 					if (recv(fd, &key_length, sizeof(key_length), MSG_WAITALL) < 0){
 					
 						printf("[error] GeometricModel.hpp > recv key_length\n");
@@ -671,11 +672,12 @@ public:
 						close(fd);
 						std::exit(-1);
 					}
+					*/
 
 					int entity_id = data_model.entity_name_to_id.at(key);
 					
 					// entity key 를 int 로 받는 경우
-					/*
+					
 					int entity_id;
 	                if (recv(fd, &entity_id, sizeof(int), MSG_WAITALL) < 0){
 
@@ -687,7 +689,7 @@ public:
 	                }
 
 					entity_id = ntohl(entity_id);
-					*/
+					
 
 					for (int j = 0; j < dim; j++)
 					{
@@ -736,7 +738,8 @@ public:
 				for (int i = 0; i < count_relation(); i++) {
 
 					// relation key 를 string 으로 받는 경우
-					// relation key 의 문자열 길이를 받은 후에 그만큼 key 를 받음					
+					// relation key 의 문자열 길이를 받은 후에 그만큼 key 를 받음
+					/*
 	                if (recv(fd, &key_length, sizeof(key_length), MSG_WAITALL) < 0){
 
 	                	printf("[error] GeometricModel.hpp > recv key_length\n");
@@ -773,11 +776,12 @@ public:
                     	fclose(fs_log);
                     	std::exit(-1);
 					}
+					*/
 
 					int relation_id = data_model.relation_name_to_id.at(key);
 					
 					// relation key 를 int 로 받음
-					/*
+					
 					int relation_id;
 	                if (recv(fd, &relation_id, sizeof(int), MSG_WAITALL) < 0){
 
@@ -789,7 +793,7 @@ public:
 	                }
 
 					relation_id = ntohl(relation_id);
-					*/
+					
 
 					for (int j = 0; j < dim; j++){
 
