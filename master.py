@@ -237,7 +237,7 @@ for c, (relation_list, num) in enumerate(allocated_relation_worker):
     for relation in relation_list:
         for (head, tail) in relation_triples[relation]:
             g.append((head, relation, tail))
-    sub_graphs['sub_graph_worker_%d' % c] = pickle.dumps(
+    sub_graphs['sub_g_worker_%d' % c] = pickle.dumps(
         g, protocol=pickle.HIGHEST_PROTOCOL)
 
 r = redis.StrictRedis(host=redis_ip_address, port=6379, db=0)

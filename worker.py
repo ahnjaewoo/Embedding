@@ -220,7 +220,7 @@ try:
 
     else:
         # relation 전송 - DataModel 생성자
-        sub_graphs = pickle.loads(r.get('sub_graph_{}'.format(worker_id)))
+        sub_graphs = pickle.loads(r.get('sub_g_{}'.format(worker_id)))
         embedding_sock.send(struct.pack('!i', len(sub_graphs)))
 
         while checksum != 1:
