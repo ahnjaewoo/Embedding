@@ -410,10 +410,10 @@ while True:
 # printt('[info] master > socket connected (master <-> maxmin)')
 
 maxmin_sock.send(struct.pack('!i', 0))
-maxmin_sock.send(struct.pack('!i', num_worker))
+#maxmin_sock.send(struct.pack('!i', num_worker))
 maxmin_sock.send(struct.pack('!i', 0))
-maxmin_sock.send(struct.pack('!i', anchor_num))
-maxmin_sock.send(struct.pack('!i', anchor_interval))
+#maxmin_sock.send(struct.pack('!i', anchor_num))
+#maxmin_sock.send(struct.pack('!i', anchor_interval))
 
 # maxmin 의 결과를 소켓으로 받음
 anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
@@ -494,10 +494,10 @@ while True:
 
         # try 가 들어가야 함
         maxmin_sock.send(struct.pack('!i', 0))
-        maxmin_sock.send(struct.pack('!i', num_worker))
+        #maxmin_sock.send(struct.pack('!i', num_worker))
         maxmin_sock.send(struct.pack('!i', cur_iter))
-        maxmin_sock.send(struct.pack('!i', anchor_num))
-        maxmin_sock.send(struct.pack('!i', anchor_interval))
+        #maxmin_sock.send(struct.pack('!i', anchor_num))
+        #maxmin_sock.send(struct.pack('!i', anchor_interval))
 
         # maxmin 의 결과를 소켓으로 받음
         anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]

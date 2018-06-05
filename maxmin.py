@@ -11,6 +11,10 @@ import struct
 import logging
 import os
 
+partition_num = int(sys.argv[1])
+cur_iter = int(sys.argv[2])
+anchor_num = int(sys.argv[3])
+anchor_interval = int(sys.argv[4])
 root_dir = sys.argv[5]
 data_root = sys.argv[6]
 debugging = sys.argv[7]
@@ -153,10 +157,10 @@ while True:
         maxmin_sock.close()
         sys.exit(0)
 
-    partition_num = struct.unpack('!i', sockRecv(master_sock, 4))[0]
+    #partition_num = struct.unpack('!i', sockRecv(master_sock, 4))[0]
     cur_iter = (struct.unpack('!i', sockRecv(master_sock, 4))[0] + 1) // 2
-    anchor_num = struct.unpack('!i', sockRecv(master_sock, 4))[0]
-    anchor_interval = struct.unpack('!i', sockRecv(master_sock, 4))[0]
+    #anchor_num = struct.unpack('!i', sockRecv(master_sock, 4))[0]
+    #anchor_interval = struct.unpack('!i', sockRecv(master_sock, 4))[0]
 
     if cur_iter == 0:
 
