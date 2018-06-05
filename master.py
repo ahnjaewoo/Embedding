@@ -329,7 +329,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
 
         # 모두 성공적으로 수행
         # worker_return 은 string 형태? byte 형태? 의 pickle 을 가지고 있음
-        return (True, '[info] master > %s: iteration %d finished, time: %f' % (worker_id, cur_iter, t_ - time()), idle_time_worker)
+        return (True, '[info] master > %s: iteration %d finished, time: %f' % (worker_id, cur_iter, time() - t_), idle_time_worker)
 
 # def savePreprocessedData(data, worker_id):
 #     from threading import Thread
@@ -465,18 +465,18 @@ while True:
         maxmin_sock.close()
         sys.exit(-1)
     
-    if cur_iter > 0 and success == True:
-        
-        idle_times = [t_ - float(e[1].split(':')[-1]) for e in result_iter]
-        avg_idle_time = sum(idle_times) / len(idle_times)
-            
-        for idx in range(len(result_iter)):
-
-            printt('[info] master > %s' % result_iter[idx][1])
-            printt('[info] master > idle time : %f' % idle_times[idx])
-        
-        success = False
-        printt('[info] master > average idle time : %f' % avg_idle_time)
+    #if cur_iter > 0 and success == True:
+    #    
+    #    idle_times = [t_ - float(e[1].split(':')[-1]) for e in result_iter]
+    #    avg_idle_time = sum(idle_times) / len(idle_times)
+    #        
+    #    for idx in range(len(result_iter)):
+    #
+    #        printt('[info] master > %s' % result_iter[idx][1])
+    #        printt('[info] master > idle time : %f' % idle_times[idx])
+    #    
+    #    success = False
+    #    printt('[info] master > average idle time : %f' % avg_idle_time)
 
     # 작업 배정
     t_ = time()
@@ -544,7 +544,7 @@ while True:
         # printt(log)
 
         # printt('[info] master > iteration %d finished' % cur_iter)
-        printt('[info] master > iteration time : %f' % (time() - t_))
+        printt('[info] master > iteration time : %f' % (t_ - time()))
         success = True
         trial = 0
         cur_iter = cur_iter + 1
@@ -622,78 +622,78 @@ while True:
 
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 
-# checksum = 0
-# success = 0
+ checksum = 0
+ success = 0
 
-# if int(cur_iter) % 2 == 0:
-#     # entity 전송 - DataModel 생성자
-#     chunk_anchor = list()
-#     chunk_entity = list()
+ if int(cur_iter) % 2 == 0:
+     # entity 전송 - DataModel 생성자
+     chunk_anchor = list()
+     chunk_entity = list()
 
-#     if len(chunk_anchor) is 1 and chunk_anchor[0] is '':
+     if len(chunk_anchor) is 1 and chunk_anchor[0] is '':
         
-#         chunk_anchor = []
+         chunk_anchor = []
 
-#     while success != 1:
+     while success != 1:
 
-#         test_sock.send(struct.pack('!i', len(chunk_anchor)))
+         test_sock.send(struct.pack('!i', len(chunk_anchor)))
 
-#         for iter_anchor in chunk_anchor:
+         for iter_anchor in chunk_anchor:
             
-#             test_sock.send(struct.pack('!i', int(iter_anchor)))
+             test_sock.send(struct.pack('!i', int(iter_anchor)))
 
-#         test_sock.send(struct.pack('!i', len(chunk_entity)))
+         test_sock.send(struct.pack('!i', len(chunk_entity)))
 
-#         for iter_entity in chunk_entity:
+         for iter_entity in chunk_entity:
             
-#             test_sock.send(struct.pack('!i', int(iter_entity)))
+             test_sock.send(struct.pack('!i', int(iter_entity)))
 
-#         checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
+         checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
-#         if checksum == 1234:
+         if checksum == 1234:
 
-#             # printt('[info] master > phase 1 finished (for test)')
-#             success = 1
+             # printt('[info] master > phase 1 finished (for test)')
+             success = 1
 
-#         elif checksum == 9876:
+         elif checksum == 9876:
 
-#             printt('[error] master > retry phase 1 (for test)')
-#             success = 0
+             printt('[error] master > retry phase 1 (for test)')
+             success = 0
 
-#         else:
+         else:
 
-#             printt('[error] master > unknown error in phase 1 (for test)')
-#             success = 0
+             printt('[error] master > unknown error in phase 1 (for test)')
+             success = 0
 
-# else:
-#     # relation 전송 - DataModel 생성자
-#     sub_graphs = pickle.loads(r.get('sub_graph_{}'.format('worker_0')))
-#     test_sock.send(struct.pack('!i', len(sub_graphs)))
+ else:
+     # relation 전송 - DataModel 생성자
+     sub_graphs = pickle.loads(r.get('sub_graph_{}'.format('worker_0')))
+     test_sock.send(struct.pack('!i', len(sub_graphs)))
 
-#     while success != 1:
+     while success != 1:
 
-#         for (head_id, relation_id, tail_id) in sub_graphs:
+         for (head_id, relation_id, tail_id) in sub_graphs:
 
-#             test_sock.send(struct.pack('!i', int(head_id)))
-#             test_sock.send(struct.pack('!i', int(relation_id)))
-#             test_sock.send(struct.pack('!i', int(tail_id)))
+             test_sock.send(struct.pack('!i', int(head_id)))
+             test_sock.send(struct.pack('!i', int(relation_id)))
+             test_sock.send(struct.pack('!i', int(tail_id)))
 
-#         checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
+         checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
-#         if checksum == 1234:
+         if checksum == 1234:
 
-#             # printt('[info] master > phase 1 finished (for test)')
-#             success = 1
+             # printt('[info] master > phase 1 finished (for test)')
+             success = 1
 
-#         elif checksum == 9876:
+         elif checksum == 9876:
 
-#             printt('[error] master > retry phase 1 (for test)')
-#             success = 0
+             printt('[error] master > retry phase 1 (for test)')
+             success = 0
 
-#         else:
+         else:
 
-#             printt('[error] master > unknown error in phase 1 (for test)')
-#             success = 0
+             printt('[error] master > unknown error in phase 1 (for test)')
+             success = 0
 
 # printt('[info] master > chunk or relation sent to DataModel (for test)')
 
