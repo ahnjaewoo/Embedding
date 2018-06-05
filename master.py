@@ -578,7 +578,7 @@ maxmin_sock.close()
 ###############################################################################
 ###############################################################################
 
-worker_id = 'tester_0'
+worker_id = 'worker_0'
 log_dir = os.path.join(root_dir, 'logs/test_log.txt')
 proc = Popen([test_code_dir,
             worker_id,
@@ -701,11 +701,11 @@ while success != 1:
 
     for i, vector in enumerate(entities_initialized):
         entity_name = str(entities[i])
-        test_sock.send(struct.pack('!i', len(entity_name)))         # entity string 자체를 전송
-        test_sock.send(str.encode(entity_name))                     # entity string 자체를 전송
+        #test_sock.send(struct.pack('!i', len(entity_name)))         # entity string 자체를 전송
+        #test_sock.send(str.encode(entity_name))                     # entity string 자체를 전송
 
 
-        #test_sock.send(struct.pack('!i', entity2id[entity_name]))  # entity id 를 int 로 전송
+        test_sock.send(struct.pack('!i', entity2id[entity_name]))  # entity id 를 int 로 전송
 
 
         for v in vector:
@@ -739,11 +739,11 @@ while success != 1:
 
     for i, relation in enumerate(relations_initialized):
         relation_name = str(relations[i])
-        test_sock.send(struct.pack('!i', len(relation_name)))           # relation string 자체를 전송
-        test_sock.send(str.encode(relation_name))                       # relation string 자체를 전송
+        #test_sock.send(struct.pack('!i', len(relation_name)))           # relation string 자체를 전송
+        #test_sock.send(str.encode(relation_name))                       # relation string 자체를 전송
 
 
-        #test_sock.send(struct.pack('!i', relation2id[relation_name]))  # relation id 를 int 로 전송
+        test_sock.send(struct.pack('!i', relation2id[relation_name]))  # relation id 를 int 로 전송
 
 
         for v in relation:
