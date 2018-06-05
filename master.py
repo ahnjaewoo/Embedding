@@ -629,45 +629,45 @@ chunk_entity = list()
 checksum = 0
 success = 0
 
-#if int(cur_iter) % 2 == 0:
-# entity 전송 - DataModel 생성자
-chunk_anchor = list()
-chunk_entity = list()
+if int(cur_iter) % 2 == 0:
+    # entity 전송 - DataModel 생성자
+    chunk_anchor = list()
+    chunk_entity = list()
 
-if len(chunk_anchor) is 1 and chunk_anchor[0] is '':
-
-    chunk_anchor = []
-
-while success != 1:
-
-    test_sock.send(struct.pack('!i', len(chunk_anchor)))
-
-    for iter_anchor in chunk_anchor:
+    if len(chunk_anchor) is 1 and chunk_anchor[0] is '':
     
-        test_sock.send(struct.pack('!i', int(iter_anchor)))
+        chunk_anchor = []
 
-    test_sock.send(struct.pack('!i', len(chunk_entity)))
+    while success != 1:
 
-    for iter_entity in chunk_entity:
-    
-        test_sock.send(struct.pack('!i', int(iter_entity)))
+        test_sock.send(struct.pack('!i', len(chunk_anchor)))
 
-    checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
+        for iter_anchor in chunk_anchor:
+        
+            test_sock.send(struct.pack('!i', int(iter_anchor)))
 
-    if checksum == 1234:
+        test_sock.send(struct.pack('!i', len(chunk_entity)))
 
-        # printt('[info] master > phase 1 finished (for test)')
-        success = 1
+        for iter_entity in chunk_entity:
+        
+            test_sock.send(struct.pack('!i', int(iter_entity)))
 
-    elif checksum == 9876:
+        checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
-        printt('[error] master > retry phase 1 (for test)')
-        success = 0
+        if checksum == 1234:
 
-    else:
+            # printt('[info] master > phase 1 finished (for test)')
+            success = 1
 
-        printt('[error] master > unknown error in phase 1 (for test)')
-        success = 0
+        elif checksum == 9876:
+
+            printt('[error] master > retry phase 1 (for test)')
+            success = 0
+
+        else:
+
+            printt('[error] master > unknown error in phase 1 (for test)')
+            success = 0
 
 # else:
 #     # relation 전송 - DataModel 생성자
