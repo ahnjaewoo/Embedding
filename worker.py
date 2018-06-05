@@ -27,7 +27,7 @@ logger = logging.getLogger()
 handler = logging.StreamHandler(stream=sys.stdout)
 logger.addHandler(handler)
 
-loggerOn = True
+loggerOn = False
 
 def printt(str_):
 
@@ -137,7 +137,7 @@ while True:
         printt('[error] worker.py > return -1')
         sys.exit(-1)
 
-printt('[info] worker.py > port number of ' + worker_id + ' = ' + socket_port)
+# printt('[info] worker.py > port number of ' + worker_id + ' = ' + socket_port)
 printt('[info] worker.py > socket connected (worker <-> embedding)')
 
 

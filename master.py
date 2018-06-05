@@ -67,7 +67,7 @@ logger = logging.getLogger()
 handler = logging.StreamHandler(stream=sys.stdout)
 logger.addHandler(handler)
 
-loggerOn = True
+loggerOn = False
 
 def printt(str):
 
@@ -522,7 +522,6 @@ while True:
     relations_initialized_bak = [pickle.loads(v) for v in relations_initialized_bak]
     
     client.gather(workers)
-    printt('')
     result_iter = [worker.result() for worker in workers]
 
     # printt('[info] master.py result array : ' + str([e[0] for e in result_iter]))
