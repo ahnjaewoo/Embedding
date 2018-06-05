@@ -254,7 +254,7 @@ public:
 
                 try{
 
-                    if (recv(fd, &anchor_num, sizeof(anchor_num), 0) < 0){
+                    if (recv(fd, &anchor_num, sizeof(anchor_num), MSG_WAITALL) < 0){
 
                         printf("[error] DataModel > recv anchor_num\n");
                         printf("[error] DataModel > return -1\n");
@@ -268,7 +268,7 @@ public:
 
                     for (int idx = 0; idx < ntohl(anchor_num); idx++) {
 
-                        if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
+                        if (recv(fd, &temp_value, sizeof(temp_value), MSG_WAITALL) < 0){
 
                             printf("[error] DataModel > recv temp_value for anchor\n");
                             printf("[error] DataModel > return -1\n");
@@ -286,7 +286,7 @@ public:
                         check_parts[temp_value] = true;
                     }
 
-                    if (recv(fd, &entity_num, sizeof(entity_num), 0) < 0){
+                    if (recv(fd, &entity_num, sizeof(entity_num), MSG_WAITALL) < 0){
 
                         printf("[error] DataModel > recv entity_num\n");
                         printf("[error] DataModel > return -1\n");
@@ -300,7 +300,7 @@ public:
 
                     for (int idx = 0; idx < ntohl(entity_num); idx++) {
 
-                        if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
+                        if (recv(fd, &temp_value, sizeof(temp_value), MSG_WAITALL) < 0){
 
                             printf("[error] DataModel > recv temp_value for entity\n");
                             printf("[error] DataModel > return -1\n");
@@ -363,7 +363,7 @@ public:
 
                 try{
 
-                    if (recv(fd, &triplet_num, sizeof(triplet_num), 0) < 0){
+                    if (recv(fd, &triplet_num, sizeof(triplet_num), MSG_WAITALL) < 0){
 
                         cout << "[error] DataModel > recv triplet_num" << endl;
                         printf("[error] DataModel > return -1\n");
@@ -377,7 +377,7 @@ public:
 
                     for (int idx = 0; idx < ntohl(triplet_num); idx++) {
 
-                        if (recv(fd, &temp_value_head, sizeof(temp_value_head), 0) < 0){
+                        if (recv(fd, &temp_value_head, sizeof(temp_value_head), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv temp_value_head" << endl;
                             printf("[error] DataModel > return -1\n");
@@ -389,7 +389,7 @@ public:
                             break;
                         }
 
-                        if (recv(fd, &temp_value_relation, sizeof(temp_value_relation), 0) < 0){
+                        if (recv(fd, &temp_value_relation, sizeof(temp_value_relation), MSG_WAITALL) < 0){
 
                             cout <<"[error] DataModel > recv temp_value_relation" << endl;
                             printf("[error] DataModel > return -1\n");
@@ -401,7 +401,7 @@ public:
                             break;
                         }
 
-                        if (recv(fd, &temp_value_tail, sizeof(temp_value_tail), 0) < 0){
+                        if (recv(fd, &temp_value_tail, sizeof(temp_value_tail), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv temp_value_tail" << endl;
                             printf("[error] DataModel > return -1\n");
