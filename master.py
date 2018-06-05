@@ -55,7 +55,7 @@ data_root = args.data_root
 
 if data_root[0] != '/':
 
-    print("[error] master.py > data root directory must start with /")
+    print("[error] master > data root directory must start with /")
     sys.exit(1)
 
 root_dir = args.root_dir
@@ -149,7 +149,7 @@ def data2id(data_root):
 
     else:
 
-        print("[error] master.py > data root mismatch")
+        print("[error] master > data root mismatch")
         sys.exit(1)
 
 data_root_id = data2id(data_root)
@@ -158,11 +158,11 @@ data_root_id = data2id(data_root)
 master_start = time()
 t_ = time()
 
-# printt('[info] master.py > Preprocessing started')
+# printt('[info] master > Preprocessing started')
 proc = Popen(["%spreprocess.out" % preprocess_folder_dir,
               str(data_root_id)], cwd=preprocess_folder_dir)
 
-# printt('[info] master.py > Read files')
+# printt('[info] master > Read files')
 entities = list()
 relations = list()
 entity2id = dict()
@@ -219,7 +219,7 @@ for i, (relation, num) in enumerate(relation_each_num):
 
 # printing # of relations per each partitions
 
-printt('[info] master.py > # of relations per each partitions : [%s]' %
+printt('[info] master > # of relations per each partitions : [%s]' %
       " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
 
 sub_graphs = {}
@@ -270,7 +270,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
 
     # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
     socket_port = 50000 + 5 * int(worker_id.split('_')[1]) + (cur_iter % 5)
-    print('[info] master.py > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
+    # print('[info] master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
     log_dir = os.path.join(root_dir, 'logs/embedding_log_' + worker_id + '_iter_' + str(cur_iter) + '.txt')
 
     t_ = time()
@@ -301,7 +301,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
                                 str(data_root_id),
                                 str(socket_port)])
 
-    print('[info] master.py > embedding.cpp, worker.py generated - ' + str(worker_id))
+    # print('[info] master > embedding.cpp, worker.py generated - ' + str(worker_id))
 
     embedding_proc.wait()
     worker_proc.wait()
@@ -321,7 +321,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
 
         # 모두 성공적으로 수행
         # worker_return 은 string 형태? byte 형태? 의 pickle 을 가지고 있음
-        return (True, '[info] master.py > %s: iteration %d finished, time: %f' % (worker_id, cur_iter, t_ - time()), idle_time_worker)
+        return (True, '[info] master > %s: iteration %d finished, time: %f' % (worker_id, cur_iter, t_ - time()), idle_time_worker)
 
 # def savePreprocessedData(data, worker_id):
 #     from threading import Thread
@@ -353,7 +353,7 @@ proc.communicate()
 # with open("%s/data_model.bin" % temp_folder_dir, 'rb') as f:
 #     data = f.read()
 
-printt('[info] master.py > preprocessing time : %f' % (time() - t_))
+printt('[info] master > preprocessing time : %f' % (time() - t_))
 
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
@@ -370,7 +370,7 @@ proc = Popen([pypy_dir,
             root_dir,
             data_root])
 
-printt('[info] master.py > popen maxmin.py complete')
+printt('[info] master > popen maxmin.py complete')
 
 while True:
 
@@ -382,8 +382,8 @@ while True:
     except Exception as e:
     
         tt.sleep(1)
-        printt('[error] master.py > exception occured in master <-> maxmin (%s)' % worker_num)
-        printt('[error] master.py > ' + str(e))
+        printt('[error] master > exception occured in master <-> maxmin (%s)' % worker_num)
+        printt('[error] master > ' + str(e))
 
 while True:
     
@@ -395,10 +395,10 @@ while True:
     except Exception as e:
     
         tt.sleep(1)
-        printt('[error] master.py > exception occured in master <-> maxmin')
-        printt('[error] master.py > ' + str(e))
+        printt('[error] master > exception occured in master <-> maxmin')
+        printt('[error] master > ' + str(e))
 
-printt('[info] master.py > socket connected (master <-> maxmin)')
+printt('[info] master > socket connected (master <-> maxmin)')
 
 maxmin_sock.send(struct.pack('!i', 0))
 maxmin_sock.send(struct.pack('!i', num_worker))
@@ -408,7 +408,7 @@ maxmin_sock.send(struct.pack('!i', anchor_interval))
 
 # maxmin 의 결과를 소켓으로 받음
 anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-printt('[info] master.py > anchor_len = ' + str(anchor_len))
+# printt('[info] master > anchor_len = ' + str(anchor_len))
 
 for anchor_idx in range(anchor_len):
 
@@ -426,8 +426,8 @@ for part_idx in range(num_worker):
     chunk = chunk[:-1]
     chunks.append(chunk)
 
-printt('[info] master.py > maxmin finished')
-printt('[info] master.py > worker training iteration epoch : {}'.format(train_iter))
+# printt('[info] master > maxmin finished')
+# printt('[info] master > worker training iteration epoch : {}'.format(train_iter))
 
 cur_iter = 0
 trial  = 0
@@ -445,13 +445,13 @@ while True:
 
     #printt('=====================================================================')
     #printt('=====================================================================')
-    printt('[info] master.py > iteration %d' % cur_iter)
+    printt('[info] master > iteration %d' % cur_iter)
 
     t_ = time()
 
     if trial == 5:
 
-        printt('[error] master.py > training failed, exit')
+        printt('[error] master > training failed, exit')
         maxmin_sock.send(struct.pack('!i', 1))
         maxmin_sock.close()
         sys.exit(-1)
@@ -463,11 +463,11 @@ while True:
             
         for idx in range(len(result_iter)):
 
-            printt('[info] master.py > %s' % result_iter[idx][1])
-            printt('[info] master.py > idle time : %f' % idle_times[idx])
+            printt('[info] master > %s' % result_iter[idx][1])
+            printt('[info] master > idle time : %f' % idle_times[idx])
         
         success = False
-        printt('[info] master.py > average idle time : %f' % avg_idle_time)
+        printt('[info] master > average idle time : %f' % avg_idle_time)
 
     # 작업 배정
     workers = [client.submit(work,
@@ -491,7 +491,7 @@ while True:
 
         # maxmin 의 결과를 소켓으로 받음
         anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        # printt('[info] master.py > anchor_len = ' + str(anchor_len))
+        # printt('[info] master > anchor_len = ' + str(anchor_len))
 
         for anchor_idx in range(anchor_len):
             
@@ -535,15 +535,15 @@ while True:
 
             printt(log)
 
-        # printt('[info] master.py > iteration %d finished' % cur_iter)
-        printt('[info] master.py > iteration time : %f' % (time() - t_))
+        # printt('[info] master > iteration %d finished' % cur_iter)
+        printt('[info] master > iteration time : %f' % (time() - t_))
         success = True
         trial = 0
         cur_iter = cur_iter + 1
 
         idle_times = [e[2] - t_ for e in result_iter]
 
-        printt('[info] master.py > idle times : ' + str(idle_times))
+        printt('[info] master > idle times : ' + str(idle_times))
 
     else:
 
@@ -553,13 +553,13 @@ while True:
         r.mset({str(entities[i]) + '_bak' : pickle.dumps(entities_initialized_bak[i], protocol=pickle.HIGHEST_PROTOCOL) for i in range(len(entities_initialized_bak))})
         r.mset({str(relations[i]) + '_bak' : pickle.dumps(relations_initialized_bak[i], protocol=pickle.HIGHEST_PROTOCOL) for i in range(len(relations_initialized_bak))})
         
-        printt('[error] master.py > iteration %d is failed' % cur_iter)
-        printt('[Info] master.py > retry iteration %d' % cur_iter)
+        printt('[error] master > iteration %d is failed' % cur_iter)
+        printt('[Info] master > retry iteration %d' % cur_iter)
 
 train_time = time() - train_time
 
 # test part
-# printt('[info] master.py > test start')
+# printt('[info] master > test start')
 
 # load entity vector
 entities_initialized = r.mget([entity + '_v' for entity in entities])
@@ -596,8 +596,8 @@ while True:
     except Exception as e:
 
         tt.sleep(1)
-        printt('[error] master.py > exception occured in master <-> test')
-        printt('[error] master.py > ' + str(e))
+        printt('[error] master > exception occured in master <-> test')
+        printt('[error] master > ' + str(e))
 
 while True:
 
@@ -609,8 +609,8 @@ while True:
     except Exception as e:
 
         tt.sleep(1)
-        printt('[error] master.py > exception occured in master <-> test')
-        printt('[error] master.py > ' + str(e))
+        printt('[error] master > exception occured in master <-> test')
+        printt('[error] master > ' + str(e))
 
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 
@@ -644,17 +644,17 @@ if int(cur_iter) % 2 == 0:
 
         if checksum == 1234:
 
-            # printt('[info] master.py > phase 1 finished (for test)')
+            # printt('[info] master > phase 1 finished (for test)')
             success = 1
 
         elif checksum == 9876:
 
-            printt('[error] master.py > retry phase 1 (for test)')
+            printt('[error] master > retry phase 1 (for test)')
             success = 0
 
         else:
 
-            printt('[error] master.py > unknown error in phase 1 (for test)')
+            printt('[error] master > unknown error in phase 1 (for test)')
             success = 0
 
 else:
@@ -674,20 +674,20 @@ else:
 
         if checksum == 1234:
 
-            # printt('[info] master.py > phase 1 finished (for test)')
+            # printt('[info] master > phase 1 finished (for test)')
             success = 1
 
         elif checksum == 9876:
 
-            printt('[error] master.py > retry phase 1 (for test)')
+            printt('[error] master > retry phase 1 (for test)')
             success = 0
 
         else:
 
-            printt('[error] master.py > unknown error in phase 1 (for test)')
+            printt('[error] master > unknown error in phase 1 (for test)')
             success = 0
 
-# printt('[info] master.py > chunk or relation sent to DataModel (for test)')
+# printt('[info] master > chunk or relation sent to DataModel (for test)')
 
 checksum = 0
 success = 0
@@ -712,20 +712,20 @@ while success != 1:
 
     if checksum == 1234:
 
-        # printt('[info] master.py > phase 2 (entity) finished (for test)')
+        # printt('[info] master > phase 2 (entity) finished (for test)')
         success = 1
 
     elif checksum == 9876:
 
-        printt('[error] master.py > retry phase 2 (entity) (for test)')
+        printt('[error] master > retry phase 2 (entity) (for test)')
         success = 0
 
     else:
 
-        printt('[error] master.py > unknown error in phase 2 (entity) (for test)')
+        printt('[error] master > unknown error in phase 2 (entity) (for test)')
         success = 0
 
-# printt('[info] master.py > entity_vector sent to GeometricModel load function (for test)')
+# printt('[info] master > entity_vector sent to GeometricModel load function (for test)')
 
 checksum = 0
 success = 0
@@ -750,20 +750,20 @@ while success != 1:
 
     if checksum == 1234:
 
-        printt('[info] master.py > phase 2 (relation) finished (for test)')
+        printt('[info] master > phase 2 (relation) finished (for test)')
         success = 1
 
     elif checksum == 9876:
 
-        printt('[error] master.py > retry phase 2 (relation) (for test)')
+        printt('[error] master > retry phase 2 (relation) (for test)')
         success = 0
 
     else:
 
-        printt('[error] master.py > unknown error in phase 2 (relation) (for test)')
+        printt('[error] master > unknown error in phase 2 (relation) (for test)')
         success = 0
 
-printt('[info] master.py > relation_vector sent to Geome tricModel load function (for test)')
+printt('[info] master > relation_vector sent to Geome tricModel load function (for test)')
 
 del entities_initialized
 del relations_initialized
@@ -772,9 +772,9 @@ test_return = proc.communicate()
 
 if test_return == -1:
 
-    printt('[error] master.py > test failed, exit')
+    printt('[error] master > test failed, exit')
     sys.exit(-1)
 
-printt('[info] master.py > Total elapsed time : %f' % (time() - master_start))
+printt('[info] master > Total elapsed time : %f' % (time() - master_start))
 with open("logs/test_log.txt", 'a') as f:
     f.write("\n== train_time = {}\n".format(train_time))

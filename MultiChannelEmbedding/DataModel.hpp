@@ -238,8 +238,8 @@ public:
 	        output.close();
     	}
 
-        printf("[info] DataModel.hpp > DataModel constructor called\n");
-        fprintf(fs_log, "[info] DataModel.hpp > DataModel constructor called\n");
+        printf("[info] DataModel > DataModel constructor called\n");
+        fprintf(fs_log, "[info] DataModel > DataModel constructor called\n");
         
         if (master_epoch % 2 == 0) {
             // entity
@@ -256,10 +256,10 @@ public:
 
                     if (recv(fd, &anchor_num, sizeof(anchor_num), 0) < 0){
 
-                        printf("[error] DataModel.hpp > recv anchor_num\n");
-                        printf("[error] DataModel.hpp > return -1\n");
-                        fprintf(fs_log, "[error] DataModel.hpp > recv anchor_num\n");
-                        fprintf(fs_log,  "[error] DataModel.hpp > return -1\n");
+                        printf("[error] DataModel > recv anchor_num\n");
+                        printf("[error] DataModel > return -1\n");
+                        fprintf(fs_log, "[error] DataModel > recv anchor_num\n");
+                        fprintf(fs_log,  "[error] DataModel > return -1\n");
                         close(fd);
                         fclose(fs_log);
                         std::exit(-1);
@@ -270,10 +270,10 @@ public:
 
                         if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
 
-                            printf("[error] DataModel.hpp > recv temp_value for anchor\n");
-                            printf("[error] DataModel.hpp > return -1\n");
-                            fprintf(fs_log, "[error] DataModel.hpp > recv temp_value for anchor\n");
-                            fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
+                            printf("[error] DataModel > recv temp_value for anchor\n");
+                            printf("[error] DataModel > return -1\n");
+                            fprintf(fs_log, "[error] DataModel > recv temp_value for anchor\n");
+                            fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
                             fclose(fs_log);
                             std::exit(-1);
@@ -288,10 +288,10 @@ public:
 
                     if (recv(fd, &entity_num, sizeof(entity_num), 0) < 0){
 
-                        printf("[error] DataModel.hpp > recv entity_num\n");
-                        printf("[error] DataModel.hpp > return -1\n");
-                        fprintf(fs_log, "[error] DataModel.hpp > recv entity_num\n");
-                        fprintf(fs_log, "[error] DataModel.hpp > return -1\n");   
+                        printf("[error] DataModel > recv entity_num\n");
+                        printf("[error] DataModel > return -1\n");
+                        fprintf(fs_log, "[error] DataModel > recv entity_num\n");
+                        fprintf(fs_log, "[error] DataModel > return -1\n");   
                         std::exit(-1);
                         close(fd);
                         fclose(fs_log);
@@ -302,10 +302,10 @@ public:
 
                         if (recv(fd, &temp_value, sizeof(temp_value), 0) < 0){
 
-                            printf("[error] DataModel.hpp > recv temp_value for entity\n");
-                            printf("[error] DataModel.hpp > return -1\n");
-                            fprintf(fs_log, "[error] DataModel.hpp > recv temp_value for entity\n");
-                            fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
+                            printf("[error] DataModel > recv temp_value for entity\n");
+                            printf("[error] DataModel > return -1\n");
+                            fprintf(fs_log, "[error] DataModel > recv temp_value for entity\n");
+                            fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
                             fclose(fs_log);
                             std::exit(-1);
@@ -335,9 +335,9 @@ public:
                 }
                 catch(std::exception& e){
 
-                    printf("[error] DataModel.hpp >  entity : exception occured\n");
+                    printf("[error] DataModel >  entity : exception occured\n");
                     printf("%s\n", e.what());
-                    fprintf(fs_log, "[error] DataModel.hpp >  entity : exception occured\n");
+                    fprintf(fs_log, "[error] DataModel >  entity : exception occured\n");
                     fprintf(fs_log, "%s\n", e.what());
                     success = 0;
                     flag = 9876;
@@ -345,8 +345,8 @@ public:
                     send(fd, &flag, sizeof(flag), 0);
                 }
             }
-            // cout << "[info] DataModel.hpp > entity preprocesing let's get it!" << endl;
-            // fprintf(fs_log, "[info] DataModel.hpp > entity preprocesing let's get it!\n");
+            // cout << "[info] DataModel > entity preprocesing let's get it!" << endl;
+            // fprintf(fs_log, "[info] DataModel > entity preprocesing let's get it!\n");
         }
         else {
             //relation
@@ -365,10 +365,10 @@ public:
 
                     if (recv(fd, &triplet_num, sizeof(triplet_num), 0) < 0){
 
-                        cout << "[error] DataModel.hpp > recv triplet_num" << endl;
-                        printf("[error] DataModel.hpp > return -1\n");
-                        fprintf(fs_log, "[error] DataModel.hpp > recv triplet_num\n");
-                        fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
+                        cout << "[error] DataModel > recv triplet_num" << endl;
+                        printf("[error] DataModel > return -1\n");
+                        fprintf(fs_log, "[error] DataModel > recv triplet_num\n");
+                        fprintf(fs_log, "[error] DataModel > return -1\n");
                         close(fd);
                         fclose(fs_log);
                         std::exit(-1);
@@ -379,10 +379,10 @@ public:
 
                         if (recv(fd, &temp_value_head, sizeof(temp_value_head), 0) < 0){
 
-                            cout << "[error] DataModel.hpp > recv temp_value_head" << endl;
-                            printf("[error] DataModel.hpp > return -1\n");
-                            fprintf(fs_log, "[error] DataModel.hpp > recv temp_value_head\n");
-                            fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
+                            cout << "[error] DataModel > recv temp_value_head" << endl;
+                            printf("[error] DataModel > return -1\n");
+                            fprintf(fs_log, "[error] DataModel > recv temp_value_head\n");
+                            fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
                             fclose(fs_log);
                             std::exit(-1);
@@ -391,10 +391,10 @@ public:
 
                         if (recv(fd, &temp_value_relation, sizeof(temp_value_relation), 0) < 0){
 
-                            cout <<"[error] DataModel.hpp > recv temp_value_relation" << endl;
-                            printf("[error] DataModel.hpp > return -1\n");
-                            fprintf(fs_log, "[error] DataModel.hpp > recv temp_value_relation\n");
-                            fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
+                            cout <<"[error] DataModel > recv temp_value_relation" << endl;
+                            printf("[error] DataModel > return -1\n");
+                            fprintf(fs_log, "[error] DataModel > recv temp_value_relation\n");
+                            fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
                             fclose(fs_log);
                             std::exit(-1);
@@ -403,10 +403,10 @@ public:
 
                         if (recv(fd, &temp_value_tail, sizeof(temp_value_tail), 0) < 0){
 
-                            cout << "[error] DataModel.hpp > recv temp_value_tail" << endl;
-                            printf("[error] DataModel.hpp > return -1\n");
-                            fprintf(fs_log, "[error] DataModel.hpp > recv temp_value_tail\n");
-                            fprintf(fs_log, "[error] DataModel.hpp > return -1\n");
+                            cout << "[error] DataModel > recv temp_value_tail" << endl;
+                            printf("[error] DataModel > return -1\n");
+                            fprintf(fs_log, "[error] DataModel > recv temp_value_tail\n");
+                            fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
                             fclose(fs_log);
                             std::exit(-1);
@@ -433,9 +433,9 @@ public:
                 }
                 catch(std::exception& e){
 
-                    printf("[error] DataModel.hpp > relation : exception occured\n");
+                    printf("[error] DataModel > relation : exception occured\n");
                     printf("%s\n", e.what());
-                    fprintf(fs_log, "[error] DataModel.hpp > relation : exception occured\n");
+                    fprintf(fs_log, "[error] DataModel > relation : exception occured\n");
                     fprintf(fs_log, "%s\n", e.what());
                     success = 0;
                     flag = 9876;
@@ -443,14 +443,14 @@ public:
                     send(fd, &flag, sizeof(flag), 0);
                 }
             }
-            //cout << "[info] DataModel.hpp > relation preprocessing let's get it!" << endl;
+            //cout << "[info] DataModel > relation preprocessing let's get it!" << endl;
         }
         vector_entity_parts.assign(set_entity_parts.begin(), set_entity_parts.end());
         vector_relation_parts.assign(set_relation_parts.begin(), set_relation_parts.end());
-        // cout << "[info] DataModel.hpp > # of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << endl;
-        // cout << "[info] DataModel.hpp > # of test triples: " << data_test_true.size() << endl;
-        // fprintf(fs_log, "[info] DataModel.hpp > # of triples in worker_%d : %d/%d\n", worker_num, data_train_parts.size(), data_train.size());
-        // fprintf(fs_log, "[info] DataModel.hpp > # of test triples : %d\n", data_test_true.size());
+        // cout << "[info] DataModel > # of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << endl;
+        // cout << "[info] DataModel > # of test triples: " << data_test_true.size() << endl;
+        // fprintf(fs_log, "[info] DataModel > # of triples in worker_%d : %d/%d\n", worker_num, data_train_parts.size(), data_train.size());
+        // fprintf(fs_log, "[info] DataModel > # of test triples : %d\n", data_test_true.size());
     }
 
     DataModel(const Dataset& dataset, const string& file_zero_shot, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd, FILE * fs_log)

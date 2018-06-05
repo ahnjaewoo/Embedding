@@ -61,10 +61,10 @@ int main(int argc, char* argv[]){
 	// IP addr / port are from master.py
 	if ((embedding_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
 
-		printf("[error] embedding.cpp > create socket - worker_%d\n", worker_num);
-		printf("[error] embedding.cpp > return -1\n");
-		fprintf(fs_log, "[error] embedding.cpp > create socket - worker_%d\n", worker_num);
-		fprintf(fs_log, "[error] embedding.cpp > return -1\n");
+		printf("[error] embedding > create socket - worker_%d\n", worker_num);
+		printf("[error] embedding > return -1\n");
+		fprintf(fs_log, "[error] embedding > create socket - worker_%d\n", worker_num);
+		fprintf(fs_log, "[error] embedding > return -1\n");
 		return -1;
 	}
 
@@ -74,35 +74,35 @@ int main(int argc, char* argv[]){
 
 	if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
 
-		printf("[error] embedding.cpp > bind socket - worker_%d\n", worker_num);
-		printf("[error] embedding.cpp > return -1\n");
-		fprintf(fs_log, "[error] embedding.cpp > bind socket - worker_%d\n", worker_num);
-		fprintf(fs_log, "[error] embedding.cpp > return -1\n");
+		printf("[error] embedding > bind socket - worker_%d\n", worker_num);
+		printf("[error] embedding > return -1\n");
+		fprintf(fs_log, "[error] embedding > bind socket - worker_%d\n", worker_num);
+		fprintf(fs_log, "[error] embedding > return -1\n");
 		return -1;
 	}
 	
 	if (listen(embedding_sock, 1) < 0){
 
-		printf("[error] embedding.cpp > listen socket - worker_%d\n", worker_num);
-		printf("[error] embedding.cpp > return -1\n");
-		fprintf(fs_log, "[error] embedding.cpp > listen socket - worker_%d\n", worker_num);
-		fprintf(fs_log, "[error] embedding.cpp > return -1\n");
+		printf("[error] embedding > listen socket - worker_%d\n", worker_num);
+		printf("[error] embedding > return -1\n");
+		fprintf(fs_log, "[error] embedding > listen socket - worker_%d\n", worker_num);
+		fprintf(fs_log, "[error] embedding > return -1\n");
 		return -1;
 	}
 
 	len = sizeof(worker_addr);
 	if ((worker_sock = accept(embedding_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
 
-		printf("[error] embedding.cpp > accept socket - worker_%d\n", worker_num);
-		printf("[error] embedding.cpp > return -1\n");
-		fprintf(fs_log, "[error] embedding.cpp > accept socket - worker_%d\n", worker_num);
-		fprintf(fs_log, "[error] embedding.cpp > return -1\n");
+		printf("[error] embedding > accept socket - worker_%d\n", worker_num);
+		printf("[error] embedding > return -1\n");
+		fprintf(fs_log, "[error] embedding > accept socket - worker_%d\n", worker_num);
+		fprintf(fs_log, "[error] embedding > return -1\n");
 		return -1;
 	}
 	else{
 
-		// printf("[info] embedding.cpp > accept socket successfully - worker_%d\n", worker_num);
-		// fprintf(fs_log, "[info] embedding.cpp > accept socket successfully - worker_%d\n", worker_num);
+		// printf("[info] embedding > accept socket successfully - worker_%d\n", worker_num);
+		// fprintf(fs_log, "[info] embedding > accept socket successfully - worker_%d\n", worker_num);
 	}
 
 	// choosing data root by data root id
@@ -120,10 +120,10 @@ int main(int argc, char* argv[]){
 	//}
 	else{
 
-		printf("[error] embedding.cpp > wrong data_root_id, recieved : %d\n", data_root_id);
-		printf("[error] embedding.cpp > return -1\n");
-		fprintf(fs_log, "[error] embedding.cpp > wrong data_root_id, recieved : %d\n", data_root_id);
-		fprintf(fs_log, "[error] embedding.cpp > return -1\n");
+		printf("[error] embedding > wrong data_root_id, recieved : %d\n", data_root_id);
+		printf("[error] embedding > return -1\n");
+		fprintf(fs_log, "[error] embedding > wrong data_root_id, recieved : %d\n", data_root_id);
+		fprintf(fs_log, "[error] embedding > return -1\n");
 		return -1;
 	}
 
@@ -134,12 +134,12 @@ int main(int argc, char* argv[]){
 	model->run(train_iter);
 
 	gettimeofday(&after, NULL);
-	cout << "[info] embedding.cpp > model->run end, training time : " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
-	fprintf(fs_log, "[info] embedding.cpp > testing time : %lf seconds\n", after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0);
+	cout << "[info] embedding > model->run end, training time : " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
+	fprintf(fs_log, "[info] embedding > testing time : %lf seconds\n", after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0);
 	
 	model->save(to_string(worker_num), fs_log);
-	// cout << "[info] embedding.cpp > model->save end" << endl;
-	// fprintf(fs_log, "[info] embedding.cpp > model->save end\n");
+	// cout << "[info] embedding > model->save end" << endl;
+	// fprintf(fs_log, "[info] embedding > model->save end\n");
 
 	delete model;
 	fclose(fs_log);
