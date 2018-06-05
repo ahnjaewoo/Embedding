@@ -544,7 +544,7 @@ while True:
         # printt(log)
 
         # printt('[info] master > iteration %d finished' % cur_iter)
-        printt('[info] master > iteration time : %f' % (time() - t_))
+        printt('[info] master > iteration time : %f' % (t_ - time()))
         success = True
         trial = 0
         cur_iter = cur_iter + 1
@@ -552,7 +552,6 @@ while True:
         idle_times = [e[2] - t_ for e in result_iter]
 
         printt('[info] master > idle times : ' + str(idle_times))
-        printt('[info] master > average idle time : ' + str(np.mean(idle_times)))
 
     else:
 
