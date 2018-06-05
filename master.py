@@ -516,10 +516,10 @@ while True:
         chunk_data = ''
 
     # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
-    entities_initialized_bak = r.mget([entity + '_v' for entity in entities])
-    entities_initialized_bak = [pickle.loads(v) for v in entities_initialized_bak]
-    relations_initialized_bak = r.mget([relation + '_v' for relation in relations])
-    relations_initialized_bak = [pickle.loads(v) for v in relations_initialized_bak]
+    # entities_initialized_bak = r.mget([entity + '_v' for entity in entities])
+    # entities_initialized_bak = [pickle.loads(v) for v in entities_initialized_bak]
+    # relations_initialized_bak = r.mget([relation + '_v' for relation in relations])
+    # relations_initialized_bak = [pickle.loads(v) for v in relations_initialized_bak]
     
     client.gather(workers)
     result_iter = [worker.result() for worker in workers]
@@ -550,8 +550,8 @@ while True:
         # 이터레이션 실패
         # redis 에 저장된 결과를 백업된 값으로 되돌림
         trial = trial + 1
-        r.mset({str(entities[i]) + '_bak' : pickle.dumps(entities_initialized_bak[i], protocol=pickle.HIGHEST_PROTOCOL) for i in range(len(entities_initialized_bak))})
-        r.mset({str(relations[i]) + '_bak' : pickle.dumps(relations_initialized_bak[i], protocol=pickle.HIGHEST_PROTOCOL) for i in range(len(relations_initialized_bak))})
+        # r.mset({str(entities[i]) + '_bak' : pickle.dumps(entities_initialized_bak[i], protocol=pickle.HIGHEST_PROTOCOL) for i in range(len(entities_initialized_bak))})
+        # r.mset({str(relations[i]) + '_bak' : pickle.dumps(relations_initialized_bak[i], protocol=pickle.HIGHEST_PROTOCOL) for i in range(len(relations_initialized_bak))})
         
         printt('[error] master > iteration %d is failed' % cur_iter)
         printt('[Info] master > retry iteration %d' % cur_iter)
@@ -614,78 +614,78 @@ while True:
 
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 
-checksum = 0
-success = 0
+# checksum = 0
+# success = 0
 
-if int(cur_iter) % 2 == 0:
-    # entity 전송 - DataModel 생성자
-    chunk_anchor = list()
-    chunk_entity = list()
+# if int(cur_iter) % 2 == 0:
+#     # entity 전송 - DataModel 생성자
+#     chunk_anchor = list()
+#     chunk_entity = list()
 
-    if len(chunk_anchor) is 1 and chunk_anchor[0] is '':
+#     if len(chunk_anchor) is 1 and chunk_anchor[0] is '':
         
-        chunk_anchor = []
+#         chunk_anchor = []
 
-    while success != 1:
+#     while success != 1:
 
-        test_sock.send(struct.pack('!i', len(chunk_anchor)))
+#         test_sock.send(struct.pack('!i', len(chunk_anchor)))
 
-        for iter_anchor in chunk_anchor:
+#         for iter_anchor in chunk_anchor:
             
-            test_sock.send(struct.pack('!i', int(iter_anchor)))
+#             test_sock.send(struct.pack('!i', int(iter_anchor)))
 
-        test_sock.send(struct.pack('!i', len(chunk_entity)))
+#         test_sock.send(struct.pack('!i', len(chunk_entity)))
 
-        for iter_entity in chunk_entity:
+#         for iter_entity in chunk_entity:
             
-            test_sock.send(struct.pack('!i', int(iter_entity)))
+#             test_sock.send(struct.pack('!i', int(iter_entity)))
 
-        checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
+#         checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
-        if checksum == 1234:
+#         if checksum == 1234:
 
-            # printt('[info] master > phase 1 finished (for test)')
-            success = 1
+#             # printt('[info] master > phase 1 finished (for test)')
+#             success = 1
 
-        elif checksum == 9876:
+#         elif checksum == 9876:
 
-            printt('[error] master > retry phase 1 (for test)')
-            success = 0
+#             printt('[error] master > retry phase 1 (for test)')
+#             success = 0
 
-        else:
+#         else:
 
-            printt('[error] master > unknown error in phase 1 (for test)')
-            success = 0
+#             printt('[error] master > unknown error in phase 1 (for test)')
+#             success = 0
 
-else:
-    # relation 전송 - DataModel 생성자
-    sub_graphs = pickle.loads(r.get('sub_graph_{}'.format('worker_0')))
-    test_sock.send(struct.pack('!i', len(sub_graphs)))
+# else:
+#     # relation 전송 - DataModel 생성자
+#     sub_graphs = pickle.loads(r.get('sub_graph_{}'.format('worker_0')))
+#     test_sock.send(struct.pack('!i', len(sub_graphs)))
 
-    while success != 1:
+#     while success != 1:
 
-        for (head_id, relation_id, tail_id) in sub_graphs:
+#         for (head_id, relation_id, tail_id) in sub_graphs:
 
-            test_sock.send(struct.pack('!i', int(head_id)))
-            test_sock.send(struct.pack('!i', int(relation_id)))
-            test_sock.send(struct.pack('!i', int(tail_id)))
+#             test_sock.send(struct.pack('!i', int(head_id)))
+#             test_sock.send(struct.pack('!i', int(relation_id)))
+#             test_sock.send(struct.pack('!i', int(tail_id)))
 
-        checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
+#         checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
-        if checksum == 1234:
+#         if checksum == 1234:
 
-            # printt('[info] master > phase 1 finished (for test)')
-            success = 1
+#             # printt('[info] master > phase 1 finished (for test)')
+#             success = 1
 
-        elif checksum == 9876:
+#         elif checksum == 9876:
 
-            printt('[error] master > retry phase 1 (for test)')
-            success = 0
+#             printt('[error] master > retry phase 1 (for test)')
+#             success = 0
 
-        else:
+#         else:
 
-            printt('[error] master > unknown error in phase 1 (for test)')
-            success = 0
+#             printt('[error] master > unknown error in phase 1 (for test)')
+#             success = 0
 
 # printt('[info] master > chunk or relation sent to DataModel (for test)')
 

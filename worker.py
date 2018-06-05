@@ -340,7 +340,7 @@ try:
             # fsLog.write('[error] worker > unknown error in phase 2 (relation) - ' + worker_id + '\n')
             # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
             # fsLog.write('[error] worker > return -1\n')
-            fsLog.close()
+            # fsLog.close()
             sys.exit(-1)
 
     #printt('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function')
@@ -393,7 +393,7 @@ try:
                         if len(temp_entity_double) != 8:
                             
                             printt('[error] worker > length of temp_entity_double = ' + str(len(temp_entity_double)))
-                            fsLog.write('[error] worker > length of temp_entity_double = ' + str(len(temp_entity_double)) + '\n')
+                            # fsLog.write('[error] worker > length of temp_entity_double = ' + str(len(temp_entity_double)) + '\n')
                         
                         temp_entity = struct.unpack('d', temp_entity_double)[0]
                         temp_entity_vector.append(temp_entity)
