@@ -33,7 +33,8 @@ with open("result.csv", 'w') as result_file:
                                      dataset, '--num_worker', str(num_worker),
                                      '--train_iter', str(
                                          train_iter), '--niter', str(niter),
-                                     '--ndim', str(ndim), '--lr', str(lr)])
+                                     '--ndim', str(ndim), '--lr', str(lr),
+                                     '--debugging', 'no'])
                     process.communicate()
 
                     print(f"dataset: {dataset}")

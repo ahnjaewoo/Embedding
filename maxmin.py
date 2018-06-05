@@ -13,22 +13,46 @@ import os
 
 root_dir = sys.argv[5]
 data_root = sys.argv[6]
+debugging = sys.argv[7]
 temp_folder_dir = "%s/tmp" % root_dir
 logging.basicConfig(filename='%s/maxmin.log' % root_dir, filemode='w', level=logging.DEBUG)
 logger = logging.getLogger()
 handler = logging.StreamHandler(stream=sys.stdout)
 logger.addHandler(handler)
 
-loggerOn = False
+if debugging == 'yes':
+    logging.basicConfig(filename='%s/master.log' %
+                        root_dir, filemode='w', level=logging.DEBUG)
+    logger = logging.getLogger()
+    handler = logging.StreamHandler(stream=sys.stdout)
+    logger.addHandler(handler)
+    loggerOn = False
 
-def printt(str):
+    def printt(str):
 
-    global loggerOn
+        global loggerOn
 
-    print(str)
+        print(str)
 
-    if loggerOn:
-        logger.warning(str + '\n')
+        if loggerOn:
+
+            logger.warning(str + '\n')
+
+    def handle_exception(exc_type, exc_value, exc_traceback):
+
+        if issubclass(exc_type, KeyboardInterrupt):
+
+            sys.__excepthook__(exc_type, exc_value, exc_traceback)
+            return
+
+        logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+    sys.excepthook = handle_exception
+
+elif debugging == 'no':
+    def printt(str):
+        print(str)
+
 
 def sockRecv(sock, length):
 
@@ -45,17 +69,6 @@ def sockRecv(sock, length):
         data = data + buff
 
     return data
-
-def handle_exception(exc_type, exc_value, exc_traceback):
-
-    if issubclass(exc_type, KeyboardInterrupt):
-
-        sys.__excepthook__(exc_type, exc_value, exc_traceback)
-        return
-    
-    logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
-
-sys.excepthook = handle_exception
 
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server

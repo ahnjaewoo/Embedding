@@ -22,21 +22,45 @@ redis_ip_address = sys.argv[8]
 root_dir = sys.argv[9]
 data_root_id = sys.argv[10]
 socket_port = sys.argv[11]
+debugging = sys.argv[12]
 logging.basicConfig(filename='%s/worker_%s.log' % (root_dir, worker_id), filemode='w', level=logging.DEBUG)
 logger = logging.getLogger()
 handler = logging.StreamHandler(stream=sys.stdout)
 logger.addHandler(handler)
 
-loggerOn = False
+if debugging == 'yes':
+    logging.basicConfig(filename='%s/master.log' %
+                        root_dir, filemode='w', level=logging.DEBUG)
+    logger = logging.getLogger()
+    handler = logging.StreamHandler(stream=sys.stdout)
+    logger.addHandler(handler)
+    loggerOn = False
 
-def printt(str_):
+    def printt(str):
 
-    global loggerOn
+        global loggerOn
 
-    print(str_)
+        print(str)
 
-    if loggerOn:
-        logger.warning(str_ + '\n')
+        if loggerOn:
+
+            logger.warning(str + '\n')
+
+    def handle_exception(exc_type, exc_value, exc_traceback):
+
+        if issubclass(exc_type, KeyboardInterrupt):
+
+            sys.__excepthook__(exc_type, exc_value, exc_traceback)
+            return
+
+        logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+    sys.excepthook = handle_exception
+
+elif debugging == 'no':
+    def printt(str):
+        print(str)
+
 
 def sockRecv(sock, length):
 
@@ -53,17 +77,6 @@ def sockRecv(sock, length):
         data = data + buff
 
     return data
-
-def handle_exception(exc_type, exc_value, exc_traceback):
-
-    if issubclass(exc_type, KeyboardInterrupt):
-
-        sys.__excepthook__(exc_type, exc_value, exc_traceback)
-        return
-    
-    logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
-
-sys.excepthook = handle_exception
 
 preprocess_folder_dir = "%s/preprocess/" % root_dir
 train_code_dir = "%s/MultiChannelEmbedding/Embedding.out" % root_dir

@@ -48,6 +48,7 @@ parser.add_argument('--scheduler_ip', type=str,
                     default='163.152.29.73:8786', help='dask scheduler ip:port')
 parser.add_argument('--use_scheduler_config_file', default='False',
                     help='wheter to use scheduler config file or use scheduler ip directly')
+parser.add_argument('--debugging', type=str, default='yes', help='debugging mode or not')
 args = parser.parse_args()
 
 install = args.install
@@ -60,24 +61,40 @@ if data_root[0] != '/':
 
 root_dir = args.root_dir
 
+debugging = args.debugging
+if debugging == 'yes':
+    logging.basicConfig(filename='%s/master.log' %
+                        root_dir, filemode='w', level=logging.DEBUG)
+    logger = logging.getLogger()
+    handler = logging.StreamHandler(stream=sys.stdout)
+    logger.addHandler(handler)
+    loggerOn = False
 
-logging.basicConfig(filename='%s/master.log' %
-                    root_dir, filemode='w', level=logging.DEBUG)
-logger = logging.getLogger()
-handler = logging.StreamHandler(stream=sys.stdout)
-logger.addHandler(handler)
+    def printt(str):
 
-loggerOn = False
+        global loggerOn
 
-def printt(str):
+        print(str)
 
-    global loggerOn
+        if loggerOn:
 
-    print(str)
+            logger.warning(str + '\n')
 
-    if loggerOn:
+    def handle_exception(exc_type, exc_value, exc_traceback):
 
-        logger.warning(str + '\n')
+        if issubclass(exc_type, KeyboardInterrupt):
+
+            sys.__excepthook__(exc_type, exc_value, exc_traceback)
+            return
+
+        logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+    sys.excepthook = handle_exception
+
+elif debugging == 'no':
+    def printt(str):
+        print(str)
+
 
 def sockRecv(sock, length):
 
@@ -95,16 +112,6 @@ def sockRecv(sock, length):
 
     return data
 
-def handle_exception(exc_type, exc_value, exc_traceback):
-
-    if issubclass(exc_type, KeyboardInterrupt):
-
-        sys.__excepthook__(exc_type, exc_value, exc_traceback)
-        return
-
-    logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
-
-sys.excepthook = handle_exception
 
 preprocess_folder_dir = "%s/preprocess/" % root_dir
 train_code_dir = "%s/MultiChannelEmbedding/Embedding.out" % root_dir
@@ -299,7 +306,8 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
                                 redis_ip_address,
                                 root_dir,
                                 str(data_root_id),
-                                str(socket_port)])
+                                str(socket_port),
+                                debugging])
 
     # print('[info] master > embedding.cpp, worker.py generated - ' + str(worker_id))
 
@@ -368,7 +376,8 @@ proc = Popen([pypy_dir,
             str(anchor_num),
             str(anchor_interval),
             root_dir,
-            data_root])
+            data_root,
+            debugging])
 
 # printt('[info] master > popen maxmin.py complete')
 
