@@ -219,8 +219,8 @@ for i, (relation, num) in enumerate(relation_each_num):
 
 # printing # of relations per each partitions
 
-printt('[info] master > # of relations per each partitions : [%s]' %
-      " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
+# printt('[info] master > # of relations per each partitions : [%s]' %
+#       " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
 
 sub_graphs = {}
 
@@ -370,7 +370,7 @@ proc = Popen([pypy_dir,
             root_dir,
             data_root])
 
-printt('[info] master > popen maxmin.py complete')
+# printt('[info] master > popen maxmin.py complete')
 
 while True:
 
@@ -398,7 +398,7 @@ while True:
         printt('[error] master > exception occured in master <-> maxmin')
         printt('[error] master > ' + str(e))
 
-printt('[info] master > socket connected (master <-> maxmin)')
+# printt('[info] master > socket connected (master <-> maxmin)')
 
 maxmin_sock.send(struct.pack('!i', 0))
 maxmin_sock.send(struct.pack('!i', num_worker))
@@ -531,9 +531,9 @@ while True:
         # 이터레이션 성공
         t_ = time()
 
-        for log in [e[1] for e in result_iter]:
+        # for log in [e[1] for e in result_iter]:
 
-            printt(log)
+        #     printt(log)
 
         # printt('[info] master > iteration %d finished' % cur_iter)
         printt('[info] master > iteration time : %f' % (time() - t_))
@@ -763,7 +763,7 @@ while success != 1:
         printt('[error] master > unknown error in phase 2 (relation) (for test)')
         success = 0
 
-printt('[info] master > relation_vector sent to Geome tricModel load function (for test)')
+# printt('[info] master > relation_vector sent to Geome tricModel load function (for test)')
 
 del entities_initialized
 del relations_initialized
