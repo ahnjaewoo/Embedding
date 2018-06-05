@@ -470,6 +470,7 @@ while True:
         printt('[info] master > average idle time : %f' % avg_idle_time)
 
     # 작업 배정
+    t_ = time()
     workers = [client.submit(work,
                              "{}\n{}".format(anchors, chunks[i]),
                              'worker_%d' % i,
@@ -529,11 +530,9 @@ while True:
     if all([e[0] for e in result_iter]) == True:
 
         # 이터레이션 성공
-        t_ = time()
-
         # for log in [e[1] for e in result_iter]:
 
-        #     printt(log)
+        # printt(log)
 
         # printt('[info] master > iteration %d finished' % cur_iter)
         printt('[info] master > iteration time : %f' % (time() - t_))
