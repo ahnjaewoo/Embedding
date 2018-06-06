@@ -791,3 +791,7 @@ if test_return == -1:
 printt('[info] master > Total elapsed time : %f' % (time() - master_start))
 with open("logs/test_log.txt", 'a') as f:
     f.write("\n== train_time = {}\n".format(train_time))
+    # f.write("\n== total_idle_time = {}\n".format(total_idle_time))
+    # f.write("\n== maxmin_time = {}\n".format(maxmin_time))
+    # f.write("\n== redis_time = {}\n".format(redis_time))
+    # f.write("\n== socket_time = {}\n".format(socket_time))
