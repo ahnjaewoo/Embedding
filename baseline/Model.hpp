@@ -322,10 +322,10 @@ public:
 		logging.record() << "Raw.BestHITS = " << best_link_hitatten;
 
 		std::cout << "== Filter.BestMEANS = " << best_link_fmean << endl;
-		std::cout << "== Filter.BestMRR= " << fmrr / total << endl;
+		std::cout << "== Filter.BestMRR = " << fmrr / total << endl;
 		std::cout << "== Filter.BestHITS = " << best_link_fhitatten << endl;
 		logging.record() << "Filter.BestMEANS = " << best_link_fmean;
-		logging.record() << "Filter.BestMRR= " << fmrr / total;
+		logging.record() << "Filter.BestMRR = " << fmrr / total;
 		logging.record() << "Filter.BestHITS = " << best_link_fhitatten;
 
 		std::cout.flush();
