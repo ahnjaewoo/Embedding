@@ -74,7 +74,7 @@ with open("baseline_result.csv", 'w') as result_file:
 
     for dataset_id, dataset in enumerate(datasets):
         for ndim in ndims:
-            process = Popen(['./master.cpp', str(dataset_id),
+            process = Popen(['./Embedding.out', str(dataset_id),
                                 str(ndim), str(lr)],
                                 stdout=PIPE, stderr=PIPE, cwd='./baseline/')
             out, _ = process.communicate()
