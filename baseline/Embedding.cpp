@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 	model->save("./model.bin");
 	model->test();
 
-	cout << "== train_time = " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
+	cout << "== train_time = " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << endl;
 
 	return 0;
 }
