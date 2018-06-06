@@ -35,7 +35,7 @@ with open("result.csv", 'w') as result_file:
                                          train_iter), '--niter', str(niter),
                                      '--ndim', str(ndim), '--lr', str(lr),
                                      '--debugging', 'no'])
-                    process.wait()
+                    process.communicate()
 
                     print(f"dataset: {dataset}")
                     print(f"num_worker: {num_worker}")
