@@ -587,12 +587,12 @@ except Exception as e:
 
 workerTotalTime = timeit.default_timer() - workerStart
 
-with open("logs/test_log.txt", 'a') as f:
-    
-    f.write("\n== redis_conn_time = {}\n".format(redisConnTime))
-    f.write("\n== datamodel_sock_time = {}\n".format(datamodelTime))
-    f.write("\n== socket_load_time = {}\n".format(sockLoadTime))
-    f.write("\n== embedding_time = {}\n".format(embeddingTime))
-    f.write("\n== socket_save_time = {}\n".format(sockSaveTime))
-    f.write("\n== redis_time = {}\n".format(redisTime))
-    f.write("\n== worker_total_time = {}\n".format(workerTotalTime))
+resultDict = {'worker_' + str(worker_id) + '_iter_' + str(cur_iter) : dict()}
+resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== redis_conn_time = {}\n"] = redisConnTime
+resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== datamodel_sock_time = {}\n"] = datamodelTime
+resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== socket_load_time = {}\n"] = sockLoadTime
+resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== embedding_time = {}\n"] = embeddingTime
+resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== socket_save_time = {}\n"] = sockSaveTime
+resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== redis_time = {}\n"] = redisTime
+resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== worker_total_time = {}\n"] = workerTotalTime
+r.set(resultDict)
