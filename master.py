@@ -11,6 +11,7 @@ import redis
 import pickle
 from time import time
 import socket
+import timeit
 import time as tt
 import struct
 import sys
@@ -51,20 +52,11 @@ parser.add_argument('--use_scheduler_config_file', default='False',
 parser.add_argument('--debugging', type=str, default='yes', help='debugging mode or not')
 args = parser.parse_args()
 
-install = args.install
-data_root = args.data_root
 
-if data_root[0] != '/':
+if args.debugging == 'yes':
 
-    print("[error] master > data root directory must start with /")
-    sys.exit(1)
-
-root_dir = args.root_dir
-
-debugging = args.debugging
-if debugging == 'yes':
     logging.basicConfig(filename='%s/master.log' %
-                        root_dir, filemode='w', level=logging.DEBUG)
+                        args.root_dir, filemode='w', level=logging.DEBUG)
     logger = logging.getLogger()
     handler = logging.StreamHandler(stream=sys.stdout)
     logger.addHandler(handler)
@@ -91,10 +83,11 @@ if debugging == 'yes':
 
     sys.excepthook = handle_exception
 
-elif debugging == 'no':
+elif args.debugging == 'no':
+    
     def printt(str):
+    
         print(str)
-
 
 def sockRecv(sock, length):
 
@@ -111,32 +104,6 @@ def sockRecv(sock, length):
         data = data + buff
 
     return data
-
-
-preprocess_folder_dir = "%s/preprocess/" % root_dir
-train_code_dir = "%s/MultiChannelEmbedding/Embedding.out" % root_dir
-test_code_dir = "%s/MultiChannelEmbedding/Test.out" % root_dir
-worker_code_dir = "%s/worker.py" % root_dir
-
-if args.temp_dir == '':
-
-    temp_folder_dir = "%s/tmp" % root_dir
-
-pypy_dir = args.pypy_dir
-redis_ip_address = args.redis_ip
-dask_ip_address = args.scheduler_ip
-use_scheduler_config_file = args.use_scheduler_config_file
-
-data_files = ['%s/train.txt' % data_root, '%s/dev.txt' %
-              data_root, '%s/test.txt' % data_root]
-num_worker = args.num_worker
-niter = args.niter
-train_iter = args.train_iter
-n_dim = args.ndim
-lr = args.lr
-margin = args.margin
-anchor_num = args.anchor_num
-anchor_interval = args.anchor_interval
 
 def data2id(data_root):
 
@@ -159,27 +126,112 @@ def data2id(data_root):
         print("[error] master > data root mismatch")
         sys.exit(1)
 
-data_root_id = data2id(data_root)
+def install_libs():
 
-# 여기서 전처리 C++ 프로그램 비동기 호출
-master_start = time()
-t_ = time()
+    import os
+    os.system("pip install --upgrade pip")
+    os.system("pip install --upgrade redis")
+    os.system("pip install --upgrade hiredis")
 
-# printt('[info] master > Preprocessing started')
-proc = Popen(["%spreprocess.out" % preprocess_folder_dir,
-              str(data_root_id)], cwd=preprocess_folder_dir)
+def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id):
 
-# printt('[info] master > Read files')
+    # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
+    socket_port = 50000 + 5 * int(worker_id.split('_')[1]) + (cur_iter % 5)
+    # print('[info] master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
+    log_dir = os.path.join(args.root_dir, 'logs/embedding_log_' + worker_id + '_iter_' + str(cur_iter) + '.txt')
+
+    workStart = timeit.default_timer()
+
+    embedding_proc = Popen([train_code_dir, 
+                                    worker_id,
+                                    str(cur_iter),
+                                    str(n_dim),
+                                    str(lr),
+                                    str(margin),
+                                    str(train_iter),
+                                    str(data_root_id),
+                                    str(socket_port),
+                                    str(log_dir)],
+                                    cwd=preprocess_folder_dir)
+
+    worker_proc = Popen(["python",
+                                worker_code_dir,
+                                chunk_data,
+                                str(worker_id),
+                                str(cur_iter),
+                                str(n_dim),
+                                str(lr),
+                                str(margin),
+                                str(train_iter),
+                                args.redis_ip_address,
+                                args.root_dir,
+                                str(data_root_id),
+                                str(socket_port),
+                                args.debugging])
+
+    embedding_proc.wait()
+    worker_proc.wait()
+
+    idleTime = timeit.default_timer()
+
+    embedding_return = int(embedding_proc.returncode)
+    worker_return = int(worker_proc.returncode)
+
+    if embedding_return < 0 or worker_return < 0:
+
+        # embedding.cpp 또는 worker.py 가 비정상 종료
+        # 이번 이터레이션을 취소, 한 번 더 수행
+        return (False, None)
+
+    else:
+
+        # 모두 성공적으로 수행
+        # worker_return 은 string 형태? byte 형태? 의 pickle 을 가지고 있음
+        timeNow = timeit.default_timer()
+        result = (worker_id, cur_iter, timeNow - workStart)
+        return (True, '[info] master > %s: iteration %d finished, time: %f' % result, timeNow - workStart, timeNow - idleTime)
+
+if args.data_root[0] != '/':
+
+    printt("[error] master > data root directory must start with /")
+    sys.exit(1)
+
+preprocess_folder_dir = "%s/preprocess/" % args.root_dir
+train_code_dir = "%s/MultiChannelEmbedding/Embedding.out" % args.root_dir
+test_code_dir = "%s/MultiChannelEmbedding/Test.out" % args.root_dir
+worker_code_dir = "%s/worker.py" % args.root_dir
+
+if args.temp_dir == '':
+
+    temp_folder_dir = "%s/tmp" % args.root_dir
+
+data_files = ['%s/train.txt' % args.data_root, '%s/dev.txt' % args.data_root, '%s/test.txt' % args.data_root]
+num_worker = args.num_worker
+niter = args.niter
+train_iter = args.train_iter
+n_dim = args.ndim
+lr = args.lr
+margin = args.margin
+anchor_num = args.anchor_num
+anchor_interval = args.anchor_interval
+
 entities = list()
 relations = list()
 entity2id = dict()
 relation2id = dict()
 entity_cnt = 0
 relations_cnt = 0
+data_root_id = data2id(args.data_root)
+
+masterStart = timeit.default_timer()
+# 여기서 전처리 C++ 프로그램 비동기 호출
+proc = Popen(["%spreprocess.out" % preprocess_folder_dir,
+              str(data_root_id)], cwd=preprocess_folder_dir)
+# printt('[info] master > Preprocessing started')
 
 for file in data_files:
 
-    with open(root_dir + file, 'r') as f:
+    with open(args.root_dir + file, 'r') as f:
 
         for line in f:
 
@@ -205,7 +257,7 @@ for file in data_files:
 
 relation_triples = defaultdict(list)
 
-with open(root_dir + data_files[0], 'r') as f:
+with open(args.root_dir + data_files[0], 'r') as f:
 
     for line in f:
 
@@ -224,8 +276,6 @@ for i, (relation, num) in enumerate(relation_each_num):
     allocated_relation_worker[0][0].append(relation)
     allocated_relation_worker[0][1] += num
 
-# printing # of relations per each partitions
-
 # printt('[info] master > # of relations per each partitions : [%s]' %
 #       " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
 
@@ -240,7 +290,7 @@ for c, (relation_list, num) in enumerate(allocated_relation_worker):
     sub_graphs['sub_g_worker_%d' % c] = pickle.dumps(
         g, protocol=pickle.HIGHEST_PROTOCOL)
 
-r = redis.StrictRedis(host=redis_ip_address, port=6379, db=0)
+r = redis.StrictRedis(host = args.redis_ip_address, port = 6379, db = 0)
 r.mset(sub_graphs)
 
 del relation_each_num
@@ -266,102 +316,25 @@ r.mset({
         relations_initialized[i],
         protocol=pickle.HIGHEST_PROTOCOL) for i, relation in enumerate(relations)})
 
-def install_libs():
-
-    import os
-    os.system("pip install --upgrade pip")
-    os.system("pip install --upgrade redis")
-    os.system("pip install --upgrade hiredis")
-
-def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id):
-
-    # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
-    socket_port = 50000 + 5 * int(worker_id.split('_')[1]) + (cur_iter % 5)
-    # print('[info] master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
-    log_dir = os.path.join(root_dir, 'logs/embedding_log_' + worker_id + '_iter_' + str(cur_iter) + '.txt')
-
-    t_ = time()
-
-    embedding_proc = Popen([train_code_dir, 
-                                    worker_id,
-                                    str(cur_iter),
-                                    str(n_dim),
-                                    str(lr),
-                                    str(margin),
-                                    str(train_iter),
-                                    str(data_root_id),
-                                    str(socket_port),
-                                    str(log_dir)],
-                                    cwd=preprocess_folder_dir)
-
-    worker_proc = Popen(["python",
-                                worker_code_dir,
-                                chunk_data,
-                                str(worker_id),
-                                str(cur_iter),
-                                str(n_dim),
-                                str(lr),
-                                str(margin),
-                                str(train_iter),
-                                redis_ip_address,
-                                root_dir,
-                                str(data_root_id),
-                                str(socket_port),
-                                debugging])
-
-    # print('[info] master > embedding.cpp, worker.py generated - ' + str(worker_id))
-
-    embedding_proc.wait()
-    worker_proc.wait()
-
-    idle_time_worker = time()
-
-    embedding_return = int(embedding_proc.returncode)
-    worker_return = int(worker_proc.returncode)
-
-    if embedding_return < 0 or worker_return < 0:
-
-        # embedding.cpp 또는 worker.py 가 비정상 종료
-        # 이번 이터레이션을 취소, 한 번 더 수행
-        return (False, None)
-
-    else:
-
-        # 모두 성공적으로 수행
-        # worker_return 은 string 형태? byte 형태? 의 pickle 을 가지고 있음
-        return (True, '[info] master > %s: iteration %d finished, time: %f' % (worker_id, cur_iter, time() - t_), idle_time_worker)
-
-# def savePreprocessedData(data, worker_id):
-#     from threading import Thread
-#     def saveFile(data):
-#         with open("%s/data_model_%s.bin" % (temp_folder_dir, worker_id), 'wb') as f:
-#             f.write(data)
-
-#     thread = Thread(target=saveFile, args=(data, ))
-#     thread.start()
-#     thread.join()
-
-#     return "%s finish saving file!" % worker_id
-
-if use_scheduler_config_file == 'True':
+if args.use_scheduler_config_file == 'True':
 
     client = Client(scheduler_file=temp_folder_dir + '/scheduler.json', name='Embedding')
 
 else:
 
-    client = Client(dask_ip_address, name='Embedding')
+    client = Client(args.scheduler_ip, name='Embedding')
 
-if install == 'True':
+if args.install == 'True':
 
     client.run(install_libs)
 
 # 전처리 끝날때까지 대기
 proc.communicate()
+preprocessingTime = timeit.default_timer() - masterStart
+printt('[info] master > preprocessing time : %f' % preprocessingTime)
 
-# with open("%s/data_model.bin" % temp_folder_dir, 'rb') as f:
-#     data = f.read()
-
-printt('[info] master > preprocessing time : %f' % (time() - t_))
+maxminTimes = list()
+iterTimes = list()
 
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
@@ -369,17 +342,15 @@ printt('[info] master > preprocessing time : %f' % (time() - t_))
 anchors = ""
 chunks = list()
 
-proc = Popen([pypy_dir,
+proc = Popen([args.pypy_dir,
             'maxmin.py',
             str(num_worker),
             '0',
             str(anchor_num),
             str(anchor_interval),
-            root_dir,
-            data_root,
-            debugging])
-
-# printt('[info] master > popen maxmin.py complete')
+            args.root_dir,
+            args.data_root,
+            args.debugging])
 
 while True:
 
@@ -409,6 +380,7 @@ while True:
 
 # printt('[info] master > socket connected (master <-> maxmin)')
 
+timeNow = timeit.default_timer()
 maxmin_sock.send(struct.pack('!i', 0))
 #maxmin_sock.send(struct.pack('!i', num_worker))
 maxmin_sock.send(struct.pack('!i', 0))
@@ -417,11 +389,11 @@ maxmin_sock.send(struct.pack('!i', 0))
 
 # maxmin 의 결과를 소켓으로 받음
 anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-# printt('[info] master > anchor_len = ' + str(anchor_len))
 
 for anchor_idx in range(anchor_len):
 
     anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
+
 anchors = anchors[:-1]
 
 for part_idx in range(num_worker):
@@ -432,8 +404,11 @@ for part_idx in range(num_worker):
     for nas_idx in range(chunk_len):
 
         chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
+    
     chunk = chunk[:-1]
     chunks.append(chunk)
+
+maxminTimes.append(timeit.default_timer() - timeNow)
 
 # printt('[info] master > maxmin finished')
 # printt('[info] master > worker training iteration epoch : {}'.format(train_iter))
@@ -445,18 +420,19 @@ success = False
 entities = pickle.loads(r.get('entities'))
 relations = pickle.loads(r.get('relations'))
 
-train_time = time()
+trainStart = timeit.default_timer()
+
 while True:
+
+    # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
+    # entities_initialized_bak = r.mget([entity + '_v' for entity in entities])
+    # entities_initialized_bak = [pickle.loads(v) for v in entities_initialized_bak]
+    # relations_initialized_bak = r.mget([relation + '_v' for relation in relations])
+    # relations_initialized_bak = [pickle.loads(v) for v in relations_initialized_bak]
 
     if cur_iter == niter:
 
         break
-
-    #printt('=====================================================================')
-    #printt('=====================================================================')
-    printt('[info] master > iteration %d' % cur_iter)
-
-    t_ = time()
 
     if trial == 5:
 
@@ -464,22 +440,11 @@ while True:
         maxmin_sock.send(struct.pack('!i', 1))
         maxmin_sock.close()
         sys.exit(-1)
-    
-    #if cur_iter > 0 and success == True:
-    #    
-    #    idle_times = [t_ - float(e[1].split(':')[-1]) for e in result_iter]
-    #    avg_idle_time = sum(idle_times) / len(idle_times)
-    #        
-    #    for idx in range(len(result_iter)):
-    #
-    #        printt('[info] master > %s' % result_iter[idx][1])
-    #        printt('[info] master > idle time : %f' % idle_times[idx])
-    #    
-    #    success = False
-    #    printt('[info] master > average idle time : %f' % avg_idle_time)
 
     # 작업 배정
-    t_ = time()
+    printt('[info] master > iteration %d' % cur_iter)
+    iterStart = timeit.default_timer()
+    
     workers = [client.submit(work,
                              "{}\n{}".format(anchors, chunks[i]),
                              'worker_%d' % i,
@@ -491,6 +456,8 @@ while True:
         # entity partitioning: max-min cut 실행, anchor 등 재분배
         anchors = ""
         chunks = list()
+
+        maxminStart = timeit.default_timer()
 
         # try 가 들어가야 함
         maxmin_sock.send(struct.pack('!i', 0))
@@ -521,38 +488,31 @@ while True:
             chunk = chunk[:-1]
             chunks.append(chunk)
 
+        maxminTimes.append(timeit.default_timer() - maxminStart)
+
     else:
         # relation partitioning
         chunk_data = ''
-
-    # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
-    # entities_initialized_bak = r.mget([entity + '_v' for entity in entities])
-    # entities_initialized_bak = [pickle.loads(v) for v in entities_initialized_bak]
-    # relations_initialized_bak = r.mget([relation + '_v' for relation in relations])
-    # relations_initialized_bak = [pickle.loads(v) for v in relations_initialized_bak]
     
     client.gather(workers)
     result_iter = [worker.result() for worker in workers]
-
-    # printt('[info] master.py result array : ' + str([e[0] for e in result_iter]))
+    iterTimes.append(timeit.default_timer() - iterStart)
 
     if all([e[0] for e in result_iter]) == True:
 
         # 이터레이션 성공
-        # for log in [e[1] for e in result_iter]:
-
-        # printt(log)
-
-        # printt('[info] master > iteration %d finished' % cur_iter)
-        printt('[info] master > iteration time : %f' % (time() - t_))
+        printt('[info] master > iteration time : %f' % (timeit.default_timer() - timeNow))
         success = True
         trial = 0
         cur_iter = cur_iter + 1
 
-        idle_times = [e[2] - t_ for e in result_iter]
+        workTimes = [e[2] for e in result_iter]
+        idleTimes = [e[3] for e in result_iter]
 
-        printt('[info] master > idle times : ' + str(idle_times))
-        printt('[info] master > average idle time : ' + str(np.mean(idle_times)))
+        printt('[info] master > Total embedding times : ' + str(workTimes))
+        printt('[info] master > Average total embedding time : ' + str(np.mean(workTimes)))
+        printt('[info] master > Idle times : ' + str(idleTimes))
+        printt('[info] master > Average idle time : ' + str(np.mean(idleTimes)))
 
     else:
 
@@ -561,11 +521,9 @@ while True:
         trial = trial + 1
         # r.mset({str(entities[i]) + '_bak' : pickle.dumps(entities_initialized_bak[i], protocol=pickle.HIGHEST_PROTOCOL) for i in range(len(entities_initialized_bak))})
         # r.mset({str(relations[i]) + '_bak' : pickle.dumps(relations_initialized_bak[i], protocol=pickle.HIGHEST_PROTOCOL) for i in range(len(relations_initialized_bak))})
+        printt('[error] master > iteration %d is failed, retry' % cur_iter)
         
-        printt('[error] master > iteration %d is failed' % cur_iter)
-        printt('[Info] master > retry iteration %d' % cur_iter)
-
-train_time = time() - train_time
+trainTime = timeit.default_timer() - trainStart
 
 # test part
 # printt('[info] master > test start')
@@ -584,7 +542,7 @@ maxmin_sock.close()
 ###############################################################################
 
 worker_id = 'worker_0'
-log_dir = os.path.join(root_dir, 'logs/test_log.txt')
+log_dir = os.path.join(args.root_dir, 'logs/test_log.txt')
 proc = Popen([test_code_dir,
             worker_id,
             str(cur_iter),
@@ -788,10 +746,15 @@ if test_return == -1:
     printt('[error] master > test failed, exit')
     sys.exit(-1)
 
-printt('[info] master > Total elapsed time : %f' % (time() - master_start))
+totalTime = timeit.default_timer() - masterStart
+printt('[info] master > Total elapsed time : %f' % (totalTime))
+
 with open("logs/test_log.txt", 'a') as f:
-    f.write("\n== train_time = {}\n".format(train_time))
-    # f.write("\n== total_idle_time = {}\n".format(total_idle_time))
-    # f.write("\n== maxmin_time = {}\n".format(maxmin_time))
-    # f.write("\n== redis_time = {}\n".format(redis_time))
-    # f.write("\n== socket_time = {}\n".format(socket_time))
+    
+    f.write("\n== preprocessing_time = {}\n".format(preprocessingTime))
+    f.write("\n== train_time = {}\n".format(trainTime))
+    f.write("\n== total_time = {}\n".format(totalTime))
+    f.write("\n== avg_iter_time = {}\n".format(str(np.mean(iterTimes))))
+    f.write("\n== avg_work_time = {}\n".format(str(np.mean(workTimes))))
+    f.write("\n== avg_idle_time = {}\n".format(str(np.mean(idleTimes))))
+    f.write("\n== avg_maxmin_time = {}\n".format(str(np.mean(maxminTimes))))

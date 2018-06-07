@@ -8,6 +8,7 @@ import redis
 import pickle
 import sys
 import socket
+import timeit
 import time as tt
 import struct
 
@@ -58,9 +59,10 @@ if debugging == 'yes':
     sys.excepthook = handle_exception
 
 elif debugging == 'no':
+    
     def printt(str):
+    
         print(str)
-
 
 def sockRecv(sock, length):
 
@@ -82,7 +84,7 @@ preprocess_folder_dir = "%s/preprocess/" % root_dir
 train_code_dir = "%s/MultiChannelEmbedding/Embedding.out" % root_dir
 temp_folder_dir = "%s/tmp" % root_dir
 
-t_ = time()
+workerStart = timeit.default_timer()
 # redis에서 embedding vector들 받아오기
 r = redis.StrictRedis(host=redis_ip_address, port=6379, db=0)
 entities = pickle.loads(r.get('entities'))
@@ -98,9 +100,8 @@ relation_id = {relations[i]: int(id_) for i, id_ in enumerate(relation_id)}
 entities_initialized = [pickle.loads(v) for v in entities_initialized]
 relations_initialized = [pickle.loads(v) for v in relations_initialized]
 
-printt('[info] worker > redis server connection time : %f' % (time() - t_))
-
-t_ = time()
+redisConnTime = timeit.default_timer() - workerStart
+printt('[info] worker > redis server connection time : %f' % (redisConnTime))
 
 # embedding.cpp 와 socket 통신
 # worker 가 실행될 때 전달받은 ip 와 port 로 접속
@@ -153,18 +154,15 @@ while True:
 # printt('[info] worker > port number of ' + worker_id + ' = ' + socket_port)
 # printt('[info] worker > socket connected (worker <-> embedding)')
 
-
-
 # 파일로 로그를 저장하기 위한 부분
 # fsLog = open(os.path.join(root_dir, 'logs/worker_log_' + worker_id + '_iter_' + cur_iter + '.txt'), 'w')
 # fsLog.write('line 143 start\n')
-
-
 
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 try:
 
     checksum = 0
+    timeNow = timeit.default_timer()
 
     if int(cur_iter) % 2 == 0:
         # entity 전송 - DataModel 생성자
@@ -259,7 +257,9 @@ try:
         #printt('[info] worker > phase 1 : relation sent to DataModel finished')
         #fsLog.write('[info] worker > phase 1 : relation sent to DataModel finished\n')
 
+    datamodelTime = timeit.default_timer() - timeNow
     checksum = 0
+    timeNow = timeit.default_timer()
 
     # entity_vector 전송 - GeometricModel load
     while checksum != 1:
@@ -356,6 +356,9 @@ try:
             # fsLog.close()
             sys.exit(-1)
 
+    sockLoadTime = timeit.default_timer() - timeNow
+    timeNow = timeit.default_timer()
+
     #printt('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function')
     #fsLog.write('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
 
@@ -376,6 +379,7 @@ try:
 
                 # 처리 결과를 받아옴 - GeometricModel save
                 count_entity_data = sockRecv(embedding_sock, 4)
+                embeddingTime = timeit.default_timer() - timeNow()
                 
                 if len(count_entity_data) != 4:
                     
@@ -455,6 +459,9 @@ try:
                 flag = 1234
                 embedding_sock.send(struct.pack('!i', flag))
                 success = 1
+
+        sockSaveTime = timeit.default_timer() - timeNow
+        timeNow = timeit.default_timer()
         
         r.mset(entity_vectors)
         #printt('[info] worker > entity_vectors updated - ' + worker_id)
@@ -462,6 +469,7 @@ try:
         #fsLog.write('[info] worker > entity_vectors updated - ' + worker_id + '\n')
         #fsLog.write('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         #fsLog.close()
+        redisTime = timeit.default_timer() - timeNow
         tt.sleep(1)
         sys.exit(0)
 
@@ -548,12 +556,16 @@ try:
                 embedding_sock.send(struct.pack('!i', flag))
                 success = 1
 
+        sockSaveTime = timeit.default_timer() - timeNow
+        timeNow = timeit.default_timer()        
+
         r.mset(relation_vectors)
         #printt('[info] worker > relation_vectors updated - ' + worker_id)
         #printt('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
         #fsLog.write('[info] worker > relation_vectors updated - ' + worker_id + '\n')
         #fsLog.write('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         # fsLog.close()
+        redisTime = timeit.default_timer() - timeNow
         tt.sleep(1)
         sys.exit(0)
 
@@ -572,3 +584,15 @@ except Exception as e:
     # fsLog.write('[error] worker > return -1\n')
     # fsLog.close()
     sys.exit(-1)
+
+workerTotalTime = timeit.default_timer() - workerStart
+
+with open("logs/test_log.txt", 'a') as f:
+    
+    f.write("\n== redis_conn_time = {}\n".format(redisConnTime))
+    f.write("\n== datamodel_sock_time = {}\n".format(datamodelTime))
+    f.write("\n== socket_load_time = {}\n".format(sockLoadTime))
+    f.write("\n== embedding_time = {}\n".format(embeddingTime))
+    f.write("\n== socket_save_time = {}\n".format(sockSaveTime))
+    f.write("\n== redis_time = {}\n".format(redisTime))
+    f.write("\n== worker_total_time = {}\n".format(workerTotalTime))

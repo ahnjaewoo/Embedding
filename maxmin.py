@@ -3,6 +3,7 @@ import networkx as nx
 from random import randint
 from collections import defaultdict
 from time import time
+import timeit
 import nxmetis
 import sys
 import random
