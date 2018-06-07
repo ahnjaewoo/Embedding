@@ -750,14 +750,46 @@ totalTime = timeit.default_timer() - masterStart
 printt('[info] master > Total elapsed time : %f' % (totalTime))
 
 workerLogKeys = ['worker_' + str(n) + '_iter_' + str(i) for i in range(niter) for n in range(num_worker)]
-worekrLogs = r.mget(workerLogKeys)
+workerLogs = r.mget(workerLogKeys)
+
+redisConnTime = list()
+datamodelTime = list()
+sockLoadTime = list()
+embeddingTime = list()
+sockSaveTime = list()
+redisTime = list()
+workerTotalTime = list()
+
+for key in workerLogs:
+
+    redisConnTime.append(workerLogs[key]["\n== redis_conn_time = {}\n"])
+    datamodelTime.append(workerLogs[key]["\n== datamodel_sock_time = {}\n"])
+    sockLoadTime.append(workerLogs[key]["\n== socket_load_time = {}\n"])
+    embeddingTime.append(workerLogs[key]["\n== embedding_time = {}\n"])
+    sockSaveTime.append(workerLogs[key]["\n== socket_save_time = {}\n"])
+    redisTime.append(workerLogs[key]["\n== redis_time = {}\n"])
+    workerTotalTime.append(workerLogs[key]["\n== worker_total_time = {}\n"])
 
 with open("logs/test_log.txt", 'a') as f:
     
-    f.write("\n== preprocessing_time = {}\n".format(preprocessingTime))
-    f.write("\n== train_time = {}\n".format(trainTime))
-    f.write("\n== total_time = {}\n".format(totalTime))
-    f.write("\n== avg_iter_time = {}\n".format(str(np.mean(iterTimes))))
-    f.write("\n== avg_work_time = {}\n".format(str(np.mean(workTimes))))
-    f.write("\n== avg_idle_time = {}\n".format(str(np.mean(idleTimes))))
-    f.write("\n== avg_maxmin_time = {}\n".format(str(np.mean(maxminTimes))))
+    f.write("\n== preprocessing_time = {}\n".format(preprocessingTime))                             # master.py 의 preprocessTime
+    f.write("\n== train_time = {}\n".format(trainTime))                                             # master.py 의 iteration while 문 안의 시간
+    f.write("\n== total_time = {}\n".format(totalTime))                                             # master.py 의 preprocess + iteration
+    f.write("\n== avg_iter_time = {}\n".format(str(np.mean(iterTimes))))                            # master.py 의 work 에서 측정한 avg iterTime
+    f.write("\n== avg_work_time = {}\n".format(str(np.mean(workTimes))))                            # master.py 의 work 를 측정한 avg workTimes
+    f.write("\n== avg_idle_time = {}\n".format(str(np.mean(idleTimes))))                            # master.py 의 work 에서 측정한 avg idleTimes
+    f.write("\n== avg_maxmin_time = {}\n".format(str(np.mean(maxminTimes))))                        # master.py 의 iteration while 에서 측정한 maxminTimes
+    f.write("\n== total redis_conn_time = {}\n".format(str(niter * np.mean(redisConnTime))))        # worker.py 에서 측정한 redisConnTime * niter
+    f.write("\n== avg redis_conn_time = {}\n".format(str(np.mean(redisConnTime))))                  # worker.py 에서 측정한 redisConnTime
+    f.write("\n== total datamodel_sock_time = {}\n".format(str(niter * np.mean(datamodelTime))))    # worker.py 에서 측정한 datamodelTime * niter
+    f.write("\n== avg datamodel_sock_time = {}\n".format(str(np.mean(datamodelTime))))              # worker.py 에서 측정한 datamodelTime
+    f.write("\n== total socket_load_time = {}\n".format(str(niter * np.mean(sockLoadTime))))        # worker.py 에서 측정한 sockLoadTime * niter
+    f.write("\n== avg socket_load_time = {}\n".format(str(np.mean(sockLoadTime))))                  # worker.py 에서 측정한 sockLoadTime
+    f.write("\n== total embedding_time = {}\n".format(str(niter * np.mean(embeddingTime))))         # worker.py 에서 측정한 embeddingTime * niter
+    f.write("\n== avg embedding_time = {}\n".format(str(np.mean(embeddingTime))))                   # worker.py 에서 측정한 embeddingTime
+    f.write("\n== total socket_save_time = {}\n".format(str(niter * np.mean(sockSaveTime))))        # worker.py 에서 측정한 sockSaveTime * niter
+    f.write("\n== avg socket_save_time = {}\n".format(str(np.mean(sockSaveTime))))                  # worker.py 에서 측정한 sockSaveTime
+    f.write("\n== total redis_time = {}\n".format(str(niter * np.mean(sockSaveTime))))              # worker.py 에서 측정한 redisTime * niter
+    f.write("\n== avg redis_time = {}\n".format(str(np.mean(sockSaveTime))))                        # worker.py 에서 측정한 redisTime
+    f.write("\n== total worker_total_time = {}\n".format(str(niter * np.mean(workerTotalTime))))    # worker.py 에서 측정한 workerTotalTime * niter
+    f.write("\n== avg worker_total_time = {}\n".format(str(np.mean(workerTotalTime))))              # worker.py 에서 측정한 workerTotalTime
