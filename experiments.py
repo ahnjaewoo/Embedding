@@ -68,6 +68,7 @@ key_list = ['dataset', 'train_iter', 'ndim', 'lr',
 
 train_iter = 500
 
+print("baseline test")
 with open("baseline_result.csv", 'w') as result_file:
     result_file.write(", ".join(key_list))
     result_file.write("\n")
