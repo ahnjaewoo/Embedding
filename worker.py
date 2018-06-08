@@ -100,8 +100,8 @@ relation_id = {relations[i]: int(id_) for i, id_ in enumerate(relation_id)}
 entities_initialized = [pickle.loads(v) for v in entities_initialized]
 relations_initialized = [pickle.loads(v) for v in relations_initialized]
 
-redisConnTime = timeit.default_timer() - workerStart
-printt('[info] worker > redis server connection time : %f' % (redisConnTime))
+redisTime = timeit.default_timer() - workerStart
+printt('[info] worker > redis server connection time : %f' % (redisTime))
 
 # embedding.cpp 와 socket 통신
 # worker 가 실행될 때 전달받은 ip 와 port 로 접속
@@ -218,7 +218,9 @@ try:
 
     else:
         # relation 전송 - DataModel 생성자
+        timeNow = timeit.default_timer()
         sub_graphs = pickle.loads(r.get('sub_g_{}'.format(worker_id)))
+        redisTime += timeit.default_timer() - timeNonw
         embedding_sock.send(struct.pack('!i', len(sub_graphs)))
 
         while checksum != 1:
@@ -469,7 +471,7 @@ try:
         #fsLog.write('[info] worker > entity_vectors updated - ' + worker_id + '\n')
         #fsLog.write('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         #fsLog.close()
-        redisTime = timeit.default_timer() - timeNow
+        redisTime += timeit.default_timer() - timeNow
         tt.sleep(1)
         sys.exit(0)
 
@@ -565,7 +567,7 @@ try:
         #fsLog.write('[info] worker > relation_vectors updated - ' + worker_id + '\n')
         #fsLog.write('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         # fsLog.close()
-        redisTime = timeit.default_timer() - timeNow
+        redisTime += timeit.default_timer() - timeNow
         tt.sleep(1)
         sys.exit(0)
 
@@ -588,7 +590,6 @@ except Exception as e:
 workerTotalTime = timeit.default_timer() - workerStart
 
 resultDict = {'worker_' + str(worker_id) + '_iter_' + str(cur_iter) : dict()}
-resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== redis_conn_time = {}\n"] = redisConnTime
 resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== datamodel_sock_time = {}\n"] = datamodelTime
 resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== socket_load_time = {}\n"] = sockLoadTime
 resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== embedding_time = {}\n"] = embeddingTime
