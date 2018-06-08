@@ -135,7 +135,7 @@ while True:
     
     try:
         
-        embedding_sock.connect(('0.0.0.0', int(socket_port)))
+        embedding_sock.connect(('127.0.0.1', int(socket_port)))
         break
 
     except Exception as e:

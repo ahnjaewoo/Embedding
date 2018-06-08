@@ -570,7 +570,7 @@ while True:
 
     try:
 
-        test_sock.connect(('0.0.0.0', 7874))
+        test_sock.connect(('127.0.0.1', 7874))
         break
 
     except Exception as e:
