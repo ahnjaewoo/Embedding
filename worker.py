@@ -2,6 +2,7 @@
 import os
 from subprocess import Popen
 from time import time
+from time import sleep
 import logging
 import numpy as np
 import redis
@@ -9,7 +10,6 @@ import pickle
 import sys
 import socket
 import timeit
-import time as tt
 import struct
 
 chunk_data = sys.argv[1]
@@ -119,7 +119,7 @@ while True:
 
     except Exception as e:
         
-        tt.sleep(1)
+        sleep(1)
         trial = trial + 1
         printt('[error] worker > exception occured in worker <-> embedding')
         printt('[error] worker > ' + str(e))
@@ -140,7 +140,7 @@ while True:
 
     except Exception as e:
         
-        tt.sleep(1)
+        sleep(1)
         trial = trial + 1
         printt('[error] worker > exception occured in worker <-> embedding')
         printt('[error] worker > ' + str(e))
@@ -472,7 +472,7 @@ try:
         #fsLog.write('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         #fsLog.close()
         redisTime += timeit.default_timer() - timeNow
-        tt.sleep(1)
+        sleep(1)
         sys.exit(0)
 
     else:
@@ -568,7 +568,7 @@ try:
         #fsLog.write('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         # fsLog.close()
         redisTime += timeit.default_timer() - timeNow
-        tt.sleep(1)
+        sleep(1)
         sys.exit(0)
 
 except Exception as e:

@@ -2,7 +2,6 @@
 from distributed import Client
 from sklearn.preprocessing import normalize
 from subprocess import Popen
-from subprocess import check_output
 from argparse import ArgumentParser
 from collections import defaultdict
 import logging
@@ -10,9 +9,9 @@ import numpy as np
 import redis
 import pickle
 from time import time
+from time import sleep
 import socket
 import timeit
-import time as tt
 import struct
 import sys
 import threading
@@ -366,7 +365,7 @@ while True:
     
     except Exception as e:
     
-        tt.sleep(1)
+        sleep(1)
         printt('[error] master > exception occured in master <-> maxmin (%s)' % worker_num)
         printt('[error] master > ' + str(e))
 
@@ -379,7 +378,7 @@ while True:
     
     except Exception as e:
     
-        tt.sleep(1)
+        sleep(1)
         printt('[error] master > exception occured in master <-> maxmin')
         printt('[error] master > ' + str(e))
 
@@ -566,7 +565,7 @@ while True:
 
     except Exception as e:
 
-        tt.sleep(1)
+        sleep(1)
         printt('[error] master > exception occured in master <-> test')
         printt('[error] master > ' + str(e))
 
@@ -579,7 +578,7 @@ while True:
 
     except Exception as e:
 
-        tt.sleep(1)
+        sleep(1)
         printt('[error] master > exception occured in master <-> test')
         printt('[error] master > ' + str(e))
 
