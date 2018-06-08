@@ -129,9 +129,16 @@ def data2id(data_root):
 def install_libs():
 
     import os
-    os.system("pip install --upgrade pip")
-    os.system("pip install --upgrade redis")
-    os.system("pip install --upgrade hiredis")
+    from pkgutil import iter_modules
+
+    modules = iter_modules()
+    modules = [m[1] for m in modules]
+
+    if 'redis' not in modules:
+        os.system("pip install --upgrade redis")
+    if 'hiredis' not in modules:
+        os.system("pip install --upgrade hiredis")
+
 
 def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id):
 
