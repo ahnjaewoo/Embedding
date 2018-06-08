@@ -220,7 +220,7 @@ try:
         # relation 전송 - DataModel 생성자
         timeNow = timeit.default_timer()
         sub_graphs = pickle.loads(r.get('sub_g_{}'.format(worker_id)))
-        redisTime += timeit.default_timer() - timeNonw
+        redisTime += timeit.default_timer() - timeNow
         embedding_sock.send(struct.pack('!i', len(sub_graphs)))
 
         while checksum != 1:
