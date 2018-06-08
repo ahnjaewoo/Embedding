@@ -163,7 +163,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
                                 str(lr),
                                 str(margin),
                                 str(train_iter),
-                                args.redis_ip_address,
+                                args.redis_ip,
                                 args.root_dir,
                                 str(data_root_id),
                                 str(socket_port),
