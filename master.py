@@ -510,7 +510,6 @@ while True:
 
         printt('[info] master > Total embedding times : ' + str(workTimes))
         printt('[info] master > Average total embedding time : ' + str(np.mean(workTimes)))
-        printt('[info] master > Average idle time : ' + str(np.mean(idleTimes)))
 
     else:
 
