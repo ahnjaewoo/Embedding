@@ -577,7 +577,7 @@ public:
 						for (int j = 0; j < dim; j++){
 
 							value_to_send = embedding_relation[i](j);
-							send(fd, &value_to_send, sizeof(value_to_send), 0);;
+							send(fd, &value_to_send, sizeof(value_to_send), 0);
 						}
 					}
 				}

@@ -37,6 +37,7 @@ int main(int argc, char* argv[]){
 	int embedding_sock, worker_sock;
 	struct sockaddr_in embedding_addr;
 	struct sockaddr_in worker_addr;
+	double run_time;
 
 	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter, data_root_id, socket_port, log_dir);
 
@@ -134,12 +135,14 @@ int main(int argc, char* argv[]){
 	model->run(train_iter);
 
 	gettimeofday(&after, NULL);
-	cout << "[info] embedding > model->run end, training time : " << after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0 << "seconds" << endl;
-	fprintf(fs_log, "[info] embedding > testing time : %lf seconds\n", after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0);
+	run_time = after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0;
+	cout << "[info] embedding > model->run end, training time : " << run_time << "seconds" << endl;
+	fprintf(fs_log, "[info] embedding > testing time : %lf seconds\n", run_time);
 	
 	model->save(to_string(worker_num), fs_log);
 	// cout << "[info] embedding > model->save end" << endl;
 	// fprintf(fs_log, "[info] embedding > model->save end\n");
+	send(worker_sock, &run_time, sizeof(run_time), 0);
 
 	delete model;
 	fclose(fs_log);
