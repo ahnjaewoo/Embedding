@@ -381,7 +381,7 @@ try:
 
                 # 처리 결과를 받아옴 - GeometricModel save
                 count_entity_data = sockRecv(embedding_sock, 4)
-                embeddingTime = timeit.default_timer() - timeNow()
+                embeddingTime = timeit.default_timer() - timeNow
                 
                 if len(count_entity_data) != 4:
                     
