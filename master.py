@@ -288,7 +288,7 @@ for c, (relation_list, num) in enumerate(allocated_relation_worker):
     sub_graphs['sub_g_worker_%d' % c] = pickle.dumps(
         g, protocol=pickle.HIGHEST_PROTOCOL)
 
-r = redis.StrictRedis(host = args.redis_ip_address, port = 6379, db = 0)
+r = redis.StrictRedis(host = args.redis_ip, port = 6379, db = 0)
 r.mset(sub_graphs)
 
 del relation_each_num
