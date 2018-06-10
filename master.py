@@ -43,9 +43,9 @@ parser.add_argument('--temp_dir', type=str, default='', help='temp directory')
 parser.add_argument('--pypy_dir', type=str,
                     default="/home/rudvlf0413/pypy/bin/pypy", help='pypy directory')
 parser.add_argument('--redis_ip', type=str,
-                    default='163.152.29.73', help='redis ip address')
+                    default='127.0.0.1', help='redis ip address')
 parser.add_argument('--scheduler_ip', type=str,
-                    default='163.152.29.73:8786', help='dask scheduler ip:port')
+                    default='127.0.0.1:8786', help='dask scheduler ip:port')
 parser.add_argument('--use_scheduler_config_file', default='False',
                     help='wheter to use scheduler config file or use scheduler ip directly')
 parser.add_argument('--debugging', type=str, default='yes', help='debugging mode or not')
