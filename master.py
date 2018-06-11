@@ -704,6 +704,7 @@ while success != 1:
         printt('[error] master > unknown error in phase 2 (relation) (for test)')
         success = 0
 
+
 # printt('master > relation_vector sent to Geome tricModel load function (for test)')
 
 del entities_initialized
@@ -731,8 +732,6 @@ sockSaveTime = list()
 redisTime = list()
 workerTotalTime = list()
 
-print("worker logs")
-print(workerLogs)
 for worker_times in workerLogs:
     worker_times = pickle.loads(decompress(worker_times))
 
@@ -743,7 +742,6 @@ for worker_times in workerLogs:
     sockSaveTime.append(worker_times["socket_save"])
     redisTime.append(worker_times["redis"])
     workerTotalTime.append(worker_times["worker_total"])
-
 
 with open("logs/test_log.txt", 'a') as f:
     
