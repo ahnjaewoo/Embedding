@@ -23,7 +23,7 @@ redis_ip_address = sys.argv[5]
 root_dir = sys.argv[6]
 socket_port = sys.argv[7]
 debugging = sys.argv[8]
-
+debugging = 'yes'
 
 if debugging == 'yes':
     logging.basicConfig(filename='%s/%s_%s.log' % (root_dir, worker_id, cur_iter), filemode='w', level=logging.DEBUG)
@@ -146,7 +146,7 @@ while True:
         printt('[error] worker > return -1')
         sys.exit(-1)
 
-# printt('worker > port number of ' + worker_id + ' = ' + socket_port)
+printt('worker > port number of ' + worker_id + ' = ' + socket_port)
 # printt('worker > socket connected (worker <-> embedding)')
 
 # 파일로 로그를 저장하기 위한 부분
@@ -208,7 +208,7 @@ try:
                 # fsLog.close()
                 sys.exit(-1)
 
-        #printt('worker > phase 1 : entity sent to DataModel finished')
+        printt('worker > phase 1 : entity sent to DataModel finished')
         #fsLog.write('worker > phase 1 : entity sent to DataModel finished\n')
 
     else:
@@ -251,7 +251,7 @@ try:
                 # fsLog.close()
                 sys.exit(-1)
 
-        #printt('worker > phase 1 : relation sent to DataModel finished')
+        printt('worker > phase 1 : relation sent to DataModel finished')
         #fsLog.write('worker > phase 1 : relation sent to DataModel finished\n')
 
     datamodelTime = timeit.default_timer() - timeNow
@@ -303,7 +303,7 @@ try:
             # fsLog.close()
             sys.exit(-1)
 
-    #printt('worker > phase 2.1 : entity_vector sent to GeometricModel load function')
+    printt('worker > phase 2.1 : entity_vector sent to GeometricModel load function')
     #fsLog.write('worker > phase 2.1 : entity_vector sent to GeometricModel load function\n')
 
     checksum = 0
@@ -327,7 +327,7 @@ try:
                 embedding_sock.send(struct.pack('d', float(v)))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-        #printt('worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
+        printt('worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
         #fsLog.write('worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
 
         if checksum == 1234:
@@ -356,7 +356,7 @@ try:
     sockLoadTime = timeit.default_timer() - timeNow
     timeNow = timeit.default_timer()
 
-    #printt('worker > phase 2.2 : relation_vector sent to GeometricModel load function')
+    printt('worker > phase 2.2 : relation_vector sent to GeometricModel load function')
     #fsLog.write('worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
 
     del entities_initialized
@@ -386,7 +386,7 @@ try:
                     # fsLog.write('[error] worker > embedding_port = ' + socket_port + '\n')
                 
                 count_entity = struct.unpack('!i', count_entity_data)[0]
-                #printt('worker > count_entity = ' + str(count_entity))
+                printt('worker > count_entity = ' + str(count_entity))
                 #fsLog.write('worker > count_entity = ' + str(count_entity) + '\n')
 
                 for entity_idx in range(count_entity):
@@ -461,7 +461,7 @@ try:
         timeNow = timeit.default_timer()
         
         r.mset(entity_vectors)
-        #printt('worker > entity_vectors updated - ' + worker_id)
+        printt('worker > entity_vectors updated - ' + worker_id)
         #printt('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
         #fsLog.write('worker > entity_vectors updated - ' + worker_id + '\n')
         #fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
@@ -557,7 +557,7 @@ try:
         timeNow = timeit.default_timer()        
 
         r.mset(relation_vectors)
-        #printt('worker > relation_vectors updated - ' + worker_id)
+        printt('worker > relation_vectors updated - ' + worker_id)
         #printt('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
         #fsLog.write('worker > relation_vectors updated - ' + worker_id + '\n')
         #fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
