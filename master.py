@@ -721,7 +721,7 @@ if test_return == -1:
 totalTime = timeit.default_timer() - masterStart
 printt('master > Total elapsed time : %f' % (totalTime))
 
-workerLogKeys = ['worker_' + str(n) + '_iter_' + str(i) for i in range(niter) for n in range(num_worker)]
+workerLogKeys = ['worker_' + str(n) + '_' + str(i) for i in range(niter) for n in range(num_worker)]
 workerLogs = r.mget(workerLogKeys)
 
 redisConnTime = list()

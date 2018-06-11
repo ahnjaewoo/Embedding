@@ -599,4 +599,4 @@ output_times["\n== socket_save_time = {}\n"] = sockSaveTime
 output_times["\n== redis_time = {}\n"] = redisTime
 output_times["\n== worker_total_time = {}\n"] = workerTotalTime
 output_times = pickle.dumps(output_times, protocol=pickle.HIGHEST_PROTOCOL)
-r.set('worker_' + str(worker_id) + '_iter_' + str(cur_iter), output_times)
+r.set(worker_id + '_' + str(cur_iter), output_times)
