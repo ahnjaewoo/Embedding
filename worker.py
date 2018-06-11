@@ -598,4 +598,4 @@ resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== model_ru
 resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== socket_save_time = {}\n"] = sockSaveTime
 resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== redis_time = {}\n"] = redisTime
 resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== worker_total_time = {}\n"] = workerTotalTime
-r.set(resultDict)
+r.mset(resultDict)

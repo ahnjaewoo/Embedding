@@ -737,7 +737,6 @@ print("worker logs")
 print(workerLogs)
 for key in workerLogs:
 
-    redisConnTime.append(workerLogs[key]["\n== redis_conn_time = {}\n"])
     datamodelTime.append(workerLogs[key]["\n== datamodel_sock_time = {}\n"])
     sockLoadTime.append(workerLogs[key]["\n== socket_load_time = {}\n"])
     embeddingTime.append(workerLogs[key]["\n== embedding_time = {}\n"])
@@ -750,7 +749,8 @@ with open("logs/test_log.txt", 'a') as f:
     
     f.write("\n== preprocessing_time = {}\n".format(preprocessingTime))                             # master.py 의 preprocessTime
     f.write("\n== train_time = {}\n".format(trainTime))                                             # master.py 의 iteration while 문 안의 시간
-    f.write("\n== avg_work_time = {}\n".format(str(np.mean(workTimes))))                            # master.py 의 work 를 측정한 avg workTimes
+    f.write("\n== avg_work_time = {}\n".format(str(np.mean(workTimes))))
+    f.write("\n== avg_worker_time = {}\n".format(str(np.mean(workerTotalTime))))                          # master.py 의 work 를 측정한 avg workTimes
     f.write("\n== avg_maxmin_time = {}\n".format(str(np.mean(maxminTimes))))                        # master.py 의 iteration while 에서 측정한 maxminTimes
     f.write("\n== avg_datamodel_sock_time = {}\n".format(str(np.mean(datamodelTime))))              # worker.py 에서 측정한 datamodelTime
     f.write("\n== avg_socket_load_time = {}\n".format(str(np.mean(sockLoadTime))))                  # worker.py 에서 측정한 sockLoadTime
