@@ -582,8 +582,11 @@ except Exception as e:
     # fsLog.close()
     sys.exit(-1)
 
+printt("worker finished")
 workerTotalTime = timeit.default_timer() - workerStart
+printt(workerTotalTime)
 modelRunTime = struct.unpack('d', sockRecv(embedding_sock, 8))[0]
+printt(modelRunTime)
 
 output_times = dict()
 output_times["datamodel_sock"] = datamodelTime
