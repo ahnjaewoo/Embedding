@@ -29,17 +29,11 @@ if debugging == 'yes':
     logger = logging.getLogger()
     handler = logging.StreamHandler(stream=sys.stdout)
     logger.addHandler(handler)
-    loggerOn = True
 
     def printt(str):
 
-        global loggerOn
-
         print(str)
-
-        if loggerOn:
-
-            logger.warning(str + '\n')
+        logger.warning(str + '\n')
 
     def handle_exception(exc_type, exc_value, exc_traceback):
 
