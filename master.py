@@ -425,8 +425,8 @@ cur_iter = 0
 trial  = 0
 success = False
 
-entities = decompress(pickle.loads(r.get('entities')))
-relations = decompress(pickle.loads(r.get('relations')))
+entities = pickle.loads(decompress(r.get('entities')))
+relations = pickle.loads(decompress(r.get('relations')))
 
 trainStart = timeit.default_timer()
 
@@ -539,8 +539,8 @@ trainTime = timeit.default_timer() - trainStart
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
-entities_initialized = [decompress(pickle.loads(v)) for v in entities_initialized]
-relations_initialized = [decompress(pickle.loads(v)) for v in relations_initialized]
+entities_initialized = [pickle.loads(decompress(v)) for v in entities_initialized]
+relations_initialized = [pickle.loads(decompress(v)) for v in relations_initialized]
 
 maxmin_sock.send(struct.pack('!i', 1))
 maxmin_sock.close()
@@ -739,7 +739,7 @@ workerTotalTime = list()
 print("worker logs")
 print(workerLogs)
 for worker_times in workerLogs:
-    worker_times = decompress(pickle.loads(worker_times))
+    worker_times = pickle.loads(decompress(worker_times))
 
     datamodelTime.append(worker_times["\n== datamodel_sock = {}\n"])
     sockLoadTime.append(worker_times["\n== socket_load = {}\n"])

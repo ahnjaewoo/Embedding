@@ -90,8 +90,8 @@ temp_folder_dir = "%s/tmp" % root_dir
 workerStart = timeit.default_timer()
 # redis에서 embedding vector들 받아오기
 r = redis.StrictRedis(host=redis_ip_address, port=6379, db=0)
-entities = decompress(pickle.loads(r.get('entities')))
-relations = decompress(pickle.loads(r.get('relations')))
+entities = pickle.loads(decompress(r.get('entities')))
+relations = pickle.loads(decompress(r.get('relations')))
 entity_id = r.mget(entities)
 relation_id = r.mget(relations)
 entities_initialized = r.mget([entity + '_v' for entity in entities])
@@ -100,8 +100,8 @@ relations_initialized = r.mget([relation + '_v' for relation in relations])
 entity_id = {entities[i]: int(id_) for i, id_ in enumerate(entity_id)}
 relation_id = {relations[i]: int(id_) for i, id_ in enumerate(relation_id)}
 
-entities_initialized = [decompress(pickle.loads(v)) for v in entities_initialized]
-relations_initialized = [decompress(pickle.loads(v)) for v in relations_initialized]
+entities_initialized = [pickle.loads(decompress(v)) for v in entities_initialized]
+relations_initialized = [pickle.loads(decompress(v)) for v in relations_initialized]
 
 redisTime = timeit.default_timer() - workerStart
 # printt('worker > redis server connection time : %f' % (redisTime))
@@ -222,7 +222,7 @@ try:
     else:
         # relation 전송 - DataModel 생성자
         timeNow = timeit.default_timer()
-        sub_graphs = decompress(pickle.loads(r.get('sub_g_{}'.format(worker_id))))
+        sub_graphs = pickle.loads(decompress(r.get('sub_g_{}'.format(worker_id))))
         redisTime += timeit.default_timer() - timeNow
         embedding_sock.send(struct.pack('!i', len(sub_graphs)))
 
