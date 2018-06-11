@@ -479,6 +479,7 @@ try:
 
                 # 처리 결과를 받아옴 - GeometricModel save
                 count_relation_data = sockRecv(embedding_sock, 4)
+                embeddingTime = timeit.default_timer() - timeNow
                 count_relation = struct.unpack('!i', count_relation_data)[0]
                 #printt('worker > count_relation is ' + str(count_relation))
                 #fsLog.write('worker > count_relation is ' + str(count_relation) + '\n')
