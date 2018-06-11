@@ -175,7 +175,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
                                 args.redis_ip,
                                 args.root_dir,
                                 str(data_root_id),
-                                socket_port,
+                                str(socket_port),
                                 args.debugging])
 
     embedding_proc.wait()
