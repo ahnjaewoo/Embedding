@@ -30,7 +30,7 @@ debugging = sys.argv[12]
 
 
 if debugging == 'yes':
-    logging.basicConfig(filename='%s/%s_%d.log' % (root_dir, worker_id, cur_iter), filemode='w', level=logging.DEBUG)
+    logging.basicConfig(filename='%s/%s_%s.log' % (root_dir, worker_id, cur_iter), filemode='w', level=logging.DEBUG)
     logger = logging.getLogger()
     handler = logging.StreamHandler(stream=sys.stdout)
     logger.addHandler(handler)
