@@ -3,6 +3,8 @@ import os
 from subprocess import Popen
 from time import time
 from time import sleep
+from zlib import compress
+from zlib import decompress
 import logging
 import numpy as np
 import redis
@@ -11,6 +13,7 @@ import sys
 import socket
 import timeit
 import struct
+
 
 chunk_data = sys.argv[1]
 worker_id = sys.argv[2]
@@ -87,8 +90,8 @@ temp_folder_dir = "%s/tmp" % root_dir
 workerStart = timeit.default_timer()
 # redis에서 embedding vector들 받아오기
 r = redis.StrictRedis(host=redis_ip_address, port=6379, db=0)
-entities = pickle.loads(r.get('entities'))
-relations = pickle.loads(r.get('relations'))
+entities = decompress(pickle.loads(r.get('entities')))
+relations = decompress(pickle.loads(r.get('relations')))
 entity_id = r.mget(entities)
 relation_id = r.mget(relations)
 entities_initialized = r.mget([entity + '_v' for entity in entities])
@@ -97,8 +100,8 @@ relations_initialized = r.mget([relation + '_v' for relation in relations])
 entity_id = {entities[i]: int(id_) for i, id_ in enumerate(entity_id)}
 relation_id = {relations[i]: int(id_) for i, id_ in enumerate(relation_id)}
 
-entities_initialized = [pickle.loads(v) for v in entities_initialized]
-relations_initialized = [pickle.loads(v) for v in relations_initialized]
+entities_initialized = [decompress(pickle.loads(v)) for v in entities_initialized]
+relations_initialized = [decompress(pickle.loads(v)) for v in relations_initialized]
 
 redisTime = timeit.default_timer() - workerStart
 # printt('worker > redis server connection time : %f' % (redisTime))
@@ -219,7 +222,7 @@ try:
     else:
         # relation 전송 - DataModel 생성자
         timeNow = timeit.default_timer()
-        sub_graphs = pickle.loads(r.get('sub_g_{}'.format(worker_id)))
+        sub_graphs = decompress(pickle.loads(r.get('sub_g_{}'.format(worker_id))))
         redisTime += timeit.default_timer() - timeNow
         embedding_sock.send(struct.pack('!i', len(sub_graphs)))
 
@@ -419,8 +422,8 @@ try:
 
                     #entity_vectors[entity_id + '_v'] = pickle.dumps(                            # string 일 때
                     #    np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
-                    entity_vectors[id_entity[entity_id_temp] + '_v'] = pickle.dumps(                      # int 일 때
-                        np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
+                    entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(                      # int 일 때
+                        np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL), 9)
 
             except Exception as e:
 
@@ -515,8 +518,8 @@ try:
 
                     #relation_vectors[relation_id + '_v'] = pickle.dumps(                        # string 일 때
                     #    np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
-                    relation_vectors[id_relation[relation_id_temp] + '_v'] = pickle.dumps(                  # int 일 때
-                        np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
+                    relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(                  # int 일 때
+                        np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL), 9)
         
             except Exception as e:
 
@@ -598,5 +601,5 @@ output_times["\n== model_run = {}\n"] = modelRunTime
 output_times["\n== socket_save = {}\n"] = sockSaveTime
 output_times["\n== redis = {}\n"] = redisTime
 output_times["\n== worker_total = {}\n"] = workerTotalTime
-output_times = pickle.dumps(output_times, protocol=pickle.HIGHEST_PROTOCOL)
+output_times = compress(pickle.dumps(output_times, protocol=pickle.HIGHEST_PROTOCOL), 9)
 r.set(worker_id + '_' + str(cur_iter), output_times)

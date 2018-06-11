@@ -1,12 +1,12 @@
 # coding: utf-8
 import networkx as nx
 from random import randint
+from random import choice
 from collections import defaultdict
 from time import time
 import timeit
 import nxmetis
 import sys
-import random
 import socket
 import struct
 import logging
@@ -192,7 +192,7 @@ while True:
 
             score = len(connected_entity[vertex].difference(anchor))
 
-            if score > best_score or (score == best_score and random.choice([True, False])):
+            if score > best_score or (score == best_score and choice([True, False])):
 
                 best = vertex
                 best_score = score

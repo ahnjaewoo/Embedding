@@ -4,6 +4,8 @@ from sklearn.preprocessing import normalize
 from subprocess import Popen
 from argparse import ArgumentParser
 from collections import defaultdict
+from zlib import compress
+from zlib import decompress
 import logging
 import numpy as np
 import redis
@@ -16,6 +18,7 @@ import struct
 import sys
 import threading
 import os
+
 
 # argument parse
 parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
@@ -291,8 +294,8 @@ for c, (relation_list, num) in enumerate(allocated_relation_worker):
     for relation in relation_list:
         for (head, tail) in relation_triples[relation]:
             g.append((head, relation, tail))
-    sub_graphs['sub_g_worker_%d' % c] = pickle.dumps(
-        g, protocol=pickle.HIGHEST_PROTOCOL)
+    sub_graphs['sub_g_worker_%d' % c] = compress(pickle.dumps(
+        g, protocol=pickle.HIGHEST_PROTOCOL), 9)
 
 r = redis.StrictRedis(host = args.redis_ip, port = 6379, db = 0)
 r.mset(sub_graphs)
@@ -305,20 +308,20 @@ del sub_graphs
 r.mset(entity2id)
 r.mset(relation2id)
 
-r.set('entities', pickle.dumps(entities, protocol=pickle.HIGHEST_PROTOCOL))
-r.set('relations', pickle.dumps(relations, protocol=pickle.HIGHEST_PROTOCOL))
+r.set('entities', compress(pickle.dumps(entities, protocol=pickle.HIGHEST_PROTOCOL), 9))
+r.set('relations', compress(pickle.dumps(relations, protocol=pickle.HIGHEST_PROTOCOL), 9))
 
 entities_initialized = normalize(np.random.randn(len(entities), n_dim))
 relations_initialized = normalize(np.random.randn(len(relations), n_dim))
 
 r.mset({
-    entity + '_v': pickle.dumps(
+    entity + '_v': compress(pickle.dumps(
         entities_initialized[i],
-        protocol=pickle.HIGHEST_PROTOCOL) for i, entity in enumerate(entities)})
+        protocol=pickle.HIGHEST_PROTOCOL) for i, entity in enumerate(entities), 9)})
 r.mset({
-    relation + '_v': pickle.dumps(
+    relation + '_v': compress(pickle.dumps(
         relations_initialized[i],
-        protocol=pickle.HIGHEST_PROTOCOL) for i, relation in enumerate(relations)})
+        protocol=pickle.HIGHEST_PROTOCOL) for i, relation in enumerate(relations), 9)})
 
 if args.use_scheduler_config_file == 'True':
 
@@ -422,8 +425,8 @@ cur_iter = 0
 trial  = 0
 success = False
 
-entities = pickle.loads(r.get('entities'))
-relations = pickle.loads(r.get('relations'))
+entities = decompress(pickle.loads(r.get('entities')))
+relations = decompress(pickle.loads(r.get('relations')))
 
 trainStart = timeit.default_timer()
 
@@ -536,8 +539,8 @@ trainTime = timeit.default_timer() - trainStart
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
-entities_initialized = [pickle.loads(v) for v in entities_initialized]
-relations_initialized = [pickle.loads(v) for v in relations_initialized]
+entities_initialized = [decompress(pickle.loads(v)) for v in entities_initialized]
+relations_initialized = [decompress(pickle.loads(v)) for v in relations_initialized]
 
 maxmin_sock.send(struct.pack('!i', 1))
 maxmin_sock.close()
@@ -736,7 +739,7 @@ workerTotalTime = list()
 print("worker logs")
 print(workerLogs)
 for worker_times in workerLogs:
-    worker_times = pickle.loads(worker_times)
+    worker_times = decompress(pickle.loads(worker_times))
 
     datamodelTime.append(worker_times["\n== datamodel_sock = {}\n"])
     sockLoadTime.append(worker_times["\n== socket_load = {}\n"])
