@@ -317,11 +317,11 @@ relations_initialized = normalize(np.random.randn(len(relations), n_dim))
 r.mset({
     entity + '_v': compress(pickle.dumps(
         entities_initialized[i],
-        protocol=pickle.HIGHEST_PROTOCOL) for i, entity in enumerate(entities), 9)})
+        protocol=pickle.HIGHEST_PROTOCOL), 9) for i, entity in enumerate(entities)})
 r.mset({
     relation + '_v': compress(pickle.dumps(
         relations_initialized[i],
-        protocol=pickle.HIGHEST_PROTOCOL) for i, relation in enumerate(relations), 9)})
+        protocol=pickle.HIGHEST_PROTOCOL), 9) for i, relation in enumerate(relations)})
 
 if args.use_scheduler_config_file == 'True':
 
