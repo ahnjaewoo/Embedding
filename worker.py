@@ -125,7 +125,7 @@ while True:
 
     if trial == 5:
 
-        printt('[error] worker > iteration ' + str(cur_iter) + ' failed - ' + worker_id)
+        printt('[error] worker > iteration ' + cur_iter + ' failed - ' + worker_id)
         printt('[error] worker > return -1')
         sys.exit(-1)
 
@@ -146,7 +146,7 @@ while True:
 
     if trial == 5:
 
-        printt('[error] worker > iteration ' + str(cur_iter) + ' failed - ' + worker_id)
+        printt('[error] worker > iteration ' + cur_iter + ' failed - ' + worker_id)
         printt('[error] worker > return -1')
         sys.exit(-1)
 
@@ -598,4 +598,4 @@ output_times["socket_save"] = sockSaveTime
 output_times["redis"] = redisTime
 output_times["worker_total"] = workerTotalTime
 output_times = compress(pickle.dumps(output_times, protocol=pickle.HIGHEST_PROTOCOL), 9)
-r.set(worker_id + '_' + str(cur_iter), output_times)
+r.set(worker_id + '_' + cur_iter, output_times)
