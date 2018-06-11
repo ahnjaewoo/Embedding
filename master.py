@@ -160,13 +160,13 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
                                     str(train_iter),
                                     str(data_root_id),
                                     str(socket_port),
-                                    str(log_dir)],
+                                    log_dir],
                                     cwd=preprocess_folder_dir)
 
     worker_proc = Popen(["python",
                                 worker_code_dir,
                                 chunk_data,
-                                str(worker_id),
+                                worker_id,
                                 str(cur_iter),
                                 str(n_dim),
                                 str(lr),
@@ -175,7 +175,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
                                 args.redis_ip,
                                 args.root_dir,
                                 str(data_root_id),
-                                str(socket_port),
+                                socket_port,
                                 args.debugging])
 
     embedding_proc.wait()
