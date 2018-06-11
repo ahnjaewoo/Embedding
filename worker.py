@@ -594,12 +594,12 @@ workerTotalTime = timeit.default_timer() - workerStart
 modelRunTime = struct.unpack('d', sockRecv(embedding_sock, 8))[0]
 
 output_times = dict()
-output_times["\n== datamodel_sock = {}\n"] = datamodelTime
-output_times["\n== socket_load = {}\n"] = sockLoadTime
-output_times["\n== embedding = {}\n"] = embeddingTime
-output_times["\n== model_run = {}\n"] = modelRunTime
-output_times["\n== socket_save = {}\n"] = sockSaveTime
-output_times["\n== redis = {}\n"] = redisTime
-output_times["\n== worker_total = {}\n"] = workerTotalTime
+output_times["datamodel_sock"] = datamodelTime
+output_times["socket_load"] = sockLoadTime
+output_times["embedding"] = embeddingTime
+output_times["model_run"] = modelRunTime
+output_times["socket_save"] = sockSaveTime
+output_times["redis"] = redisTime
+output_times["worker_total"] = workerTotalTime
 output_times = compress(pickle.dumps(output_times, protocol=pickle.HIGHEST_PROTOCOL), 9)
 r.set(worker_id + '_' + str(cur_iter), output_times)

@@ -741,13 +741,13 @@ print(workerLogs)
 for worker_times in workerLogs:
     worker_times = pickle.loads(decompress(worker_times))
 
-    datamodelTime.append(worker_times["\n== datamodel_sock = {}\n"])
-    sockLoadTime.append(worker_times["\n== socket_load = {}\n"])
-    embeddingTime.append(worker_times["\n== embedding = {}\n"])
-    modelRunTime.append(worker_times["\n== model_run = {}\n"])
-    sockSaveTime.append(worker_times["\n== socket_save = {}\n"])
-    redisTime.append(worker_times["\n== redis = {}\n"])
-    workerTotalTime.append(worker_times["\n== worker_total = {}\n"])
+    datamodelTime.append(worker_times["datamodel_sock"])
+    sockLoadTime.append(worker_times["socket_load"])
+    embeddingTime.append(worker_times["embedding"])
+    modelRunTime.append(worker_times["model_run"])
+    sockSaveTime.append(worker_times["socket_save"])
+    redisTime.append(worker_times["redis"])
+    workerTotalTime.append(worker_times["worker_total"])
 
 
 with open("logs/test_log.txt", 'a') as f:
