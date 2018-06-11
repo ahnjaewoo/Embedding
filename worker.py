@@ -467,9 +467,7 @@ try:
         #fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         #fsLog.close()
         redisTime += timeit.default_timer() - timeNow
-        sleep(1)
-        sys.exit(0)
-
+        
     else:
 
         success = 0
@@ -563,9 +561,7 @@ try:
         #fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         # fsLog.close()
         redisTime += timeit.default_timer() - timeNow
-        sleep(1)
-        sys.exit(0)
-
+        
 except Exception as e:
 
     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -598,3 +594,5 @@ output_times["redis"] = redisTime
 output_times["worker_total"] = workerTotalTime
 output_times = compress(pickle.dumps(output_times, protocol=pickle.HIGHEST_PROTOCOL), 9)
 r.set(worker_id + '_' + cur_iter, output_times)
+
+sys.exit(0)
