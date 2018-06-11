@@ -38,7 +38,7 @@ if debugging == 'yes':
     logger = logging.getLogger()
     handler = logging.StreamHandler(stream=sys.stdout)
     logger.addHandler(handler)
-    loggerOn = False
+    loggerOn = True
 
     def printt(str):
 
