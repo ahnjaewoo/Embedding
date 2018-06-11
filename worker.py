@@ -19,14 +19,10 @@ chunk_data = sys.argv[1]
 worker_id = sys.argv[2]
 cur_iter = sys.argv[3]
 embedding_dim = sys.argv[4]
-learning_rate = sys.argv[5]
-margin = sys.argv[6]
-train_iter = sys.argv[7]
-redis_ip_address = sys.argv[8]
-root_dir = sys.argv[9]
-data_root_id = sys.argv[10]
-socket_port = sys.argv[11]
-debugging = sys.argv[12]
+redis_ip_address = sys.argv[5]
+root_dir = sys.argv[6]
+socket_port = sys.argv[7]
+debugging = sys.argv[8]
 
 
 if debugging == 'yes':
