@@ -238,8 +238,8 @@ public:
 	        output.close();
     	}
 
-        printf("[info] DataModel > DataModel constructor called\n");
-        //fprintf(fs_log, "[info] DataModel > DataModel constructor called\n");
+        printf("DataModel > DataModel constructor called\n");
+        //fprintf(fs_log, "DataModel > DataModel constructor called\n");
         
         if (master_epoch % 2 == 0) {
             // entity
@@ -345,8 +345,8 @@ public:
                     send(fd, &flag, sizeof(flag), 0);
                 }
             }
-            // cout << "[info] DataModel > entity preprocesing let's get it!" << endl;
-            // fprintf(fs_log, "[info] DataModel > entity preprocesing let's get it!\n");
+            // cout << "DataModel > entity preprocesing let's get it!" << endl;
+            // fprintf(fs_log, "DataModel > entity preprocesing let's get it!\n");
         }
         else {
             //relation
@@ -443,14 +443,14 @@ public:
                     send(fd, &flag, sizeof(flag), 0);
                 }
             }
-            //cout << "[info] DataModel > relation preprocessing let's get it!" << endl;
+            //cout << "DataModel > relation preprocessing let's get it!" << endl;
         }
         vector_entity_parts.assign(set_entity_parts.begin(), set_entity_parts.end());
         vector_relation_parts.assign(set_relation_parts.begin(), set_relation_parts.end());
-        cout << "[info] DataModel > # of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << endl;
-        cout << "[info] DataModel > # of test triples: " << data_test_true.size() << endl;
-        // fprintf(fs_log, "[info] DataModel > # of triples in worker_%d : %d/%d\n", worker_num, data_train_parts.size(), data_train.size());
-        // fprintf(fs_log, "[info] DataModel > # of test triples : %d\n", data_test_true.size());
+        cout << "DataModel > # of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << endl;
+        cout << "DataModel > # of test triples: " << data_test_true.size() << endl;
+        // fprintf(fs_log, "DataModel > # of triples in worker_%d : %d/%d\n", worker_num, data_train_parts.size(), data_train.size());
+        // fprintf(fs_log, "DataModel > # of test triples : %d\n", data_test_true.size());
     }
 
     DataModel(const Dataset& dataset, const string& file_zero_shot, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd, FILE * fs_log)

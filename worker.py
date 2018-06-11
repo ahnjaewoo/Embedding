@@ -101,7 +101,7 @@ entities_initialized = [pickle.loads(v) for v in entities_initialized]
 relations_initialized = [pickle.loads(v) for v in relations_initialized]
 
 redisTime = timeit.default_timer() - workerStart
-printt('[info] worker > redis server connection time : %f' % (redisTime))
+printt('worker > redis server connection time : %f' % (redisTime))
 
 # embedding.cpp 와 socket 통신
 # worker 가 실행될 때 전달받은 ip 와 port 로 접속
@@ -151,8 +151,8 @@ while True:
         printt('[error] worker > return -1')
         sys.exit(-1)
 
-# printt('[info] worker > port number of ' + worker_id + ' = ' + socket_port)
-# printt('[info] worker > socket connected (worker <-> embedding)')
+# printt('worker > port number of ' + worker_id + ' = ' + socket_port)
+# printt('worker > socket connected (worker <-> embedding)')
 
 # 파일로 로그를 저장하기 위한 부분
 # fsLog = open(os.path.join(root_dir, 'logs/worker_log_' + worker_id + '_iter_' + cur_iter + '.txt'), 'w')
@@ -192,8 +192,8 @@ try:
 
             if checksum == 1234:
 
-                #printt('[info] worker > phase 1 finished - ' + worker_id)
-                #fsLog.write('[info] worker > phase 1 finished - ' + worker_id + '\n')
+                #printt('worker > phase 1 finished - ' + worker_id)
+                #fsLog.write('worker > phase 1 finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
@@ -213,8 +213,8 @@ try:
                 # fsLog.close()
                 sys.exit(-1)
 
-        #printt('[info] worker > phase 1 : entity sent to DataModel finished')
-        #fsLog.write('[info] worker > phase 1 : entity sent to DataModel finished\n')
+        #printt('worker > phase 1 : entity sent to DataModel finished')
+        #fsLog.write('worker > phase 1 : entity sent to DataModel finished\n')
 
     else:
         # relation 전송 - DataModel 생성자
@@ -235,8 +235,8 @@ try:
 
             if checksum == 1234:
 
-                #printt('[info] worker > phase 1 finished - ' + worker_id)
-                #fsLog.write('[info] worker > phase 1 finished - ' + worker_id + '\n')
+                #printt('worker > phase 1 finished - ' + worker_id)
+                #fsLog.write('worker > phase 1 finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
@@ -256,8 +256,8 @@ try:
                 # fsLog.close()
                 sys.exit(-1)
 
-        #printt('[info] worker > phase 1 : relation sent to DataModel finished')
-        #fsLog.write('[info] worker > phase 1 : relation sent to DataModel finished\n')
+        #printt('worker > phase 1 : relation sent to DataModel finished')
+        #fsLog.write('worker > phase 1 : relation sent to DataModel finished\n')
 
     datamodelTime = timeit.default_timer() - timeNow
     checksum = 0
@@ -287,8 +287,8 @@ try:
 
         if checksum == 1234:
 
-            #printt('[info] worker > phase 2 (entity) finished - ' + worker_id)
-            #fsLog.write('[info] worker > phase 2 (entity) finished - ' + worker_id + '\n')
+            #printt('worker > phase 2 (entity) finished - ' + worker_id)
+            #fsLog.write('worker > phase 2 (entity) finished - ' + worker_id + '\n')
             checksum = 1
 
         elif checksum == 9876:
@@ -308,8 +308,8 @@ try:
             # fsLog.close()
             sys.exit(-1)
 
-    #printt('[info] worker > phase 2.1 : entity_vector sent to GeometricModel load function')
-    #fsLog.write('[info] worker > phase 2.1 : entity_vector sent to GeometricModel load function\n')
+    #printt('worker > phase 2.1 : entity_vector sent to GeometricModel load function')
+    #fsLog.write('worker > phase 2.1 : entity_vector sent to GeometricModel load function\n')
 
     checksum = 0
 
@@ -332,13 +332,13 @@ try:
                 embedding_sock.send(struct.pack('d', float(v)))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-        #printt('[info] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
-        #fsLog.write('[info] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+        #printt('worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
+        #fsLog.write('worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
 
         if checksum == 1234:
 
-            #printt('[info] worker > phase 2 (relation) finished - ' + worker_id)
-            #fsLog.write('[info] worker > phase 2 (relation) finished - ' + worker_id + '\n')
+            #printt('worker > phase 2 (relation) finished - ' + worker_id)
+            #fsLog.write('worker > phase 2 (relation) finished - ' + worker_id + '\n')
             checksum = 1
 
         elif checksum == 9876:
@@ -361,8 +361,8 @@ try:
     sockLoadTime = timeit.default_timer() - timeNow
     timeNow = timeit.default_timer()
 
-    #printt('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function')
-    #fsLog.write('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
+    #printt('worker > phase 2.2 : relation_vector sent to GeometricModel load function')
+    #fsLog.write('worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
 
     del entities_initialized
     del relations_initialized
@@ -391,8 +391,8 @@ try:
                     # fsLog.write('[error] worker > embedding_port = ' + socket_port + '\n')
                 
                 count_entity = struct.unpack('!i', count_entity_data)[0]
-                #printt('[info] worker > count_entity = ' + str(count_entity))
-                #fsLog.write('[info] worker > count_entity = ' + str(count_entity) + '\n')
+                #printt('worker > count_entity = ' + str(count_entity))
+                #fsLog.write('worker > count_entity = ' + str(count_entity) + '\n')
 
                 for entity_idx in range(count_entity):
                     
@@ -456,8 +456,8 @@ try:
 
             else:
 
-                #printt('[info] worker > phase 3 (entity) finished - ' + worker_id)
-                #fsLog.write('[info] worker > phase 3 (entity) finished - ' + worker_id + '\n')
+                #printt('worker > phase 3 (entity) finished - ' + worker_id)
+                #fsLog.write('worker > phase 3 (entity) finished - ' + worker_id + '\n')
                 flag = 1234
                 embedding_sock.send(struct.pack('!i', flag))
                 success = 1
@@ -466,10 +466,10 @@ try:
         timeNow = timeit.default_timer()
         
         r.mset(entity_vectors)
-        #printt('[info] worker > entity_vectors updated - ' + worker_id)
-        #printt('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
-        #fsLog.write('[info] worker > entity_vectors updated - ' + worker_id + '\n')
-        #fsLog.write('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
+        #printt('worker > entity_vectors updated - ' + worker_id)
+        #printt('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
+        #fsLog.write('worker > entity_vectors updated - ' + worker_id + '\n')
+        #fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         #fsLog.close()
         redisTime += timeit.default_timer() - timeNow
         sleep(1)
@@ -488,8 +488,8 @@ try:
                 # 처리 결과를 받아옴 - GeometricModel save
                 count_relation_data = sockRecv(embedding_sock, 4)
                 count_relation = struct.unpack('!i', count_relation_data)[0]
-                #printt('[info] worker > count_relation is ' + str(count_relation))
-                #fsLog.write('[info] worker > count_relation is ' + str(count_relation) + '\n')
+                #printt('worker > count_relation is ' + str(count_relation))
+                #fsLog.write('worker > count_relation is ' + str(count_relation) + '\n')
 
                 for relation_idx in range(count_relation):
                     
@@ -507,8 +507,8 @@ try:
                         
                         if len(temp_relation_double) != 8:
                             
-                            printt('[info] worker > length of temp_relation_double = ' + str(len(temp_relation_double)))
-                            #fsLog.write('[info] worker > length of temp_relation_double = ' + str(len(temp_relation_double)) + '\n')
+                            printt('worker > length of temp_relation_double = ' + str(len(temp_relation_double)))
+                            #fsLog.write('worker > length of temp_relation_double = ' + str(len(temp_relation_double)) + '\n')
 
                         temp_relation = struct.unpack('d', temp_relation_double)[0]
                         temp_relation_vector.append(temp_relation)
@@ -552,8 +552,8 @@ try:
 
             else:
 
-                #printt('[info] worker > phase 3 (relation) finished - ' + worker_id)
-                #fsLog.write('[info] worker > phase 3 (relation) finished - ' + worker_id + '\n')
+                #printt('worker > phase 3 (relation) finished - ' + worker_id)
+                #fsLog.write('worker > phase 3 (relation) finished - ' + worker_id + '\n')
                 flag = 1234
                 embedding_sock.send(struct.pack('!i', flag))
                 success = 1
@@ -562,10 +562,10 @@ try:
         timeNow = timeit.default_timer()        
 
         r.mset(relation_vectors)
-        #printt('[info] worker > relation_vectors updated - ' + worker_id)
-        #printt('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
-        #fsLog.write('[info] worker > relation_vectors updated - ' + worker_id + '\n')
-        #fsLog.write('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
+        #printt('worker > relation_vectors updated - ' + worker_id)
+        #printt('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
+        #fsLog.write('worker > relation_vectors updated - ' + worker_id + '\n')
+        #fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         # fsLog.close()
         redisTime += timeit.default_timer() - timeNow
         sleep(1)

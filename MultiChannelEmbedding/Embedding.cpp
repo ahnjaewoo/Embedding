@@ -102,8 +102,8 @@ int main(int argc, char* argv[]){
 	}
 	else{
 
-		// printf("[info] embedding > accept socket successfully - worker_%d\n", worker_num);
-		// fprintf(fs_log, "[info] embedding > accept socket successfully - worker_%d\n", worker_num);
+		// printf("embedding > accept socket successfully - worker_%d\n", worker_num);
+		// fprintf(fs_log, "embedding > accept socket successfully - worker_%d\n", worker_num);
 	}
 
 	// choosing data root by data root id
@@ -136,12 +136,12 @@ int main(int argc, char* argv[]){
 
 	gettimeofday(&after, NULL);
 	run_time = after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0;
-	cout << "[info] embedding > model->run end, training time : " << run_time << "seconds" << endl;
-	fprintf(fs_log, "[info] embedding > testing time : %lf seconds\n", run_time);
+	cout << "embedding > model->run end, training time : " << run_time << "seconds" << endl;
+	fprintf(fs_log, "embedding > testing time : %lf seconds\n", run_time);
 	
 	model->save(to_string(worker_num), fs_log);
-	// cout << "[info] embedding > model->save end" << endl;
-	// fprintf(fs_log, "[info] embedding > model->save end\n");
+	// cout << "embedding > model->save end" << endl;
+	// fprintf(fs_log, "embedding > model->save end\n");
 	send(worker_sock, &run_time, sizeof(run_time), 0);
 
 	delete model;

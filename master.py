@@ -143,7 +143,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
 
     # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
     socket_port = 50000 + 5 * int(worker_id.split('_')[1]) + (cur_iter % 5)
-    # print('[info] master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
+    # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
     log_dir = os.path.join(args.root_dir, 'logs/embedding_log_' + worker_id + '_iter_' + str(cur_iter) + '.txt')
 
     workStart = timeit.default_timer()
@@ -193,7 +193,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
         # worker_return 은 string 형태? byte 형태? 의 pickle 을 가지고 있음
         timeNow = timeit.default_timer()
         result = (worker_id, cur_iter, timeNow - workStart)
-        return (True, '[info] master > %s: iteration %d finished, time: %f' % result, timeNow - workStart)
+        return (True, 'master > %s: iteration %d finished, time: %f' % result, timeNow - workStart)
 
 if args.data_root[0] != '/':
 
@@ -231,7 +231,7 @@ masterStart = timeit.default_timer()
 # 여기서 전처리 C++ 프로그램 비동기 호출
 proc = Popen(["%spreprocess.out" % preprocess_folder_dir,
               str(data_root_id)], cwd=preprocess_folder_dir)
-# printt('[info] master > Preprocessing started')
+# printt('master > Preprocessing started')
 
 for file in data_files:
 
@@ -280,7 +280,7 @@ for i, (relation, num) in enumerate(relation_each_num):
     allocated_relation_worker[0][0].append(relation)
     allocated_relation_worker[0][1] += num
 
-# printt('[info] master > # of relations per each partitions : [%s]' %
+# printt('master > # of relations per each partitions : [%s]' %
 #       " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
 
 sub_graphs = {}
@@ -335,7 +335,7 @@ if args.install == 'True':
 # 전처리 끝날때까지 대기
 proc.communicate()
 preprocessingTime = timeit.default_timer() - masterStart
-printt('[info] master > preprocessing time : %f' % preprocessingTime)
+printt('master > preprocessing time : %f' % preprocessingTime)
 
 maxminTimes = list()
 iterTimes = list()
@@ -374,7 +374,7 @@ while True:
     try:
     
         maxmin_sock.connect(('127.0.0.1', 7847))
-        printt('[info] master > maxmin connection succeed')
+        printt('master > maxmin connection succeed')
         break
     
     except Exception as e:
@@ -383,7 +383,7 @@ while True:
         printt('[error] master > exception occured in master <-> maxmin')
         printt('[error] master > ' + str(e))
 
-# printt('[info] master > socket connected (master <-> maxmin)')
+# printt('master > socket connected (master <-> maxmin)')
 
 timeNow = timeit.default_timer()
 maxmin_sock.send(struct.pack('!i', 0))
@@ -415,8 +415,8 @@ for part_idx in range(num_worker):
 
 maxminTimes.append(timeit.default_timer() - timeNow)
 
-# printt('[info] master > maxmin finished')
-# printt('[info] master > worker training iteration epoch : {}'.format(train_iter))
+# printt('master > maxmin finished')
+# printt('master > worker training iteration epoch : {}'.format(train_iter))
 
 cur_iter = 0
 trial  = 0
@@ -447,7 +447,7 @@ while True:
         sys.exit(-1)
 
     # 작업 배정
-    printt('[info] master > iteration %d' % cur_iter)
+    printt('master > iteration %d' % cur_iter)
     iterStart = timeit.default_timer()
     
     workers = [client.submit(work,
@@ -473,7 +473,7 @@ while True:
 
         # maxmin 의 결과를 소켓으로 받음
         anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        # printt('[info] master > anchor_len = ' + str(anchor_len))
+        # printt('master > anchor_len = ' + str(anchor_len))
 
         for anchor_idx in range(anchor_len):
             
@@ -506,7 +506,7 @@ while True:
     if all([e[0] for e in result_iter]) == True:
 
         # 이터레이션 성공
-        printt('[info] master > iteration time : %f' % (timeit.default_timer() - timeNow))
+        printt('master > iteration time : %f' % (timeit.default_timer() - timeNow))
         success = True
         trial = 0
         cur_iter = cur_iter + 1
@@ -515,8 +515,8 @@ while True:
 
         # embedding.cpp 에서 model->run() 실행 시간을 worker.py 로 전송해서 그걸 소켓으로 전송
 
-        printt('[info] master > Total embedding times : ' + str(workTimes))
-        printt('[info] master > Average total embedding time : ' + str(np.mean(workTimes)))
+        printt('master > Total embedding times : ' + str(workTimes))
+        printt('master > Average total embedding time : ' + str(np.mean(workTimes)))
 
     else:
 
@@ -530,7 +530,7 @@ while True:
 trainTime = timeit.default_timer() - trainStart
 
 # test part
-# printt('[info] master > test start')
+# printt('master > test start')
 
 # load entity vector
 entities_initialized = r.mget([entity + '_v' for entity in entities])
@@ -617,7 +617,7 @@ while success != 1:
 
     if checksum == 1234:
 
-        # printt('[info] master > phase 1 finished (for test)')
+        # printt('master > phase 1 finished (for test)')
         success = 1
 
     elif checksum == 9876:
@@ -630,7 +630,7 @@ while success != 1:
         printt('[error] master > unknown error in phase 1 (for test)')
         success = 0
 
-printt('[info] master > chunk or relation sent to DataModel (for test)')
+printt('master > chunk or relation sent to DataModel (for test)')
 
 checksum = 0
 success = 0
@@ -655,7 +655,7 @@ while success != 1:
 
     if checksum == 1234:
 
-        # printt('[info] master > phase 2 (entity) finished (for test)')
+        # printt('master > phase 2 (entity) finished (for test)')
         success = 1
 
     elif checksum == 9876:
@@ -668,7 +668,7 @@ while success != 1:
         printt('[error] master > unknown error in phase 2 (entity) (for test)')
         success = 0
 
-# printt('[info] master > entity_vector sent to GeometricModel load function (for test)')
+# printt('master > entity_vector sent to GeometricModel load function (for test)')
 
 checksum = 0
 success = 0
@@ -693,7 +693,7 @@ while success != 1:
 
     if checksum == 1234:
 
-        printt('[info] master > phase 2 (relation) finished (for test)')
+        printt('master > phase 2 (relation) finished (for test)')
         success = 1
 
     elif checksum == 9876:
@@ -706,7 +706,7 @@ while success != 1:
         printt('[error] master > unknown error in phase 2 (relation) (for test)')
         success = 0
 
-# printt('[info] master > relation_vector sent to Geome tricModel load function (for test)')
+# printt('master > relation_vector sent to Geome tricModel load function (for test)')
 
 del entities_initialized
 del relations_initialized
@@ -719,7 +719,7 @@ if test_return == -1:
     sys.exit(-1)
 
 totalTime = timeit.default_timer() - masterStart
-printt('[info] master > Total elapsed time : %f' % (totalTime))
+printt('master > Total elapsed time : %f' % (totalTime))
 
 workerLogKeys = ['worker_' + str(n) + '_iter_' + str(i) for i in range(niter) for n in range(num_worker)]
 workerLogs = r.mget(workerLogKeys)
