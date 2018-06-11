@@ -3,14 +3,12 @@ import networkx as nx
 from random import randint
 from random import choice
 from collections import defaultdict
-from time import time
-import timeit
 import nxmetis
 import sys
 import socket
 import struct
 import logging
-import os
+
 
 partition_num = int(sys.argv[1])
 cur_iter = int(sys.argv[2])
@@ -78,7 +76,6 @@ def sockRecv(sock, length):
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
 # master.py 는 client
-t_ = time()
 # master 와 maxmin 은 같은 ip 상에서 작동, 포트를 임의로 7847 로 지정
 maxmin_addr = '127.0.0.1'
 maxmin_port = 7847
@@ -143,14 +140,12 @@ entities_id = {entity2id[v] for v in entities}
 for (hd, tl) in entity_graph:
 
     edge_list.append((entity2id[hd], entity2id[tl]))
-# printt('[info] maxmin > max-min cut data preprocessing finished (time : {})'.format((time()-t_)))
 
 while True:
 
     master_status = struct.unpack('!i', sockRecv(master_sock, 4))[0]
     logger.warning(str(master_status)+'\n')
-    t_ = time()
-
+    
     if master_status == 1:
         # 연결을 끊음
         # printt('[info] maxmin > received disconnect signal (master_status = 1)')
@@ -299,6 +294,3 @@ while True:
         for nas_val in nas:
 
             master_sock.send(struct.pack('!i', nas_val))
-
-    # printt('[info] maxmin > sent anchor and nas to master')          
-    # printt('[info] maxmin > max-min cut finished (time : {})'.format((time()-t_)))

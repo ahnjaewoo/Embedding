@@ -16,7 +16,6 @@ import socket
 import timeit
 import struct
 import sys
-import threading
 import os
 
 
