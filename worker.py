@@ -27,14 +27,10 @@ root_dir = sys.argv[9]
 data_root_id = sys.argv[10]
 socket_port = sys.argv[11]
 debugging = sys.argv[12]
-logging.basicConfig(filename='%s/worker_%s.log' % (root_dir, worker_id), filemode='w', level=logging.DEBUG)
-logger = logging.getLogger()
-handler = logging.StreamHandler(stream=sys.stdout)
-logger.addHandler(handler)
+
 
 if debugging == 'yes':
-    logging.basicConfig(filename='%s/master.log' %
-                        root_dir, filemode='w', level=logging.DEBUG)
+    logging.basicConfig(filename='%s/%s.log' % (root_dir, worker_id), filemode='w', level=logging.DEBUG)
     logger = logging.getLogger()
     handler = logging.StreamHandler(stream=sys.stdout)
     logger.addHandler(handler)
