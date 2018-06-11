@@ -590,12 +590,13 @@ except Exception as e:
 workerTotalTime = timeit.default_timer() - workerStart
 modelRunTime = struct.unpack('d', sockRecv(embedding_sock, 8))[0]
 
-resultDict = {'worker_' + str(worker_id) + '_iter_' + str(cur_iter) : dict()}
-resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== datamodel_sock_time = {}\n"] = datamodelTime
-resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== socket_load_time = {}\n"] = sockLoadTime
-resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== embedding_time = {}\n"] = embeddingTime
-resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== model_run_time = {}\n"] = modelRunTime
-resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== socket_save_time = {}\n"] = sockSaveTime
-resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== redis_time = {}\n"] = redisTime
-resultDict['worker_' + str(worker_id) + '_iter_' + str(cur_iter)]["\n== worker_total_time = {}\n"] = workerTotalTime
-r.mset(resultDict)
+output_times = dict()
+output_times["\n== datamodel_sock_time = {}\n"] = datamodelTime
+output_times["\n== socket_load_time = {}\n"] = sockLoadTime
+output_times["\n== embedding_time = {}\n"] = embeddingTime
+output_times["\n== model_run_time = {}\n"] = modelRunTime
+output_times["\n== socket_save_time = {}\n"] = sockSaveTime
+output_times["\n== redis_time = {}\n"] = redisTime
+output_times["\n== worker_total_time = {}\n"] = workerTotalTime
+output_times = pickle.dumps(output_times, protocol=pickle.HIGHEST_PROTOCOL)
+r.set('worker_' + str(worker_id) + '_iter_' + str(cur_iter), output_times)

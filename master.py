@@ -735,15 +735,17 @@ workerTotalTime = list()
 
 print("worker logs")
 print(workerLogs)
-for key in workerLogs:
+for worker_times in workerLogs:
+    worker_times = pickle.loads(worker_times)
 
-    datamodelTime.append(workerLogs[key]["\n== datamodel_sock_time = {}\n"])
-    sockLoadTime.append(workerLogs[key]["\n== socket_load_time = {}\n"])
-    embeddingTime.append(workerLogs[key]["\n== embedding_time = {}\n"])
-    modelRunTime.append(workerLogs[key]["\n== model_run_time = {}\n"])
-    sockSaveTime.append(workerLogs[key]["\n== socket_save_time = {}\n"])
-    redisTime.append(workerLogs[key]["\n== redis_time = {}\n"])
-    workerTotalTime.append(workerLogs[key]["\n== worker_total_time = {}\n"])
+    datamodelTime.append(worker_times["\n== datamodel_sock_time = {}\n"])
+    sockLoadTime.append(worker_times["\n== socket_load_time = {}\n"])
+    embeddingTime.append(worker_times["\n== embedding_time = {}\n"])
+    modelRunTime.append(worker_times["\n== model_run_time = {}\n"])
+    sockSaveTime.append(worker_times["\n== socket_save_time = {}\n"])
+    redisTime.append(worker_times["\n== redis_time = {}\n"])
+    workerTotalTime.append(worker_times["\n== worker_total_time = {}\n"])
+
 
 with open("logs/test_log.txt", 'a') as f:
     
