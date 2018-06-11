@@ -447,8 +447,8 @@ public:
         }
         vector_entity_parts.assign(set_entity_parts.begin(), set_entity_parts.end());
         vector_relation_parts.assign(set_relation_parts.begin(), set_relation_parts.end());
-        cout << "DataModel > # of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << endl;
-        cout << "DataModel > # of test triples: " << data_test_true.size() << endl;
+        // cout << "DataModel > # of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << endl;
+        // cout << "DataModel > # of test triples: " << data_test_true.size() << endl;
         // fprintf(fs_log, "DataModel > # of triples in worker_%d : %d/%d\n", worker_num, data_train_parts.size(), data_train.size());
         // fprintf(fs_log, "DataModel > # of test triples : %d\n", data_test_true.size());
     }

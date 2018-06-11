@@ -136,7 +136,7 @@ int main(int argc, char* argv[]){
 
 	gettimeofday(&after, NULL);
 	run_time = after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0;
-	cout << "embedding > model->run end, training time : " << run_time << "seconds" << endl;
+	// cout << "embedding > model->run end, training time : " << run_time << "seconds" << endl;
 	fprintf(fs_log, "embedding > testing time : %lf seconds\n", run_time);
 	
 	model->save(to_string(worker_num), fs_log);
