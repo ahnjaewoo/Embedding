@@ -101,7 +101,7 @@ entities_initialized = [pickle.loads(v) for v in entities_initialized]
 relations_initialized = [pickle.loads(v) for v in relations_initialized]
 
 redisTime = timeit.default_timer() - workerStart
-printt('worker > redis server connection time : %f' % (redisTime))
+# printt('worker > redis server connection time : %f' % (redisTime))
 
 # embedding.cpp 와 socket 통신
 # worker 가 실행될 때 전달받은 ip 와 port 로 접속

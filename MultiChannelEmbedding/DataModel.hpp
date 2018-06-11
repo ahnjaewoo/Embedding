@@ -238,8 +238,8 @@ public:
 	        output.close();
     	}
 
-        printf("DataModel > DataModel constructor called\n");
-        //fprintf(fs_log, "DataModel > DataModel constructor called\n");
+        // printf("DataModel > DataModel constructor called\n");
+        // fprintf(fs_log, "DataModel > DataModel constructor called\n");
         
         if (master_epoch % 2 == 0) {
             // entity
