@@ -413,10 +413,13 @@ try:
                     print(compress(pickle.dumps(
                         np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9))
                     print(1)
+                    print(id_entity[entity_id_temp] + '_v')
+                    print(entity_vectors[id_entity[entity_id_temp] + '_v'])
 
                     entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
                         np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
-
+                    print(3)
+                    
             except Exception as e:
 
                 exc_type, exc_obj, exc_tb = sys.exc_info()
