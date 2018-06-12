@@ -405,12 +405,16 @@ try:
                         temp_entity = struct.unpack('f', temp_entity_float)[0]
                         temp_entity_vector.append(temp_entity)
 
-                    #entity_vectors[entity_id + '_v'] = pickle.dumps(                            # string 일 때
+                    #entity_vectors[entity_id + '_v'] = pickle.dumps(
                     #    np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
-                    print(entity_id_temp)
-                    print(type(entity_id_temp))
-                    print(id_entity[entity_id_temp])
-                    entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(                      # int 일 때
+                    
+                    print('aa')
+                    print(np.array(temp_entity_vector, dtype=np.float32))
+                    print(compress(pickle.dumps(
+                        np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9))
+                    print(1)
+
+                    entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
                         np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
 
             except Exception as e:
