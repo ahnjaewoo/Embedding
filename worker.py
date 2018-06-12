@@ -29,7 +29,6 @@ if debugging == 'yes':
     logger = logging.getLogger()
     handler = logging.StreamHandler(stream=sys.stdout)
     logger.addHandler(handler)
-    loggerOn = True
 
     def printt(str):
 
@@ -49,7 +48,7 @@ if debugging == 'yes':
 
 elif debugging == 'no':
     
-    printt = print(str)
+    printt = print
 
 
 def sockRecv(sock, length):

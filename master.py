@@ -80,7 +80,7 @@ if args.debugging == 'yes':
 
 elif args.debugging == 'no':
     
-    printt = print(str)
+    printt = print
 
 
 def sockRecv(sock, length):
