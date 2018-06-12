@@ -407,10 +407,9 @@ try:
 
                     #entity_vectors[entity_id + '_v'] = pickle.dumps(                            # string 일 때
                     #    np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
-                    print(1)
-                    printt(np.array(temp_entity_vector, dtype=np.float64))
-                    print(2)
-                    printt(np.array(temp_entity_vector, dtype=np.float32))
+                    print(entity_id_temp)
+                    print(type(entity_id_temp))
+                    print(id_entity[entity_id_temp])
                     entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(                      # int 일 때
                         np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
 
