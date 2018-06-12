@@ -19,7 +19,7 @@ ndims = [50, 100]
 key_list = ['dataset', 'num_worker', 'master_epoch', 'worker_iter', 'ndim', 'lr',
             'Raw.BestMEANS', 'Raw.BestMRR', 'Raw.BestHITS', 'Filter.BestMEANS',
             'Filter.BestMRR', 'Filter.BestHITS', 'Accuracy', 'Best',
-            'preprocessing_time', 'train_time', 'avg_work_time', 'avg_maxmin_time',
+            'preprocessing_time', 'train_time', 'avg_work_time', 'avg_worker_time', 'avg_maxmin_time',
             'avg_datamodel_sock_time', 'avg_socket_load_time', 'avg_embedding_time',
             'avg_model_run_time', 'avg_socket_save_time', 'avg_redis_time']
 
@@ -39,13 +39,13 @@ with open("result.csv", 'w') as result_file:
                                      '--debugging', 'no'])
                     process.communicate()
 
-                    print(f"dataset: {dataset}")
+                    print(f"dataset: {dataset[1:]}")
                     print(f"num_worker: {num_worker}")
                     print(f"train_iter: {master_epoch}")
                     print(f"niter: {worker_iter}")
                     print(f"ndim: {ndim}")
                     print(f"lr: {lr}")
-                    result_file.write(f"{dataset}, ")
+                    result_file.write(f"{dataset[1:]}, ")
                     result_file.write(f"{num_worker}, ")
                     result_file.write(f"{master_epoch}, {worker_iter}, ")
                     result_file.write(f"{ndim}, ")
@@ -82,11 +82,11 @@ with open("baseline_result.csv", 'w') as result_file:
             out, _ = process.communicate()
             lines = out.decode('utf-8').split("\n")
 
-            print(f"dataset: {dataset}")
+            print(f"dataset: {dataset[1:]}")
             print(f"train_iter: {train_iter}")
             print(f"ndim: {ndim}")
             print(f"lr: {lr}")
-            result_file.write(f"{dataset}, ")
+            result_file.write(f"{dataset[1:]}, ")
             result_file.write(f"{train_iter}, ")
             result_file.write(f"{ndim}, ")
             result_file.write(f"{lr}, ")

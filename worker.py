@@ -48,9 +48,7 @@ if debugging == 'yes':
 
 elif debugging == 'no':
     
-    def printt(str):
-    
-        print(str)
+    printt = print
 
 def sockRecv(sock, length):
 
@@ -82,8 +80,8 @@ relation_id = r.mget(relations)
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
-entity_id = {entities[i]: int(id_) for i, id_ in enumerate(entity_id)}
-relation_id = {relations[i]: int(id_) for i, id_ in enumerate(relation_id)}
+entity_id = {entities[i]: id_ for i, id_ in enumerate(entity_id)}
+relation_id = {relations[i]: id_ for i, id_ in enumerate(relation_id)}
 
 entities_initialized = [pickle.loads(decompress(v)) for v in entities_initialized]
 relations_initialized = [pickle.loads(decompress(v)) for v in relations_initialized]
@@ -258,14 +256,13 @@ try:
 
         for i, vector in enumerate(entities_initialized):
 
-            entity_name = str(entities[i])
+            entity_name = entities[i]
             id_entity[entity_id[entity_name]] = entity_name
             #embedding_sock.send(struct.pack('!i', len(entity_name)))        # entity string 자체를 전송
             #embedding_sock.send(str.encode(entity_name))                    # entity string 자체를 전송
 
 
             embedding_sock.send(struct.pack('!i', entity_id[entity_name])) # entity id 를 int 로 전송
-
 
             for v in vector:
 
@@ -308,7 +305,7 @@ try:
 
         for i, relation in enumerate(relations_initialized):
 
-            relation_name = str(relations[i])
+            relation_name = relations[i]
             id_relation[relation_id[relation_name]] = relation_name
             #embedding_sock.send(struct.pack('!i', len(relation_name)))          # relation string 자체를 전송
             #embedding_sock.send(str.encode(relation_name))                      # relation string 자체를 전송
@@ -382,7 +379,7 @@ try:
                 #printt('worker > count_entity = ' + str(count_entity))
                 #fsLog.write('worker > count_entity = ' + str(count_entity) + '\n')
 
-                for entity_idx in range(count_entity):
+                for _ in range(count_entity):
                     
                     temp_entity_vector = list()
                     
@@ -478,7 +475,7 @@ try:
                 #printt('worker > count_relation is ' + str(count_relation))
                 #fsLog.write('worker > count_relation is ' + str(count_relation) + '\n')
 
-                for relation_idx in range(count_relation):
+                for _ in range(count_relation):
                     
                     temp_relation_vector = list()
                     #relation_id_len = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
