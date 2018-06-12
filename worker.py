@@ -263,9 +263,7 @@ try:
             #embedding_sock.send(struct.pack('!i', len(entity_name)))        # entity string 자체를 전송
             #embedding_sock.send(str.encode(entity_name))                    # entity string 자체를 전송
 
-
             embedding_sock.send(struct.pack('!i', entity_id[entity_name])) # entity id 를 int 로 전송
-
 
             for v in vector:
 
@@ -382,7 +380,7 @@ try:
                 #printt('worker > count_entity = ' + str(count_entity))
                 #fsLog.write('worker > count_entity = ' + str(count_entity) + '\n')
 
-                for entity_idx in range(count_entity):
+                for _ in range(count_entity):
                     
                     temp_entity_vector = list()
                     
@@ -391,7 +389,7 @@ try:
 
                     entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]     # entity_id 를 int 로 받음                    
 
-                    for dim_idx in range(int(embedding_dim)):
+                    for _ in range(int(embedding_dim)):
                         
                         temp_entity_float = sockRecv(embedding_sock, 4)
                         
@@ -406,17 +404,8 @@ try:
                     #entity_vectors[entity_id + '_v'] = pickle.dumps(
                     #    np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
                     
-                    print('aa')
-                    print(np.array(temp_entity_vector, dtype=np.float32))
-                    print(compress(pickle.dumps(
-                        np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9))
-                    print(1)
-                    print(id_entity[entity_id_temp] + '_v')
-                    print(entity_vectors[id_entity[entity_id_temp] + '_v'])
-
                     entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
                         np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
-                    print(3)
                     
             except Exception as e:
 
@@ -486,7 +475,7 @@ try:
                 #printt('worker > count_relation is ' + str(count_relation))
                 #fsLog.write('worker > count_relation is ' + str(count_relation) + '\n')
 
-                for relation_idx in range(count_relation):
+                for _ in range(count_relation):
                     
                     temp_relation_vector = list()
                     #relation_id_len = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
@@ -494,7 +483,7 @@ try:
 
                     relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]   # relation_id 를 int 로 받음
 
-                    for dim_idx in range(int(embedding_dim)):
+                    for _ in range(int(embedding_dim)):
                         
                         temp_relation_float = sockRecv(embedding_sock, 4)
                         

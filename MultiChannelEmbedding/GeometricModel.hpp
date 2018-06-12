@@ -440,7 +440,7 @@ public:
 
 	virtual void save(const string& filename, FILE * fs_log) override{
 
-		int string_len;
+		// int string_len;
 		int count = 0;
 		float value_to_send;
 
@@ -486,7 +486,6 @@ public:
 						send(fd, &i, sizeof(int), 0);
 						i = ntohl(i);
 						
-
 						for (int j = 0; j < dim; j++){
 
 							value_to_send = embedding_entity[i](j);
@@ -573,7 +572,6 @@ public:
 						send(fd, &i, sizeof(int), 0);
 						i = ntohl(i);
 						
-
 						for (int j = 0; j < dim; j++){
 
 							value_to_send = embedding_relation[i](j);
@@ -628,7 +626,7 @@ public:
 	{
 
 		// filename 파라미터가 전혀 사용되지 않음을 참고
-		string key;
+		// string key;
 		int key_length;
 		float temp_vector;
 		vector<char> temp_buff(256);
@@ -693,7 +691,6 @@ public:
 	                }
 
 					entity_id = ntohl(entity_id);
-					
 					
 					for (int j = 0; j < dim; j++)
 					{
@@ -798,7 +795,6 @@ public:
 
 					relation_id = ntohl(relation_id);
 					
-
 					for (int j = 0; j < dim; j++){
 
 		                if (recv(fd, &temp_vector, sizeof(temp_vector), MSG_WAITALL) < 0){

@@ -56,8 +56,7 @@ args = parser.parse_args()
 
 if args.debugging == 'yes':
 
-    logging.basicConfig(filename='%s/master.log' %
-                        args.root_dir, filemode='w', level=logging.DEBUG)
+    logging.basicConfig(filename='%s/master.log' % args.root_dir, filemode='w', level=logging.DEBUG)
     logger = logging.getLogger()
     handler = logging.StreamHandler(stream=sys.stdout)
     logger.addHandler(handler)
@@ -125,8 +124,7 @@ def install_libs():
     import os
     from pkgutil import iter_modules
 
-    modules = iter_modules()
-    modules = [m[1] for m in modules]
+    modules = set([m[1] for m in iter_modules()])
 
     if 'redis' not in modules:
         os.system("pip install --upgrade redis")
@@ -356,7 +354,7 @@ while True:
     except Exception as e:
     
         sleep(1)
-        printt('[error] master > exception occured in master <-> maxmin (%s)' % worker_num)
+        printt('[error] master > exception occured in master <-> maxmin')
         printt('[error] master > ' + str(e))
 
 while True:
@@ -385,18 +383,18 @@ maxmin_sock.send(struct.pack('!i', 0))
 # maxmin 의 결과를 소켓으로 받음
 anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
 
-for anchor_idx in range(anchor_len):
+for _ in range(anchor_len):
 
     anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
 
 anchors = anchors[:-1]
 
-for part_idx in range(num_worker):
+for _ in range(num_worker):
 
     chunk = ""
     chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
 
-    for nas_idx in range(chunk_len):
+    for _ in range(chunk_len):
 
         chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
     
@@ -465,18 +463,18 @@ while True:
         anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
         # printt('master > anchor_len = ' + str(anchor_len))
 
-        for anchor_idx in range(anchor_len):
+        for _ in range(anchor_len):
             
             anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
         
         anchors = anchors[:-1]
 
-        for part_idx in range(num_worker):
+        for _ in range(num_worker):
 
             chunk = ''
             chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
 
-            for nas_idx in range(chunk_len):
+            for _ in range(chunk_len):
             
                 chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
             
@@ -506,7 +504,7 @@ while True:
         # embedding.cpp 에서 model->run() 실행 시간을 worker.py 로 전송해서 그걸 소켓으로 전송
 
         printt('master > Total embedding times : ' + str(workTimes))
-        printt('master > Average total embedding time : ' + str(np.mean(workTimes)))
+        # printt('master > Average total embedding time : ' + str(np.mean(workTimes)))
 
     else:
 
@@ -585,7 +583,7 @@ success = 0
 chunk_anchor = list()
 chunk_entity = list()
 
-if len(chunk_anchor) is 1 and chunk_anchor[0] is '':
+if len(chunk_anchor) == 1 and chunk_anchor[0] == '':
     
     chunk_anchor = []
 
