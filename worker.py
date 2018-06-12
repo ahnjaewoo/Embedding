@@ -48,7 +48,7 @@ if debugging == 'yes':
 
 elif debugging == 'no':
     
-    printt = print(str)
+    printt = print
 
 
 def sockRecv(sock, length):
