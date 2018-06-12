@@ -269,7 +269,7 @@ try:
 
             for v in vector:
 
-                embedding_sock.send(struct.pack('f', float(v)))
+                embedding_sock.send(struct.pack('!f', float(v)))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -317,7 +317,7 @@ try:
 
             for v in relation:
 
-                embedding_sock.send(struct.pack('f', float(v)))
+                embedding_sock.send(struct.pack('!f', float(v)))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
         #printt('worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
@@ -402,7 +402,7 @@ try:
                             printt('[error] worker > length of temp_entity_float = ' + str(len(temp_entity_float)))
                             # fsLog.write('[error] worker > length of temp_entity_double = ' + str(len(temp_entity_double)) + '\n')
                         
-                        temp_entity = struct.unpack('f', temp_entity_float)[0]
+                        temp_entity = struct.unpack('!f', temp_entity_float)[0]
                         temp_entity_vector.append(temp_entity)
 
                     #entity_vectors[entity_id + '_v'] = pickle.dumps(                            # string 일 때
@@ -497,7 +497,7 @@ try:
                             printt('worker > length of temp_relation_float = ' + str(len(temp_relation_float)))
                             #fsLog.write('worker > length of temp_relation_double = ' + str(len(temp_relation_double)) + '\n')
 
-                        temp_relation = struct.unpack('f', temp_relation_float)[0]
+                        temp_relation = struct.unpack('!f', temp_relation_float)[0]
                         temp_relation_vector.append(temp_relation)
 
                     #relation_vectors[relation_id + '_v'] = pickle.dumps(                        # string 일 때
