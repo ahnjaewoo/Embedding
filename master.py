@@ -86,8 +86,9 @@ if args.debugging == 'yes':
 
 elif args.debugging == 'no':
     
-    printt = print
-
+    def printt(str):
+    
+        print(str)
 
 def sockRecv(sock, length):
 
@@ -132,7 +133,7 @@ def install_libs():
     from pkgutil import iter_modules
 
     modules = iter_modules()
-    modules = set([m[1] for m in modules])
+    modules = [m[1] for m in modules]
 
     if 'redis' not in modules:
         os.system("pip install --upgrade redis")
@@ -145,7 +146,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
     socket_port = 50000 + 5 * int(worker_id.split('_')[1]) + (cur_iter % 5)
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
-    log_dir = os.path.join(args.root_dir, 'logs/embedding_log_{}_iter_{}.txt'.format(worker_id, cur_iter))
+    log_dir = os.path.join(args.root_dir, 'logs/embedding_log_' + worker_id + '_iter_' + str(cur_iter) + '.txt')
 
     workStart = timeit.default_timer()
 
@@ -190,8 +191,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
         # worker_return 은 string 형태? byte 형태? 의 pickle 을 가지고 있음
         timeNow = timeit.default_timer()
         result = (worker_id, cur_iter, timeNow - workStart)
-        return (True, timeNow - workStart)
-
+        return (True, 'master > %s: iteration %d finished, time: %f' % result, timeNow - workStart)
 
 if args.data_root[0] != '/':
 
@@ -364,7 +364,7 @@ while True:
     except Exception as e:
     
         sleep(1)
-        printt('[error] master > exception occured in master <-> maxmin')
+        printt('[error] master > exception occured in master <-> maxmin (%s)' % worker_num)
         printt('[error] master > ' + str(e))
 
 while True:
@@ -393,18 +393,18 @@ maxmin_sock.send(struct.pack('!i', 0))
 # maxmin 의 결과를 소켓으로 받음
 anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
 
-for _ in range(anchor_len):
+for anchor_idx in range(anchor_len):
 
     anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
 
 anchors = anchors[:-1]
 
-for _ in range(num_worker):
+for part_idx in range(num_worker):
 
     chunk = ""
     chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
 
-    for _ in range(chunk_len):
+    for nas_idx in range(chunk_len):
 
         chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
     
@@ -473,18 +473,18 @@ while True:
         anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
         # printt('master > anchor_len = ' + str(anchor_len))
 
-        for _ in range(anchor_len):
+        for anchor_idx in range(anchor_len):
             
             anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
         
         anchors = anchors[:-1]
 
-        for _ in range(num_worker):
+        for part_idx in range(num_worker):
 
             chunk = ''
             chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
 
-            for _ in range(chunk_len):
+            for nas_idx in range(chunk_len):
             
                 chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
             
@@ -509,11 +509,11 @@ while True:
         trial = 0
         cur_iter = cur_iter + 1
 
-        workTimes = [e[1] for e in result_iter]
+        workTimes = [e[2] for e in result_iter]
 
         # embedding.cpp 에서 model->run() 실행 시간을 worker.py 로 전송해서 그걸 소켓으로 전송
 
-        # printt('master > Total embedding times : ' + str(workTimes))
+        printt('master > Total embedding times : ' + str(workTimes))
         printt('master > Average total embedding time : ' + str(np.mean(workTimes)))
 
     else:
@@ -539,7 +539,6 @@ relations_initialized = [pickle.loads(decompress(v)) for v in relations_initiali
 
 maxmin_sock.send(struct.pack('!i', 1))
 maxmin_sock.close()
-
 
 ###############################################################################
 ###############################################################################
@@ -688,7 +687,7 @@ while success != 1:
 
     if checksum == 1234:
 
-        # printt('master > phase 2 (relation) finished (for test)')
+        printt('master > phase 2 (relation) finished (for test)')
         success = 1
 
     elif checksum == 9876:

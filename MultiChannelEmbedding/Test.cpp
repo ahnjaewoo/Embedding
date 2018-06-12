@@ -121,11 +121,11 @@ int main(int argc, char* argv[]){
 		fprintf(fs_log, "[error] test.cpp > return -1\n");
 		return -1;
 	}
-	// else{
+	else{
 
-	// 	printf("[info] test.cpp > accept socket successfully\n");
-	// 	fprintf(fs_log, "[info] test.cpp > accept socket successfully\n");
-	// }
+		printf("[info] test.cpp > accept socket successfully\n");
+		fprintf(fs_log, "[info] test.cpp > accept socket successfully\n");
+	}
 
 	// choosing data root by data root id
 	if (data_root_id == 0){

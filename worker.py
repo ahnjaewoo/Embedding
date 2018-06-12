@@ -54,7 +54,9 @@ if debugging == 'yes':
 
 elif debugging == 'no':
     
-    printt = print
+    def printt(str):
+    
+        print(str)
 
 
 def sockRecv(sock, length):
@@ -388,7 +390,7 @@ try:
                 #printt('worker > count_entity = ' + str(count_entity))
                 #fsLog.write('worker > count_entity = ' + str(count_entity) + '\n')
 
-                for _ in range(count_entity):
+                for entity_idx in range(count_entity):
                     
                     temp_entity_vector = list()
                     
@@ -492,7 +494,7 @@ try:
                 #printt('worker > count_relation is ' + str(count_relation))
                 #fsLog.write('worker > count_relation is ' + str(count_relation) + '\n')
 
-                for _ in range(count_relation):
+                for relation_idx in range(count_relation):
                     
                     temp_relation_vector = list()
                     #relation_id_len = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
