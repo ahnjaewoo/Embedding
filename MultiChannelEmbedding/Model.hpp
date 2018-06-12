@@ -274,11 +274,11 @@ public:
 			real_hit / (data_model.data_test_true.size() + data_model.data_test_false.size()));
 		std::cout << ", Best = " << best_triplet_result << endl;
 		fprintf(fs_log, "== Accuracy = %lf\n", real_hit / (data_model.data_test_true.size() + data_model.data_test_false.size()));
-		fprintf(fs_log, "== Best = %lf\n", best_triplet_result);
+		//fprintf(fs_log, "== Best = %lf\n", best_triplet_result);
 
-		logging.record() << epos << "\t Accuracy = "
-			<< real_hit / (data_model.data_test_true.size() + data_model.data_test_false.size())
-			<< ", Best = " << best_triplet_result;
+		// logging.record() << epos << "\t Accuracy = "
+		// 	<< real_hit / (data_model.data_test_true.size() + data_model.data_test_false.size())
+		// 	<< ", Best = " << best_triplet_result;
 
 		std::cout.flush();
 	}
@@ -374,13 +374,13 @@ public:
 			}
 		}
 
-		std::cout << endl;
-		for (auto i = 1; i <= 4; ++i)
-		{
-			std::cout << i << ':' << arr_mean[i] / arr_total[i] << endl;
-			logging.record() << i << ':' << arr_mean[i] / arr_total[i];
-		}
-		logging.record();
+		//std::cout << endl;
+		// for (auto i = 1; i <= 4; ++i)
+		// {
+		// 	std::cout << i << ':' << arr_mean[i] / arr_total[i] << endl;
+		// 	logging.record() << i << ':' << arr_mean[i] / arr_total[i];
+		// }
+		// logging.record();
 
 		best_link_mean = min(best_link_mean, mean / total);
 		best_link_hitatten = max(best_link_hitatten, hits / total);
@@ -390,14 +390,14 @@ public:
 		std::cout << "Raw.BestMEANS = " << best_link_mean << endl;
 		std::cout << "Raw.BestMRR = " << rmrr / total << endl;
 		std::cout << "Raw.BestHITS = " << best_link_hitatten << endl;
-		logging.record() << "Raw.BestMEANS = " << best_link_mean;
+		// logging.record() << "Raw.BestMEANS = " << best_link_mean;
 		// logging.record() << "Raw.BestMRR = " << rmrr / total;
 		// logging.record() << "Raw.BestHITS = " << best_link_hitatten;
 
 		std::cout << "Filter.BestMEANS = " << best_link_fmean << endl;
 		std::cout << "Filter.BestMRR= " << fmrr / total << endl;
 		std::cout << "Filter.BestHITS = " << best_link_fhitatten << endl;
-		logging.record() << "Filter.BestMEANS = " << best_link_fmean;
+		// logging.record() << "Filter.BestMEANS = " << best_link_fmean;
 		// logging.record() << "Filter.BestMRR= " << fmrr / total;
 		// logging.record() << "Filter.BestHITS = " << best_link_fhitatten;
 

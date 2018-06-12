@@ -201,7 +201,7 @@ public:
 		best_triplet_result = max(
 			best_triplet_result,
 			real_hit / (data_model.data_test_true.size() + data_model.data_test_false.size()));
-		std::cout << "== Best = " << best_triplet_result << endl;
+		// std::cout << "== Best = " << best_triplet_result << endl;
 
 		logging.record() << "Accuracy = "
 			<< real_hit / (data_model.data_test_true.size() + data_model.data_test_false.size())
