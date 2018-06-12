@@ -61,17 +61,11 @@ if args.debugging == 'yes':
     logger = logging.getLogger()
     handler = logging.StreamHandler(stream=sys.stdout)
     logger.addHandler(handler)
-    loggerOn = True
-
+    
     def printt(str):
 
-        global loggerOn
-
         print(str)
-
-        if loggerOn:
-
-            logger.warning(str + '\n')
+        logger.warning(str + '\n')
 
     def handle_exception(exc_type, exc_value, exc_traceback):
 
@@ -86,9 +80,8 @@ if args.debugging == 'yes':
 
 elif args.debugging == 'no':
     
-    def printt(str):
-    
-        print(str)
+    printt = print(str)
+
 
 def sockRecv(sock, length):
 
@@ -146,7 +139,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
     socket_port = 50000 + 5 * int(worker_id.split('_')[1]) + (cur_iter % 5)
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
-    log_dir = os.path.join(args.root_dir, 'logs/embedding_log_' + worker_id + '_iter_' + str(cur_iter) + '.txt')
+    log_dir = os.path.join(args.root_dir, 'logs/embedding_log_{}_iter_{}.txt'.format(worker_id, cur_iter))
 
     workStart = timeit.default_timer()
 
@@ -190,8 +183,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
         # 모두 성공적으로 수행
         # worker_return 은 string 형태? byte 형태? 의 pickle 을 가지고 있음
         timeNow = timeit.default_timer()
-        result = (worker_id, cur_iter, timeNow - workStart)
-        return (True, 'master > %s: iteration %d finished, time: %f' % result, timeNow - workStart)
+        return (True, timeNow - workStart)
 
 if args.data_root[0] != '/':
 
@@ -509,7 +501,7 @@ while True:
         trial = 0
         cur_iter = cur_iter + 1
 
-        workTimes = [e[2] for e in result_iter]
+        workTimes = [e[1] for e in result_iter]
 
         # embedding.cpp 에서 model->run() 실행 시간을 worker.py 로 전송해서 그걸 소켓으로 전송
 

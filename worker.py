@@ -33,13 +33,8 @@ if debugging == 'yes':
 
     def printt(str):
 
-        global loggerOn
-
         print(str)
-
-        if loggerOn:
-
-            logger.warning(str + '\n')
+        logger.warning(str + '\n')
 
     def handle_exception(exc_type, exc_value, exc_traceback):
 
@@ -54,9 +49,7 @@ if debugging == 'yes':
 
 elif debugging == 'no':
     
-    def printt(str):
-    
-        print(str)
+    printt = print(str)
 
 
 def sockRecv(sock, length):

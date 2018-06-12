@@ -442,7 +442,7 @@ public:
 
 		int string_len;
 		int count = 0;
-		double value_to_send;
+		float value_to_send;
 
 		// master_epoch이 짝수일 때, entity embedding
 		if (master_epoch % 2 == 0){
