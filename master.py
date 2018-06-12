@@ -362,7 +362,7 @@ while True:
     try:
     
         maxmin_sock.connect(('127.0.0.1', 7847))
-        printt('master > maxmin connection succeed')
+        # printt('master > maxmin connection succeed')
         break
     
     except Exception as e:
@@ -618,7 +618,7 @@ while success != 1:
         printt('[error] master > unknown error in phase 1 (for test)')
         success = 0
 
-printt('master > chunk or relation sent to DataModel (for test)')
+#printt('master > chunk or relation sent to DataModel (for test)')
 
 checksum = 0
 success = 0
@@ -677,7 +677,7 @@ while success != 1:
 
     if checksum == 1234:
 
-        printt('master > phase 2 (relation) finished (for test)')
+        # printt('master > phase 2 (relation) finished (for test)')
         success = 1
 
     elif checksum == 9876:

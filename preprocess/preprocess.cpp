@@ -36,6 +36,6 @@ int main(int argc, char* argv[])
 		DataModel* data_model =  new DataModel(FB15K, false);
 	}
 
-	cout << "Data Model preprocessing completed!" << endl;
+	// cout << "Data Model preprocessing completed!" << endl;
     return 0;
 }
