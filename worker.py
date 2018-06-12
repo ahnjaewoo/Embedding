@@ -269,7 +269,7 @@ try:
 
             for v in vector:
 
-                embedding_sock.send(struct.pack('d', float(v)))
+                embedding_sock.send(struct.pack('f', float(v)))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -317,7 +317,7 @@ try:
 
             for v in relation:
 
-                embedding_sock.send(struct.pack('d', float(v)))
+                embedding_sock.send(struct.pack('f', float(v)))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
         #printt('worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
@@ -402,13 +402,13 @@ try:
                             printt('[error] worker > length of temp_entity_double = ' + str(len(temp_entity_double)))
                             # fsLog.write('[error] worker > length of temp_entity_double = ' + str(len(temp_entity_double)) + '\n')
                         
-                        temp_entity = struct.unpack('d', temp_entity_double)[0]
+                        temp_entity = struct.unpack('f', temp_entity_double)[0]
                         temp_entity_vector.append(temp_entity)
 
                     #entity_vectors[entity_id + '_v'] = pickle.dumps(                            # string 일 때
                     #    np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
                     entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(                      # int 일 때
-                        np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL), 9)
+                        np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
 
             except Exception as e:
 
@@ -497,13 +497,13 @@ try:
                             printt('worker > length of temp_relation_double = ' + str(len(temp_relation_double)))
                             #fsLog.write('worker > length of temp_relation_double = ' + str(len(temp_relation_double)) + '\n')
 
-                        temp_relation = struct.unpack('d', temp_relation_double)[0]
+                        temp_relation = struct.unpack('f', temp_relation_double)[0]
                         temp_relation_vector.append(temp_relation)
 
                     #relation_vectors[relation_id + '_v'] = pickle.dumps(                        # string 일 때
                     #    np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
                     relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(                  # int 일 때
-                        np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL), 9)
+                        np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
         
             except Exception as e:
 

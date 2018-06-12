@@ -630,7 +630,7 @@ public:
 		// filename 파라미터가 전혀 사용되지 않음을 참고
 		string key;
 		int key_length;
-		double temp_vector;
+		float temp_vector;
 		vector<char> temp_buff(256);
   		int success = 0;
 		int flag = 0;
