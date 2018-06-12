@@ -382,16 +382,14 @@ try:
                 #printt('worker > count_entity = ' + str(count_entity))
                 #fsLog.write('worker > count_entity = ' + str(count_entity) + '\n')
 
-                for entity_idx in range(count_entity):
+                for _ in range(count_entity):
                     
                     temp_entity_vector = list()
                     
                     #entity_id_len = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
                     #entity_id = embedding_sock.recv(entity_id_len).decode()
 
-
-                    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]     # entity_id 를 int 로 받음
-                    
+                    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]     # entity_id 를 int 로 받음                    
 
                     for dim_idx in range(int(embedding_dim)):
                         
@@ -488,15 +486,13 @@ try:
                 #printt('worker > count_relation is ' + str(count_relation))
                 #fsLog.write('worker > count_relation is ' + str(count_relation) + '\n')
 
-                for relation_idx in range(count_relation):
+                for _ in range(count_relation):
                     
                     temp_relation_vector = list()
                     #relation_id_len = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
                     #relation_id = embedding_sock.recv(relation_id_len).decode()
 
-
                     relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]   # relation_id 를 int 로 받음
-
 
                     for dim_idx in range(int(embedding_dim)):
                         

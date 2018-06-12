@@ -632,15 +632,15 @@ success = 0
 while success != 1:
 
     for i, vector in enumerate(entities_initialized):
-        #entity_name = str(entities[i])
+        entity_name = str(entities[i])
         #test_sock.send(struct.pack('!i', len(entity_name)))         # entity string 자체를 전송
         #test_sock.send(str.encode(entity_name))                     # entity string 자체를 전송
 
-        test_sock.send(struct.pack('!i', entity2id[entities[i]]))  # entity id 를 int 로 전송
+        test_sock.send(struct.pack('!i', entity2id[entity_name]))  # entity id 를 int 로 전송
 
         for v in vector:
 
-            test_sock.send(struct.pack('d', float(v)))
+            test_sock.send(struct.pack('f', float(v)))
 
     checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
@@ -668,15 +668,15 @@ success = 0
 while success != 1:
 
     for i, relation in enumerate(relations_initialized):
-        #relation_name = str(relations[i])
+        relation_name = str(relations[i])
         #test_sock.send(struct.pack('!i', len(relation_name)))           # relation string 자체를 전송
         #test_sock.send(str.encode(relation_name))                       # relation string 자체를 전송
 
-        test_sock.send(struct.pack('!i', relation2id[relations[i]]))  # relation id 를 int 로 전송
+        test_sock.send(struct.pack('!i', relation2id[relation_name]))  # relation id 를 int 로 전송
 
         for v in relation:
 
-            test_sock.send(struct.pack('d', float(v)))
+            test_sock.send(struct.pack('f', float(v)))
 
     checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
