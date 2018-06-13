@@ -407,12 +407,13 @@ maxmin_sock.send(struct.pack('!i', 0))
 
 # 원소를 한 번에 받음
 anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-anchors = list(struct.unpack('!i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len)))
+printt('anchor_len : ' + str(anchor_len) + str(type(anchor_len)))
+anchors = list(struct.unpack('!i' * int(anchor_len), sockRecv(maxmin_sock, 4 * int(anchor_len))))
 anchors = ' '.join([str(e) for e in anchors])
 
 for _ in range(num_worker):
 
-    chunk_len = chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+    chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
     chunk = list(struct.unpack('!i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
     chunk = ' '.join([str(e) for e in chunk])
     chunks.append(chunk)
