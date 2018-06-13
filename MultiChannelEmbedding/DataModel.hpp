@@ -306,7 +306,6 @@ public:
 
                     for (int idx = 0; idx < ntohl(anchor_num); idx++){
 
-                        printf("%d\n", ntohl(anchor_buff[idx]));
                         temp_value = ntohl(anchor_buff[idx]);
                         set_entity_parts.insert(temp_value);
                         check_anchor[temp_value] = true;
@@ -353,7 +352,7 @@ public:
 
                     // 원소 한 번에 받음
                     int * entity_buff = (int *)calloc(ntohl(entity_num) + 1, sizeof(int));
-                    if (recv(fd, anchor_buff, ntohl(entity_num) * sizeof(int), MSG_WAITALL) < 0){
+                    if (recv(fd, entity_buff, ntohl(entity_num) * sizeof(int), MSG_WAITALL) < 0){
 
                         printf("[error] DataModel > recv entity_buff\n");
                         printf("[error] DataModel > return -1\n");
@@ -367,7 +366,6 @@ public:
 
                     for (int idx = 0; idx < ntohl(entity_num); idx++){
 
-                        printf("%d\n", ntohl(entity_buff[idx]));
                         temp_value = ntohl(entity_buff[idx]);
                         set_entity_parts.insert(temp_value);
                         check_parts[temp_value] = true;
@@ -386,8 +384,6 @@ public:
                             data_train_parts.push_back(*i);
                         }
                     }   
-
-                    printf("flag send\n");
 
                     flag = 1234;
                     flag = htonl(flag);
