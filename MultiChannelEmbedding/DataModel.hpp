@@ -387,6 +387,8 @@ public:
                         }
                     }   
 
+                    printf("flag send\n");
+
                     flag = 1234;
                     flag = htonl(flag);
                     send(fd, &flag, sizeof(flag), 0);
