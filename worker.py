@@ -516,7 +516,7 @@ try:
                     relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
                     temp_relation_vector = list(struct.unpack('f' * int(embedding_dim), sockRecv(embedding_sock, 4 * int(embedding_dim))))
                     
-                    entity_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
+                    relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
                         np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
         
             except Exception as e:
