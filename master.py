@@ -406,6 +406,8 @@ maxmin_sock.send(struct.pack('!i', 0))
 #    chunks.append(chunk)
 
 # 원소를 한 번에 받음
+chunks = list()
+
 anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
 anchors = list(struct.unpack('!' + 'i' * int(anchor_len), sockRecv(maxmin_sock, 4 * int(anchor_len))))
 anchors = ' '.join([str(e) for e in anchors])
@@ -499,6 +501,8 @@ while True:
         #    chunks.append(chunk)
 
         # 원소를 한 번에 받음
+        chunks = list()
+        
         anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
         anchors = list(struct.unpack('!' + 'i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len)))
         anchors = ' '.join([str(e) for e in anchors])
@@ -765,7 +769,7 @@ redisTime = list()
 workerTotalTime = list()
 
 for worker_times in workerLogs:
-    
+
     worker_times = pickle.loads(decompress(worker_times))
     datamodelTime.append(worker_times["datamodel_sock"])
     sockLoadTime.append(worker_times["socket_load"])
