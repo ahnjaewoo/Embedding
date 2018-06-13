@@ -306,6 +306,7 @@ public:
 
                     for (int idx = 0; idx < ntohl(anchor_num); idx++){
 
+                        printf("%d\n", ntohl(anchor_buff[idx]));
                         temp_value = ntohl(anchor_buff[idx]);
                         set_entity_parts.insert(temp_value);
                         check_anchor[temp_value] = true;
@@ -366,6 +367,7 @@ public:
 
                     for (int idx = 0; idx < ntohl(entity_num); idx++){
 
+                        printf("%d\n", ntohl(entity_buff[idx]));
                         temp_value = ntohl(entity_buff[idx]);
                         set_entity_parts.insert(temp_value);
                         check_parts[temp_value] = true;
