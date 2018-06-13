@@ -620,15 +620,17 @@ while success != 1:
 
     test_sock.send(struct.pack('!i', len(chunk_anchor)))
 
-    for iter_anchor in chunk_anchor:
-        
-        test_sock.send(struct.pack('!i', int(iter_anchor)))
+    # 에러 없으면 제거
+    #for iter_anchor in chunk_anchor:
+    #    
+    #    test_sock.send(struct.pack('!i', int(iter_anchor)))
 
     test_sock.send(struct.pack('!i', len(chunk_entity)))
 
-    for iter_entity in chunk_entity:
-        
-        test_sock.send(struct.pack('!i', int(iter_entity)))
+    # 에러 없으면 제거
+    #for iter_entity in chunk_entity:
+    #    
+    #    test_sock.send(struct.pack('!i', int(iter_entity)))
 
     checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
@@ -655,16 +657,23 @@ success = 0
 # entity_vector 전송 - GeometricModel load
 while success != 1:
 
+    # 원소를 하나씩 전송
+    #for i, vector in enumerate(entities_initialized):
+    #    
+    #    entity_name = str(entities[i])
+    #    test_sock.send(struct.pack('!i', entity2id[entity_name]))  # entity id 를 int 로 전송
+    #
+    #    for v in vector:
+    #
+    #        test_sock.send(struct.pack('f', float(v)))
+
+    # 원소를 한 번에 전송
     for i, vector in enumerate(entities_initialized):
+
         entity_name = str(entities[i])
-        #test_sock.send(struct.pack('!i', len(entity_name)))         # entity string 자체를 전송
-        #test_sock.send(str.encode(entity_name))                     # entity string 자체를 전송
-
-        test_sock.send(struct.pack('!i', entity2id[entity_name]))  # entity id 를 int 로 전송
-
-        for v in vector:
-
-            test_sock.send(struct.pack('f', float(v)))
+        value_to_send = [float(v) for v in vector]
+        value_to_send.insert(0, entity2id[entity_name])
+        test_sock.send(struct.pack('!i' + 'f' * len(vector), * value_to_send))
 
     checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
@@ -691,16 +700,23 @@ success = 0
 # relation_vector 전송 - GeometricModel load
 while success != 1:
 
+    # 원소를 하나씩 전송
+    #for i, relation in enumerate(relations_initialized):
+    #    
+    #    relation_name = str(relations[i])
+    #    test_sock.send(struct.pack('!i', relation2id[relation_name]))  # relation id 를 int 로 전송
+    #
+    #    for v in relation:
+    #
+    #        test_sock.send(struct.pack('f', float(v)))
+
+    # 원소를 한 번에 전송
     for i, relation in enumerate(relations_initialized):
+
         relation_name = str(relations[i])
-        #test_sock.send(struct.pack('!i', len(relation_name)))           # relation string 자체를 전송
-        #test_sock.send(str.encode(relation_name))                       # relation string 자체를 전송
-
-        test_sock.send(struct.pack('!i', relation2id[relation_name]))  # relation id 를 int 로 전송
-
-        for v in relation:
-
-            test_sock.send(struct.pack('f', float(v)))
+        value_to_send = [float(v) for v in relation]
+        value_to_send.insert(0, relation2id[relation_name])
+        test_sock.send(struct.pack('!i' + 'f' * len(relation), * value_to_send))
 
     checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
@@ -726,6 +742,7 @@ del entities_initialized
 del relations_initialized
 
 test_return = proc.communicate()
+test_sock.close()
 
 if test_return == -1:
 

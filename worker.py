@@ -278,10 +278,7 @@ try:
         #
         #    entity_name = str(entities[i])
         #    id_entity[entity_id[entity_name]] = entity_name
-        #    #embedding_sock.send(struct.pack('!i', len(entity_name)))        # entity string 자체를 전송
-        #    #embedding_sock.send(str.encode(entity_name))                    # entity string 자체를 전송
-        #
-        #    embedding_sock.send(struct.pack('!i', entity_id[entity_name])) # entity id 를 int 로 전송
+        #    embedding_sock.send(struct.pack('!i', entity_id[entity_name]))
         #
         #    for v in vector:
         #
@@ -336,9 +333,6 @@ try:
         #
         #    relation_name = str(relations[i])
         #    id_relation[relation_id[relation_name]] = relation_name
-        #    #embedding_sock.send(struct.pack('!i', len(relation_name)))          # relation string 자체를 전송
-        #    #embedding_sock.send(str.encode(relation_name))                      # relation string 자체를 전송
-        #
         #    embedding_sock.send(struct.pack('!i', relation_id[relation_name])) # relation id 를 int 로 전송
         #
         #    for v in relation:
@@ -402,44 +396,33 @@ try:
 
                 entity_vectors = dict()
 
-                # 처리 결과를 받아옴 - GeometricModel save
-                count_entity_data = sockRecv(embedding_sock, 4)
                 embeddingTime = timeit.default_timer() - timeNow
+                # 처리 결과를 받아옴 - GeometricModel save
                 
-                if len(count_entity_data) != 4:
-                    
-                    printt('[error] worker > length of count_entity_data = ' + str(len(count_entity_data)))
-                    printt('[error] worker > embedding_port = ' + socket_port)
-                    # fsLog.write('[error] worker > length of count_entity_data = ' + str(len(count_entity_data)) + '\n')
-                    # fsLog.write('[error] worker > embedding_port = ' + socket_port + '\n')
-                
-                count_entity = struct.unpack('!i', count_entity_data)[0]
-                #printt('worker > count_entity = ' + str(count_entity))
-                #fsLog.write('worker > count_entity = ' + str(count_entity) + '\n')
+                # 원소를 하나씩 받음
+                #count_entity = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
+                #
+                #for _ in range(count_entity):
+                #    
+                #    temp_entity_vector = list()
+                #
+                #    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]     # entity_id 를 int 로 받음                    
+                #
+                #    for _ in range(int(embedding_dim)):
+                #
+                #        temp_entity = struct.unpack('f', sockRecv(embedding_sock, 4))[0]
+                #        temp_entity_vector.append(temp_entity)
+                #
+                #    entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
+                #        np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
+
+                # 원소를 한 번에 받음
+                count_entity = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
                 for _ in range(count_entity):
-                    
-                    temp_entity_vector = list()
-                    
-                    #entity_id_len = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                    #entity_id = embedding_sock.recv(entity_id_len).decode()
 
-                    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]     # entity_id 를 int 로 받음                    
-
-                    for _ in range(int(embedding_dim)):
-                        
-                        temp_entity_float = sockRecv(embedding_sock, 4)
-                        
-                        if len(temp_entity_float) != 4:
-                            
-                            printt('[error] worker > length of temp_entity_float = ' + str(len(temp_entity_float)))
-                            # fsLog.write('[error] worker > length of temp_entity_double = ' + str(len(temp_entity_double)) + '\n')
-                        
-                        temp_entity = struct.unpack('f', temp_entity_float)[0]
-                        temp_entity_vector.append(temp_entity)
-
-                    #entity_vectors[entity_id + '_v'] = pickle.dumps(
-                    #    np.array(temp_entity_vector), protocol=pickle.HIGHEST_PROTOCOL)
+                    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
+                    temp_entity_vector = list(struct.unpack('f' * int(embedding_dim), sockRecv(embedding_sock, 4 * int(embedding_dim))))
                     
                     entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
                         np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
@@ -505,36 +488,35 @@ try:
 
                 relation_vectors = dict()
 
-                # 처리 결과를 받아옴 - GeometricModel save
-                count_relation_data = sockRecv(embedding_sock, 4)
                 embeddingTime = timeit.default_timer() - timeNow
-                count_relation = struct.unpack('!i', count_relation_data)[0]
-                #printt('worker > count_relation is ' + str(count_relation))
-                #fsLog.write('worker > count_relation is ' + str(count_relation) + '\n')
+                # 처리 결과를 받아옴 - GeometricModel save
+
+                # 원소를 하나씩 전송
+                #count_relation = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
+                #
+                #for _ in range(count_relation):
+                #    
+                #    temp_relation_vector = list()
+                #
+                #    relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]   # relation_id 를 int 로 받음
+                #
+                #    for _ in range(int(embedding_dim)):
+                #        
+                #        temp_relation = struct.unpack('f', sockRecv(embedding_sock, 4))[0]
+                #        temp_relation_vector.append(temp_relation)
+                #
+                #    relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
+                #        np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
+
+                # 원소를 한 번에 받음
+                count_relation = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
                 for _ in range(count_relation):
+
+                    relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
+                    temp_relation_vector = list(struct.unpack('f' * int(embedding_dim), sockRecv(embedding_sock, 4 * int(embedding_dim))))
                     
-                    temp_relation_vector = list()
-                    #relation_id_len = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                    #relation_id = embedding_sock.recv(relation_id_len).decode()
-
-                    relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]   # relation_id 를 int 로 받음
-
-                    for _ in range(int(embedding_dim)):
-                        
-                        temp_relation_float = sockRecv(embedding_sock, 4)
-                        
-                        if len(temp_relation_float) != 4:
-                            
-                            printt('worker > length of temp_relation_float = ' + str(len(temp_relation_float)))
-                            #fsLog.write('worker > length of temp_relation_double = ' + str(len(temp_relation_double)) + '\n')
-
-                        temp_relation = struct.unpack('f', temp_relation_float)[0]
-                        temp_relation_vector.append(temp_relation)
-
-                    #relation_vectors[relation_id + '_v'] = pickle.dumps(                        # string 일 때
-                    #    np.array(temp_relation_vector), protocol=pickle.HIGHEST_PROTOCOL)
-                    relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(                  # int 일 때
+                    entity_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
                         np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
         
             except Exception as e:
