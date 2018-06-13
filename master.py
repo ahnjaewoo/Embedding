@@ -630,7 +630,7 @@ while success != 1:
         
         test_sock.send(struct.pack('!i', int(iter_entity)))
 
-    checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
+    #checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
     if checksum == 1234:
 
