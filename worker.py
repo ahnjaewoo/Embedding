@@ -562,7 +562,6 @@ try:
         sockSaveTime = timeit.default_timer() - timeNow
         timeNow = timeit.default_timer()        
 
-        embedding_sock.close()
         r.mset(relation_vectors)
         #printt('worker > relation_vectors updated - ' + worker_id)
         #printt('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
@@ -590,6 +589,7 @@ except Exception as e:
 
 workerTotalTime = timeit.default_timer() - workerStart
 modelRunTime = struct.unpack('d', sockRecv(embedding_sock, 8))[0]
+embedding_sock.close()
 
 output_times = dict()
 output_times["datamodel_sock"] = datamodelTime
