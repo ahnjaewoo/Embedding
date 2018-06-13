@@ -279,9 +279,10 @@ while True:
 
     # printing the number of entities in each paritions
     # printt('[info] maxmin > # of entities in each partitions : [%s]' % " ".join([str(len(p)) for p in parts]))
-    master_sock.send(struct.pack('!i', len(list(anchor))))
 
     # 원소 하나씩 전송
+    #master_sock.send(struct.pack('!i', len(list(anchor))))
+    #
     #for anchor_val in list(anchor):
     #
     #    master_sock.send(struct.pack('!i', anchor_val))
@@ -295,6 +296,7 @@ while True:
     #        master_sock.send(struct.pack('!i', nas_val))
 
     # 원소 여러 개를 한 번에 전송
+    master_sock.send(struct.pack('!i', len(list(anchor))))
     master_sock.send(struct.pack('!i' * len(list(anchor)), * list(anchor)))
 
     for nas in parts:

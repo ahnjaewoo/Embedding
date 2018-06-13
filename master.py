@@ -464,8 +464,6 @@ while True:
     if cur_iter % 2 == 1:
         # entity partitioning: max-min cut 실행, anchor 등 재분배
         
-        
-
         maxminStart = timeit.default_timer()
 
         # try 가 들어가야 함
