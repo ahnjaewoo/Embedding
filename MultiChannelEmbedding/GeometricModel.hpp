@@ -677,6 +677,7 @@ public:
 
 					int entity_id = data_model.entity_name_to_id.at(key);
 					*/
+					//.....................
 					
 					// entity key 를 int 로 받는 경우
 					
@@ -691,6 +692,7 @@ public:
 	                }
 
 					entity_id = ntohl(entity_id);
+					//.....................
 					
 					for (int j = 0; j < dim; j++)
 					{
@@ -780,6 +782,7 @@ public:
 
 					int relation_id = data_model.relation_name_to_id.at(key);
 					*/
+					//.....................
 					
 					// relation key 를 int 로 받음
 					
@@ -794,6 +797,7 @@ public:
 	                }
 
 					relation_id = ntohl(relation_id);
+					//.....................
 					
 					for (int j = 0; j < dim; j++){
 
@@ -808,21 +812,8 @@ public:
                     		fclose(fs_log);
                     		std::exit(-1);
 		                }
-
-		                try{
-
-		                	embedding_relation[relation_id](j) = temp_vector;
-		                }
-		                catch(std::exception& e){
-
-    	                    printf("[error] GeometricModel.hpp > exception occured, relation_id = %d\n", relation_id);
-                			printf("%s\n", e.what());
-    	                    fprintf(fs_log, "[error] GeometricModel.hpp > exception occured, relation_id = %d\n", relation_id);
-                			fprintf(fs_log, "%s\n", e.what());
-                			fclose(fs_log);
-							std::exit(-1);
-		                }
-						
+		                
+		                embedding_relation[relation_id](j) = temp_vector;
 					}
 				}
 				// printf("[info] GeometricModel.hpp > receiving relation vector end\n");
