@@ -543,6 +543,7 @@ try:
         sockSaveTime = timeit.default_timer() - timeNow
         timeNow = timeit.default_timer()        
 
+        embedding_sock.close()
         r.mset(relation_vectors)
         #printt('worker > relation_vectors updated - ' + worker_id)
         #printt('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
