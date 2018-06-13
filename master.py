@@ -612,10 +612,6 @@ chunk_entity = list()
 checksum = 0
 success = 0
 
-# entity 전송 - DataModel 생성자
-chunk_anchor = list()
-chunk_entity = list()
-
 if len(chunk_anchor) == 1 and chunk_anchor[0] == '':
     
     chunk_anchor = []
