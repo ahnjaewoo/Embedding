@@ -296,10 +296,12 @@ while True:
     #        master_sock.send(struct.pack('!i', nas_val))
 
     # 원소 여러 개를 한 번에 전송
+    pack_str = '!i' * len(list(anchor))
     master_sock.send(struct.pack('!i', len(list(anchor))))
-    master_sock.send(struct.pack('!i' * len(list(anchor)), * list(anchor)))
+    master_sock.send(struct.pack(pack_str, * list(anchor)))
 
     for nas in parts:
 
+        pack_str = '!i' * len(nas)
         master_sock.send(struct.pack('!i', len(nas)))
-        master_sock.send(struct.pack('!i' * len(nas), * nas))
+        master_sock.send(struct.pack(pack_str, * nas))
