@@ -570,7 +570,7 @@ worker_id = 'worker_0'
 log_dir = os.path.join(args.root_dir, 'logs/test_log.txt')
 proc = Popen([test_code_dir,
             worker_id,
-            '0',
+            '-1',
             str(n_dim),
             str(lr),
             str(margin),
