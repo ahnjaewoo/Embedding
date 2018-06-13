@@ -615,7 +615,7 @@ success = 0
 if len(chunk_anchor) == 1 and chunk_anchor[0] == '':
     
     chunk_anchor = []
-
+"""
 while success != 1:
 
     test_sock.send(struct.pack('!i', len(chunk_anchor)))
@@ -648,7 +648,7 @@ while success != 1:
         success = 0
 
 #printt('master > chunk or relation sent to DataModel (for test)')
-
+"""
 checksum = 0
 success = 0
 
@@ -673,7 +673,7 @@ while success != 1:
         value_to_send.insert(0, entity2id[entity_name])
         test_sock.send(struct.pack('!' + 'i' + 'f' * len(vector), * value_to_send))
 
-    #checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
+    checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
     if checksum == 1234:
 
@@ -716,7 +716,7 @@ while success != 1:
         value_to_send.insert(0, relation2id[relation_name])
         test_sock.send(struct.pack('!' + 'i' + 'f' * len(relation), * value_to_send))
 
-    #checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
+    checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
     if checksum == 1234:
 
@@ -732,7 +732,6 @@ while success != 1:
 
         printt('[error] master > unknown error in phase 2 (relation) (for test)')
         success = 0
-
 
 # printt('master > relation_vector sent to Geome tricModel load function (for test)')
 
