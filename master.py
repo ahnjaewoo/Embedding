@@ -502,7 +502,7 @@ while True:
 
         # 원소를 한 번에 받음
         chunks = list()
-        
+
         anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
         anchors = list(struct.unpack('!' + 'i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len)))
         anchors = ' '.join([str(e) for e in anchors])
@@ -624,17 +624,15 @@ while success != 1:
 
     test_sock.send(struct.pack('!i', len(chunk_anchor)))
 
-    # 에러 없으면 제거
-    #for iter_anchor in chunk_anchor:
-    #    
-    #    test_sock.send(struct.pack('!i', int(iter_anchor)))
+    for iter_anchor in chunk_anchor:
+        
+        test_sock.send(struct.pack('!i', int(iter_anchor)))
 
     test_sock.send(struct.pack('!i', len(chunk_entity)))
 
-    # 에러 없으면 제거
-    #for iter_entity in chunk_entity:
-    #    
-    #    test_sock.send(struct.pack('!i', int(iter_entity)))
+    for iter_entity in chunk_entity:
+        
+        test_sock.send(struct.pack('!i', int(iter_entity)))
 
     checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
