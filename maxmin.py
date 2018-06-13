@@ -144,12 +144,10 @@ for (hd, tl) in entity_graph:
 while True:
 
     master_status = struct.unpack('!i', sockRecv(master_sock, 4))[0]
-    logger.warning(str(master_status)+'\n')
     
     if master_status == 1:
         # 연결을 끊음
         # printt('[info] maxmin > received disconnect signal (master_status = 1)')
-
         maxmin_sock.close()
         sys.exit(0)
 
@@ -283,14 +281,23 @@ while True:
     # printt('[info] maxmin > # of entities in each partitions : [%s]' % " ".join([str(len(p)) for p in parts]))
     master_sock.send(struct.pack('!i', len(list(anchor))))
 
-    for anchor_val in list(anchor):
+    # 원소 하나씩 전송
+    #for anchor_val in list(anchor):
+    #
+    #    master_sock.send(struct.pack('!i', anchor_val))
+    #
+    #for nas in parts:
+    #
+    #    master_sock.send(struct.pack('!i', len(nas)))
+    #
+    #    for nas_val in nas:
+    #
+    #        master_sock.send(struct.pack('!i', nas_val))
 
-        master_sock.send(struct.pack('!i', anchor_val))
+    # 원소 여러 개를 한 번에 전송
+    master_sock.send(struct.pack('!i' * len(list(anchor)), * list(anchor)))
 
     for nas in parts:
 
         master_sock.send(struct.pack('!i', len(nas)))
-
-        for nas_val in nas:
-
-            master_sock.send(struct.pack('!i', nas_val))
+        master_sock.send(struct.pack('!i' * len(nas), * nas))

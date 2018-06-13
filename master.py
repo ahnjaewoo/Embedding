@@ -331,8 +331,8 @@ iterTimes = list()
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
 # master.py 는 client
-anchors = ""
-chunks = list()
+
+
 
 proc = Popen([args.pypy_dir,
             'maxmin.py',
@@ -381,24 +381,40 @@ maxmin_sock.send(struct.pack('!i', 0))
 #maxmin_sock.send(struct.pack('!i', anchor_interval))
 
 # maxmin 의 결과를 소켓으로 받음
+#
+# 원소를 하나씩 받음
+#anchors = ""
+#anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+#
+#for _ in range(anchor_len):
+#
+#    anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
+#
+#anchors = anchors[:-1]
+#
+#chunks = list()
+#for _ in range(num_worker):
+#
+#    chunk = ""
+#    chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+#
+#    for _ in range(chunk_len):
+#
+#        chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
+#    
+#    chunk = chunk[:-1]
+#    chunks.append(chunk)
+
+# 원소를 한 번에 받음
 anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-
-for _ in range(anchor_len):
-
-    anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
-
-anchors = anchors[:-1]
+anchors = list(struct.unpack('!i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len)))
+anchors = ' '.join([str(e) for e in anchors])
 
 for _ in range(num_worker):
 
-    chunk = ""
-    chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-
-    for _ in range(chunk_len):
-
-        chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
-    
-    chunk = chunk[:-1]
+    chunk_len = chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+    chunk = list(struct.unpack('!i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
+    chunk = ' '.join([str(e) for e in chunk])
     chunks.append(chunk)
 
 maxminTimes.append(timeit.default_timer() - timeNow)
@@ -447,8 +463,8 @@ while True:
 
     if cur_iter % 2 == 1:
         # entity partitioning: max-min cut 실행, anchor 등 재분배
-        anchors = ""
-        chunks = list()
+        
+        
 
         maxminStart = timeit.default_timer()
 
@@ -460,25 +476,40 @@ while True:
         #maxmin_sock.send(struct.pack('!i', anchor_interval))
 
         # maxmin 의 결과를 소켓으로 받음
-        anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        # printt('master > anchor_len = ' + str(anchor_len))
+        #
+        # 원소를 하나씩 받음
+        #anchors = ""
+        #anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+        #
+        #for _ in range(anchor_len):
+        #    
+        #    anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
+        #
+        #anchors = anchors[:-1]
+        #
+        #chunks = list()
+        #for _ in range(num_worker):
+        #
+        #    chunk = ''
+        #    chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+        #
+        #    for _ in range(chunk_len):
+        #    
+        #        chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
+        #   
+        #    chunk = chunk[:-1]
+        #    chunks.append(chunk)
 
-        for _ in range(anchor_len):
-            
-            anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
-        
-        anchors = anchors[:-1]
+        # 원소를 한 번에 받음
+        anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+        anchors = list(struct.unpack('!i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len)))
+        anchors = ' '.join([str(e) for e in anchors])
 
         for _ in range(num_worker):
 
-            chunk = ''
-            chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-
-            for _ in range(chunk_len):
-            
-                chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
-            
-            chunk = chunk[:-1]
+            chunk_len = chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+            chunk = list(struct.unpack('!i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
+            chunk = ' '.join([str(e) for e in chunk])
             chunks.append(chunk)
 
         maxminTimes.append(timeit.default_timer() - maxminStart)
