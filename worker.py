@@ -181,13 +181,11 @@ try:
             # 원소 한 번에 전송
             value_to_send = [int(e) for e in chunk_anchor]
             embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
-            pack_str = '!i' * len(chunk_anchor)
-            embedding_sock.send(struct.pack(pack_str, * value_to_send))
+            embedding_sock.send(struct.pack('!' + 'i' * len(chunk_anchor), * value_to_send))
 
             value_to_send = [int(e) for e in chunk_entity]
             embedding_sock.send(struct.pack('!i', len(chunk_entity)))
-            pack_str = '!i' * len(chunk_entity)
-            embedding_sock.send(struct.pack(pack_str, * value_to_send))
+            embedding_sock.send(struct.pack('!' + 'i' * len(chunk_entity), * value_to_send))
 
             checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -236,7 +234,7 @@ try:
             # 원소 한 번에 전송
             for (head_id_, relation_id_, tail_id_) in sub_graphs:
 
-                embedding_sock.send(struct.pack('!i!i!i', int(head_id_), int(relation_id_), int(tail_id_)))
+                embedding_sock.send(struct.pack('!iii', int(head_id_), int(relation_id_), int(tail_id_)))
 
             checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -293,8 +291,7 @@ try:
             id_entity[entity_id[entity_name]] = entity_name
             value_to_send = [float(v) for v in vector]
             value_to_send.insert(0, entity_id[entity_name])
-            pack_str = '!i' + 'f' * len(vector)
-            embedding_sock.send(struct.pack(pack_str, * value_to_send))
+            embedding_sock.send(struct.pack('!' + 'i' + 'f' * len(vector), * value_to_send))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -349,8 +346,7 @@ try:
             id_relation[relation_id[relation_name]] = relation_name
             value_to_send = [float(v) for v in relation]
             value_to_send.insert(0, relation_id[relation_name])
-            pack_str = '!i' + 'f' * len(relation)
-            embedding_sock.send(struct.pack(pack_str, * value_to_send))
+            embedding_sock.send(struct.pack('!' + 'i' + 'f' * len(relation), * value_to_send))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
         #printt('worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
@@ -426,8 +422,7 @@ try:
                 for _ in range(count_entity):
 
                     entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                    pack_str = 'f' * int(embedding_dim)
-                    temp_entity_vector = list(struct.unpack(pack_str, sockRecv(embedding_sock, 4 * int(embedding_dim))))
+                    temp_entity_vector = list(struct.unpack('f' * int(embedding_dim), sockRecv(embedding_sock, 4 * int(embedding_dim))))
                     
                     entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
                         np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
@@ -519,8 +514,7 @@ try:
                 for _ in range(count_relation):
 
                     relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                    pack_str = 'f' * int(embedding_dim)
-                    temp_relation_vector = list(struct.unpack(pack_str, sockRecv(embedding_sock, 4 * int(embedding_dim))))
+                    temp_relation_vector = list(struct.unpack('f' * int(embedding_dim), sockRecv(embedding_sock, 4 * int(embedding_dim))))
                     
                     entity_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
                         np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)

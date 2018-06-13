@@ -407,15 +407,13 @@ maxmin_sock.send(struct.pack('!i', 0))
 
 # 원소를 한 번에 받음
 anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-pack_str = '!i' * int(anchor_len)
-anchors = list(struct.unpack(pack_str, sockRecv(maxmin_sock, 4 * int(anchor_len))))
+anchors = list(struct.unpack('!' + 'i' * int(anchor_len), sockRecv(maxmin_sock, 4 * int(anchor_len))))
 anchors = ' '.join([str(e) for e in anchors])
 
 for _ in range(num_worker):
 
     chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-    pack_str = '!i' * chunk_len
-    chunk = list(struct.unpack(pack_str, sockRecv(maxmin_sock, 4 * chunk_len)))
+    chunk = list(struct.unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
     chunk = ' '.join([str(e) for e in chunk])
     chunks.append(chunk)
 
@@ -502,15 +500,13 @@ while True:
 
         # 원소를 한 번에 받음
         anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        pack_str = '!i' * anchor_len
-        anchors = list(struct.unpack(pack_str, sockRecv(maxmin_sock, 4 * anchor_len)))
+        anchors = list(struct.unpack('!' + 'i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len)))
         anchors = ' '.join([str(e) for e in anchors])
 
         for _ in range(num_worker):
 
             chunk_len = chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-            pack_str = '!i' * chunk_len
-            chunk = list(struct.unpack(pack_str, sockRecv(maxmin_sock, 4 * chunk_len)))
+            chunk = list(struct.unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
             chunk = ' '.join([str(e) for e in chunk])
             chunks.append(chunk)
 
@@ -677,8 +673,7 @@ while success != 1:
         entity_name = str(entities[i])
         value_to_send = [float(v) for v in vector]
         value_to_send.insert(0, entity2id[entity_name])
-        pack_str = '!i' + 'f' * len(vector)
-        test_sock.send(struct.pack(pack_str, * value_to_send))
+        test_sock.send(struct.pack('!' + 'i' + 'f' * len(vector), * value_to_send))
 
     checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
@@ -721,8 +716,7 @@ while success != 1:
         relation_name = str(relations[i])
         value_to_send = [float(v) for v in relation]
         value_to_send.insert(0, relation2id[relation_name])
-        pack_str = '!i' + 'f' * len(relation)
-        test_sock.send(struct.pack(pack_str, * value_to_send))
+        test_sock.send(struct.pack('!' + 'i' + 'f' * len(relation), * value_to_send))
 
     checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
@@ -771,8 +765,8 @@ redisTime = list()
 workerTotalTime = list()
 
 for worker_times in workerLogs:
+    
     worker_times = pickle.loads(decompress(worker_times))
-
     datamodelTime.append(worker_times["datamodel_sock"])
     sockLoadTime.append(worker_times["socket_load"])
     embeddingTime.append(worker_times["embedding"])
