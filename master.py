@@ -673,7 +673,7 @@ while success != 1:
         value_to_send.insert(0, entity2id[entity_name])
         test_sock.send(struct.pack('!' + 'i' + 'f' * len(vector), * value_to_send))
 
-    checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
+    #checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
     if checksum == 1234:
 
@@ -716,7 +716,7 @@ while success != 1:
         value_to_send.insert(0, relation2id[relation_name])
         test_sock.send(struct.pack('!' + 'i' + 'f' * len(relation), * value_to_send))
 
-    checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
+    #checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
     if checksum == 1234:
 
