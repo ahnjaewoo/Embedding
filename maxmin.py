@@ -163,6 +163,8 @@ while True:
     else:
 
         anchor_dict = old_anchor_dict
+        anchor = set()
+        old_anchor = set()
 
         for it in range(anchor_interval):
 
