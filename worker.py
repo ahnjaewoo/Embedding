@@ -290,8 +290,8 @@ try:
             entity_name = str(entities[i])
             id_entity[entity_id[entity_name]] = entity_name
             value_to_send = [float(v) for v in vector]
-            value_to_send.insert(0, entity_id[entity_name])
-            embedding_sock.send(struct.pack('!' + 'i' + 'f' * len(vector), * value_to_send))
+            embedding_sock.send(struct.pack('!i', entity_id[entity_name]))
+            embedding_sock.send(struct.pack('f' * len(vector), * value_to_send))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -345,8 +345,8 @@ try:
             relation_name = str(relations[i])
             id_relation[relation_id[relation_name]] = relation_name
             value_to_send = [float(v) for v in relation]
-            value_to_send.insert(0, relation_id[relation_name])
-            embedding_sock.send(struct.pack('!' + 'i' + 'f' * len(relation), * value_to_send))
+            embedding_sock.send(struct.pack('!i', relation_id[relation_name]))
+            embedding_sock.send(struct.pack('f' * len(relation), * value_to_send))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
