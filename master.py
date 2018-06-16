@@ -383,41 +383,41 @@ maxmin_sock.send(struct.pack('!i', 0))
 # maxmin 의 결과를 소켓으로 받음
 #
 # 원소를 하나씩 받음
-#anchors = ""
-#anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-#
-#for _ in range(anchor_len):
-#
-#    anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
-#
-#anchors = anchors[:-1]
-#
-#chunks = list()
-#for _ in range(num_worker):
-#
-#    chunk = ""
-#    chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-#
-#    for _ in range(chunk_len):
-#
-#        chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
-#    
-#    chunk = chunk[:-1]
-#    chunks.append(chunk)
-
-# 원소를 한 번에 받음
-chunks = list()
-
+anchors = ""
 anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-anchors = list(struct.unpack('!' + 'i' * int(anchor_len), sockRecv(maxmin_sock, 4 * int(anchor_len))))
-anchors = ' '.join([str(e) for e in anchors])
 
+for _ in range(anchor_len):
+
+    anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
+
+anchors = anchors[:-1]
+
+chunks = list()
 for _ in range(num_worker):
 
+    chunk = ""
     chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-    chunk = list(struct.unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
-    chunk = ' '.join([str(e) for e in chunk])
+
+    for _ in range(chunk_len):
+
+        chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
+    
+    chunk = chunk[:-1]
     chunks.append(chunk)
+
+# 원소를 한 번에 받음
+#chunks = list()
+#
+#anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+#anchors = list(struct.unpack('!' + 'i' * int(anchor_len), sockRecv(maxmin_sock, 4 * int(anchor_len))))
+#anchors = ' '.join([str(e) for e in anchors])
+#
+#for _ in range(num_worker):
+#
+#    chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+#    chunk = list(struct.unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
+#    chunk = ' '.join([str(e) for e in chunk])
+#    chunks.append(chunk)
 
 maxminTimes.append(timeit.default_timer() - timeNow)
 
@@ -478,41 +478,41 @@ while True:
         # maxmin 의 결과를 소켓으로 받음
         #
         # 원소를 하나씩 받음
-        #anchors = ""
-        #anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        #
-        #for _ in range(anchor_len):
-        #    
-        #    anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
-        #
-        #anchors = anchors[:-1]
-        #
-        #chunks = list()
-        #for _ in range(num_worker):
-        #
-        #    chunk = ''
-        #    chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        #
-        #    for _ in range(chunk_len):
-        #    
-        #        chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
-        #   
-        #    chunk = chunk[:-1]
-        #    chunks.append(chunk)
+        anchors = ""
+        anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+        
+        for _ in range(anchor_len):
+            
+            anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
+        
+        anchors = anchors[:-1]
+        
+        chunks = list()
+        for _ in range(num_worker):
+        
+            chunk = ''
+            chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+        
+            for _ in range(chunk_len):
+            
+                chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
+           
+            chunk = chunk[:-1]
+            chunks.append(chunk)
 
         # 원소를 한 번에 받음
-        chunks = list()
-
-        anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        anchors = list(struct.unpack('!' + 'i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len)))
-        anchors = ' '.join([str(e) for e in anchors])
-
-        for _ in range(num_worker):
-
-            chunk_len = chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-            chunk = list(struct.unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
-            chunk = ' '.join([str(e) for e in chunk])
-            chunks.append(chunk)
+        #chunks = list()
+        #
+        #anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+        #anchors = list(struct.unpack('!' + 'i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len)))
+        #anchors = ' '.join([str(e) for e in anchors])
+        #
+        #for _ in range(num_worker):
+        #
+        #    chunk_len = chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+        #    chunk = list(struct.unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
+        #    chunk = ' '.join([str(e) for e in chunk])
+        #    chunks.append(chunk)
 
         maxminTimes.append(timeit.default_timer() - maxminStart)
 
@@ -656,22 +656,22 @@ success = 0
 while success != 1:
 
     # 원소를 하나씩 전송
-    #for i, vector in enumerate(entities_initialized):
-    #    
-    #    entity_name = str(entities[i])
-    #    test_sock.send(struct.pack('!i', entity2id[entity_name]))  # entity id 를 int 로 전송
-    #
-    #    for v in vector:
-    #
-    #        test_sock.send(struct.pack('f', float(v)))
+    for i, vector in enumerate(entities_initialized):
+        
+        entity_name = str(entities[i])
+        test_sock.send(struct.pack('!i', entity2id[entity_name]))  # entity id 를 int 로 전송
+    
+        for v in vector:
+    
+            test_sock.send(struct.pack('f', float(v)))
 
     # 원소를 한 번에 전송
-    for i, vector in enumerate(entities_initialized):
-
-        entity_name = str(entities[i])
-        value_to_send = [float(v) for v in vector]
-        value_to_send.insert(0, entity2id[entity_name])
-        test_sock.send(struct.pack('!' + 'i' + 'f' * len(vector), * value_to_send))
+    #for i, vector in enumerate(entities_initialized):
+    #
+    #    entity_name = str(entities[i])
+    #    value_to_send = [float(v) for v in vector]
+    #    value_to_send.insert(0, entity2id[entity_name])
+    #    test_sock.send(struct.pack('!' + 'i' + 'f' * len(vector), * value_to_send))
 
     checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
@@ -699,22 +699,22 @@ success = 0
 while success != 1:
 
     # 원소를 하나씩 전송
-    #for i, relation in enumerate(relations_initialized):
-    #    
-    #    relation_name = str(relations[i])
-    #    test_sock.send(struct.pack('!i', relation2id[relation_name]))  # relation id 를 int 로 전송
-    #
-    #    for v in relation:
-    #
-    #        test_sock.send(struct.pack('f', float(v)))
+    for i, relation in enumerate(relations_initialized):
+        
+        relation_name = str(relations[i])
+        test_sock.send(struct.pack('!i', relation2id[relation_name]))  # relation id 를 int 로 전송
+    
+        for v in relation:
+    
+            test_sock.send(struct.pack('f', float(v)))
 
     # 원소를 한 번에 전송
-    for i, relation in enumerate(relations_initialized):
-
-        relation_name = str(relations[i])
-        value_to_send = [float(v) for v in relation]
-        value_to_send.insert(0, relation2id[relation_name])
-        test_sock.send(struct.pack('!' + 'i' + 'f' * len(relation), * value_to_send))
+    #for i, relation in enumerate(relations_initialized):
+    #
+    #    relation_name = str(relations[i])
+    #    value_to_send = [float(v) for v in relation]
+    #    value_to_send.insert(0, relation2id[relation_name])
+    #    test_sock.send(struct.pack('!' + 'i' + 'f' * len(relation), * value_to_send))
 
     checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 

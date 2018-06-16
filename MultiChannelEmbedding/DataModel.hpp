@@ -270,7 +270,7 @@ public:
                         }
 
                         // 원소 하나씩 받음
-                        /*
+                        
                         for (int idx = 0; idx < ntohl(anchor_num); idx++) {
 
                             if (recv(fd, &temp_value, sizeof(temp_value), MSG_WAITALL) < 0){
@@ -290,10 +290,11 @@ public:
                             check_anchor[temp_value] = true;
                             check_parts[temp_value] = true;
                         }
-                        */
+    
                         //.....................
 
                         // 원소 한 번에 받음
+                        /*
                         int * anchor_buff = (int *)calloc(ntohl(anchor_num) + 1, sizeof(int));
                         if (recv(fd, anchor_buff, ntohl(anchor_num) * sizeof(int), MSG_WAITALL) < 0){
 
@@ -316,6 +317,7 @@ public:
                         }
                         
                         free(anchor_buff);
+                        */
                         //.....................
 
                         if (recv(fd, &entity_num, sizeof(entity_num), MSG_WAITALL) < 0){
@@ -331,7 +333,7 @@ public:
                         }
 
                         // 원소 하나씩 받음
-                        /*
+                        
                         for (int idx = 0; idx < ntohl(entity_num); idx++) {
 
                             if (recv(fd, &temp_value, sizeof(temp_value), MSG_WAITALL) < 0){
@@ -350,10 +352,11 @@ public:
                             set_entity_parts.insert(temp_value);
                             check_parts[temp_value] = true;
                         }
-                        */
+                        
                         //.....................
 
                         // 원소 한 번에 받음
+                        /*
                         int * entity_buff = (int *)calloc(ntohl(entity_num) + 1, sizeof(int));
                         if (recv(fd, entity_buff, ntohl(entity_num) * sizeof(int), MSG_WAITALL) < 0){
 
@@ -375,6 +378,7 @@ public:
                         }
 
                         free(entity_buff);
+                        */
                         //.....................
 
                         for (auto i = data_train.begin(); i != data_train.end(); ++i) {

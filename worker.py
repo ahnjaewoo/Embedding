@@ -165,27 +165,27 @@ try:
         while checksum != 1:
 
             # 원소 하나씩 전송
-            #embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
-            #
-            #for iter_anchor in chunk_anchor:
-            #    
-            #    embedding_sock.send(struct.pack('!i', int(iter_anchor)))
-            #
-            #embedding_sock.send(struct.pack('!i', len(chunk_entity)))
-            #
-            #for iter_entity in chunk_entity:
-            #   
-            #    embedding_sock.send(struct.pack('!i', int(iter_entity)))
-            #
+            embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
+            
+            for iter_anchor in chunk_anchor:
+                
+                embedding_sock.send(struct.pack('!i', int(iter_anchor)))
+            
+            embedding_sock.send(struct.pack('!i', len(chunk_entity)))
+            
+            for iter_entity in chunk_entity:
+               
+                embedding_sock.send(struct.pack('!i', int(iter_entity)))
+            
 
             # 원소 한 번에 전송
-            value_to_send = [int(e) for e in chunk_anchor]
-            embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
-            embedding_sock.send(struct.pack('!' + 'i' * len(chunk_anchor), * value_to_send))
-
-            value_to_send = [int(e) for e in chunk_entity]
-            embedding_sock.send(struct.pack('!i', len(chunk_entity)))
-            embedding_sock.send(struct.pack('!' + 'i' * len(chunk_entity), * value_to_send))
+            #value_to_send = [int(e) for e in chunk_anchor]
+            #embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
+            #embedding_sock.send(struct.pack('!' + 'i' * len(chunk_anchor), * value_to_send))
+            #
+            #value_to_send = [int(e) for e in chunk_entity]
+            #embedding_sock.send(struct.pack('!i', len(chunk_entity)))
+            #embedding_sock.send(struct.pack('!' + 'i' * len(chunk_entity), * value_to_send))
 
             checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -225,16 +225,16 @@ try:
         while checksum != 1:
 
             # 원소 하나씩 전송
-            #for (head_id_, relation_id_, tail_id_) in sub_graphs:
-            #    
-            #    embedding_sock.send(struct.pack('!i', int(head_id_)))
-            #    embedding_sock.send(struct.pack('!i', int(relation_id_)))
-            #    embedding_sock.send(struct.pack('!i', int(tail_id_)))
+            for (head_id_, relation_id_, tail_id_) in sub_graphs:
+                
+                embedding_sock.send(struct.pack('!i', int(head_id_)))
+                embedding_sock.send(struct.pack('!i', int(relation_id_)))
+                embedding_sock.send(struct.pack('!i', int(tail_id_)))
 
             # 원소 한 번에 전송
-            for (head_id_, relation_id_, tail_id_) in sub_graphs:
-
-                embedding_sock.send(struct.pack('!iii', int(head_id_), int(relation_id_), int(tail_id_)))
+            #for (head_id_, relation_id_, tail_id_) in sub_graphs:
+            #
+            #    embedding_sock.send(struct.pack('!iii', int(head_id_), int(relation_id_), int(tail_id_)))
 
             checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -274,24 +274,24 @@ try:
         id_entity = dict()
 
         # 원소를 하나씩 전송
+        for i, vector in enumerate(entities_initialized):
+        
+            entity_name = str(entities[i])
+            id_entity[entity_id[entity_name]] = entity_name
+            embedding_sock.send(struct.pack('!i', entity_id[entity_name]))
+        
+            for v in vector:
+        
+                embedding_sock.send(struct.pack('f', float(v)))
+
+        # 원소를 한 번에 전송
         #for i, vector in enumerate(entities_initialized):
         #
         #    entity_name = str(entities[i])
         #    id_entity[entity_id[entity_name]] = entity_name
-        #    embedding_sock.send(struct.pack('!i', entity_id[entity_name]))
-        #
-        #    for v in vector:
-        #
-        #        embedding_sock.send(struct.pack('f', float(v)))
-
-        # 원소를 한 번에 전송
-        for i, vector in enumerate(entities_initialized):
-
-            entity_name = str(entities[i])
-            id_entity[entity_id[entity_name]] = entity_name
-            value_to_send = [float(v) for v in vector]
-            value_to_send.insert(0, entity_id[entity_name])
-            embedding_sock.send(struct.pack('!' + 'i' + 'f' * len(vector), * value_to_send))
+        #    value_to_send = [float(v) for v in vector]
+        #    value_to_send.insert(0, entity_id[entity_name])
+        #    embedding_sock.send(struct.pack('!' + 'i' + 'f' * len(vector), * value_to_send))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -329,28 +329,26 @@ try:
         id_relation = dict()
 
         # 원소를 하나씩 전송
+        for i, relation in enumerate(relations_initialized):
+        
+            relation_name = str(relations[i])
+            id_relation[relation_id[relation_name]] = relation_name
+            embedding_sock.send(struct.pack('!i', relation_id[relation_name])) # relation id 를 int 로 전송
+        
+            for v in relation:
+        
+                embedding_sock.send(struct.pack('f', float(v)))
+
+        # 원소를 한 번에 전송
         #for i, relation in enumerate(relations_initialized):
         #
         #    relation_name = str(relations[i])
         #    id_relation[relation_id[relation_name]] = relation_name
-        #    embedding_sock.send(struct.pack('!i', relation_id[relation_name])) # relation id 를 int 로 전송
-        #
-        #    for v in relation:
-        #
-        #        embedding_sock.send(struct.pack('f', float(v)))
-
-        # 원소를 한 번에 전송
-        for i, relation in enumerate(relations_initialized):
-
-            relation_name = str(relations[i])
-            id_relation[relation_id[relation_name]] = relation_name
-            value_to_send = [float(v) for v in relation]
-            value_to_send.insert(0, relation_id[relation_name])
-            embedding_sock.send(struct.pack('!' + 'i' + 'f' * len(relation), * value_to_send))
+        #    value_to_send = [float(v) for v in relation]
+        #    value_to_send.insert(0, relation_id[relation_name])
+        #    embedding_sock.send(struct.pack('!' + 'i' + 'f' * len(relation), * value_to_send))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-        #printt('worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
-        #fsLog.write('worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
 
         if checksum == 1234:
 
@@ -400,32 +398,32 @@ try:
                 # 처리 결과를 받아옴 - GeometricModel save
                 
                 # 원소를 하나씩 받음
+                count_entity = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
+                
+                for _ in range(count_entity):
+                    
+                    temp_entity_vector = list()
+                
+                    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]     # entity_id 를 int 로 받음                    
+                
+                    for _ in range(int(embedding_dim)):
+                
+                        temp_entity = struct.unpack('f', sockRecv(embedding_sock, 4))[0]
+                        temp_entity_vector.append(temp_entity)
+                
+                    entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
+                        np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
+
+                # 원소를 한 번에 받음
                 #count_entity = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
                 #
                 #for _ in range(count_entity):
+                #
+                #    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
+                #    temp_entity_vector = list(struct.unpack('f' * int(embedding_dim), sockRecv(embedding_sock, 4 * int(embedding_dim))))
                 #    
-                #    temp_entity_vector = list()
-                #
-                #    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]     # entity_id 를 int 로 받음                    
-                #
-                #    for _ in range(int(embedding_dim)):
-                #
-                #        temp_entity = struct.unpack('f', sockRecv(embedding_sock, 4))[0]
-                #        temp_entity_vector.append(temp_entity)
-                #
                 #    entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
                 #        np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
-
-                # 원소를 한 번에 받음
-                count_entity = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-
-                for _ in range(count_entity):
-
-                    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                    temp_entity_vector = list(struct.unpack('f' * int(embedding_dim), sockRecv(embedding_sock, 4 * int(embedding_dim))))
-                    
-                    entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
-                        np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
                     
             except Exception as e:
 
@@ -492,32 +490,32 @@ try:
                 # 처리 결과를 받아옴 - GeometricModel save
 
                 # 원소를 하나씩 전송
+                count_relation = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
+                
+                for _ in range(count_relation):
+                    
+                    temp_relation_vector = list()
+                
+                    relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]   # relation_id 를 int 로 받음
+                
+                    for _ in range(int(embedding_dim)):
+                        
+                        temp_relation = struct.unpack('f', sockRecv(embedding_sock, 4))[0]
+                        temp_relation_vector.append(temp_relation)
+                
+                    relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
+                        np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
+
+                # 원소를 한 번에 받음
                 #count_relation = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
                 #
                 #for _ in range(count_relation):
-                #    
-                #    temp_relation_vector = list()
                 #
-                #    relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]   # relation_id 를 int 로 받음
-                #
-                #    for _ in range(int(embedding_dim)):
-                #        
-                #        temp_relation = struct.unpack('f', sockRecv(embedding_sock, 4))[0]
-                #        temp_relation_vector.append(temp_relation)
-                #
+                #    relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
+                #    temp_relation_vector = list(struct.unpack('f' * int(embedding_dim), sockRecv(embedding_sock, 4 * int(embedding_dim))))
+                #   
                 #    relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
                 #        np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
-
-                # 원소를 한 번에 받음
-                count_relation = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-
-                for _ in range(count_relation):
-
-                    relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                    temp_relation_vector = list(struct.unpack('f' * int(embedding_dim), sockRecv(embedding_sock, 4 * int(embedding_dim))))
-                    
-                    relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
-                        np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
         
             except Exception as e:
 
