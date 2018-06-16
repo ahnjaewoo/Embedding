@@ -274,24 +274,24 @@ try:
         id_entity = dict()
 
         # 원소를 하나씩 전송
-        for i, vector in enumerate(entities_initialized):
-        
-            entity_name = str(entities[i])
-            id_entity[entity_id[entity_name]] = entity_name
-            embedding_sock.send(struct.pack('!i', entity_id[entity_name]))
-        
-            for v in vector:
-        
-                embedding_sock.send(struct.pack('f', float(v)))
-
-        # 원소를 한 번에 전송
         #for i, vector in enumerate(entities_initialized):
         #
         #    entity_name = str(entities[i])
         #    id_entity[entity_id[entity_name]] = entity_name
-        #    value_to_send = [float(v) for v in vector]
-        #    value_to_send.insert(0, entity_id[entity_name])
-        #    embedding_sock.send(struct.pack('!' + 'i' + 'f' * len(vector), * value_to_send))
+        #    embedding_sock.send(struct.pack('!i', entity_id[entity_name]))
+        #
+        #    for v in vector:
+        #
+        #        embedding_sock.send(struct.pack('f', float(v)))
+
+        # 원소를 한 번에 전송
+        for i, vector in enumerate(entities_initialized):
+        
+            entity_name = str(entities[i])
+            id_entity[entity_id[entity_name]] = entity_name
+            value_to_send = [float(v) for v in vector]
+            value_to_send.insert(0, entity_id[entity_name])
+            embedding_sock.send(struct.pack('!' + 'i' + 'f' * len(vector), * value_to_send))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -329,24 +329,24 @@ try:
         id_relation = dict()
 
         # 원소를 하나씩 전송
-        for i, relation in enumerate(relations_initialized):
-        
-            relation_name = str(relations[i])
-            id_relation[relation_id[relation_name]] = relation_name
-            embedding_sock.send(struct.pack('!i', relation_id[relation_name])) # relation id 를 int 로 전송
-        
-            for v in relation:
-        
-                embedding_sock.send(struct.pack('f', float(v)))
-
-        # 원소를 한 번에 전송
         #for i, relation in enumerate(relations_initialized):
         #
         #    relation_name = str(relations[i])
         #    id_relation[relation_id[relation_name]] = relation_name
-        #    value_to_send = [float(v) for v in relation]
-        #    value_to_send.insert(0, relation_id[relation_name])
-        #    embedding_sock.send(struct.pack('!' + 'i' + 'f' * len(relation), * value_to_send))
+        #    embedding_sock.send(struct.pack('!i', relation_id[relation_name])) # relation id 를 int 로 전송
+        #
+        #    for v in relation:
+        #
+        #        embedding_sock.send(struct.pack('f', float(v)))
+
+        # 원소를 한 번에 전송
+        for i, relation in enumerate(relations_initialized):
+        
+            relation_name = str(relations[i])
+            id_relation[relation_id[relation_name]] = relation_name
+            value_to_send = [float(v) for v in relation]
+            value_to_send.insert(0, relation_id[relation_name])
+            embedding_sock.send(struct.pack('!' + 'i' + 'f' * len(relation), * value_to_send))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
