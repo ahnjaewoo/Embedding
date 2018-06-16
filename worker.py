@@ -165,27 +165,27 @@ try:
         while checksum != 1:
 
             # 원소 하나씩 전송
-            embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
-            
-            for iter_anchor in chunk_anchor:
-                
-                embedding_sock.send(struct.pack('!i', int(iter_anchor)))
-            
-            embedding_sock.send(struct.pack('!i', len(chunk_entity)))
-            
-            for iter_entity in chunk_entity:
-               
-                embedding_sock.send(struct.pack('!i', int(iter_entity)))
+            #embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
+            #
+            #for iter_anchor in chunk_anchor:
+            #    
+            #    embedding_sock.send(struct.pack('!i', int(iter_anchor)))
+            #
+            #embedding_sock.send(struct.pack('!i', len(chunk_entity)))
+            #
+            #for iter_entity in chunk_entity:
+            #   
+            #    embedding_sock.send(struct.pack('!i', int(iter_entity)))
             
 
             # 원소 한 번에 전송
-            #value_to_send = [int(e) for e in chunk_anchor]
-            #embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
-            #embedding_sock.send(struct.pack('!' + 'i' * len(chunk_anchor), * value_to_send))
-            #
-            #value_to_send = [int(e) for e in chunk_entity]
-            #embedding_sock.send(struct.pack('!i', len(chunk_entity)))
-            #embedding_sock.send(struct.pack('!' + 'i' * len(chunk_entity), * value_to_send))
+            value_to_send = [int(e) for e in chunk_anchor]
+            embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
+            embedding_sock.send(struct.pack('!' + 'i' * len(chunk_anchor), * value_to_send))
+            
+            value_to_send = [int(e) for e in chunk_entity]
+            embedding_sock.send(struct.pack('!i', len(chunk_entity)))
+            embedding_sock.send(struct.pack('!' + 'i' * len(chunk_entity), * value_to_send))
 
             checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -225,16 +225,16 @@ try:
         while checksum != 1:
 
             # 원소 하나씩 전송
-            for (head_id_, relation_id_, tail_id_) in sub_graphs:
-                
-                embedding_sock.send(struct.pack('!i', int(head_id_)))
-                embedding_sock.send(struct.pack('!i', int(relation_id_)))
-                embedding_sock.send(struct.pack('!i', int(tail_id_)))
+            #for (head_id_, relation_id_, tail_id_) in sub_graphs:
+            #    
+            #    embedding_sock.send(struct.pack('!i', int(head_id_)))
+            #    embedding_sock.send(struct.pack('!i', int(relation_id_)))
+            #    embedding_sock.send(struct.pack('!i', int(tail_id_)))
 
             # 원소 한 번에 전송
-            #for (head_id_, relation_id_, tail_id_) in sub_graphs:
-            #
-            #    embedding_sock.send(struct.pack('!iii', int(head_id_), int(relation_id_), int(tail_id_)))
+            for (head_id_, relation_id_, tail_id_) in sub_graphs:
+            
+                embedding_sock.send(struct.pack('!iii', int(head_id_), int(relation_id_), int(tail_id_)))
 
             checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
