@@ -283,27 +283,25 @@ while True:
     # printt('[info] maxmin > # of entities in each partitions : [%s]' % " ".join([str(len(p)) for p in parts]))
 
     # 원소 하나씩 전송
-    master_sock.send(struct.pack('!i', len(list(anchor))))
-    
-    for anchor_val in list(anchor):
-    
-        master_sock.send(struct.pack('!i', anchor_val))
-    
-    for nas in parts:
-    
-        master_sock.send(struct.pack('!i', len(nas)))
-    
-        for nas_val in nas:
-    
-            master_sock.send(struct.pack('!i', nas_val))
-
-    # 원소 여러 개를 한 번에 전송
-    #pack_str = '!' + 'i' * len(list(anchor))
     #master_sock.send(struct.pack('!i', len(list(anchor))))
-    #master_sock.send(struct.pack(pack_str, * list(anchor)))
+    #
+    #for anchor_val in list(anchor):
+    #
+    #    master_sock.send(struct.pack('!i', anchor_val))
     #
     #for nas in parts:
     #
-    #    pack_str = '!' + 'i' * len(nas)
     #    master_sock.send(struct.pack('!i', len(nas)))
-    #    master_sock.send(struct.pack(pack_str, * nas))
+    #
+    #    for nas_val in nas:
+    #
+    #        master_sock.send(struct.pack('!i', nas_val))
+
+    # 원소 여러 개를 한 번에 전송
+    master_sock.send(struct.pack('!i', len(list(anchor))))
+    master_sock.send(struct.pack('!' + 'i' * len(list(anchor)), * list(anchor)))
+    
+    for nas in parts:
+
+        master_sock.send(struct.pack('!i', len(nas)))
+        master_sock.send(struct.pack('!' + 'i' * len(nas), * nas))
