@@ -478,41 +478,41 @@ while True:
         # maxmin 의 결과를 소켓으로 받음
         #
         # 원소를 하나씩 받음
-        anchors = ""
-        anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        
-        for _ in range(anchor_len):
-            
-            anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
-        
-        anchors = anchors[:-1]
-        
-        chunks = list()
-        for _ in range(num_worker):
-        
-            chunk = ''
-            chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        
-            for _ in range(chunk_len):
-            
-                chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
-           
-            chunk = chunk[:-1]
-            chunks.append(chunk)
-
-        # 원소를 한 번에 받음
-        #chunks = list()
-        #
+        #anchors = ""
         #anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        #anchors = list(struct.unpack('!' + 'i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len)))
-        #anchors = ' '.join([str(e) for e in anchors])
         #
+        #for _ in range(anchor_len):
+        #    
+        #    anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
+        #
+        #anchors = anchors[:-1]
+        #
+        #chunks = list()
         #for _ in range(num_worker):
         #
-        #    chunk_len = chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        #    chunk = list(struct.unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
-        #    chunk = ' '.join([str(e) for e in chunk])
+        #    chunk = ''
+        #    chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+        #
+        #    for _ in range(chunk_len):
+        #   
+        #        chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
+        #   
+        #    chunk = chunk[:-1]
         #    chunks.append(chunk)
+
+        # 원소를 한 번에 받음
+        chunks = list()
+        
+        anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+        anchors = list(struct.unpack('!' + 'i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len)))
+        anchors = ' '.join([str(e) for e in anchors])
+        
+        for _ in range(num_worker):
+        
+            chunk_len = chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+            chunk = list(struct.unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
+            chunk = ' '.join([str(e) for e in chunk])
+            chunks.append(chunk)
 
         maxminTimes.append(timeit.default_timer() - maxminStart)
 
