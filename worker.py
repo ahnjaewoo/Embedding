@@ -307,7 +307,7 @@ try:
             embedding_sock.send(struct.pack(
                 precision_string * len(vector), * vector.tolist()))
 
-        checksum = struct.unpack('!i', sockRecv(embedding_sock, precision_byte))[0]
+        checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
         if checksum == 1234:
 
@@ -364,7 +364,7 @@ try:
             embedding_sock.send(struct.pack(
                 precision_string * len(relation), * relation.tolist()))
 
-        checksum = struct.unpack('!i', sockRecv(embedding_sock, precision_byte))[0]
+        checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
         if checksum == 1234:
 
@@ -442,7 +442,7 @@ try:
                 # for _ in range(count_entity):
                 #
                 #    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                #    temp_entity_vector = list(struct.unpack(precision_string * int(embedding_dim), sockRecv(embedding_sock, 4 * int(embedding_dim))))
+                #    temp_entity_vector = list(struct.unpack(precision_string * int(embedding_dim), sockRecv(embedding_sock, precision_byte * int(embedding_dim))))
                 #
                 #    entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
                 #        np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
