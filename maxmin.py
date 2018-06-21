@@ -144,7 +144,6 @@ for (hd, tl) in entity_graph:
     edge_list.append((entity2id[hd], entity2id[tl]))
 
 del entity2id
-del edge_list
 
 while True:
 
