@@ -17,7 +17,6 @@ anchor_interval = int(sys.argv[4])
 root_dir = sys.argv[5]
 data_root = sys.argv[6]
 debugging = sys.argv[7]
-temp_folder_dir = "%s/tmp" % root_dir
 logging.basicConfig(filename='%s/maxmin.log' %
                     root_dir, filemode='w', level=logging.DEBUG)
 logger = logging.getLogger()
@@ -91,8 +90,6 @@ master_sock, master_addr = maxmin_sock.accept()
 # printt('[info] maxmin > socket connected (master <-> maxmin)')
 data_files = ['%s/train.txt' % data_root, '%s/dev.txt' %
               data_root, '%s/test.txt' % data_root]
-output_file = '%s/maxmin_output.txt' % temp_folder_dir
-old_anchor_file = '%s/old_anchor.txt' % temp_folder_dir
 anchor_dict = dict()
 old_anchor = set()
 
@@ -145,6 +142,9 @@ entities_id = {entity2id[v] for v in entities}
 for (hd, tl) in entity_graph:
 
     edge_list.append((entity2id[hd], entity2id[tl]))
+
+del entity2id
+del edge_list
 
 while True:
 
