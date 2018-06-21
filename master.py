@@ -152,7 +152,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
                             str(data_root_id),
                             str(socket_port),
                             log_dir,
-                            precision],
+                            str(precision)],
                             cwd=preprocess_folder_dir)
 
     worker_proc = Popen(["python",
@@ -165,7 +165,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
                          root_dir,
                          str(socket_port),
                          debugging,
-                         precision])
+                         str(precision)])
 
     embedding_proc.wait()
     worker_proc.wait()
