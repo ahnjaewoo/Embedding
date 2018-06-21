@@ -11,10 +11,11 @@ from time import time
 # dim: 50, 100
 
 datasets = ['fb15k', 'wn18']
-num_workers = [2, 4, 6, 8]
+num_workers = [2, 4, 6, 8, 10]
 master_worker_epochs = [(100, 5), (50, 10), (25, 20)]
 lr = 0.001
 ndims = [50, 100]
+precision = 1
 
 key_list = ['dataset', 'num_worker', 'master_epoch', 'worker_iter', 'ndim', 'lr',
             'Raw.BestMEANS', 'Raw.BestMRR', 'Raw.BestHITS', 'Filter.BestMEANS',
@@ -32,12 +33,12 @@ with open("result.csv", 'w') as result_file:
             for master_epoch, worker_iter in master_worker_epochs:
                 for ndim in ndims:
                     process = Popen(['python', 'master.py', '--data_root',
-                                     '/' +
-                                     dataset, '--num_worker', str(num_worker),
-                                     '--train_iter', str(
-                                         worker_iter), '--niter', str(master_epoch),
+                                     '/' + dataset, '--num_worker', str(num_worker),
+                                     '--train_iter', str(worker_iter),
+                                     '--niter', str(master_epoch),
                                      '--ndim', str(ndim), '--lr', str(lr),
-                                     '--debugging', 'no'])
+                                     '--debugging', 'no',
+                                     '--precision', str(precision)])
                     process.communicate()
 
                     print(f"dataset: {dataset}")
