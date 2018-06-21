@@ -486,11 +486,28 @@ public:
 						send(fd, &i, sizeof(int), 0);
 						i = ntohl(i);
 						
+						// 원소 하나씩 보냄
+						/*
 						for (int j = 0; j < dim; j++){
 
 							value_to_send = embedding_entity[i](j);
 							send(fd, &value_to_send, sizeof(value_to_send), 0);
 						}
+						*/
+						//.....................
+
+						// 원소 한 번에 보냄
+
+						float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
+						for (int j = 0; j < dim; j++) {
+
+							vector_buff[j] = embedding_entity[i](j);
+						}
+						send(fd, vector_buff, dim * sizeof(float), 0);
+
+						free(vector_buff);
+
+						//.....................
 					}
 				}
 
@@ -572,11 +589,28 @@ public:
 						send(fd, &i, sizeof(int), 0);
 						i = ntohl(i);
 						
+						// 원소 하나씩 보냄
+						/*
 						for (int j = 0; j < dim; j++){
 
 							value_to_send = embedding_relation[i](j);
 							send(fd, &value_to_send, sizeof(value_to_send), 0);
 						}
+						*/
+						//.....................
+
+						// 원소 한 번에 보냄
+						
+						float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
+						for (int j = 0; j < dim; j++) {
+
+							vector_buff[j] = embedding_relation[i](j);
+						}
+						send(fd, vector_buff, dim * sizeof(float), 0);
+
+						free(vector_buff);
+
+						//.....................
 					}
 				}
 				int recv_val = recv(fd, &flag, sizeof(flag), MSG_WAITALL);
@@ -694,6 +728,8 @@ public:
 					entity_id = ntohl(entity_id);
 					//.....................
 					
+					// 원소 하나씩 받음
+					/*
 					for (int j = 0; j < dim; j++)
 					{
 						if (recv(fd, &temp_vector, sizeof(temp_vector), MSG_WAITALL) < 0){
@@ -709,6 +745,32 @@ public:
 
 						embedding_entity[entity_id](j) = temp_vector;						
 					}
+					*/
+					//.....................
+
+                    // 원소 한 번에 받음
+                        
+                    float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
+					if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
+
+						printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+						printf("[error] GeometricModel.hpp > return -1\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						fclose(fs_log);
+						std::exit(-1);
+					}
+
+					for (int j = 0; j < dim; j++) {
+
+						embedding_entity[entity_id](j) = vector_buff[j];						
+					}
+
+					free(vector_buff);
+
+					//.....................
+
 				}
 
 				flag = 1234;
@@ -799,6 +861,8 @@ public:
 					relation_id = ntohl(relation_id);
 					//.....................
 					
+					// 원소 하나씩 받음
+					/*
 					for (int j = 0; j < dim; j++){
 
 		                if (recv(fd, &temp_vector, sizeof(temp_vector), MSG_WAITALL) < 0){
@@ -815,6 +879,32 @@ public:
 		                
 		                embedding_relation[relation_id](j) = temp_vector;
 					}
+					*/
+					//.....................
+
+                    // 원소 한 번에 받음
+                        
+                    float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
+	                if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
+
+	                	printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+                        printf("[error] GeometricModel.hpp > return -1\n");
+	                	fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+                		close(fd);
+                		fclose(fs_log);
+                		std::exit(-1);
+	                }
+
+                    for (int j = 0; j < dim; j++) {
+
+                    	embedding_relation[relation_id](j) = vector_buff[j];
+                    }
+
+                    free(vector_buff);
+
+                    //.....................
+
 				}
 				// printf("[info] GeometricModel.hpp > receiving relation vector end\n");
 				// fprintf(fs_log, "[info] GeometricModel.hpp > receiving relation vector end\n");
