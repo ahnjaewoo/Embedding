@@ -13,7 +13,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id, int& socket_port, string log_dir);
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id, int& socket_port, string log_dir, int& precision);
 
 int main(int argc, char* argv[]){
 	
@@ -31,6 +31,7 @@ int main(int argc, char* argv[]){
 	int data_root_id = 0;
 	int socket_port = 0;
 	string log_dir;
+	int precision;
 
 	unsigned int len;
 	int nSockOpt;
@@ -39,7 +40,7 @@ int main(int argc, char* argv[]){
 	struct sockaddr_in worker_addr;
 	double run_time;
 
-	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter, data_root_id, socket_port, log_dir);
+	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter, data_root_id, socket_port, log_dir, precision);
 
 	bzero((char *)&embedding_addr, sizeof(embedding_addr));
 	embedding_addr.sin_family = AF_INET;
@@ -109,11 +110,11 @@ int main(int argc, char* argv[]){
 	// choosing data root by data root id
 	if (data_root_id == 0){
 
-		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock, fs_log);
+		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock, fs_log, precision);
 	}
 	else if (data_root_id == 1){
 
-		model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock, fs_log);
+		model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock, fs_log, precision);
 	}
 	//else if (data_root_id == 2){
 	//
@@ -151,7 +152,7 @@ int main(int argc, char* argv[]){
 	return 0;
 }
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id, int& socket_port, string log_dir){
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id, int& socket_port, string log_dir, int& precision){
 
 	if (argc == 2){
 		// very big problem for scaling!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -233,5 +234,20 @@ void getParams(int argc, char* argv[], int& dim, double& alpha, double& training
 		data_root_id = atoi(argv[7]);
 		socket_port = atoi(argv[8]);
 		log_dir = argv[9];
+    }
+
+	if (argc == 11){
+
+        string worker = argv[1];
+        worker_num = worker.back() - '0';
+        master_epoch = atoi(argv[2]);
+        dim = atoi(argv[3]);
+        alpha = atof(argv[4]);
+        training_threshold = atof(argv[5]);
+        train_iter = atoi(argv[6]);
+		data_root_id = atoi(argv[7]);
+		socket_port = atoi(argv[8]);
+		log_dir = argv[9];
+		precision = atoi(argv[10]);
     }	
 }

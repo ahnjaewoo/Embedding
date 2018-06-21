@@ -13,6 +13,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <fstream>
+#include "umHalf.h"
 
 class TransE
 	:public Model
@@ -38,9 +39,10 @@ public:
 		const int worker_num = 0,
 		const int master_epoch = 0,
 		const int fd = 0,
-		FILE * fs_log = NULL)
+		FILE * fs_log = NULL,
+		const int precision = 0)
 		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd, fs_log),
-		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
+		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch), precision(precision)
 	{
 
 		// printf("[info] GeometricModel.hpp > TransE constructor called");
@@ -84,9 +86,10 @@ public:
 		const int worker_num = 0,
 		const int master_epoch = 0,
 		const int fd = 0,
-		FILE * fs_log = NULL)
+		FILE * fs_log = NULL,
+		precision = 0)
 		:Model(dataset, file_zero_shot, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd, fs_log),
-		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
+		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch), precision(precision)
 	{
 
 		// printf("[info] GeometricModel.hpp > TransE constructor called");
@@ -497,15 +500,26 @@ public:
 						//.....................
 
 						// 원소 한 번에 보냄
+						if(precision == 0) {
+							float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
+							for (int j = 0; j < dim; j++) {
 
-						float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
-						for (int j = 0; j < dim; j++) {
+								vector_buff[j] = embedding_entity[i](j);
+							}
+							send(fd, vector_buff, dim * sizeof(float), 0);
 
-							vector_buff[j] = embedding_entity[i](j);
+							free(vector_buff);
 						}
-						send(fd, vector_buff, dim * sizeof(float), 0);
+						else {
+							half * vector_buff = (half *)calloc(dim + 1, sizeof(half));
+							for (int j = 0; j < dim; j++) {
 
-						free(vector_buff);
+								vector_buff[j] = (half) embedding_entity[i](j);
+							}
+							send(fd, vector_buff, dim * sizeof(half), 0);
+
+							free(vector_buff);
+						}
 
 						//.....................
 					}
@@ -601,14 +615,26 @@ public:
 
 						// 원소 한 번에 보냄
 						
-						float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
-						for (int j = 0; j < dim; j++) {
+						if(precision == 0) {
+							float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
+							for (int j = 0; j < dim; j++) {
 
-							vector_buff[j] = embedding_relation[i](j);
+								vector_buff[j] = embedding_relation[i](j);
+							}
+							send(fd, vector_buff, dim * sizeof(float), 0);
+
+							free(vector_buff);
 						}
-						send(fd, vector_buff, dim * sizeof(float), 0);
+						else {
+							half * vector_buff = (half *)calloc(dim + 1, sizeof(half));
+							for (int j = 0; j < dim; j++) {
 
-						free(vector_buff);
+								vector_buff[j] = embedding_relation[i](j);
+							}
+							send(fd, vector_buff, dim * sizeof(half), 0);
+
+							free(vector_buff);
+						}
 
 						//.....................
 					}
@@ -749,25 +775,46 @@ public:
 					//.....................
 
                     // 원소 한 번에 받음
-                        
-                    float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
-					if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
+                    if(precision == 0) {
+						float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
+						if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
 
-						printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
-						printf("[error] GeometricModel.hpp > return -1\n");
-						fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
-						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-						close(fd);
-						fclose(fs_log);
-						std::exit(-1);
+							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+							printf("[error] GeometricModel.hpp > return -1\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+							close(fd);
+							fclose(fs_log);
+							std::exit(-1);
+						}
+
+						for (int j = 0; j < dim; j++) {
+
+							embedding_entity[entity_id](j) = vector_buff[j];						
+						}
+
+						free(vector_buff);
 					}
+					else {
+						half * vector_buff = (half *)calloc(dim + 1, sizeof(half));
+						if (recv(fd, vector_buff, dim * sizeof(half), MSG_WAITALL) < 0){
 
-					for (int j = 0; j < dim; j++) {
+							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+							printf("[error] GeometricModel.hpp > return -1\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+							close(fd);
+							fclose(fs_log);
+							std::exit(-1);
+						}
 
-						embedding_entity[entity_id](j) = vector_buff[j];						
+						for (int j = 0; j < dim; j++) {
+
+							embedding_entity[entity_id](j) = (float) vector_buff[j];						
+						}
+
+						free(vector_buff);
 					}
-
-					free(vector_buff);
 
 					//.....................
 
@@ -884,24 +931,46 @@ public:
 
                     // 원소 한 번에 받음
                         
-                    float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
-	                if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
+					if(precision == 0) {
+						float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
+						if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
 
-	                	printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
-                        printf("[error] GeometricModel.hpp > return -1\n");
-	                	fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
-                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                		close(fd);
-                		fclose(fs_log);
-                		std::exit(-1);
-	                }
+							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+							printf("[error] GeometricModel.hpp > return -1\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+							close(fd);
+							fclose(fs_log);
+							std::exit(-1);
+						}
 
-                    for (int j = 0; j < dim; j++) {
+						for (int j = 0; j < dim; j++) {
 
-                    	embedding_relation[relation_id](j) = vector_buff[j];
-                    }
+							embedding_relation[relation_id](j) = vector_buff[j];
+						}
 
-                    free(vector_buff);
+						free(vector_buff);
+					}
+					else {
+						half * vector_buff = (half *)calloc(dim + 1, sizeof(half));
+						if (recv(fd, vector_buff, dim * sizeof(half), MSG_WAITALL) < 0){
+
+							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+							printf("[error] GeometricModel.hpp > return -1\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+							close(fd);
+							fclose(fs_log);
+							std::exit(-1);
+						}
+
+						for (int j = 0; j < dim; j++) {
+
+							embedding_relation[relation_id](j) = (float) vector_buff[j];
+						}
+
+						free(vector_buff);
+					}
 
                     //.....................
 

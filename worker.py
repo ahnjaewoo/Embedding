@@ -23,6 +23,8 @@ redis_ip_address = sys.argv[5]
 root_dir = sys.argv[6]
 socket_port = sys.argv[7]
 debugging = sys.argv[8]
+precision = int(sys.argv[9])
+pack_string = pack_string if precision == 0 else 'e'
 
 if debugging == 'yes':
     logging.basicConfig(filename='%s/%s_%s.log' % (root_dir,
@@ -293,7 +295,7 @@ try:
         #
         #    for v in vector:
         #
-        #        embedding_sock.send(struct.pack('f', float(v)))
+        #        embedding_sock.send(struct.pack(pack_string, float(v)))
 
         # 원소를 한 번에 전송
         for i, vector in enumerate(entities_initialized):
@@ -302,7 +304,7 @@ try:
             id_entity[entity_id[entity_name]] = entity_name
             embedding_sock.send(struct.pack('!i', entity_id[entity_name]))
             embedding_sock.send(struct.pack(
-                'f' * len(vector), * vector.tolist()))
+                pack_string * len(vector), * vector.tolist()))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -350,7 +352,7 @@ try:
         #
         #    for v in relation:
         #
-        #        embedding_sock.send(struct.pack('f', float(v)))
+        #        embedding_sock.send(struct.pack(pack_string, float(v)))
 
         # 원소를 한 번에 전송
         for i, relation in enumerate(relations_initialized):
@@ -359,7 +361,7 @@ try:
             id_relation[relation_id[relation_name]] = relation_name
             embedding_sock.send(struct.pack('!i', relation_id[relation_name]))
             embedding_sock.send(struct.pack(
-                'f' * len(relation), * relation.tolist()))
+                pack_string * len(relation), * relation.tolist()))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -427,7 +429,7 @@ try:
                     for _ in range(int(embedding_dim)):
 
                         temp_entity = struct.unpack(
-                            'f', sockRecv(embedding_sock, 4))[0]
+                            pack_string, sockRecv(embedding_sock, 4))[0]
                         temp_entity_vector.append(temp_entity)
 
                     entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
@@ -439,7 +441,7 @@ try:
                 # for _ in range(count_entity):
                 #
                 #    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                #    temp_entity_vector = list(struct.unpack('f' * int(embedding_dim), sockRecv(embedding_sock, 4 * int(embedding_dim))))
+                #    temp_entity_vector = list(struct.unpack(pack_string * int(embedding_dim), sockRecv(embedding_sock, 4 * int(embedding_dim))))
                 #
                 #    entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
                 #        np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
@@ -526,7 +528,7 @@ try:
                     for _ in range(int(embedding_dim)):
 
                         temp_relation = struct.unpack(
-                            'f', sockRecv(embedding_sock, 4))[0]
+                            pack_string, sockRecv(embedding_sock, 4))[0]
                         temp_relation_vector.append(temp_relation)
 
                     relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
@@ -538,7 +540,7 @@ try:
                 # for _ in range(count_relation):
                 #
                 #    relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                #    temp_relation_vector = list(struct.unpack('f' * int(embedding_dim), sockRecv(embedding_sock, 4 * int(embedding_dim))))
+                #    temp_relation_vector = list(struct.unpack(pack_string * int(embedding_dim), sockRecv(embedding_sock, 4 * int(embedding_dim))))
                 #
                 #    relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
                 #        np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)

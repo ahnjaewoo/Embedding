@@ -51,6 +51,7 @@ parser.add_argument('--scheduler_ip', type=str,
 parser.add_argument('--use_scheduler_config_file', default='False',
                     help='wheter to use scheduler config file or use scheduler ip directly')
 parser.add_argument('--debugging', type=str, default='yes', help='debugging mode or not')
+parser.add_argument('--precision', type=int, default=0, help='single:0, half: 1')
 args = parser.parse_args()
 
 
@@ -132,7 +133,7 @@ def install_libs():
         os.system("pip install --upgrade hiredis")
 
 
-def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id, redis_ip, root_dir, debugging):
+def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id, redis_ip, root_dir, debugging, precision):
 
     # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
     socket_port = 50000 + 5 * int(worker_id.split('_')[1]) + (cur_iter % 5)
@@ -150,7 +151,8 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
                             str(train_iter),
                             str(data_root_id),
                             str(socket_port),
-                            log_dir],
+                            log_dir,
+                            precision],
                             cwd=preprocess_folder_dir)
 
     worker_proc = Popen(["python",
@@ -162,7 +164,8 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
                          redis_ip,
                          root_dir,
                          str(socket_port),
-                         debugging])
+                         debugging,
+                         precision])
 
     embedding_proc.wait()
     worker_proc.wait()
@@ -460,7 +463,7 @@ while True:
                              "{}\n{}".format(anchors, chunks[i]),
                              'worker_%d' % i,
                              cur_iter, n_dim, lr, margin, train_iter,
-                             data_root_id, args.redis_ip, args.root_dir, args.debugging
+                             data_root_id, args.redis_ip, args.root_dir, args.debugging, args.precision
                              ) for i in range(num_worker)]
 
     if cur_iter % 2 == 1:

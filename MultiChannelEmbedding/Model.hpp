@@ -19,6 +19,7 @@ public:
 	const int		master_epoch;
 	const int		fd;
 	FILE * 	fs_log;	
+	const int;
 
 public:
 	ModelLogging&		logging;
@@ -34,10 +35,11 @@ public:
 		const int worker_num = 0,
 		const int master_epoch = 0,
 		const int fd = 0,
-		FILE * fs_log = NULL)
+		FILE * fs_log = NULL,
+		const int precision = 0)
 		:data_model(*(new DataModel(dataset, is_preprocessed, worker_num, master_epoch, fd, fs_log))), task_type(task_type),
 		logging(*(new ModelLogging(logging_base_path))),be_deleted_data_model(true),
-		is_preprocessed(is_preprocessed), worker_num(worker_num), master_epoch(master_epoch), fd(fd), fs_log(fs_log)
+		is_preprocessed(is_preprocessed), worker_num(worker_num), master_epoch(master_epoch), fd(fd), fs_log(fs_log), precision(precision)
 	{
 		epos = 0;
 		best_triplet_result = 0;
@@ -59,10 +61,11 @@ public:
 		const int worker_num = 0,
 		const int master_epoch = 0,
 		const int fd = 0,
-		FILE * fs_log = NULL)
+		FILE * fs_log = NULL,
+		const int precision = 0)
 		:data_model(*(new DataModel(dataset, is_preprocessed, worker_num, master_epoch, fd, fs_log))), task_type(task_type),
 		logging(*(new ModelLogging(logging_base_path))), be_deleted_data_model(true),
-		is_preprocessed(is_preprocessed), worker_num(worker_num), master_epoch(master_epoch), fd(fd), fs_log(fs_log)
+		is_preprocessed(is_preprocessed), worker_num(worker_num), master_epoch(master_epoch), fd(fd), fs_log(fs_log), precision(precision)
 	{
 		epos = 0;
 		best_triplet_result = 0;

@@ -57,4 +57,11 @@ int main(int argc, char *argv[])
         printf("size of %d\n", sizeof(temp_array));
 
         send(worker_sock, temp_array, 4*sizeof(half), 0);
+        
+        recv(worker_sock, &temp, sizeof(int), MSG_WAITALL);
+
+        float test_v = (float) temp;
+
+        printf("%f\n", test_v);
+        
 }

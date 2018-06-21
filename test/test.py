@@ -31,3 +31,5 @@ test_val = sockRecv(embedding_sock, 8)
 print(len(test_val))
 test_val = struct.unpack('eeee', test_val)
 print(test_val)
+
+embedding_sock.send(struct.pack('e', 0.333))
