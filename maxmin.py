@@ -18,7 +18,8 @@ root_dir = sys.argv[5]
 data_root = sys.argv[6]
 debugging = sys.argv[7]
 temp_folder_dir = "%s/tmp" % root_dir
-logging.basicConfig(filename='%s/maxmin.log' % root_dir, filemode='w', level=logging.DEBUG)
+logging.basicConfig(filename='%s/maxmin.log' %
+                    root_dir, filemode='w', level=logging.DEBUG)
 logger = logging.getLogger()
 handler = logging.StreamHandler(stream=sys.stdout)
 logger.addHandler(handler)
@@ -48,7 +49,8 @@ if debugging == 'yes':
             sys.__excepthook__(exc_type, exc_value, exc_traceback)
             return
 
-        logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
+        logger.error("exception", exc_info=(
+            exc_type, exc_value, exc_traceback))
 
     sys.excepthook = handle_exception
 
@@ -73,6 +75,7 @@ def sockRecv(sock, length):
 
     return data
 
+
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
 # master.py 는 client
@@ -86,7 +89,8 @@ maxmin_sock.listen(1)
 master_sock, master_addr = maxmin_sock.accept()
 
 # printt('[info] maxmin > socket connected (master <-> maxmin)')
-data_files = ['%s/train.txt' % data_root, '%s/dev.txt' % data_root, '%s/test.txt' % data_root]
+data_files = ['%s/train.txt' % data_root, '%s/dev.txt' %
+              data_root, '%s/test.txt' % data_root]
 output_file = '%s/maxmin_output.txt' % temp_folder_dir
 old_anchor_file = '%s/old_anchor.txt' % temp_folder_dir
 anchor_dict = dict()
@@ -100,6 +104,7 @@ connected_entity = defaultdict(set)
 anchor = set()
 non_anchor_edge_included_vertex = set()
 entity_cnt = 0
+old_anchor_dict = None
 
 entity_degree = defaultdict(int)
 
@@ -122,7 +127,7 @@ for file in data_files:
 
                 entity2id[tail] = entity_cnt
                 entity_cnt += 1
-            
+
             entity_degree[entity2id[head]] += 1
             entity_degree[entity2id[tail]] += 1
 
@@ -144,7 +149,7 @@ for (hd, tl) in entity_graph:
 while True:
 
     master_status = struct.unpack('!i', sockRecv(master_sock, 4))[0]
-    
+
     if master_status == 1:
         # 연결을 끊음
         # printt('[info] maxmin > received disconnect signal (master_status = 1)')
@@ -202,7 +207,7 @@ while True:
 
     # printing # of 1st connected entity of anchors
     #tac = defaultdict(bool)
-    #for i,v in enumerate(anchor):
+    # for i,v in enumerate(anchor):
     #    for e in connected_entity[v]:
     #        tac[e] = True
     #    temp_cnt = 0
@@ -210,10 +215,10 @@ while True:
     #        if tac[e]:
     #            temp_cnt += 1
     #    print("1hop anchor 1 - %d(%d): %d/%d" % (i+1, v, temp_cnt, entity_cnt))
-    #print("")
+    # print("")
     # printing # of 2nd connected entity of anchors
     #tac = defaultdict(bool)
-    #for i,v in enumerate(anchor):
+    # for i,v in enumerate(anchor):
     #    for e in connected_entity[v]:
     #        tac[e] = True
     #        for se in connected_entity[e]:
@@ -223,10 +228,10 @@ while True:
     #        if tac[e]:
     #            temp_cnt += 1
     #    print("2hop anchor 1 - %d(%d): %d/%d" % (i+1, v, temp_cnt, entity_cnt))
-    #print("")
+    # print("")
     # printing # of 3rd connected entity of anchors
     #tac = defaultdict(bool)
-    #for i,v in enumerate(anchor):
+    # for i,v in enumerate(anchor):
     #    for e in connected_entity[v]:
     #        tac[e] = True
     #        for se in connected_entity[e]:
@@ -238,9 +243,9 @@ while True:
     #        if tac[e]:
     #            temp_cnt += 1
     #    print("3hop anchor 1 - %d(%d): %d/%d" % (i+1, v, temp_cnt, entity_cnt))
-    #print("")
+    # print("")
 
-    #for i,v in enumerate(anchor):
+    # for i,v in enumerate(anchor):
     #    print('anchor %d(%d): %d' % (i, v, len(connected_entity[v])))
 
     anchor_dict[cur_iter % anchor_interval] = anchor
@@ -248,12 +253,13 @@ while True:
 
     # solve the min-cut partition problem of A~, finding A~ and edges
     non_anchor_id = entities_id.difference(anchor)
-    non_anchor_edge_list = [(h, t) for (h, t) in edge_list if h in non_anchor_id and t in non_anchor_id]
+    non_anchor_edge_list = [(h, t) for (
+        h, t) in edge_list if h in non_anchor_id and t in non_anchor_id]
 
     for (h, t) in non_anchor_edge_list:
 
         non_anchor_edge_included_vertex.add(h)
-        non_anchor_edge_included_vertex.add(t) 
+        non_anchor_edge_included_vertex.add(t)
 
     # constructing nx.Graph and using metis in order to get min-cut partition
     G = nx.Graph()
@@ -270,11 +276,12 @@ while True:
         nseps=-1, numbering=-1, niter=cur_iter, seed=-1, minconn=-1, no2hop=-1,
         contig=-1, compress=-1, ccorder=-1, pfactor=-1, ufactor=-1, dbglvl=-1)
 
-    (edgecuts, parts) = nxmetis.partition(G, nparts=partition_num, node_weight='node_weight')
+    (edgecuts, parts) = nxmetis.partition(
+        G, nparts=partition_num, node_weight='node_weight')
 
     # putting residue randomly into non anchor set
     residue = non_anchor_id.difference(non_anchor_edge_included_vertex)
-    
+
     for v in residue:
 
         parts[randint(0, partition_num - 1)].append(v)
@@ -285,11 +292,11 @@ while True:
     # 원소 하나씩 전송
     #master_sock.send(struct.pack('!i', len(list(anchor))))
     #
-    #for anchor_val in list(anchor):
+    # for anchor_val in list(anchor):
     #
     #    master_sock.send(struct.pack('!i', anchor_val))
     #
-    #for nas in parts:
+    # for nas in parts:
     #
     #    master_sock.send(struct.pack('!i', len(nas)))
     #
@@ -299,8 +306,9 @@ while True:
 
     # 원소 여러 개를 한 번에 전송
     master_sock.send(struct.pack('!i', len(list(anchor))))
-    master_sock.send(struct.pack('!' + 'i' * len(list(anchor)), * list(anchor)))
-    
+    master_sock.send(struct.pack(
+        '!' + 'i' * len(list(anchor)), * list(anchor)))
+
     for nas in parts:
 
         master_sock.send(struct.pack('!i', len(nas)))
