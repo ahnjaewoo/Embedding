@@ -42,7 +42,7 @@ public:
 		FILE * fs_log = NULL,
 		const int precision = 0)
 		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd, fs_log, precision),
-		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch), precision(precision)
+		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
 	{
 
 		// printf("[info] GeometricModel.hpp > TransE constructor called");
@@ -89,7 +89,7 @@ public:
 		FILE * fs_log = NULL,
 		precision = 0)
 		:Model(dataset, file_zero_shot, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd, fs_log, precision),
-		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch), precision(precision)
+		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
 	{
 
 		// printf("[info] GeometricModel.hpp > TransE constructor called");
