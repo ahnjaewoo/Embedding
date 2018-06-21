@@ -25,7 +25,8 @@ socket_port = sys.argv[7]
 debugging = sys.argv[8]
 
 if debugging == 'yes':
-    logging.basicConfig(filename='%s/%s_%s.log' % (root_dir, worker_id, cur_iter), filemode='w', level=logging.WARNING)
+    logging.basicConfig(filename='%s/%s_%s.log' % (root_dir,
+                                                   worker_id, cur_iter), filemode='w', level=logging.WARNING)
     logger = logging.getLogger()
     handler = logging.StreamHandler(stream=sys.stdout)
     logger.addHandler(handler)
@@ -42,12 +43,13 @@ if debugging == 'yes':
             sys.__excepthook__(exc_type, exc_value, exc_traceback)
             return
 
-        logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
+        logger.error("exception", exc_info=(
+            exc_type, exc_value, exc_traceback))
 
     sys.excepthook = handle_exception
 
 elif debugging == 'no':
-    
+
     printt = print
 
 
@@ -85,8 +87,10 @@ relations_initialized = r.mget([relation + '_v' for relation in relations])
 entity_id = {entities[i]: int(id_) for i, id_ in enumerate(entity_id)}
 relation_id = {relations[i]: int(id_) for i, id_ in enumerate(relation_id)}
 
-entities_initialized = [pickle.loads(decompress(v)) for v in entities_initialized]
-relations_initialized = [pickle.loads(decompress(v)) for v in relations_initialized]
+entities_initialized = [pickle.loads(decompress(v))
+                        for v in entities_initialized]
+relations_initialized = [pickle.loads(decompress(v))
+                         for v in relations_initialized]
 
 redisTime = timeit.default_timer() - workerStart
 # printt('worker > redis server connection time : %f' % (redisTime))
@@ -99,14 +103,14 @@ redisTime = timeit.default_timer() - workerStart
 
 trial = 0
 while True:
-    
+
     try:
 
         embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         break
 
     except Exception as e:
-        
+
         sleep(1)
         trial = trial + 1
         printt('[error] worker > exception occured in worker <-> embedding')
@@ -114,20 +118,21 @@ while True:
 
     if trial == 5:
 
-        printt('[error] worker > iteration ' + cur_iter + ' failed - ' + worker_id)
+        printt('[error] worker > iteration ' +
+               cur_iter + ' failed - ' + worker_id)
         printt('[error] worker > return -1')
         sys.exit(-1)
 
 trial = 0
 while True:
-    
+
     try:
-        
+
         embedding_sock.connect(('127.0.0.1', int(socket_port)))
         break
 
     except Exception as e:
-        
+
         sleep(1)
         trial = trial + 1
         printt('[error] worker > exception occured in worker <-> embedding')
@@ -135,7 +140,8 @@ while True:
 
     if trial == 5:
 
-        printt('[error] worker > iteration ' + cur_iter + ' failed - ' + worker_id)
+        printt('[error] worker > iteration ' +
+               cur_iter + ' failed - ' + worker_id)
         printt('[error] worker > return -1')
         sys.exit(-1)
 
@@ -159,7 +165,7 @@ try:
         chunk_entity = chunk_entity.split(' ')
 
         if len(chunk_anchor) == 1 and chunk_anchor[0] == '':
-            
+
             chunk_anchor = []
 
         while checksum != 1:
@@ -167,25 +173,26 @@ try:
             # 원소 하나씩 전송
             #embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
             #
-            #for iter_anchor in chunk_anchor:
-            #    
+            # for iter_anchor in chunk_anchor:
+            #
             #    embedding_sock.send(struct.pack('!i', int(iter_anchor)))
             #
             #embedding_sock.send(struct.pack('!i', len(chunk_entity)))
             #
-            #for iter_entity in chunk_entity:
-            #   
+            # for iter_entity in chunk_entity:
+            #
             #    embedding_sock.send(struct.pack('!i', int(iter_entity)))
-            
 
             # 원소 한 번에 전송
             value_to_send = [int(e) for e in chunk_anchor]
             embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
-            embedding_sock.send(struct.pack('!' + 'i' * len(chunk_anchor), * value_to_send))
-            
+            embedding_sock.send(struct.pack(
+                '!' + 'i' * len(chunk_anchor), * value_to_send))
+
             value_to_send = [int(e) for e in chunk_entity]
             embedding_sock.send(struct.pack('!i', len(chunk_entity)))
-            embedding_sock.send(struct.pack('!' + 'i' * len(chunk_entity), * value_to_send))
+            embedding_sock.send(struct.pack(
+                '!' + 'i' * len(chunk_entity), * value_to_send))
 
             checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -204,7 +211,8 @@ try:
             else:
 
                 printt('[error] worker > unknown error in phase 1 - ' + worker_id)
-                printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
+                printt('[error] worker > received checksum = ' +
+                       str(checksum) + ' - ' + worker_id)
                 printt('[error] worker > return -1')
                 # fsLog.write('[error] worker > unknown error in phase 1 - ' + worker_id + '\n')
                 # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
@@ -218,23 +226,25 @@ try:
     else:
         # relation 전송 - DataModel 생성자
         timeNow = timeit.default_timer()
-        sub_graphs = pickle.loads(decompress(r.get('sub_g_{}'.format(worker_id))))
+        sub_graphs = pickle.loads(decompress(
+            r.get('sub_g_{}'.format(worker_id))))
         redisTime += timeit.default_timer() - timeNow
         embedding_sock.send(struct.pack('!i', len(sub_graphs)))
 
         while checksum != 1:
 
             # 원소 하나씩 전송
-            #for (head_id_, relation_id_, tail_id_) in sub_graphs:
-            #    
+            # for (head_id_, relation_id_, tail_id_) in sub_graphs:
+            #
             #    embedding_sock.send(struct.pack('!i', int(head_id_)))
             #    embedding_sock.send(struct.pack('!i', int(relation_id_)))
             #    embedding_sock.send(struct.pack('!i', int(tail_id_)))
 
             # 원소 한 번에 전송
             for (head_id_, relation_id_, tail_id_) in sub_graphs:
-            
-                embedding_sock.send(struct.pack('!iii', int(head_id_), int(relation_id_), int(tail_id_)))
+
+                embedding_sock.send(struct.pack('!iii', int(
+                    head_id_), int(relation_id_), int(tail_id_)))
 
             checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -253,7 +263,8 @@ try:
             else:
 
                 printt('[error] worker > unknown error in phase 1 - ' + worker_id)
-                printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
+                printt('[error] worker > received checksum = ' +
+                       str(checksum) + ' - ' + worker_id)
                 printt('[error] worker > return -1')
                 # fsLog.write('[error] worker > unknown error in phase 1 - ' + worker_id + '\n')
                 # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
@@ -274,7 +285,7 @@ try:
         id_entity = dict()
 
         # 원소를 하나씩 전송
-        #for i, vector in enumerate(entities_initialized):
+        # for i, vector in enumerate(entities_initialized):
         #
         #    entity_name = str(entities[i])
         #    id_entity[entity_id[entity_name]] = entity_name
@@ -286,12 +297,12 @@ try:
 
         # 원소를 한 번에 전송
         for i, vector in enumerate(entities_initialized):
-        
+
             entity_name = str(entities[i])
             id_entity[entity_id[entity_name]] = entity_name
-            value_to_send = [float(v) for v in vector]
             embedding_sock.send(struct.pack('!i', entity_id[entity_name]))
-            embedding_sock.send(struct.pack('f' * len(vector), * value_to_send))
+            embedding_sock.send(struct.pack(
+                'f' * len(vector), * vector.tolist()))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -309,8 +320,10 @@ try:
 
         else:
 
-            printt('[error] worker > unknown error in phase 2 (entity) - ' + worker_id)
-            printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
+            printt(
+                '[error] worker > unknown error in phase 2 (entity) - ' + worker_id)
+            printt('[error] worker > received checksum = ' +
+                   str(checksum) + ' - ' + worker_id)
             printt('[error] worker > return -1')
             # fsLog.write('[error] worker > unknown error in phase 2 (entity) - ' + worker_id + '\n')
             # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
@@ -329,7 +342,7 @@ try:
         id_relation = dict()
 
         # 원소를 하나씩 전송
-        #for i, relation in enumerate(relations_initialized):
+        # for i, relation in enumerate(relations_initialized):
         #
         #    relation_name = str(relations[i])
         #    id_relation[relation_id[relation_name]] = relation_name
@@ -341,12 +354,12 @@ try:
 
         # 원소를 한 번에 전송
         for i, relation in enumerate(relations_initialized):
-        
+
             relation_name = str(relations[i])
             id_relation[relation_id[relation_name]] = relation_name
-            value_to_send = [float(v) for v in relation]
             embedding_sock.send(struct.pack('!i', relation_id[relation_name]))
-            embedding_sock.send(struct.pack('f' * len(relation), * value_to_send))
+            embedding_sock.send(struct.pack(
+                'f' * len(relation), * relation.tolist()))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -358,14 +371,17 @@ try:
 
         elif checksum == 9876:
 
-            printt('[error] worker > retry phase 2 (relation) - worker.py - ' + worker_id)
+            printt(
+                '[error] worker > retry phase 2 (relation) - worker.py - ' + worker_id)
             # fsLog.write('[error] worker > retry phase 2 (relation) - ' + worker_id + '\n')
             checksum = 0
 
         else:
 
-            printt('[error] worker > unknown error in phase 2 (relation) - ' + worker_id)
-            printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
+            printt(
+                '[error] worker > unknown error in phase 2 (relation) - ' + worker_id)
+            printt('[error] worker > received checksum = ' +
+                   str(checksum) + ' - ' + worker_id)
             printt('[error] worker > return -1')
             # fsLog.write('[error] worker > unknown error in phase 2 (relation) - ' + worker_id + '\n')
             # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
@@ -390,41 +406,44 @@ try:
 
         while success != 1:
 
-            try:        
+            try:
 
                 entity_vectors = dict()
 
                 embeddingTime = timeit.default_timer() - timeNow
                 # 처리 결과를 받아옴 - GeometricModel save
-                
+
                 # 원소를 하나씩 받음
-                count_entity = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                
+                count_entity = struct.unpack(
+                    '!i', sockRecv(embedding_sock, 4))[0]
+
                 for _ in range(count_entity):
-                    
+
                     temp_entity_vector = list()
-                
-                    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]     # entity_id 를 int 로 받음                    
-                
+
+                    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[
+                        0]     # entity_id 를 int 로 받음
+
                     for _ in range(int(embedding_dim)):
-                
-                        temp_entity = struct.unpack('f', sockRecv(embedding_sock, 4))[0]
+
+                        temp_entity = struct.unpack(
+                            'f', sockRecv(embedding_sock, 4))[0]
                         temp_entity_vector.append(temp_entity)
-                
+
                     entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
                         np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
 
                 # 원소를 한 번에 받음
                 #count_entity = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
                 #
-                #for _ in range(count_entity):
+                # for _ in range(count_entity):
                 #
                 #    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
                 #    temp_entity_vector = list(struct.unpack('f' * int(embedding_dim), sockRecv(embedding_sock, 4 * int(embedding_dim))))
-                #    
+                #
                 #    entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
                 #        np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
-                    
+
             except Exception as e:
 
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -432,18 +451,22 @@ try:
 
                 if tempcount < 3:
 
-                    printt('[error] worker > retry phase 3 (entity) - ' + worker_id)
+                    printt(
+                        '[error] worker > retry phase 3 (entity) - ' + worker_id)
                     printt('[error] worker > ' + str(e))
-                    printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
+                    printt(
+                        '[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
                     # fsLog.write('[error] worker > retry phase 3 (entity) - ' + worker_id + '\n')
                     # fsLog.write('[error] worker > ' + str(e) + '\n')
                     # fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
 
                 else:
 
-                    printt('[error] worker > failed phase 3 (entity) - ' + worker_id)
+                    printt(
+                        '[error] worker > failed phase 3 (entity) - ' + worker_id)
                     printt('[error] worker > ' + str(e))
-                    printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
+                    printt(
+                        '[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
                     printt('[error] worker > return -1')
                     # fsLog.write('[error] worker > retry phase 3 (entity) - ' + worker_id + '\n')
                     # fsLog.write('[error] worker > ' + str(e) + '\n')
@@ -467,22 +490,22 @@ try:
 
         sockSaveTime = timeit.default_timer() - timeNow
         timeNow = timeit.default_timer()
-        
+
         r.mset(entity_vectors)
         #printt('worker > entity_vectors updated - ' + worker_id)
         #printt('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
         #fsLog.write('worker > entity_vectors updated - ' + worker_id + '\n')
         #fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
-        #fsLog.close()
+        # fsLog.close()
         redisTime += timeit.default_timer() - timeNow
-        
+
     else:
 
         success = 0
 
         while success != 1:
 
-            try:    
+            try:
 
                 relation_vectors = dict()
 
@@ -490,33 +513,36 @@ try:
                 # 처리 결과를 받아옴 - GeometricModel save
 
                 # 원소를 하나씩 전송
-                count_relation = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                
+                count_relation = struct.unpack(
+                    '!i', sockRecv(embedding_sock, 4))[0]
+
                 for _ in range(count_relation):
-                    
+
                     temp_relation_vector = list()
-                
-                    relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]   # relation_id 를 int 로 받음
-                
+
+                    relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[
+                        0]   # relation_id 를 int 로 받음
+
                     for _ in range(int(embedding_dim)):
-                        
-                        temp_relation = struct.unpack('f', sockRecv(embedding_sock, 4))[0]
+
+                        temp_relation = struct.unpack(
+                            'f', sockRecv(embedding_sock, 4))[0]
                         temp_relation_vector.append(temp_relation)
-                
+
                     relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
                         np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
 
                 # 원소를 한 번에 받음
                 #count_relation = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
                 #
-                #for _ in range(count_relation):
+                # for _ in range(count_relation):
                 #
                 #    relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
                 #    temp_relation_vector = list(struct.unpack('f' * int(embedding_dim), sockRecv(embedding_sock, 4 * int(embedding_dim))))
-                #   
+                #
                 #    relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
                 #        np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
-        
+
             except Exception as e:
 
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -524,18 +550,22 @@ try:
 
                 if tempcount < 3:
 
-                    printt('[error] worker > retry phase 3 (relation) - ' + worker_id)
+                    printt(
+                        '[error] worker > retry phase 3 (relation) - ' + worker_id)
                     printt('[error] worker > ' + str(e))
-                    printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
+                    printt(
+                        '[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
                     # fsLog.write('[error] worker > retry phase 3 (relation) - ' + worker_id + '\n')
                     # fsLog.write('[error] worker > ' + str(e) + '\n')
                     # fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
 
                 else:
 
-                    printt('[error] worker > failed phase 3 (relation) - ' + worker_id)
+                    printt(
+                        '[error] worker > failed phase 3 (relation) - ' + worker_id)
                     printt('[error] worker > ' + str(e))
-                    printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
+                    printt(
+                        '[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
                     printt('[error] worker > return -1')
                     # fsLog.write('[error] worker > retry phase 3 (relation) - ' + worker_id + '\n')
                     # fsLog.write('[error] worker > ' + str(e) + '\n')
@@ -558,7 +588,7 @@ try:
                 success = 1
 
         sockSaveTime = timeit.default_timer() - timeNow
-        timeNow = timeit.default_timer()        
+        timeNow = timeit.default_timer()
 
         r.mset(relation_vectors)
         #printt('worker > relation_vectors updated - ' + worker_id)
@@ -567,7 +597,7 @@ try:
         #fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         # fsLog.close()
         redisTime += timeit.default_timer() - timeNow
-        
+
 except Exception as e:
 
     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -597,7 +627,8 @@ output_times["model_run"] = modelRunTime
 output_times["socket_save"] = sockSaveTime
 output_times["redis"] = redisTime
 output_times["worker_total"] = workerTotalTime
-output_times = compress(pickle.dumps(output_times, protocol=pickle.HIGHEST_PROTOCOL), 9)
+output_times = compress(pickle.dumps(
+    output_times, protocol=pickle.HIGHEST_PROTOCOL), 9)
 r.set(worker_id + '_' + cur_iter, output_times)
 
 sys.exit(0)
