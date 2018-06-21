@@ -19,7 +19,7 @@ public:
 	const int		master_epoch;
 	const int		fd;
 	FILE * 	fs_log;	
-	const int;
+	const int precision;
 
 public:
 	ModelLogging&		logging;
