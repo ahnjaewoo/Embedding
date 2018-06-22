@@ -11,7 +11,7 @@ from time import time
 # dim: 50, 100
 
 datasets = ['fb15k', 'wn18']
-num_workers = [2, 4, 6, 8, 10]
+num_workers = [2, 4, 6, 8]
 master_worker_epochs = [(100, 5), (50, 10), (25, 20)]
 lr = 0.001
 ndims = [50, 100]
