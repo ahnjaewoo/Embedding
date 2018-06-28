@@ -186,16 +186,20 @@ try:
             #
             #    embedding_sock.send(struct.pack('!i', int(iter_entity)))
 
-            # 원소 한 번에 전송
-            value_to_send = [int(e) for e in chunk_anchor]
-            embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
-            embedding_sock.send(struct.pack(
-                '!' + 'i' * len(chunk_anchor), * value_to_send))
+            # 원소 한 번에 전송 - 1 단계
+            #value_to_send = [int(e) for e in chunk_anchor]
+            #embedding_sock.send(struct.pack('!i', len(chunk_anchor)))
+            #embedding_sock.send(struct.pack(
+            #    '!' + 'i' * len(chunk_anchor), * value_to_send))
+            #
+            #value_to_send = [int(e) for e in chunk_entity]
+            #embedding_sock.send(struct.pack('!i', len(chunk_entity)))
+            #embedding_sock.send(struct.pack(
+            #    '!' + 'i' * len(chunk_entity), * value_to_send))
 
-            value_to_send = [int(e) for e in chunk_entity]
-            embedding_sock.send(struct.pack('!i', len(chunk_entity)))
-            embedding_sock.send(struct.pack(
-                '!' + 'i' * len(chunk_entity), * value_to_send))
+            # 원소 한 번에 전송 - 2 단계
+            value_to_send = [len(chunk_anchor)] + [len(chunk_entity)] + [int(e) for e in chunk_anchor] + [int(e) for e in chunk_entity]
+            embedding_sock.send(struct.pack('!' + 'ii' + i * (len(chunk_anchor) + len(chunk_entity)), * value_to_send))
 
             checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -232,9 +236,10 @@ try:
         sub_graphs = pickle.loads(decompress(
             r.get('sub_g_{}'.format(worker_id))))
         redisTime += timeit.default_timer() - timeNow
-        embedding_sock.send(struct.pack('!i', len(sub_graphs)))
-
+        
         while checksum != 1:
+
+            embedding_sock.send(struct.pack('!i', len(sub_graphs)))
 
             # 원소 하나씩 전송
             # for (head_id_, relation_id_, tail_id_) in sub_graphs:
@@ -243,11 +248,22 @@ try:
             #    embedding_sock.send(struct.pack('!i', int(relation_id_)))
             #    embedding_sock.send(struct.pack('!i', int(tail_id_)))
 
-            # 원소 한 번에 전송
+            # 원소 한 번에 전송 - 1 단계
+            #for (head_id_, relation_id_, tail_id_) in sub_graphs:
+            #
+            #    embedding_sock.send(struct.pack('!iii', int(
+            #        head_id_), int(relation_id_), int(tail_id_)))
+
+            # 원소 한 번에 전송 - 2 단계
+            value_to_send = list()
+
             for (head_id_, relation_id_, tail_id_) in sub_graphs:
 
-                embedding_sock.send(struct.pack('!iii', int(
-                    head_id_), int(relation_id_), int(tail_id_)))
+                value_to_send.append(int(head_id_))
+                value_to_send.append(int(relation_id_))
+                value_to_send.append(int(tail_id_))
+
+            embedding_sock.send(struct.pack('!' + i * len(value_to_send), * value_to_send))
 
             checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -298,14 +314,28 @@ try:
         #
         #        embedding_sock.send(struct.pack(precision_string, float(v)))
 
-        # 원소를 한 번에 전송
+        # 원소를 한 번에 전송 - 1 단계
+        #for i, vector in enumerate(entities_initialized):
+        #
+        #    entity_name = str(entities[i])
+        #    id_entity[entity_id[entity_name]] = entity_name
+        #    embedding_sock.send(struct.pack('!i', entity_id[entity_name]))
+        #    embedding_sock.send(struct.pack(
+        #        precision_string * len(vector), * vector.tolist()))
+
+        # 원소를 한 번에 전송 - 2 단계
+        value_to_send_id = list()
+        value_to_send_vector = list()
+
         for i, vector in enumerate(entities_initialized):
 
             entity_name = str(entities[i])
             id_entity[entity_id[entity_name]] = entity_name
-            embedding_sock.send(struct.pack('!i', entity_id[entity_name]))
-            embedding_sock.send(struct.pack(
-                precision_string * len(vector), * vector.tolist()))
+            value_to_send_id.append(entity_id[entity_name])
+            value_to_send_vector = value_to_send_vector + vector.tolist()
+
+        embedding_sock.send(struct.pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
+        embedding_sock.send(struct.pack(precision_string * len(value_to_send_vector), * value_to_send_id))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -355,14 +385,28 @@ try:
         #
         #        embedding_sock.send(struct.pack(precision_string, float(v)))
 
-        # 원소를 한 번에 전송
+        # 원소를 한 번에 전송 - 1 단계
+        #for i, relation in enumerate(relations_initialized):
+        #
+        #    relation_name = str(relations[i])
+        #    id_relation[relation_id[relation_name]] = relation_name
+        #    embedding_sock.send(struct.pack('!i', relation_id[relation_name]))
+        #    embedding_sock.send(struct.pack(
+        #        precision_string * len(relation), * relation.tolist()))
+
+        # 원소를 한 번에 전송 - 2 단계
+        value_to_send_id = list()
+        value_to_send_vector = list()
+
         for i, relation in enumerate(relations_initialized):
 
             relation_name = str(relations[i])
             id_relation[relation_id[relation_name]] = relation_name
-            embedding_sock.send(struct.pack('!i', relation_id[relation_name]))
-            embedding_sock.send(struct.pack(
-                precision_string * len(relation), * relation.tolist()))
+            value_to_send_id.append(relation_id[relation_name])
+            value_to_send_vector = value_to_send_vector + vector.tolist()
+
+        embedding_sock.send(struct.pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
+        embedding_sock.send(struct.pack(precision_string * len(value_to_send_vector), * value_to_send_id))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
