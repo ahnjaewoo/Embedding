@@ -2017,46 +2017,66 @@ public:
 		single_or_total(sot), be_weight_normalized(be_weight_normalized), step_before(step_before),
 		normalizor(1.0 / pow(3.1415, dim / 2))
 	{
-		logging.record() << "\t[Name]\tTransM";
-		logging.record() << "\t[Dimension]\t" << dim;
-		logging.record() << "\t[Learning Rate]\t" << alpha;
-		logging.record() << "\t[Training Threshold]\t" << training_threshold;
-		logging.record() << "\t[Cluster Counts]\t" << n_cluster;
-		logging.record() << "\t[CRP Factor]\t" << CRP_factor;
-
-		if (be_weight_normalized)
-			logging.record() << "\t[Weight Normalized]\tTrue";
-		else
-			logging.record() << "\t[Weight Normalized]\tFalse";
-
-		if (sot)
-			logging.record() << "\t[Single or Total]\tTrue";
-		else
-			logging.record() << "\t[Single or Total]\tFalse";
+		// logging.record() << "\t[Name]\tTransM";
+		// logging.record() << "\t[Dimension]\t" << dim;
+		// logging.record() << "\t[Learning Rate]\t" << alpha;
+		// logging.record() << "\t[Training Threshold]\t" << training_threshold;
+		// logging.record() << "\t[Cluster Counts]\t" << n_cluster;
+		// logging.record() << "\t[CRP Factor]\t" << CRP_factor;
+		//
+		// if (be_weight_normalized)
+		// 	logging.record() << "\t[Weight Normalized]\tTrue";
+		// else
+		// 	logging.record() << "\t[Weight Normalized]\tFalse";
+		//
+		// if (sot)
+		// 	logging.record() << "\t[Single or Total]\tTrue";
+		// else
+		// 	logging.record() << "\t[Single or Total]\tFalse";
 
 		embedding_entity.resize(count_entity());
-		for_each(embedding_entity.begin(), embedding_entity.end(), [=](vec& elem){elem = randu(dim, 1); });
-
 		embedding_clusters.resize(count_relation());
-		for (auto &elem_vec : embedding_clusters)
-		{
-			elem_vec.resize(30);
-			for_each(elem_vec.begin(), elem_vec.end(), [=](vec& elem){elem = (2 * randu(dim, 1) - 1)*sqrt(6.0 / dim); });
-		}
-
 		weights_clusters.resize(count_relation());
-		for (auto & elem_vec : weights_clusters)
-		{
-			elem_vec.resize(21);
-			elem_vec.fill(0.0);
-			for (auto i = 0; i<n_cluster; ++i)
-			{
-				elem_vec[i] = 1.0 / n_cluster;
-			}
-		}
-
 		size_clusters.resize(count_relation(), n_cluster);
-		this->CRP_factor = CRP_factor / data_model.data_train.size() * count_relation();
+
+		if (is_preprocessed) {
+			for_each(embedding_entity.begin(), embedding_entity.end(), [=](vec& elem) {elem = vec(dim); });
+			for (auto &elem_vec : embedding_clusters) {
+				elem_vec.resize(30);
+				for_each(elem_vec.begin(), elem_vec.end(), [=](vec& elem) {elem = vec(dim); });
+			}
+			for (auto & elem_vec : weights_clusters)
+			{
+				elem_vec.resize(21);
+				elem_vec.fill(0.0);
+			}
+
+			// load 함수 부분이 소켓과 연동되어야 함, load 함수 자체에서 처리
+			load("", fs_log);
+		} else {
+			for_each(embedding_entity.begin(), embedding_entity.end(), [=](vec& elem){elem = randu(dim, 1); });
+
+			embedding_clusters.resize(count_relation());
+			for (auto &elem_vec : embedding_clusters)
+			{
+				elem_vec.resize(30);
+				for_each(elem_vec.begin(), elem_vec.end(), [=](vec& elem){elem = (2 * randu(dim, 1) - 1)*sqrt(6.0 / dim); });
+			}
+
+			weights_clusters.resize(count_relation());
+			for (auto & elem_vec : weights_clusters)
+			{
+				elem_vec.resize(21);
+				elem_vec.fill(0.0);
+				for (auto i = 0; i<n_cluster; ++i)
+				{
+					elem_vec[i] = 1.0 / n_cluster;
+				}
+			}
+
+			size_clusters.resize(count_relation(), n_cluster);
+			this->CRP_factor = CRP_factor / data_model.data_train.size() * count_relation();
+		}
 	}
 
 public:
