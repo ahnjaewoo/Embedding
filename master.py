@@ -466,8 +466,6 @@ while True:
                              data_root_id, args.redis_ip, args.root_dir, args.debugging, args.precision
                              ) for i in range(num_worker)]
 
-    printt('sadfsdafsdafsadf')
-
     if cur_iter % 2 == 1:
         # entity partitioning: max-min cut 실행, anchor 등 재분배
         
@@ -524,6 +522,8 @@ while True:
     else:
         # relation partitioning
         chunk_data = ''
+
+    printt('asdfsdafsadf')
     
     client.gather(workers)
     result_iter = [worker.result() for worker in workers]
@@ -545,6 +545,8 @@ while True:
         # printt('master > Average total embedding time : ' + str(np.mean(workTimes)))
 
     else:
+
+        printt(result_iter)
 
         # 이터레이션 실패
         # redis 에 저장된 결과를 백업된 값으로 되돌림
