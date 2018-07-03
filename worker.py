@@ -199,7 +199,7 @@ try:
 
             # 원소 한 번에 전송 - 2 단계
             value_to_send = [len(chunk_anchor)] + [len(chunk_entity)] + [int(e) for e in chunk_anchor] + [int(e) for e in chunk_entity]
-            embedding_sock.send(struct.pack('!' + 'ii' + i * (len(chunk_anchor) + len(chunk_entity)), * value_to_send))
+            embedding_sock.send(struct.pack('!' + 'ii' + 'i' * (len(chunk_anchor) + len(chunk_entity)), * value_to_send))
 
             checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
