@@ -687,8 +687,8 @@ while success != 1:
     for i, vector in enumerate(entities_initialized):
 
         entity_name = str(entities[i])
-        id_entity[entity_id[entity_name]] = entity_name
-        value_to_send_id.append(entity_id[entity_name])
+        id_entity[entity2id[entity_name]] = entity_name
+        value_to_send_id.append(entity2id[entity_name])
         value_to_send_vector = value_to_send_vector + vector.tolist()
 
     test_sock.send(struct.pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
@@ -745,8 +745,8 @@ while success != 1:
     for i, relation in enumerate(relations_initialized):
 
         relation_name = str(relations[i])
-        id_relation[relation_id[relation_name]] = relation_name
-        value_to_send_id.append(relation_id[relation_name])
+        id_relation[relation2id[relation_name]] = relation_name
+        value_to_send_id.append(relation2id[relation_name])
         value_to_send_vector = value_to_send_vector + vector.tolist()
 
     test_sock.send(struct.pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
