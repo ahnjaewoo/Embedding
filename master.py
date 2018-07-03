@@ -140,8 +140,6 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
     log_dir = os.path.join(args.root_dir, 'logs/embedding_log_{}_iter_{}.txt'.format(worker_id, cur_iter))
 
-    print('asdfsadfsafasdfsaf')
-
     workStart = timeit.default_timer()
 
     embedding_proc = Popen([train_code_dir, 
