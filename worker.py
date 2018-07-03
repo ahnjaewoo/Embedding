@@ -335,7 +335,7 @@ try:
             value_to_send_vector = value_to_send_vector + vector.tolist()
 
         embedding_sock.send(struct.pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
-        embedding_sock.send(struct.pack(precision_string * len(value_to_send_vector), * value_to_send_id))
+        embedding_sock.send(struct.pack(precision_string * len(value_to_send_vector) * int(embedding_dim), * value_to_send_id))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -406,7 +406,7 @@ try:
             value_to_send_vector = value_to_send_vector + vector.tolist()
 
         embedding_sock.send(struct.pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
-        embedding_sock.send(struct.pack(precision_string * len(value_to_send_vector), * value_to_send_id))
+        embedding_sock.send(struct.pack(precision_string * len(value_to_send_vector) * int(embedding_dim), * value_to_send_id))
 
         checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
