@@ -54,7 +54,7 @@ parser.add_argument('--debugging', type=str, default='yes', help='debugging mode
 parser.add_argument('--precision', type=int, default=0, help='single:0, half: 1')
 args = parser.parse_args()
 
-precision = int(sys.argv[9])
+precision = int(args.precision)
 precision_string = 'f' if precision == 0 else 'e'
 precision_byte = 4 if precision == 0 else 2
 
