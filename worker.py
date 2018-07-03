@@ -263,7 +263,7 @@ try:
                 value_to_send.append(int(relation_id_))
                 value_to_send.append(int(tail_id_))
 
-            embedding_sock.send(struct.pack('!' + i * len(value_to_send), * value_to_send))
+            embedding_sock.send(struct.pack('!' + 'i' * len(value_to_send), * value_to_send))
 
             checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
