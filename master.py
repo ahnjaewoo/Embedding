@@ -523,8 +523,6 @@ while True:
         # relation partitioning
         chunk_data = ''
 
-    printt('asdfsdafsadf')
-    
     client.gather(workers)
     result_iter = [worker.result() for worker in workers]
     iterTimes.append(timeit.default_timer() - iterStart)
@@ -545,8 +543,6 @@ while True:
         # printt('master > Average total embedding time : ' + str(np.mean(workTimes)))
 
     else:
-
-        printt(result_iter)
 
         # 이터레이션 실패
         # redis 에 저장된 결과를 백업된 값으로 되돌림
