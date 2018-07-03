@@ -148,8 +148,6 @@ while True:
 
     master_status = struct.unpack('!i', sockRecv(master_sock, 4))[0]
 
-    printt('maxmin work')
-
     if master_status == 1:
         # 연결을 끊음
         # printt('[info] maxmin > received disconnect signal (master_status = 1)')

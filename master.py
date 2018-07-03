@@ -456,7 +456,7 @@ while True:
         sys.exit(-1)
 
     # 작업 배정
-    printt('master > iteration %d' % cur_iter)
+    printt('[info] master > iteration %d' % cur_iter)
     iterStart = timeit.default_timer()
     
     workers = [client.submit(work,
@@ -465,6 +465,8 @@ while True:
                              cur_iter, n_dim, lr, margin, train_iter,
                              data_root_id, args.redis_ip, args.root_dir, args.debugging, args.precision
                              ) for i in range(num_worker)]
+
+    printt('sadfsdafsdafsadf')
 
     if cur_iter % 2 == 1:
         # entity partitioning: max-min cut 실행, anchor 등 재분배
