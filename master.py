@@ -682,6 +682,7 @@ while success != 1:
     # 원소를 한 번에 전송 - 2 단계
     value_to_send_id = list()
     value_to_send_vector = list()
+    id_entity = dict()
 
     for i, vector in enumerate(entities_initialized):
 
@@ -739,6 +740,7 @@ while success != 1:
     # 원소를 한 번에 전송 - 2 단계
     value_to_send_id = list()
     value_to_send_vector = list()
+    id_relation = dict()
 
     for i, relation in enumerate(relations_initialized):
 
