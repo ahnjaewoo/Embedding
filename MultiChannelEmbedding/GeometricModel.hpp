@@ -697,7 +697,7 @@ public:
 
 			try{
 
-				int * id_buff = (* int)calloc(count_entity() + 1, sizeof(int));
+				int * id_buff = (int *)calloc(count_entity() + 1, sizeof(int));
 				
 				for (int i = 0; i < count_entity(); i++) {
 					
@@ -858,7 +858,7 @@ public:
 
 			try{
 
-				int * id_buff = (* int)calloc(count_relation() + 1, sizeof(int));
+				int * id_buff = (int *)calloc(count_relation() + 1, sizeof(int));
 
 				for (int i = 0; i < count_relation(); i++) {
 					
