@@ -54,6 +54,9 @@ parser.add_argument('--debugging', type=str, default='yes', help='debugging mode
 parser.add_argument('--precision', type=int, default=0, help='single:0, half: 1')
 args = parser.parse_args()
 
+precision = int(sys.argv[9])
+precision_string = 'f' if precision == 0 else 'e'
+precision_byte = 4 if precision == 0 else 2
 
 if args.debugging == 'yes':
 
@@ -659,22 +662,36 @@ success = 0
 while success != 1:
 
     # 원소를 하나씩 전송
-    for i, vector in enumerate(entities_initialized):
-        
-        entity_name = str(entities[i])
-        test_sock.send(struct.pack('!i', entity2id[entity_name]))  # entity id 를 int 로 전송
-    
-        for v in vector:
-    
-            test_sock.send(struct.pack('f', float(v)))
+    #for i, vector in enumerate(entities_initialized):
+    #    
+    #    entity_name = str(entities[i])
+    #    test_sock.send(struct.pack('!i', entity2id[entity_name]))  # entity id 를 int 로 전송
+    #
+    #    for v in vector:
+    #
+    #        test_sock.send(struct.pack('f', float(v)))
 
-    # 원소를 한 번에 전송
+    # 원소를 한 번에 전송 - 1 단계
     #for i, vector in enumerate(entities_initialized):
     #
     #    entity_name = str(entities[i])
     #    value_to_send = [float(v) for v in vector]
     #    value_to_send.insert(0, entity2id[entity_name])
     #    test_sock.send(struct.pack('!' + 'i' + 'f' * len(vector), * value_to_send))
+
+    # 원소를 한 번에 전송 - 2 단계
+    value_to_send_id = list()
+    value_to_send_vector = list()
+
+    for i, vector in enumerate(entities_initialized):
+
+        entity_name = str(entities[i])
+        id_entity[entity_id[entity_name]] = entity_name
+        value_to_send_id.append(entity_id[entity_name])
+        value_to_send_vector = value_to_send_vector + vector.tolist()
+
+    test_sock.send(struct.pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
+    test_sock.send(struct.pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
 
     checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
@@ -702,22 +719,36 @@ success = 0
 while success != 1:
 
     # 원소를 하나씩 전송
-    for i, relation in enumerate(relations_initialized):
-        
-        relation_name = str(relations[i])
-        test_sock.send(struct.pack('!i', relation2id[relation_name]))  # relation id 를 int 로 전송
-    
-        for v in relation:
-    
-            test_sock.send(struct.pack('f', float(v)))
+    #for i, relation in enumerate(relations_initialized):
+    #    
+    #    relation_name = str(relations[i])
+    #    test_sock.send(struct.pack('!i', relation2id[relation_name]))  # relation id 를 int 로 전송
+    # 
+    #    for v in relation:
+    #
+    #        test_sock.send(struct.pack('f', float(v)))
 
-    # 원소를 한 번에 전송
+    # 원소를 한 번에 전송 - 1 단계
     #for i, relation in enumerate(relations_initialized):
     #
     #    relation_name = str(relations[i])
     #    value_to_send = [float(v) for v in relation]
     #    value_to_send.insert(0, relation2id[relation_name])
     #    test_sock.send(struct.pack('!' + 'i' + 'f' * len(relation), * value_to_send))
+
+    # 원소를 한 번에 전송 - 2 단계
+    value_to_send_id = list()
+    value_to_send_vector = list()
+
+    for i, relation in enumerate(relations_initialized):
+
+        relation_name = str(relations[i])
+        id_relation[relation_id[relation_name]] = relation_name
+        value_to_send_id.append(relation_id[relation_name])
+        value_to_send_vector = value_to_send_vector + vector.tolist()
+
+    test_sock.send(struct.pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
+    test_sock.send(struct.pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
 
     checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
 
