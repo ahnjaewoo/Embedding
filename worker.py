@@ -18,7 +18,7 @@ import struct
 chunk_data = sys.argv[1]
 worker_id = sys.argv[2]
 cur_iter = sys.argv[3]
-embedding_dim = sys.argv[4]
+embedding_dim = int(sys.argv[4])
 redis_ip_address = sys.argv[5]
 root_dir = sys.argv[6]
 socket_port = sys.argv[7]
@@ -471,7 +471,7 @@ try:
                 #     entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[
                 #         0]     # entity_id 를 int 로 받음
 
-                #     for _ in range(int(embedding_dim)):
+                #     for _ in range(embedding_dim):
 
                 #         temp_entity = struct.unpack(
                 #             precision_string, sockRecv(embedding_sock, precision_byte))[0]
@@ -486,7 +486,7 @@ try:
                 for _ in range(count_entity):
                 
                    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                   temp_entity_vector = list(struct.unpack(precision_string * int(embedding_dim), sockRecv(embedding_sock, precision_byte * int(embedding_dim))))
+                   temp_entity_vector = list(struct.unpack(precision_string * embedding_dim, sockRecv(embedding_sock, precision_byte * embedding_dim)))
                 
                    entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
                        np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
@@ -570,7 +570,7 @@ try:
                 #     relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[
                 #         0]   # relation_id 를 int 로 받음
 
-                #     for _ in range(int(embedding_dim)):
+                #     for _ in range(embedding_dim):
 
                 #         temp_relation = struct.unpack(
                 #             precision_string, sockRecv(embedding_sock, precision_byte))[0]
@@ -585,7 +585,7 @@ try:
                 for _ in range(count_relation):
                 
                    relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                   temp_relation_vector = list(struct.unpack(precision_string * int(embedding_dim), sockRecv(embedding_sock, precision_byte * int(embedding_dim))))
+                   temp_relation_vector = list(struct.unpack(precision_string * embedding_dim, sockRecv(embedding_sock, precision_byte * embedding_dim)))
                 
                    relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
                        np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
