@@ -165,7 +165,9 @@ try:
         # entity 전송 - DataModel 생성자
         chunk_anchor, chunk_entity = chunk_data.split('\n')
         chunk_anchor = chunk_anchor.split(' ')
+        chunk_anchor = [int(e) for e in chunk_anchor]
         chunk_entity = chunk_entity.split(' ')
+        chunk_entity = [int(e) for e in chunk_entity]
 
         if len(chunk_anchor) == 1 and chunk_anchor[0] == '':
 
@@ -198,8 +200,8 @@ try:
             #    '!' + 'i' * len(chunk_entity), * value_to_send))
 
             # 원소 한 번에 전송 - 2 단계
-            value_to_send = [len(chunk_anchor)] + [len(chunk_entity)] + [int(e) for e in chunk_anchor] + [int(e) for e in chunk_entity]
-            embedding_sock.send(struct.pack('!' + 'ii' + 'i' * (len(chunk_anchor) + len(chunk_entity)), * value_to_send))
+            value_to_send = [len(chunk_anchor), len(chunk_entity), *chunk_anchor, *chunk_entity]
+            embedding_sock.send(struct.pack('!' + 'i' * (len(chunk_anchor) + len(chunk_entity) + 2), * value_to_send))
 
             checksum = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -325,14 +327,13 @@ try:
 
         # 원소를 한 번에 전송 - 2 단계
         value_to_send_id = list()
-        value_to_send_vector = list()
+        value_to_send_vector = entities_initialized.flatten().tolist()        
 
-        for i, vector in enumerate(entities_initialized):
+        for i in range(len(entities_initialized)):
 
             entity_name = str(entities[i])
             id_entity[entity_id[entity_name]] = entity_name
             value_to_send_id.append(entity_id[entity_name])
-            value_to_send_vector = value_to_send_vector + vector.tolist()
 
         embedding_sock.send(struct.pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
         embedding_sock.send(struct.pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
@@ -396,14 +397,13 @@ try:
 
         # 원소를 한 번에 전송 - 2 단계
         value_to_send_id = list()
-        value_to_send_vector = list()
+        value_to_send_vector = relations_initialized.flatten().tolist()
 
-        for i, relation in enumerate(relations_initialized):
+        for i, relation in range(len(relations_initialized)):
 
             relation_name = str(relations[i])
             id_relation[relation_id[relation_name]] = relation_name
             value_to_send_id.append(relation_id[relation_name])
-            value_to_send_vector = value_to_send_vector + vector.tolist()
 
         embedding_sock.send(struct.pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
         embedding_sock.send(struct.pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
