@@ -5,6 +5,9 @@ from time import time
 from time import sleep
 from zlib import compress
 from zlib import decompress
+from pickle import loads
+from pickle import dumps
+from pickle import HIGHEST_PROTOCOL
 import logging
 import numpy as np
 import redis
@@ -80,8 +83,8 @@ temp_folder_dir = "%s/tmp" % root_dir
 workerStart = timeit.default_timer()
 # redis에서 embedding vector들 받아오기
 r = redis.StrictRedis(host=redis_ip_address, port=6379, db=0)
-entities = pickle.loads(decompress(r.get('entities')))
-relations = pickle.loads(decompress(r.get('relations')))
+entities = loads(decompress(r.get('entities')))
+relations = loads(decompress(r.get('relations')))
 entity_id = r.mget(entities)
 relation_id = r.mget(relations)
 entities_initialized = r.mget([entity + '_v' for entity in entities])
@@ -90,9 +93,9 @@ relations_initialized = r.mget([relation + '_v' for relation in relations])
 entity_id = {entities[i]: int(id_) for i, id_ in enumerate(entity_id)}
 relation_id = {relations[i]: int(id_) for i, id_ in enumerate(relation_id)}
 
-entities_initialized = np.array([pickle.loads(decompress(v))
+entities_initialized = np.array([loads(decompress(v))
                         for v in entities_initialized], dtype=np.float32)
-relations_initialized = np.array([pickle.loads(decompress(v))
+relations_initialized = np.array([loads(decompress(v))
                          for v in relations_initialized], dtype=np.float32)
 
 redisTime = timeit.default_timer() - workerStart
@@ -121,8 +124,7 @@ while True:
 
     if trial == 5:
 
-        printt('[error] worker > iteration ' +
-               cur_iter + ' failed - ' + worker_id)
+        printt(f'[error] worker > iteration {cur_iter} failed - {worker_id}')
         printt('[error] worker > return -1')
         sys.exit(-1)
 
@@ -143,8 +145,7 @@ while True:
 
     if trial == 5:
 
-        printt('[error] worker > iteration ' +
-               cur_iter + ' failed - ' + worker_id)
+        printt(f'[error] worker > iteration {cur_iter} failed - {worker_id}')
         printt('[error] worker > return -1')
         sys.exit(-1)
 
@@ -220,8 +221,7 @@ try:
             else:
 
                 printt('[error] worker > unknown error in phase 1 - ' + worker_id)
-                printt('[error] worker > received checksum = ' +
-                       str(checksum) + ' - ' + worker_id)
+                printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
                 printt('[error] worker > return -1')
                 # fsLog.write('[error] worker > unknown error in phase 1 - ' + worker_id + '\n')
                 # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
@@ -235,8 +235,7 @@ try:
     else:
         # relation 전송 - DataModel 생성자
         timeNow = timeit.default_timer()
-        sub_graphs = pickle.loads(decompress(
-            r.get('sub_g_{}'.format(worker_id))))
+        sub_graphs = loads(decompress(r.get('sub_g_{}'.format(worker_id))))
         redisTime += timeit.default_timer() - timeNow
         
         while checksum != 1:
@@ -261,9 +260,7 @@ try:
 
             for (head_id_, relation_id_, tail_id_) in sub_graphs:
 
-                value_to_send.append(int(head_id_))
-                value_to_send.append(int(relation_id_))
-                value_to_send.append(int(tail_id_))
+                value_to_send.extend((int(head_id_), int(relation_id_), int(tail_id_)))
 
             embedding_sock.send(struct.pack('!' + 'i' * len(value_to_send), * value_to_send))
 
@@ -284,8 +281,7 @@ try:
             else:
 
                 printt('[error] worker > unknown error in phase 1 - ' + worker_id)
-                printt('[error] worker > received checksum = ' +
-                       str(checksum) + ' - ' + worker_id)
+                printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
                 printt('[error] worker > return -1')
                 # fsLog.write('[error] worker > unknown error in phase 1 - ' + worker_id + '\n')
                 # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
@@ -354,10 +350,8 @@ try:
 
         else:
 
-            printt(
-                '[error] worker > unknown error in phase 2 (entity) - ' + worker_id)
-            printt('[error] worker > received checksum = ' +
-                   str(checksum) + ' - ' + worker_id)
+            printt('[error] worker > unknown error in phase 2 (entity) - ' + worker_id)
+            printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
             printt('[error] worker > return -1')
             # fsLog.write('[error] worker > unknown error in phase 2 (entity) - ' + worker_id + '\n')
             # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
@@ -427,8 +421,7 @@ try:
 
             printt(
                 '[error] worker > unknown error in phase 2 (relation) - ' + worker_id)
-            printt('[error] worker > received checksum = ' +
-                   str(checksum) + ' - ' + worker_id)
+            printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
             printt('[error] worker > return -1')
             # fsLog.write('[error] worker > unknown error in phase 2 (relation) - ' + worker_id + '\n')
             # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
@@ -478,8 +471,8 @@ try:
                 #             precision_string, sockRecv(embedding_sock, precision_byte))[0]
                 #         temp_entity_vector.append(temp_entity)
 
-                #     entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
-                #         np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
+                #     entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(dumps(
+                #         np.array(temp_entity_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
 
                 # 원소를 한 번에 받음
                 count_entity = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
@@ -489,8 +482,8 @@ try:
                    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
                    temp_entity_vector = list(struct.unpack(precision_string * embedding_dim, sockRecv(embedding_sock, precision_byte * embedding_dim)))
                 
-                   entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
-                       np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
+                   entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(dumps(
+                       np.array(temp_entity_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
 
             except Exception as e:
 
@@ -499,22 +492,18 @@ try:
 
                 if tempcount < 3:
 
-                    printt(
-                        '[error] worker > retry phase 3 (entity) - ' + worker_id)
+                    printt('[error] worker > retry phase 3 (entity) - ' + worker_id)
                     printt('[error] worker > ' + str(e))
-                    printt(
-                        '[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
+                    printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
                     # fsLog.write('[error] worker > retry phase 3 (entity) - ' + worker_id + '\n')
                     # fsLog.write('[error] worker > ' + str(e) + '\n')
                     # fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
 
                 else:
 
-                    printt(
-                        '[error] worker > failed phase 3 (entity) - ' + worker_id)
+                    printt('[error] worker > failed phase 3 (entity) - ' + worker_id)
                     printt('[error] worker > ' + str(e))
-                    printt(
-                        '[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
+                    printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
                     printt('[error] worker > return -1')
                     # fsLog.write('[error] worker > retry phase 3 (entity) - ' + worker_id + '\n')
                     # fsLog.write('[error] worker > ' + str(e) + '\n')
@@ -577,8 +566,8 @@ try:
                 #             precision_string, sockRecv(embedding_sock, precision_byte))[0]
                 #         temp_relation_vector.append(temp_relation)
 
-                #     relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
-                #         np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
+                #     relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(dumps(
+                #         np.array(temp_relation_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
 
                 # 원소를 한 번에 받음
                 count_relation = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
@@ -588,8 +577,8 @@ try:
                    relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
                    temp_relation_vector = list(struct.unpack(precision_string * embedding_dim, sockRecv(embedding_sock, precision_byte * embedding_dim)))
                 
-                   relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
-                       np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
+                   relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(dumps(
+                       np.array(temp_relation_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
 
             except Exception as e:
 
@@ -598,22 +587,18 @@ try:
 
                 if tempcount < 3:
 
-                    printt(
-                        '[error] worker > retry phase 3 (relation) - ' + worker_id)
+                    printt('[error] worker > retry phase 3 (relation) - ' + worker_id)
                     printt('[error] worker > ' + str(e))
-                    printt(
-                        '[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
+                    printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
                     # fsLog.write('[error] worker > retry phase 3 (relation) - ' + worker_id + '\n')
                     # fsLog.write('[error] worker > ' + str(e) + '\n')
                     # fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
 
                 else:
 
-                    printt(
-                        '[error] worker > failed phase 3 (relation) - ' + worker_id)
+                    printt('[error] worker > failed phase 3 (relation) - ' + worker_id)
                     printt('[error] worker > ' + str(e))
-                    printt(
-                        '[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
+                    printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
                     printt('[error] worker > return -1')
                     # fsLog.write('[error] worker > retry phase 3 (relation) - ' + worker_id + '\n')
                     # fsLog.write('[error] worker > ' + str(e) + '\n')
@@ -675,8 +660,7 @@ output_times["model_run"] = modelRunTime
 output_times["socket_save"] = sockSaveTime
 output_times["redis"] = redisTime
 output_times["worker_total"] = workerTotalTime
-output_times = compress(pickle.dumps(
-    output_times, protocol=pickle.HIGHEST_PROTOCOL), 9)
+output_times = compress(dumps(output_times, protocol=HIGHEST_PROTOCOL), 9)
 r.set(worker_id + '_' + cur_iter, output_times)
 
 sys.exit(0)
