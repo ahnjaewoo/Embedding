@@ -461,35 +461,35 @@ try:
                 # 처리 결과를 받아옴 - GeometricModel save
 
                 # 원소를 하나씩 받음
-                count_entity = struct.unpack(
-                    '!i', sockRecv(embedding_sock, 4))[0]
+                # count_entity = struct.unpack(
+                #     '!i', sockRecv(embedding_sock, 4))[0]
 
-                for _ in range(count_entity):
+                # for _ in range(count_entity):
 
-                    temp_entity_vector = list()
+                #     temp_entity_vector = list()
 
-                    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[
-                        0]     # entity_id 를 int 로 받음
+                #     entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[
+                #         0]     # entity_id 를 int 로 받음
 
-                    for _ in range(int(embedding_dim)):
+                #     for _ in range(int(embedding_dim)):
 
-                        temp_entity = struct.unpack(
-                            precision_string, sockRecv(embedding_sock, precision_byte))[0]
-                        temp_entity_vector.append(temp_entity)
+                #         temp_entity = struct.unpack(
+                #             precision_string, sockRecv(embedding_sock, precision_byte))[0]
+                #         temp_entity_vector.append(temp_entity)
 
-                    entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
-                        np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
+                #     entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
+                #         np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
 
                 # 원소를 한 번에 받음
-                #count_entity = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                #
-                # for _ in range(count_entity):
-                #
-                #    entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                #    temp_entity_vector = list(struct.unpack(precision_string * int(embedding_dim), sockRecv(embedding_sock, precision_byte * int(embedding_dim))))
-                #
-                #    entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
-                #        np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
+                count_entity = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
+                
+                for _ in range(count_entity):
+                
+                   entity_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
+                   temp_entity_vector = list(struct.unpack(precision_string * int(embedding_dim), sockRecv(embedding_sock, precision_byte * int(embedding_dim))))
+                
+                   entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(pickle.dumps(
+                       np.array(temp_entity_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
 
             except Exception as e:
 
