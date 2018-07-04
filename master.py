@@ -359,7 +359,7 @@ while True:
     
     except Exception as e:
     
-        sleep(1)
+        sleep(0.5)
         printt('[error] master > exception occured in master <-> maxmin')
         printt('[error] master > ' + str(e))
 
@@ -373,7 +373,7 @@ while True:
     
     except Exception as e:
     
-        sleep(1)
+        sleep(0.5)
         printt('[error] master > exception occured in master <-> maxmin')
         printt('[error] master > ' + str(e))
 

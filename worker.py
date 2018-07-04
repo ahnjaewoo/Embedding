@@ -114,7 +114,7 @@ while True:
 
     except Exception as e:
 
-        sleep(1)
+        sleep(0.5)
         trial = trial + 1
         printt('[error] worker > exception occured in worker <-> embedding')
         printt('[error] worker > ' + str(e))
@@ -136,7 +136,7 @@ while True:
 
     except Exception as e:
 
-        sleep(1)
+        sleep(0.5)
         trial = trial + 1
         printt('[error] worker > exception occured in worker <-> embedding')
         printt('[error] worker > ' + str(e))
