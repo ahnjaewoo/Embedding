@@ -747,7 +747,7 @@ while success != 1:
         relation_name = str(relations[i])
         id_relation[relation2id[relation_name]] = relation_name
         value_to_send_id.append(relation2id[relation_name])
-        value_to_send_vector = value_to_send_vector + vector.tolist()
+        value_to_send_vector = value_to_send_vector + relation.tolist()
 
     test_sock.send(struct.pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
     test_sock.send(struct.pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
