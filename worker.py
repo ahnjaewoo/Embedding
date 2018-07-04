@@ -560,35 +560,35 @@ try:
                 # 처리 결과를 받아옴 - GeometricModel save
 
                 # 원소를 하나씩 전송
-                count_relation = struct.unpack(
-                    '!i', sockRecv(embedding_sock, 4))[0]
+                # count_relation = struct.unpack(
+                #     '!i', sockRecv(embedding_sock, 4))[0]
 
-                for _ in range(count_relation):
+                # for _ in range(count_relation):
 
-                    temp_relation_vector = list()
+                #     temp_relation_vector = list()
 
-                    relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[
-                        0]   # relation_id 를 int 로 받음
+                #     relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[
+                #         0]   # relation_id 를 int 로 받음
 
-                    for _ in range(int(embedding_dim)):
+                #     for _ in range(int(embedding_dim)):
 
-                        temp_relation = struct.unpack(
-                            precision_string, sockRecv(embedding_sock, precision_byte))[0]
-                        temp_relation_vector.append(temp_relation)
+                #         temp_relation = struct.unpack(
+                #             precision_string, sockRecv(embedding_sock, precision_byte))[0]
+                #         temp_relation_vector.append(temp_relation)
 
-                    relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
-                        np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
+                #     relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
+                #         np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
 
                 # 원소를 한 번에 받음
-                #count_relation = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                #
-                # for _ in range(count_relation):
-                #
-                #    relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
-                #    temp_relation_vector = list(struct.unpack(precision_string * int(embedding_dim), sockRecv(embedding_sock, precision_byte * int(embedding_dim))))
-                #
-                #    relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
-                #        np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
+                count_relation = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
+                
+                for _ in range(count_relation):
+                
+                   relation_id_temp = struct.unpack('!i', sockRecv(embedding_sock, 4))[0]
+                   temp_relation_vector = list(struct.unpack(precision_string * int(embedding_dim), sockRecv(embedding_sock, precision_byte * int(embedding_dim))))
+                
+                   relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(pickle.dumps(
+                       np.array(temp_relation_vector, dtype=np.float32), protocol=pickle.HIGHEST_PROTOCOL), 9)
 
             except Exception as e:
 
