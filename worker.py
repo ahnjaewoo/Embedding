@@ -399,7 +399,7 @@ try:
         value_to_send_id = list()
         value_to_send_vector = relations_initialized.flatten().tolist()
 
-        for i, relation in range(len(relations_initialized)):
+        for i in range(len(relations_initialized)):
 
             relation_name = str(relations[i])
             id_relation[relation_id[relation_name]] = relation_name
