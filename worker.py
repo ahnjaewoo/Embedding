@@ -90,10 +90,10 @@ relations_initialized = r.mget([relation + '_v' for relation in relations])
 entity_id = {entities[i]: int(id_) for i, id_ in enumerate(entity_id)}
 relation_id = {relations[i]: int(id_) for i, id_ in enumerate(relation_id)}
 
-entities_initialized = [pickle.loads(decompress(v))
-                        for v in entities_initialized]
-relations_initialized = [pickle.loads(decompress(v))
-                         for v in relations_initialized]
+entities_initialized = np.array([pickle.loads(decompress(v))
+                        for v in entities_initialized])
+relations_initialized = np.array([pickle.loads(decompress(v))
+                         for v in relations_initialized])
 
 redisTime = timeit.default_timer() - workerStart
 # printt('worker > redis server connection time : %f' % (redisTime))
