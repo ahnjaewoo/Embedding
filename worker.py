@@ -91,9 +91,9 @@ entity_id = {entities[i]: int(id_) for i, id_ in enumerate(entity_id)}
 relation_id = {relations[i]: int(id_) for i, id_ in enumerate(relation_id)}
 
 entities_initialized = np.array([pickle.loads(decompress(v))
-                        for v in entities_initialized])
+                        for v in entities_initialized], dtype=np.float32)
 relations_initialized = np.array([pickle.loads(decompress(v))
-                         for v in relations_initialized])
+                         for v in relations_initialized], dtype=np.float32)
 
 redisTime = timeit.default_timer() - workerStart
 # printt('worker > redis server connection time : %f' % (redisTime))
@@ -444,6 +444,7 @@ try:
 
     del entities_initialized
     del relations_initialized
+    del value_to_send_vector
 
     tempcount = 0
 
