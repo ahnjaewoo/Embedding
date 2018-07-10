@@ -3,10 +3,10 @@ import networkx as nx
 from random import randint
 from random import choice
 from collections import defaultdict
+from struct import pack, unpack
 import nxmetis
 import sys
 import socket
-import struct
 import logging
 
 
@@ -146,7 +146,7 @@ for (hd, tl) in entity_graph:
 
 while True:
 
-    master_status = struct.unpack('!i', sockRecv(master_sock, 4))[0]
+    master_status = unpack('!i', sockRecv(master_sock, 4))[0]
 
     if master_status == 1:
         # 연결을 끊음
@@ -154,10 +154,10 @@ while True:
         maxmin_sock.close()
         sys.exit(0)
 
-    #partition_num = struct.unpack('!i', sockRecv(master_sock, 4))[0]
-    cur_iter = (struct.unpack('!i', sockRecv(master_sock, 4))[0] + 1) // 2
-    #anchor_num = struct.unpack('!i', sockRecv(master_sock, 4))[0]
-    #anchor_interval = struct.unpack('!i', sockRecv(master_sock, 4))[0]
+    #partition_num = unpack('!i', sockRecv(master_sock, 4))[0]
+    cur_iter = (unpack('!i', sockRecv(master_sock, 4))[0] + 1) // 2
+    #anchor_num = unpack('!i', sockRecv(master_sock, 4))[0]
+    #anchor_interval = unpack('!i', sockRecv(master_sock, 4))[0]
 
     if cur_iter == 0:
 
@@ -288,26 +288,26 @@ while True:
     # printt('[info] maxmin > # of entities in each partitions : [%s]' % " ".join([str(len(p)) for p in parts]))
 
     # 원소 하나씩 전송
-    #master_sock.send(struct.pack('!i', len(list(anchor))))
+    #master_sock.send(pack('!i', len(list(anchor))))
     #
     # for anchor_val in list(anchor):
     #
-    #    master_sock.send(struct.pack('!i', anchor_val))
+    #    master_sock.send(pack('!i', anchor_val))
     #
     # for nas in parts:
     #
-    #    master_sock.send(struct.pack('!i', len(nas)))
+    #    master_sock.send(pack('!i', len(nas)))
     #
     #    for nas_val in nas:
     #
-    #        master_sock.send(struct.pack('!i', nas_val))
+    #        master_sock.send(pack('!i', nas_val))
 
     # 원소 여러 개를 한 번에 전송
-    master_sock.send(struct.pack('!i', len(list(anchor))))
-    master_sock.send(struct.pack(
+    master_sock.send(pack('!i', len(list(anchor))))
+    master_sock.send(pack(
         '!' + 'i' * len(list(anchor)), * list(anchor)))
 
     for nas in parts:
 
-        master_sock.send(struct.pack('!i', len(nas)))
-        master_sock.send(struct.pack('!' + 'i' * len(nas), * nas))
+        master_sock.send(pack('!i', len(nas)))
+        master_sock.send(pack('!' + 'i' * len(nas), * nas))

@@ -6,15 +6,15 @@ from argparse import ArgumentParser
 from collections import defaultdict
 from zlib import compress
 from zlib import decompress
+from pickle import dumps, loads, HIGHEST_PROTOCOL
+from struct import pack, unpack
 import logging
 import numpy as np
 import redis
-import pickle
 from time import time
 from time import sleep
 import socket
 import timeit
-import struct
 import sys
 import os
 
@@ -285,8 +285,8 @@ for c, (relation_list, num) in enumerate(allocated_relation_worker):
     for relation in relation_list:
         for (head, tail) in relation_triples[relation]:
             g.append((head, relation, tail))
-    sub_graphs['sub_g_worker_%d' % c] = compress(pickle.dumps(
-        g, protocol=pickle.HIGHEST_PROTOCOL), 9)
+    sub_graphs['sub_g_worker_%d' % c] = compress(dumps(
+        g, protocol=HIGHEST_PROTOCOL), 9)
 
 r = redis.StrictRedis(host = args.redis_ip, port = 6379, db = 0)
 r.mset(sub_graphs)
@@ -299,20 +299,20 @@ del sub_graphs
 r.mset(entity2id)
 r.mset(relation2id)
 
-r.set('entities', compress(pickle.dumps(entities, protocol=pickle.HIGHEST_PROTOCOL), 9))
-r.set('relations', compress(pickle.dumps(relations, protocol=pickle.HIGHEST_PROTOCOL), 9))
+r.set('entities', compress(dumps(entities, protocol=HIGHEST_PROTOCOL), 9))
+r.set('relations', compress(dumps(relations, protocol=HIGHEST_PROTOCOL), 9))
 
 entities_initialized = normalize(np.random.randn(len(entities), n_dim))
 relations_initialized = normalize(np.random.randn(len(relations), n_dim))
 
 r.mset({
-    entity + '_v': compress(pickle.dumps(
+    entity + '_v': compress(dumps(
         entities_initialized[i],
-        protocol=pickle.HIGHEST_PROTOCOL), 9) for i, entity in enumerate(entities)})
+        protocol=HIGHEST_PROTOCOL), 9) for i, entity in enumerate(entities)})
 r.mset({
-    relation + '_v': compress(pickle.dumps(
+    relation + '_v': compress(dumps(
         relations_initialized[i],
-        protocol=pickle.HIGHEST_PROTOCOL), 9) for i, relation in enumerate(relations)})
+        protocol=HIGHEST_PROTOCOL), 9) for i, relation in enumerate(relations)})
 
 if args.use_scheduler_config_file == 'True':
 
@@ -380,21 +380,21 @@ while True:
 # printt('master > socket connected (master <-> maxmin)')
 
 timeNow = timeit.default_timer()
-maxmin_sock.send(struct.pack('!i', 0))
-#maxmin_sock.send(struct.pack('!i', num_worker))
-maxmin_sock.send(struct.pack('!i', 0))
-#maxmin_sock.send(struct.pack('!i', anchor_num))
-#maxmin_sock.send(struct.pack('!i', anchor_interval))
+maxmin_sock.send(pack('!i', 0))
+#maxmin_sock.send(pack('!i', num_worker))
+maxmin_sock.send(pack('!i', 0))
+#maxmin_sock.send(pack('!i', anchor_num))
+#maxmin_sock.send(pack('!i', anchor_interval))
 
 # maxmin 의 결과를 소켓으로 받음
 #
 # 원소를 하나씩 받음
 #anchors = ""
-#anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+#anchor_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
 #
 #for _ in range(anchor_len):
 #
-#    anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
+#    anchors += str(unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
 #
 #anchors = anchors[:-1]
 #
@@ -402,11 +402,11 @@ maxmin_sock.send(struct.pack('!i', 0))
 #for _ in range(num_worker):
 #
 #    chunk = ""
-#    chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+#    chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
 #
 #    for _ in range(chunk_len):
 #
-#        chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
+#        chunk += str(unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
 #    
 #    chunk = chunk[:-1]
 #    chunks.append(chunk)
@@ -414,14 +414,14 @@ maxmin_sock.send(struct.pack('!i', 0))
 # 원소를 한 번에 받음
 chunks = list()
 
-anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-anchors = list(struct.unpack('!' + 'i' * int(anchor_len), sockRecv(maxmin_sock, 4 * int(anchor_len))))
+anchor_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
+anchors = list(unpack('!' + 'i' * int(anchor_len), sockRecv(maxmin_sock, 4 * int(anchor_len))))
 anchors = ' '.join([str(e) for e in anchors])
 
 for _ in range(num_worker):
 
-    chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-    chunk = list(struct.unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
+    chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
+    chunk = list(unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
     chunk = ' '.join([str(e) for e in chunk])
     chunks.append(chunk)
 
@@ -434,8 +434,8 @@ cur_iter = 0
 trial  = 0
 success = False
 
-entities = pickle.loads(decompress(r.get('entities')))
-relations = pickle.loads(decompress(r.get('relations')))
+entities = loads(decompress(r.get('entities')))
+relations = loads(decompress(r.get('relations')))
 
 trainStart = timeit.default_timer()
 
@@ -443,9 +443,9 @@ while True:
 
     # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
     # entities_initialized_bak = r.mget([entity + '_v' for entity in entities])
-    # entities_initialized_bak = [pickle.loads(v) for v in entities_initialized_bak]
+    # entities_initialized_bak = [loads(v) for v in entities_initialized_bak]
     # relations_initialized_bak = r.mget([relation + '_v' for relation in relations])
-    # relations_initialized_bak = [pickle.loads(v) for v in relations_initialized_bak]
+    # relations_initialized_bak = [loads(v) for v in relations_initialized_bak]
 
     if cur_iter == niter:
 
@@ -454,7 +454,7 @@ while True:
     if trial == 5:
 
         printt('[error] master > training failed, exit')
-        maxmin_sock.send(struct.pack('!i', 1))
+        maxmin_sock.send(pack('!i', 1))
         maxmin_sock.close()
         sys.exit(-1)
 
@@ -475,21 +475,21 @@ while True:
         maxminStart = timeit.default_timer()
 
         # try 가 들어가야 함
-        maxmin_sock.send(struct.pack('!i', 0))
-        #maxmin_sock.send(struct.pack('!i', num_worker))
-        maxmin_sock.send(struct.pack('!i', cur_iter))
-        #maxmin_sock.send(struct.pack('!i', anchor_num))
-        #maxmin_sock.send(struct.pack('!i', anchor_interval))
+        maxmin_sock.send(pack('!i', 0))
+        #maxmin_sock.send(pack('!i', num_worker))
+        maxmin_sock.send(pack('!i', cur_iter))
+        #maxmin_sock.send(pack('!i', anchor_num))
+        #maxmin_sock.send(pack('!i', anchor_interval))
 
         # maxmin 의 결과를 소켓으로 받음
         #
         # 원소를 하나씩 받음
         #anchors = ""
-        #anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+        #anchor_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
         #
         #for _ in range(anchor_len):
         #    
-        #    anchors += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
+        #    anchors += str(unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
         #
         #anchors = anchors[:-1]
         #
@@ -497,11 +497,11 @@ while True:
         #for _ in range(num_worker):
         #
         #    chunk = ''
-        #    chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
+        #    chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
         #
         #    for _ in range(chunk_len):
         #   
-        #        chunk += str(struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
+        #        chunk += str(unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
         #   
         #    chunk = chunk[:-1]
         #    chunks.append(chunk)
@@ -509,14 +509,14 @@ while True:
         # 원소를 한 번에 받음
         chunks = list()
         
-        anchor_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        anchors = list(struct.unpack('!' + 'i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len)))
+        anchor_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
+        anchors = list(unpack('!' + 'i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len)))
         anchors = ' '.join([str(e) for e in anchors])
         
         for _ in range(num_worker):
         
-            chunk_len = chunk_len = struct.unpack('!i', sockRecv(maxmin_sock, 4))[0]
-            chunk = list(struct.unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
+            chunk_len = chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
+            chunk = list(unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
             chunk = ' '.join([str(e) for e in chunk])
             chunks.append(chunk)
 
@@ -550,8 +550,8 @@ while True:
         # 이터레이션 실패
         # redis 에 저장된 결과를 백업된 값으로 되돌림
         trial = trial + 1
-        # r.mset({str(entities[i]) + '_bak' : pickle.dumps(entities_initialized_bak[i], protocol=pickle.HIGHEST_PROTOCOL) for i in range(len(entities_initialized_bak))})
-        # r.mset({str(relations[i]) + '_bak' : pickle.dumps(relations_initialized_bak[i], protocol=pickle.HIGHEST_PROTOCOL) for i in range(len(relations_initialized_bak))})
+        # r.mset({str(entities[i]) + '_bak' : dumps(entities_initialized_bak[i], protocol=HIGHEST_PROTOCOL) for i in range(len(entities_initialized_bak))})
+        # r.mset({str(relations[i]) + '_bak' : dumps(relations_initialized_bak[i], protocol=HIGHEST_PROTOCOL) for i in range(len(relations_initialized_bak))})
         printt('[error] master > iteration %d is failed, retry' % cur_iter)
         
 trainTime = timeit.default_timer() - trainStart
@@ -563,10 +563,10 @@ trainTime = timeit.default_timer() - trainStart
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
-entities_initialized = [pickle.loads(decompress(v)) for v in entities_initialized]
-relations_initialized = [pickle.loads(decompress(v)) for v in relations_initialized]
+entities_initialized = [loads(decompress(v)) for v in entities_initialized]
+relations_initialized = [loads(decompress(v)) for v in relations_initialized]
 
-maxmin_sock.send(struct.pack('!i', 1))
+maxmin_sock.send(pack('!i', 1))
 maxmin_sock.close()
 
 ###############################################################################
@@ -624,19 +624,19 @@ if len(chunk_anchor) == 1 and chunk_anchor[0] == '':
 """
 while success != 1:
 
-    test_sock.send(struct.pack('!i', len(chunk_anchor)))
+    test_sock.send(pack('!i', len(chunk_anchor)))
 
     for iter_anchor in chunk_anchor:
         
-        test_sock.send(struct.pack('!i', int(iter_anchor)))
+        test_sock.send(pack('!i', int(iter_anchor)))
 
-    test_sock.send(struct.pack('!i', len(chunk_entity)))
+    test_sock.send(pack('!i', len(chunk_entity)))
 
     for iter_entity in chunk_entity:
         
-        test_sock.send(struct.pack('!i', int(iter_entity)))
+        test_sock.send(pack('!i', int(iter_entity)))
 
-    #checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
+    #checksum = unpack('!i', sockRecv(test_sock, 4))[0]
 
     if checksum == 1234:
 
@@ -665,11 +665,11 @@ while success != 1:
     #for i, vector in enumerate(entities_initialized):
     #    
     #    entity_name = str(entities[i])
-    #    test_sock.send(struct.pack('!i', entity2id[entity_name]))  # entity id 를 int 로 전송
+    #    test_sock.send(pack('!i', entity2id[entity_name]))  # entity id 를 int 로 전송
     #
     #    for v in vector:
     #
-    #        test_sock.send(struct.pack('f', float(v)))
+    #        test_sock.send(pack('f', float(v)))
 
     # 원소를 한 번에 전송 - 1 단계
     #for i, vector in enumerate(entities_initialized):
@@ -677,7 +677,7 @@ while success != 1:
     #    entity_name = str(entities[i])
     #    value_to_send = [float(v) for v in vector]
     #    value_to_send.insert(0, entity2id[entity_name])
-    #    test_sock.send(struct.pack('!' + 'i' + 'f' * len(vector), * value_to_send))
+    #    test_sock.send(pack('!' + 'i' + 'f' * len(vector), * value_to_send))
 
     # 원소를 한 번에 전송 - 2 단계
     value_to_send_id = list()
@@ -691,10 +691,10 @@ while success != 1:
         value_to_send_id.append(entity2id[entity_name])
         value_to_send_vector = value_to_send_vector + vector.tolist()
 
-    test_sock.send(struct.pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
-    test_sock.send(struct.pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
+    test_sock.send(pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
+    test_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
 
-    checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
+    checksum = unpack('!i', sockRecv(test_sock, 4))[0]
 
     if checksum == 1234:
 
@@ -723,11 +723,11 @@ while success != 1:
     #for i, relation in enumerate(relations_initialized):
     #    
     #    relation_name = str(relations[i])
-    #    test_sock.send(struct.pack('!i', relation2id[relation_name]))  # relation id 를 int 로 전송
+    #    test_sock.send(pack('!i', relation2id[relation_name]))  # relation id 를 int 로 전송
     # 
     #    for v in relation:
     #
-    #        test_sock.send(struct.pack('f', float(v)))
+    #        test_sock.send(pack('f', float(v)))
 
     # 원소를 한 번에 전송 - 1 단계
     #for i, relation in enumerate(relations_initialized):
@@ -735,7 +735,7 @@ while success != 1:
     #    relation_name = str(relations[i])
     #    value_to_send = [float(v) for v in relation]
     #    value_to_send.insert(0, relation2id[relation_name])
-    #    test_sock.send(struct.pack('!' + 'i' + 'f' * len(relation), * value_to_send))
+    #    test_sock.send(pack('!' + 'i' + 'f' * len(relation), * value_to_send))
 
     # 원소를 한 번에 전송 - 2 단계
     value_to_send_id = list()
@@ -749,10 +749,10 @@ while success != 1:
         value_to_send_id.append(relation2id[relation_name])
         value_to_send_vector = value_to_send_vector + relation.tolist()
 
-    test_sock.send(struct.pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
-    test_sock.send(struct.pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
+    test_sock.send(pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
+    test_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
 
-    checksum = struct.unpack('!i', sockRecv(test_sock, 4))[0]
+    checksum = unpack('!i', sockRecv(test_sock, 4))[0]
 
     if checksum == 1234:
 
@@ -799,7 +799,7 @@ workerTotalTime = list()
 
 for worker_times in workerLogs:
 
-    worker_times = pickle.loads(decompress(worker_times))
+    worker_times = loads(decompress(worker_times))
     datamodelTime.append(worker_times["datamodel_sock"])
     sockLoadTime.append(worker_times["socket_load"])
     embeddingTime.append(worker_times["embedding"])
