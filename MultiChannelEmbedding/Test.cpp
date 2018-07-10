@@ -15,7 +15,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& data_root_id, string log_dir, , int& precision);
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& data_root_id, string log_dir, int& precision);
 
 // 400s for each experiment.
 int main(int argc, char* argv[]){
