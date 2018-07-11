@@ -1,10 +1,7 @@
 # coding: utf-8
-import os
 from subprocess import Popen
-from time import time
 from time import sleep
-from zlib import compress
-from zlib import decompress
+from zlib import compress, decompress
 from pickle import dumps, loads, HIGHEST_PROTOCOL
 from struct import pack, unpack
 import logging
@@ -12,6 +9,7 @@ import numpy as np
 import redis
 import pickle
 import sys
+import os
 import socket
 import timeit
 
