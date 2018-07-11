@@ -319,7 +319,7 @@ try:
         #        precision_string * len(vector), * vector.tolist()))
 
         # 원소를 한 번에 전송 - 2 단계
-        value_to_send_vector = entities_initialized.flatten().tolist()        
+        value_to_send_vector = entities_initialized.flatten()
         embedding_sock.send(pack('!' + 'i' * len(entity_ids), * entity_ids))
         embedding_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
 
@@ -377,7 +377,7 @@ try:
         #        precision_string * len(relation), * relation.tolist()))
 
         # 원소를 한 번에 전송 - 2 단계
-        value_to_send_vector = relations_initialized.flatten().tolist()
+        value_to_send_vector = relations_initialized.flatten()
         embedding_sock.send(pack('!' + 'i' * len(relation_ids), * relation_ids))
         embedding_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
 
