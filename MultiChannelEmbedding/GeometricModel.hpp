@@ -468,11 +468,13 @@ public:
 
 				count = htonl(count);
 				send(fd, &count, sizeof(count), 0);
+				
+				// 원소 한 번에 보냄 (엔티티 한 번에) 를 밑에 사용하면, 아래 for 문을 주석처리
 
-				for (int i = 0; i < count_entity(); i++){
+				//for (int i = 0; i < count_entity(); i++){
 
-					if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
-					&& data_model.check_parts.find(i) != data_model.check_parts.end()){
+				//	if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+				//	&& data_model.check_parts.find(i) != data_model.check_parts.end()){
 						// entity_id 가 string 으로 주어진 경우
 						// entity_id_to_name 을 이용해 string 을 가져와서 보냄
 						/*
@@ -485,9 +487,9 @@ public:
 
 						// entity_id 가 int 로 주어진 경우
 						
-						i = htonl(i);
-						send(fd, &i, sizeof(int), 0);
-						i = ntohl(i);
+				//		i = htonl(i);
+				//		send(fd, &i, sizeof(int), 0);
+				//		i = ntohl(i);
 						
 						// 원소 하나씩 보냄
 						/*
@@ -500,6 +502,7 @@ public:
 						//.....................
 
 						// 원소 한 번에 보냄
+						/*
 						if(precision == 0) {
 							float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
 							for (int j = 0; j < dim; j++) {
@@ -520,10 +523,68 @@ public:
 
 							free(vector_buff);
 						}
-
+						*/
 						//.....................
+
+				//	}
+				//}
+
+
+				// 원소 한 번에 보냄 (엔티티 한 번에)
+
+				if (precision == 0) {
+
+					int buff_idx = 0;
+					int * idx_buff = (int *)calloc(count + 1, sizeof(int));
+					float * vector_buff = (float *)calloc(count * dim + 1, sizeof(float));
+
+					for (int i = 0; i < count_entity(); i++) {
+
+						if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+						&& data_model.check_parts.find(i) != data_model.check_parts.end()){						
+
+							idx_buff[buff_idx] = ntohl(i);
+
+							for (int j = 0; j < dim; j++) {
+
+								vector_buff[dim * buff_idx + j] = embedding_entity[i](j);
+							}
+
+							buff_idx++;
+						}
 					}
+					send(fd, idx_buff, count * sizeof(int));
+					send(fd, vector_buff, count * dim * sizeof(float));
 				}
+				else{
+
+					int buff_idx = 0;
+					int * idx_buff = (int *)calloc(count + 1, sizeof(int));
+					half * vector_buff = (half *)calloc(count * dim + 1, sizeof(half));
+
+					for (int i = 0; i < count_entity(); i++) {
+
+						if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+						&& data_model.check_parts.find(i) != data_model.check_parts.end()){	
+
+							idx_buff[buff_idx] = ntohl(i);
+
+							for (int j = 0; j < dim; j++) {
+
+								vector_buff[dim * buff_idx + j] = (half)embedding_entity[i](j);
+							}
+
+							buff_idx++;
+						}
+					}
+					send(fd, idx_buff, count * sizeof(int));
+					send(fd, vector_buff, count * dim * sizeof(half));
+				}
+
+				free(idx_buff);
+				free(vector_buff);
+
+				//.....................
 
                 if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
 
@@ -583,9 +644,11 @@ public:
 				count = htonl(count);
 				send(fd, &count, sizeof(count), 0);
 
-				for (int i = 0; i < count_relation(); i++){
+				// 원소 한 번에 보냄 (엔티티 한 번에) 를 밑에 사용하면, 아래 for 문을 주석처리
 
-					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
+				//for (int i = 0; i < count_relation(); i++){
+
+				//	if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
 						// relation_id 가 string 으로 주어진 경우
 						// relation_id_to_name 을 이용해 string 을 가져와서 보냄
@@ -599,9 +662,9 @@ public:
 
 						// relation_id 가 int 로 주어진 경우
 						
-						i = htonl(i);
-						send(fd, &i, sizeof(int), 0);
-						i = ntohl(i);
+				//		i = htonl(i);
+				//		send(fd, &i, sizeof(int), 0);
+				//		i = ntohl(i);
 						
 						// 원소 하나씩 보냄
 						/*
@@ -614,7 +677,7 @@ public:
 						//.....................
 
 						// 원소 한 번에 보냄
-						
+						/*
 						if(precision == 0) {
 							float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
 							for (int j = 0; j < dim; j++) {
@@ -635,16 +698,69 @@ public:
 
 							free(vector_buff);
 						}
-
+						*/
 						//.....................
+				//	}
+				//}
+
+				// 원소 한 번에 보냄 (릴레이션 한 번에)
+
+				if (precision == 0) {
+
+					int buff_idx = 0;
+					int * idx_buff = (int *)calloc(count + 1, sizeof(int));
+					float * vector_buff = (float *)calloc(count * dim + 1, sizeof(float));
+
+					for (int i = 0; i < count_relation(); i++) {
+
+						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
+
+							idx_buff[buff_idx] = htonl(i);
+
+							for (int j = 0; j < dim; j++) {
+
+								vector_buff[dim * buff_idx + j] = embedding_relation[i](j);
+							}
+
+							buff_idx++;
+						}
 					}
+					send(fd, idx_buff, count * sizeof(int));
+					send(fd, vector_buff, count * dim * sizeof(float));
 				}
-				int recv_val = recv(fd, &flag, sizeof(flag), MSG_WAITALL);
-                if (recv_val < 0){
+				else{
+
+					int buff_idx = 0;
+					int * idx_buff = (int *)calloc(count + 1, sizeof(int));
+					half * vector_buff = (half *)calloc(count * dim + 1, sizeof(half));
+
+					for (int i = 0; i < count_relation(); i++) {
+
+						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
+
+							idx_buff[buff_idx] = htonl(i);
+
+							for (int j = 0; j < dim; j++) {
+
+								vector_buff[dim * buff_idx + j] = (half)embedding_relation[i](j);
+							}
+
+							buff_idx++;
+						}
+					}
+					send(fd, idx_buff, count * sizeof(int));
+					send(fd, vector_buff, count * dim * sizeof(half));
+				}
+
+				free(idx_buff);
+				free(vector_buff);
+
+				//.....................
+
+                if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
 
                 	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
                     printf("[error] GeometricModel.hpp > return -1\n");
-					fprintf(fs_log, "[error] GeometricModel.hpp 637 line\n");
                     fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
                     fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
                     close(fd);
@@ -781,8 +897,8 @@ public:
 					//.....................
 				}
 
-				// 원소 한 번에 받음 - 2 단계
-
+				// 원소 한 번에 받음 - 2 단계 (엔티티 하나씩)
+				/*
 				for (int i = 0; i < count_entity(); i++) {
 
                     if(precision == 0) {
@@ -826,6 +942,57 @@ public:
 						free(vector_buff);
 					}
 				}
+				*/
+				//.....................
+
+				// 원소 한 번에 받음 - 2 단계 (엔티티 한 번에)
+
+				if (precision == 0) {
+
+					float * vector_buff = (float *)calloc(count_entity() * dim + 1, sizeof(float));
+					if (recv(fd, vector_buff, count_entity() * dim * sizeof(float), MSG_WAITALL) < 0){
+
+						printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+						printf("[error] GeometricModel.hpp > return -1\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						fclose(fs_log);
+						std::exit(-1);
+					}
+
+					for (int i = 0; i < count_entity(); i++) {
+
+						for (int j = 0; j < dim; j++) {
+
+							embedding_entity[id_buff[i]](j) = vector_buff[dim * i + j];
+						}
+					}
+				}
+				else{
+
+					half * vector_buff = (half *)calloc(count_entity() * dim + 1, sizeof(half));
+					if (recv(fd, vector_buff, count_entity() * dim * sizeof(half), MSG_WAITALL) < 0){
+
+						printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+						printf("[error] GeometricModel.hpp > return -1\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						fclose(fs_log);
+						std::exit(-1);
+					}
+
+					for (int i = 0; i < count_entity(); i++) {
+
+						for (int j = 0; j < dim; j++) {
+
+							embedding_entity[id_buff[i]](j) = (float) vector_buff[dim * i + j];
+						}
+					}
+				}
+
+				free(vector_buff);
 
 				//.....................
 
@@ -944,7 +1111,7 @@ public:
 				}
 
 				// 원소 한 번에 받음 - 2 단계
-
+				/*
 				for (int i = 0; i < count_relation(); i++) {
 
 					if(precision == 0) {
@@ -988,6 +1155,57 @@ public:
 						free(vector_buff);
 					}
 				}
+				*/
+				//.....................
+
+				// 원소 한 번에 받음 - 2 단계 (릴레이션 한 번에)
+
+				if (precision == 0) {
+
+					float * vector_buff = (float *)calloc(count_relation() * dim + 1, sizeof(float));
+					if (recv(fd, vector_buff, count_relation() * dim * sizeof(float), MSG_WAITALL) < 0){
+
+						printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+						printf("[error] GeometricModel.hpp > return -1\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						fclose(fs_log);
+						std::exit(-1);
+					}
+
+					for (int i = 0; i < count_relation(); i++) {
+
+						for (int j = 0; j < dim; j++) {
+
+							embedding_relation[id_buff[i]](j) = vector_buff[count_relation() * i + j];
+						}
+					}
+				}
+				else{
+
+					half * vector_buff = (half *)calloc(count_relation() * dim + 1, sizeof(half));
+					if (recv(fd, vector_buff, count_relation() * dim * sizeof(half), MSG_WAITALL) < 0){
+
+						printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+						printf("[error] GeometricModel.hpp > return -1\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						fclose(fs_log);
+						std::exit(-1);
+					}
+
+					for (int i = 0; i < count_relation(); i++) {
+
+						for (int j = 0; j < dim; j++) {
+
+							embedding_relation[id_buff[i]](j) = (float) vector_buff[count_relation() * i + j];
+						}
+					}
+				}
+
+				free(vector_buff);
 
 				//.....................
 

@@ -432,35 +432,47 @@ try:
                 # 처리 결과를 받아옴 - GeometricModel save
 
                 # 원소를 하나씩 받음
-                # count_entity = unpack(
-                #     '!i', sockRecv(embedding_sock, 4))[0]
-
-                # for _ in range(count_entity):
-
-                #     temp_entity_vector = list()
-
-                #     entity_id_temp = unpack('!i', sockRecv(embedding_sock, 4))[
-                #         0]     # entity_id 를 int 로 받음
-
-                #     for _ in range(embedding_dim):
-
-                #         temp_entity = unpack(
-                #             precision_string, sockRecv(embedding_sock, precision_byte))[0]
-                #         temp_entity_vector.append(temp_entity)
-
-                #     entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(dumps(
-                #         np.array(temp_entity_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
+                #count_entity = unpack('!i', sockRecv(embedding_sock, 4))[0]
+                #
+                #for _ in range(count_entity):
+                #
+                #    temp_entity_vector = list()
+                #
+                #    entity_id_temp = unpack('!i', sockRecv(embedding_sock, 4))[0]     # entity_id 를 int 로 받음
+                #
+                #
+                #    for _ in range(embedding_dim):
+                #
+                #        temp_entity = unpack(precision_string, sockRecv(embedding_sock, precision_byte))[0]
+                #        temp_entity_vector.append(temp_entity)
+                #
+                #    entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(dumps(
+                #        np.array(temp_entity_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
 
                 # 원소를 한 번에 받음
+                #count_entity = unpack('!i', sockRecv(embedding_sock, 4))[0]
+                #
+                #for _ in range(count_entity):
+                #
+                #   entity_id_temp = unpack('!i', sockRecv(embedding_sock, 4))[0]
+                #   temp_entity_vector = list(unpack(precision_string * embedding_dim, sockRecv(embedding_sock, precision_byte * embedding_dim)))
+                #
+                #   entity_vectors[entities[entity_id_temp] + '_v'] = compress(dumps(
+                #       np.array(temp_entity_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
+                
+                # 원소를 한 번에 받음 (엔티티 한 번에)
                 count_entity = unpack('!i', sockRecv(embedding_sock, 4))[0]
-                
-                for _ in range(count_entity):
-                
-                   entity_id_temp = unpack('!i', sockRecv(embedding_sock, 4))[0]
-                   temp_entity_vector = list(unpack(precision_string * embedding_dim, sockRecv(embedding_sock, precision_byte * embedding_dim)))
-                
-                   entity_vectors[entities[entity_id_temp] + '_v'] = compress(dumps(
-                       np.array(temp_entity_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
+                entity_id_list = unpack('!' + 'i' * int(count_entity), sockRecv(embedding_sock, int(count_entity) * 4))
+                entity_vector_list = list(unpack(precision_string * int(count_entity) * embedding_dim,
+                    sockRecv(embedding_sock, precision_byte * embedding_dim * int(count_entity))))
+
+                for _i in range(count_entity):
+
+                    entity_id_temp = entity_id_list[_i]
+                    temp_entity_vector = entity_vector_list[_i * int(embedding_dim):(_i + 1) * int(embedding_dim)]
+
+                    entity_vectors[entities[entity_id_temp] + '_v'] = compress(dumps(
+                        np.array(temp_entity_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
 
             except Exception as e:
 
@@ -527,35 +539,46 @@ try:
                 # 처리 결과를 받아옴 - GeometricModel save
 
                 # 원소를 하나씩 전송
-                # count_relation = unpack(
-                #     '!i', sockRecv(embedding_sock, 4))[0]
-
-                # for _ in range(count_relation):
-
-                #     temp_relation_vector = list()
-
-                #     relation_id_temp = unpack('!i', sockRecv(embedding_sock, 4))[
-                #         0]   # relation_id 를 int 로 받음
-
-                #     for _ in range(embedding_dim):
-
-                #         temp_relation = unpack(
-                #             precision_string, sockRecv(embedding_sock, precision_byte))[0]
-                #         temp_relation_vector.append(temp_relation)
-
-                #     relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(dumps(
-                #         np.array(temp_relation_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
+                #count_relation = unpack('!i', sockRecv(embedding_sock, 4))[0]
+                #
+                #for _ in range(count_relation):
+                #
+                #    temp_relation_vector = list()
+                #
+                #    relation_id_temp = unpack('!i', sockRecv(embedding_sock, 4))[0]   # relation_id 를 int 로 받음 
+                #
+                #    for _ in range(embedding_dim):
+                #
+                #        temp_relation = unpack(precision_string, sockRecv(embedding_sock, precision_byte))[0]
+                #        temp_relation_vector.append(temp_relation)
+                #
+                #    relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(dumps(
+                #        np.array(temp_relation_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
 
                 # 원소를 한 번에 받음
+                #count_relation = unpack('!i', sockRecv(embedding_sock, 4))[0]
+                #
+                #for _ in range(count_relation):
+                #
+                #   relation_id_temp = unpack('!i', sockRecv(embedding_sock, 4))[0]
+                #   temp_relation_vector = list(unpack(precision_string * embedding_dim, sockRecv(embedding_sock, precision_byte * embedding_dim)))
+                #
+                #   relation_vectors[relations[relation_id_temp] + '_v'] = compress(dumps(
+                #       np.array(temp_relation_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
+
+                # 원소를 한 번에 받음 (릴레이션 한 번에)
                 count_relation = unpack('!i', sockRecv(embedding_sock, 4))[0]
-                
-                for _ in range(count_relation):
-                
-                   relation_id_temp = unpack('!i', sockRecv(embedding_sock, 4))[0]
-                   temp_relation_vector = list(unpack(precision_string * embedding_dim, sockRecv(embedding_sock, precision_byte * embedding_dim)))
-                
-                   relation_vectors[relations[relation_id_temp] + '_v'] = compress(dumps(
-                       np.array(temp_relation_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
+                relation_id_list = unpack('!' + 'i' * int(count_relation), sockRecv(embedding_sock, int(count_relation) * 4))
+                relation_vector_list = list(unpack(precision_string * int(count_relation) * embedding_dim,
+                    sockRecv(embedding_sock, precision_byte * embedding_dim * int(count_relation))))
+
+                for _i in range(count_relation):
+
+                    relation_id_temp = relation_id_list[_i]
+                    temp_relation_vector = relation_vector_list[_i * int(embedding_dim):(_i + 1) * int(embedding_dim)]
+
+                    relation_vectors[relations[relation_id_temp] + '_v'] = compress(dumps(
+                        np.array(temp_relation_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
 
             except Exception as e:
 

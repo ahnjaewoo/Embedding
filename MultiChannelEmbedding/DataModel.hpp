@@ -259,7 +259,6 @@ public:
 
                         // 원소 하나씩 받음
                         /*
-
                         if (recv(fd, &anchor_num, sizeof(anchor_num), MSG_WAITALL) < 0){
 
                             printf("[error] DataModel > recv anchor_num\n");
@@ -327,7 +326,6 @@ public:
 
                         // 원소 한 번에 받음 - 1 단계
                         /*
-
                         if (recv(fd, &anchor_num, sizeof(anchor_num), MSG_WAITALL) < 0){
 
                             printf("[error] DataModel > recv anchor_num\n");
@@ -400,6 +398,7 @@ public:
                         //.....................
 
                         // 원소 한 번에 받음 - 2 단계
+
                         if (recv(fd, &anchor_num, sizeof(anchor_num), MSG_WAITALL) < 0){
 
                             printf("[error] DataModel > recv anchor_num\n");
@@ -529,6 +528,8 @@ public:
                             return;
                         }
 
+                        // 원소 한 번에 받음 - 2 단계 (트리플 하나씩)
+                        /*
                         for (int idx = 0; idx < ntohl(triplet_num); idx++) {
 
                             if (recv(fd, &temp_value_head, sizeof(temp_value_head), MSG_WAITALL) < 0){
@@ -579,6 +580,38 @@ public:
                             tmp.first.second = temp_value_tail;
                             data_train_parts.push_back(tmp);
                         }
+                        */
+                        //.....................
+
+                        // 원소 한 번에 받음 - 2 단계 (모두 한 번에)
+
+                        int * triplet_buff = (int *)calloc(ntohl(triplet_num) * 3 + 1, sizeof(int));
+                        if (recv(fd, triplet_buff, ntohl(triplet_num) * 3 * sizeof(int), MSG_WAITALL) < 0){
+
+                            printf("[error] DataModel > recv triplet_buff\n");
+                            printf("[error] DataModel > return -1\n");
+                            fprintf(fs_log, "[error] DataModel > recv triplet_buff\n");
+                            fprintf(fs_log, "[error] DataModel > return -1\n");
+                            close(fd);
+                            fclose(fs_log);
+                            std::exit(-1);
+                            return;
+                        }
+
+                        for (int idx = 0; idx < ntohl(triplet_num); idx++) {
+
+                            set_entity_parts.insert(ntohl(triplet_buff[3 * idx]));
+                            set_entity_parts.insert(ntohl(triplet_buff[3 * idx + 1]));
+                            set_relation_parts.insert(ntohl(triplet_buff[3 * idx + 2]));
+                            tmp.first.first = ntohl(temp_value_head);
+                            tmp.second = ntohl(temp_value_relation);
+                            tmp.first.second = ntohl(temp_value_tail);
+                            data_train_parts.push_back(tmp);
+                        }
+
+                        free(triplet_buff);
+
+                        //.....................
 
                         flag = 1234;
                         flag = htonl(flag);
