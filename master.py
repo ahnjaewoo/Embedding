@@ -4,14 +4,12 @@ from sklearn.preprocessing import normalize
 from subprocess import Popen
 from argparse import ArgumentParser
 from collections import defaultdict
-from zlib import compress
-from zlib import decompress
+from zlib import compress, decompress
 from pickle import dumps, loads, HIGHEST_PROTOCOL
 from struct import pack, unpack
 import logging
 import numpy as np
 import redis
-from time import time
 from time import sleep
 import socket
 import timeit
