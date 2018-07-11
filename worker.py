@@ -632,13 +632,13 @@ modelRunTime = unpack('d', sockRecv(embedding_sock, 8))[0]
 embedding_sock.close()
 
 output_times = dict()
-output_times["datamodel_sock"] = round(datamodelTime, 4)
-output_times["socket_load"] = round(sockLoadTime, 4)
-output_times["embedding"] = round(embeddingTime, 4)
-output_times["model_run"] = round(modelRunTime, 4)
-output_times["socket_save"] = round(sockSaveTime, 4)
-output_times["redis"] = round(redisTime, 4)
-output_times["worker_total"] = round(workerTotalTime, 4)
+output_times["datamodel_sock"] = datamodelTime
+output_times["socket_load"] = sockLoadTime
+output_times["embedding"] = embeddingTime
+output_times["model_run"] = modelRunTime
+output_times["socket_save"] = sockSaveTime
+output_times["redis"] = redisTime
+output_times["worker_total"] = workerTotalTime
 output_times = compress(dumps(output_times, protocol=HIGHEST_PROTOCOL), 9)
 r.set("%s_%d" % (worker_id, cur_iter), output_times)
 
