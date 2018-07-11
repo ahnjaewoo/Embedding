@@ -81,10 +81,10 @@ temp_folder_dir = "%s/tmp" % root_dir
 workerStart = timeit.default_timer()
 # redis에서 embedding vector들 받아오기
 r = redis.StrictRedis(host=redis_ip_address, port=6379, db=0)
-entities = loads(decompress(r.get('entities')))
-relations = loads(decompress(r.get('relations')))
-entity_ids = [int(i) for i in r.mget(entities)]
-relation_ids = [int(i) for i in r.mget(relations)]
+entities = np.array(loads(decompress(r.get('entities'))))
+relations = np.array(loads(decompress(r.get('relations'))))
+entity_ids = np.array([int(i) for i in r.mget(entities)])
+relation_ids = np.array([int(i) for i in r.mget(relations)])
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
