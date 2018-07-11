@@ -18,18 +18,18 @@ import timeit
 
 chunk_data = sys.argv[1]
 worker_id = sys.argv[2]
-cur_iter = sys.argv[3]
+cur_iter = int(sys.argv[3])
 embedding_dim = int(sys.argv[4])
 redis_ip_address = sys.argv[5]
 root_dir = sys.argv[6]
-socket_port = sys.argv[7]
+socket_port = int(sys.argv[7])
 debugging = sys.argv[8]
 precision = int(sys.argv[9])
 precision_string = 'f' if precision == 0 else 'e'
 precision_byte = 4 if precision == 0 else 2
 
 if debugging == 'yes':
-    logging.basicConfig(filename='%s/%s_%s.log' % (root_dir,
+    logging.basicConfig(filename='%s/%s_%d.log' % (root_dir,
                                                    worker_id, cur_iter), filemode='w', level=logging.WARNING)
     logger = logging.getLogger()
     handler = logging.StreamHandler(stream=sys.stdout)
@@ -83,13 +83,13 @@ workerStart = timeit.default_timer()
 r = redis.StrictRedis(host=redis_ip_address, port=6379, db=0)
 entities = loads(decompress(r.get('entities')))
 relations = loads(decompress(r.get('relations')))
-entity_id = r.mget(entities)
-relation_id = r.mget(relations)
+entity_ids = [int(i) for i in r.mget(entities)]
+relation_ids = [int(i) for i in r.mget(relations)]
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
-entity_id = {entities[i]: int(id_) for i, id_ in enumerate(entity_id)}
-relation_id = {relations[i]: int(id_) for i, id_ in enumerate(relation_id)}
+entity_id = {e: i for e, i in zip(entities, entity_ids)}
+relation_id = {r: i for e, i in zip(relations, relation_ids)}
 
 entities_initialized = np.array([loads(decompress(v))
                         for v in entities_initialized], dtype=np.float32)
@@ -131,7 +131,7 @@ while True:
 
     try:
 
-        embedding_sock.connect(('127.0.0.1', int(socket_port)))
+        embedding_sock.connect(('127.0.0.1', socket_port))
         break
 
     except Exception as e:
@@ -160,7 +160,7 @@ try:
     checksum = 0
     timeNow = timeit.default_timer()
 
-    if int(cur_iter) % 2 == 0:
+    if cur_iter % 2 == 0:
         # entity 전송 - DataModel 생성자
         chunk_anchor, chunk_entity = chunk_data.split('\n')
         chunk_anchor = chunk_anchor.split(' ')
@@ -259,7 +259,7 @@ try:
 
             for (head_id_, relation_id_, tail_id_) in sub_graphs:
 
-                value_to_send_extend((int(head_id_), int(relation_id_), int(tail_id_)))
+                value_to_send_extend((head_id_, relation_id_, tail_id_))
 
             embedding_sock.send(pack('!' + 'i' * len(value_to_send), * value_to_send))
 
@@ -298,8 +298,6 @@ try:
     # entity_vector 전송 - GeometricModel load
     while checksum != 1:
 
-        id_entity = dict()
-
         # 원소를 하나씩 전송
         # for i, vector in enumerate(entities_initialized):
         #
@@ -321,16 +319,8 @@ try:
         #        precision_string * len(vector), * vector.tolist()))
 
         # 원소를 한 번에 전송 - 2 단계
-        value_to_send_id = list()
         value_to_send_vector = entities_initialized.flatten().tolist()        
-
-        for i in range(len(entities_initialized)):
-
-            entity_name = str(entities[i])
-            id_entity[entity_id[entity_name]] = entity_name
-            value_to_send_id.append(entity_id[entity_name])
-
-        embedding_sock.send(pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
+        embedding_sock.send(pack('!' + 'i' * len(entity_ids), * entity_ids))
         embedding_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
 
         checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
@@ -366,8 +356,6 @@ try:
     # relation_vector 전송 - GeometricModel load
     while checksum != 1:
 
-        id_relation = dict()
-
         # 원소를 하나씩 전송
         # for i, relation in enumerate(relations_initialized):
         #
@@ -389,16 +377,8 @@ try:
         #        precision_string * len(relation), * relation.tolist()))
 
         # 원소를 한 번에 전송 - 2 단계
-        value_to_send_id = list()
         value_to_send_vector = relations_initialized.flatten().tolist()
-
-        for i in range(len(relations_initialized)):
-
-            relation_name = str(relations[i])
-            id_relation[relation_id[relation_name]] = relation_name
-            value_to_send_id.append(relation_id[relation_name])
-
-        embedding_sock.send(pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
+        embedding_sock.send(pack('!' + 'i' * len(relation_ids), * relation_ids))
         embedding_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
 
         checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
@@ -440,7 +420,7 @@ try:
 
     tempcount = 0
 
-    if int(cur_iter) % 2 == 0:
+    if cur_iter % 2 == 0:
 
         success = 0
 
@@ -481,7 +461,7 @@ try:
                    entity_id_temp = unpack('!i', sockRecv(embedding_sock, 4))[0]
                    temp_entity_vector = list(unpack(precision_string * embedding_dim, sockRecv(embedding_sock, precision_byte * embedding_dim)))
                 
-                   entity_vectors[id_entity[entity_id_temp] + '_v'] = compress(dumps(
+                   entity_vectors[entities[entity_id_temp] + '_v'] = compress(dumps(
                        np.array(temp_entity_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
 
             except Exception as e:
@@ -576,7 +556,7 @@ try:
                    relation_id_temp = unpack('!i', sockRecv(embedding_sock, 4))[0]
                    temp_relation_vector = list(unpack(precision_string * embedding_dim, sockRecv(embedding_sock, precision_byte * embedding_dim)))
                 
-                   relation_vectors[id_relation[relation_id_temp] + '_v'] = compress(dumps(
+                   relation_vectors[relations[relation_id_temp] + '_v'] = compress(dumps(
                        np.array(temp_relation_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
 
             except Exception as e:
@@ -660,6 +640,6 @@ output_times["socket_save"] = sockSaveTime
 output_times["redis"] = redisTime
 output_times["worker_total"] = workerTotalTime
 output_times = compress(dumps(output_times, protocol=HIGHEST_PROTOCOL), 9)
-r.set(worker_id + '_' + cur_iter, output_times)
+r.set("%s_%d" % (worker_id, cur_iter), output_times)
 
 sys.exit(0)
