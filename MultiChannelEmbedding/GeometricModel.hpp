@@ -1178,6 +1178,8 @@ public:
 
 				if (precision == 0) {
 
+					printf("r : %d\n", count_relation());
+
 					float * vector_buff = (float *)calloc(count_relation() * dim + 1, sizeof(float));
 					if (recv(fd, vector_buff, count_relation() * dim * sizeof(float), MSG_WAITALL) < 0){
 
