@@ -555,6 +555,8 @@ public:
 					}
 					send(fd, idx_buff, count * sizeof(int));
 					send(fd, vector_buff, count * dim * sizeof(float));
+
+					free(vector_buff);
 				}
 				else{
 
@@ -579,10 +581,11 @@ public:
 					}
 					send(fd, idx_buff, count * sizeof(int));
 					send(fd, vector_buff, count * dim * sizeof(half));
+
+					free(vector_buff);
 				}
 
 				free(idx_buff);
-				free(vector_buff);
 
 				//.....................
 
@@ -727,6 +730,8 @@ public:
 					}
 					send(fd, idx_buff, count * sizeof(int));
 					send(fd, vector_buff, count * dim * sizeof(float));
+
+					free(vector_buff);
 				}
 				else{
 
@@ -750,10 +755,11 @@ public:
 					}
 					send(fd, idx_buff, count * sizeof(int));
 					send(fd, vector_buff, count * dim * sizeof(half));
+
+					free(vector_buff);
 				}
 
 				free(idx_buff);
-				free(vector_buff);
 
 				//.....................
 
@@ -787,7 +793,6 @@ public:
                 	printf("[error] GeometricModel.hpp > retry phase 3 (relation)\n");
                     fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (relation)\n");
                     fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
-					fprintf(fs_log, "[error] GeometricModel.hpp > recv value = %d\n", recv_val);
                     fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (relation)\n");
                     checksum = 0;
                 }
@@ -968,6 +973,8 @@ public:
 							embedding_entity[id_buff[i]](j) = vector_buff[dim * i + j];
 						}
 					}
+
+					free(vector_buff);
 				}
 				else{
 
@@ -990,9 +997,11 @@ public:
 							embedding_entity[id_buff[i]](j) = (float) vector_buff[dim * i + j];
 						}
 					}
+
+					free(vector_buff);
 				}
 
-				free(vector_buff);
+				
 
 				//.....................
 
@@ -1181,6 +1190,8 @@ public:
 							embedding_relation[id_buff[i]](j) = vector_buff[count_relation() * i + j];
 						}
 					}
+
+					free(vector_buff);
 				}
 				else{
 
@@ -1203,9 +1214,9 @@ public:
 							embedding_relation[id_buff[i]](j) = (float) vector_buff[count_relation() * i + j];
 						}
 					}
-				}
 
-				free(vector_buff);
+					free(vector_buff);
+				}
 
 				//.....................
 
