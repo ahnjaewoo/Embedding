@@ -1191,7 +1191,7 @@ public:
 
 						for (int j = 0; j < dim; j++) {
 
-							embedding_relation[id_buff[i]](j) = vector_buff[count_relation() * i + j];
+							embedding_relation[id_buff[i]](j) = vector_buff[dim * i + j];
 						}
 					}
 
@@ -1217,7 +1217,7 @@ public:
 
 						for (int j = 0; j < dim; j++) {
 
-							embedding_relation[id_buff[i]](j) = (float) vector_buff[count_relation() * i + j];
+							embedding_relation[id_buff[i]](j) = (float) vector_buff[dim * i + j];
 						}
 					}
 
