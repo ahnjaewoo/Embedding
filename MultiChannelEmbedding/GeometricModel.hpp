@@ -1169,6 +1169,8 @@ public:
 
 				// 원소 한 번에 받음 - 2 단계 (릴레이션 한 번에)
 
+				printf("1234\n");
+
 				if (precision == 0) {
 
 					float * vector_buff = (float *)calloc(count_relation() * dim + 1, sizeof(float));
@@ -1182,6 +1184,8 @@ public:
 						fclose(fs_log);
 						std::exit(-1);
 					}
+
+					printf("5678\n");
 
 					for (int i = 0; i < count_relation(); i++) {
 
@@ -1207,6 +1211,8 @@ public:
 						std::exit(-1);
 					}
 
+					printf("5678\n");
+
 					for (int i = 0; i < count_relation(); i++) {
 
 						for (int j = 0; j < dim; j++) {
@@ -1218,6 +1224,7 @@ public:
 					free(vector_buff);
 				}
 
+				printf("91011\n");
 				//.....................
 
 				free(id_buff);
