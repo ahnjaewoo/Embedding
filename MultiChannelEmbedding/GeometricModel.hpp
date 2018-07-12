@@ -468,6 +468,7 @@ public:
 
 				count = htonl(count);
 				send(fd, &count, sizeof(count), 0);
+				count = ntohl(count);
 				
 				// 원소 한 번에 보냄 (엔티티 한 번에) 를 밑에 사용하면, 아래 for 문을 주석처리
 
@@ -662,6 +663,7 @@ public:
 
 				count = htonl(count);
 				send(fd, &count, sizeof(count), 0);
+				count = ntohl(count);
 
 				// 원소 한 번에 보냄 (엔티티 한 번에) 를 밑에 사용하면, 아래 for 문을 주석처리
 
