@@ -532,6 +532,8 @@ public:
 
 				// 원소 한 번에 보냄 (엔티티 한 번에)
 
+				print("123\n");
+
 				if (precision == 0) {
 
 					int buff_idx = 0;
@@ -553,6 +555,9 @@ public:
 							buff_idx++;
 						}
 					}
+
+					print("456\n");
+
 					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * dim * sizeof(float), 0);
 
@@ -580,12 +585,17 @@ public:
 							buff_idx++;
 						}
 					}
+
+					print("456\n");
+
 					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * dim * sizeof(half), 0);
 
 					free(idx_buff);
 					free(vector_buff);
 				}
+
+				print("789\n");
 
 				//.....................
 
@@ -1169,8 +1179,6 @@ public:
 
 				// 원소 한 번에 받음 - 2 단계 (릴레이션 한 번에)
 
-				printf("1234\n");
-
 				if (precision == 0) {
 
 					float * vector_buff = (float *)calloc(count_relation() * dim + 1, sizeof(float));
@@ -1184,8 +1192,6 @@ public:
 						fclose(fs_log);
 						std::exit(-1);
 					}
-
-					printf("5678\n");
 
 					for (int i = 0; i < count_relation(); i++) {
 
@@ -1211,8 +1217,6 @@ public:
 						std::exit(-1);
 					}
 
-					printf("5678\n");
-
 					for (int i = 0; i < count_relation(); i++) {
 
 						for (int j = 0; j < dim; j++) {
@@ -1224,7 +1228,6 @@ public:
 					free(vector_buff);
 				}
 
-				printf("91011\n");
 				//.....................
 
 				free(id_buff);
