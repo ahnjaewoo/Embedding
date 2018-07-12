@@ -553,9 +553,10 @@ public:
 							buff_idx++;
 						}
 					}
-					send(fd, idx_buff, count * sizeof(int));
-					send(fd, vector_buff, count * dim * sizeof(float));
+					send(fd, idx_buff, count * sizeof(int), 0);
+					send(fd, vector_buff, count * dim * sizeof(float), 0);
 
+					free(idx_buff);
 					free(vector_buff);
 				}
 				else{
@@ -579,13 +580,12 @@ public:
 							buff_idx++;
 						}
 					}
-					send(fd, idx_buff, count * sizeof(int));
-					send(fd, vector_buff, count * dim * sizeof(half));
+					send(fd, idx_buff, count * sizeof(int), 0);
+					send(fd, vector_buff, count * dim * sizeof(half), 0);
 
+					free(idx_buff);
 					free(vector_buff);
 				}
-
-				free(idx_buff);
 
 				//.....................
 
@@ -731,6 +731,7 @@ public:
 					send(fd, idx_buff, count * sizeof(int));
 					send(fd, vector_buff, count * dim * sizeof(float));
 
+					free(idx_buff);
 					free(vector_buff);
 				}
 				else{
@@ -756,10 +757,9 @@ public:
 					send(fd, idx_buff, count * sizeof(int));
 					send(fd, vector_buff, count * dim * sizeof(half));
 
+					free(idx_buff);
 					free(vector_buff);
 				}
-
-				free(idx_buff);
 
 				//.....................
 
