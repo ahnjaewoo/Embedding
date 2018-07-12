@@ -542,16 +542,22 @@ public:
 
 					for (int i = 0; i < count_entity(); i++) {
 
+						printf("%d %d\n", buff_idx, i);
+
 						if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
 						&& data_model.check_parts.find(i) != data_model.check_parts.end()){						
 
+
+							printf("aa\n");
 							idx_buff[buff_idx] = ntohl(i);
 
 							for (int j = 0; j < dim; j++) {
 
+								printf("bb\n");
 								vector_buff[dim * buff_idx + j] = embedding_entity[i](j);
 							}
 
+							printf("cc\n");
 							buff_idx++;
 						}
 					}
