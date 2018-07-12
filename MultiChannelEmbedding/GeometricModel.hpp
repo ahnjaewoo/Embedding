@@ -549,7 +549,7 @@ public:
 
 
 							printf("aa\n");
-							idx_buff[buff_idx] = ntohl(i);
+							idx_buff[buff_idx] = htonl(i);
 
 							for (int j = 0; j < dim; j++) {
 
@@ -581,7 +581,7 @@ public:
 						if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
 						&& data_model.check_parts.find(i) != data_model.check_parts.end()){	
 
-							idx_buff[buff_idx] = ntohl(i);
+							idx_buff[buff_idx] = htonl(i);
 
 							for (int j = 0; j < dim; j++) {
 
