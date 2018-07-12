@@ -763,8 +763,8 @@ while success != 1:
 
     # 원소를 한 번에 전송 - 2 단계
     value_to_send_vector = relations_initialized.flatten()
-    embedding_sock.send(pack('!' + 'i' * len(relation_ids), * relation_ids))
-    embedding_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
+    test_sock.send(pack('!' + 'i' * len(relation_ids), * relation_ids))
+    test_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
 
     checksum = unpack('!i', sockRecv(test_sock, 4))[0]
 
