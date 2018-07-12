@@ -532,7 +532,7 @@ public:
 
 				// 원소 한 번에 보냄 (엔티티 한 번에)
 
-				print("123\n");
+				printf("123\n");
 
 				if (precision == 0) {
 
@@ -556,7 +556,7 @@ public:
 						}
 					}
 
-					print("456\n");
+					printf("456\n");
 
 					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * dim * sizeof(float), 0);
@@ -586,7 +586,7 @@ public:
 						}
 					}
 
-					print("456\n");
+					printf("456\n");
 
 					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * dim * sizeof(half), 0);
@@ -595,7 +595,7 @@ public:
 					free(vector_buff);
 				}
 
-				print("789\n");
+				printf("789\n");
 
 				//.....................
 
