@@ -303,6 +303,9 @@ r.set('relations', compress(dumps(relations, protocol=HIGHEST_PROTOCOL), 9))
 entities_initialized = normalize(np.random.randn(len(entities), n_dim))
 relations_initialized = normalize(np.random.randn(len(relations), n_dim))
 
+entity_ids = np.array([int(i) for i in r.mget(entities)], dtype=np.int32)
+relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
+
 r.mset({
     entity + '_v': compress(dumps(
         entities_initialized[i],
@@ -678,18 +681,23 @@ while success != 1:
     #    test_sock.send(pack('!' + 'i' + 'f' * len(vector), * value_to_send))
 
     # 원소를 한 번에 전송 - 2 단계
-    value_to_send_id = list()
-    value_to_send_vector = list()
-    id_entity = dict()
+    #value_to_send_id = list()
+    #value_to_send_vector = list()
+    #id_entity = dict()
+    #
+    #for i, vector in enumerate(entities_initialized):
+    #
+    #    entity_name = str(entities[i])
+    #    id_entity[entity2id[entity_name]] = entity_name
+    #    value_to_send_id.append(entity2id[entity_name])
+    #    value_to_send_vector = value_to_send_vector + vector.tolist()
+    #
+    #test_sock.send(pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
+    #test_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
 
-    for i, vector in enumerate(entities_initialized):
-
-        entity_name = str(entities[i])
-        id_entity[entity2id[entity_name]] = entity_name
-        value_to_send_id.append(entity2id[entity_name])
-        value_to_send_vector = value_to_send_vector + vector.tolist()
-
-    test_sock.send(pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
+    # 원소를 한 번에 전송 - 2 단계
+    value_to_send_vector = entities_initialized.flatten()
+    test_sock.send(pack('!' + 'i' * len(entity_ids), * entity_ids))
     test_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
 
     checksum = unpack('!i', sockRecv(test_sock, 4))[0]
@@ -736,19 +744,24 @@ while success != 1:
     #    test_sock.send(pack('!' + 'i' + 'f' * len(relation), * value_to_send))
 
     # 원소를 한 번에 전송 - 2 단계
-    value_to_send_id = list()
-    value_to_send_vector = list()
-    id_relation = dict()
+    #value_to_send_id = list()
+    #value_to_send_vector = list()
+    #id_relation = dict()
+    #
+    #for i, relation in enumerate(relations_initialized):
+    #
+    #    relation_name = str(relations[i])
+    #    id_relation[relation2id[relation_name]] = relation_name
+    #    value_to_send_id.append(relation2id[relation_name])
+    #    value_to_send_vector = value_to_send_vector + relation.tolist()
+    #
+    #test_sock.send(pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
+    #test_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
 
-    for i, relation in enumerate(relations_initialized):
-
-        relation_name = str(relations[i])
-        id_relation[relation2id[relation_name]] = relation_name
-        value_to_send_id.append(relation2id[relation_name])
-        value_to_send_vector = value_to_send_vector + relation.tolist()
-
-    test_sock.send(pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
-    test_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
+    # 원소를 한 번에 전송 - 2 단계
+    value_to_send_vector = relations_initialized.flatten()
+    embedding_sock.send(pack('!' + 'i' * len(relation_ids), * relation_ids))
+    embedding_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
 
     checksum = unpack('!i', sockRecv(test_sock, 4))[0]
 
