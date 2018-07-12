@@ -533,8 +533,6 @@ public:
 
 				// 원소 한 번에 보냄 (엔티티 한 번에)
 
-				printf("123\n");
-
 				if (precision == 0) {
 
 					int buff_idx = 0;
@@ -543,27 +541,19 @@ public:
 
 					for (int i = 0; i < count_entity(); i++) {
 
-						printf("%d %d\n", buff_idx, i);
-
 						if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
 						&& data_model.check_parts.find(i) != data_model.check_parts.end()){						
 
-
-							printf("aa\n");
 							idx_buff[buff_idx] = htonl(i);
 
 							for (int j = 0; j < dim; j++) {
 
-								printf("bb\n");
 								vector_buff[dim * buff_idx + j] = embedding_entity[i](j);
 							}
 
-							printf("cc\n");
 							buff_idx++;
 						}
 					}
-
-					printf("456\n");
 
 					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * dim * sizeof(float), 0);
@@ -593,16 +583,12 @@ public:
 						}
 					}
 
-					printf("456\n");
-
 					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * dim * sizeof(half), 0);
 
 					free(idx_buff);
 					free(vector_buff);
 				}
-
-				printf("789\n");
 
 				//.....................
 
