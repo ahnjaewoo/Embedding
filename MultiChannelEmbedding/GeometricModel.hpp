@@ -637,6 +637,8 @@ public:
 			int checksum = 0;
 			int flag = 0;
 
+			printf("relation\n\n");
+
 			while(checksum != 1){
 
 				for (int i = 0; i < count_relation(); i++){
@@ -646,6 +648,8 @@ public:
 						count++;
 					}
 				}
+
+				printf("%d\n", count);
 
 				count = htonl(count);
 				send(fd, &count, sizeof(count), 0);
