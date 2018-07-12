@@ -1006,8 +1006,6 @@ public:
 					free(vector_buff);
 				}
 
-				
-
 				//.....................
 
 				free(id_buff);
@@ -1040,6 +1038,8 @@ public:
 			try{
 
 				int * id_buff = (int *)calloc(count_relation() + 1, sizeof(int));
+
+				printf("12\n");
 
 				for (int i = 0; i < count_relation(); i++) {
 					
@@ -1174,6 +1174,8 @@ public:
 
 				// 원소 한 번에 받음 - 2 단계 (릴레이션 한 번에)
 
+				printf("34\n");
+
 				if (precision == 0) {
 
 					float * vector_buff = (float *)calloc(count_relation() * dim + 1, sizeof(float));
@@ -1188,6 +1190,8 @@ public:
 						std::exit(-1);
 					}
 
+					printf("56\n");
+
 					for (int i = 0; i < count_relation(); i++) {
 
 						for (int j = 0; j < dim; j++) {
@@ -1195,6 +1199,8 @@ public:
 							embedding_relation[id_buff[i]](j) = vector_buff[dim * i + j];
 						}
 					}
+
+					printf("78\n");
 
 					free(vector_buff);
 				}
