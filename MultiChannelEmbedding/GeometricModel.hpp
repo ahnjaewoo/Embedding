@@ -651,7 +651,7 @@ public:
 				send(fd, &count, sizeof(count), 0);
 				count = ntohl(count);
 
-				// 원소 한 번에 보냄 (엔티티 한 번에) 를 밑에 사용하면, 아래 for 문을 주석처리
+				// 원소 한 번에 보냄 (릴레이션 한 번에) 를 밑에 사용하면, 아래 for 문을 주석처리
 
 				//for (int i = 0; i < count_relation(); i++){
 
@@ -712,11 +712,15 @@ public:
 
 				// 원소 한 번에 보냄 (릴레이션 한 번에)
 
+				printf("123\n");
+
 				if (precision == 0) {
 
 					int buff_idx = 0;
 					int * idx_buff = (int *)calloc(count + 1, sizeof(int));
 					float * vector_buff = (float *)calloc(count * dim + 1, sizeof(float));
+
+					printf("456\n");
 
 					for (int i = 0; i < count_relation(); i++) {
 
@@ -732,6 +736,9 @@ public:
 							buff_idx++;
 						}
 					}
+
+					printf("789\n");
+
 					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * dim * sizeof(float), 0);
 
