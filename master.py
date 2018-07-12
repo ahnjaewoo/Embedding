@@ -564,8 +564,11 @@ trainTime = timeit.default_timer() - trainStart
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
-entities_initialized = [loads(decompress(v)) for v in entities_initialized]
-relations_initialized = [loads(decompress(v)) for v in relations_initialized]
+entities_initialized = np.array([loads(decompress(v))
+                        for v in entities_initialized], dtype=np.float32)
+relations_initialized = np.array([loads(decompress(v))
+                         for v in relations_initialized], dtype=np.float32)
+
 
 maxmin_sock.send(pack('!i', 1))
 maxmin_sock.close()
