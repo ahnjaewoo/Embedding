@@ -1175,6 +1175,7 @@ public:
 				// 원소 한 번에 받음 - 2 단계 (릴레이션 한 번에)
 
 				printf("34\n");
+				printf("r : %d\n", count_relation());
 
 				if (precision == 0) {
 
