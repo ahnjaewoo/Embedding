@@ -598,17 +598,7 @@ public:
                             return;
                         }
 
-                        printf("triplet_num : %d\n", ntohl(triplet_num));
-
                         for (int idx = 0; idx < ntohl(triplet_num); idx++) {
-
-                            if(idx % 240000 == 0){
-
-                                printf("f  : %d\n", ntohl(triplet_buff[3 * idx]));
-                                printf("s  : %d\n", ntohl(triplet_buff[3 * idx + 1]));
-                                printf("fs : %d\n", ntohl(triplet_buff[3 * idx + 2]));
-                            }
-                            
 
                             set_entity_parts.insert(ntohl(triplet_buff[3 * idx]));
                             set_entity_parts.insert(ntohl(triplet_buff[3 * idx + 2]));
@@ -618,8 +608,6 @@ public:
                             tmp.first.second = ntohl(triplet_buff[3 * idx + 2]);
                             data_train_parts.push_back(tmp);
                         }
-
-                        printf("end\n");
 
                         free(triplet_buff);
                         
