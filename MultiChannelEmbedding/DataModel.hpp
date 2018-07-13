@@ -602,7 +602,7 @@ public:
 
                         for (int idx = 0; idx < ntohl(triplet_num); idx++) {
 
-                            if(ntohl(triplet_num) % 100 == 0){
+                            if(idx % 240000 == 0){
 
                                 printf("f  : %d\n", ntohl(triplet_buff[3 * idx]));
                                 printf("s  : %d\n", ntohl(triplet_buff[3 * idx + 1]));
