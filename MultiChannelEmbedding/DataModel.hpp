@@ -584,8 +584,6 @@ public:
                         //.....................
 
                         // 원소 한 번에 받음 - 2 단계 (모두 한 번에)
-
-                        printf("123\n");
                         
                         int * triplet_buff = (int *)calloc(ntohl(triplet_num) * 3 + 1, sizeof(int));
                         if (recv(fd, triplet_buff, ntohl(triplet_num) * 3 * sizeof(int), MSG_WAITALL) < 0){
@@ -600,16 +598,15 @@ public:
                             return;
                         }
 
-                        printf("456\n");
-                        printf("%d\n", ntohl(triplet_num));
+                        printf("triplet_num : %d\n", ntohl(triplet_num));
 
                         for (int idx = 0; idx < ntohl(triplet_num); idx++) {
 
                             if(ntohl(triplet_num) % 100 == 0){
 
-                                printf("%d\n", ntohl(triplet_buff[3 * idx]));
-                                printf("%d\n", ntohl(triplet_buff[3 * idx + 1]));
-                                printf("%d\n", ntohl(triplet_buff[3 * idx + 2]));
+                                printf("f  : %d\n", ntohl(triplet_buff[3 * idx]));
+                                printf("s  : %d\n", ntohl(triplet_buff[3 * idx + 1]));
+                                printf("fs : %d\n", ntohl(triplet_buff[3 * idx + 2]));
                             }
                             
 
@@ -622,7 +619,7 @@ public:
                             data_train_parts.push_back(tmp);
                         }
 
-                        printf("789\n");
+                        printf("end\n");
 
                         free(triplet_buff);
                         
