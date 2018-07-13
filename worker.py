@@ -241,25 +241,24 @@ try:
             # 원소 하나씩 전송
             # for (head_id_, relation_id_, tail_id_) in sub_graphs:
             #
-            #    embedding_sock.send(pack('!i', int(head_id_)))
-            #    embedding_sock.send(pack('!i', int(relation_id_)))
-            #    embedding_sock.send(pack('!i', int(tail_id_)))
+            #    embedding_sock.send(pack('!i', head_id_))
+            #    embedding_sock.send(pack('!i', relation_id_))
+            #    embedding_sock.send(pack('!i', tail_id_))
 
             # 원소 한 번에 전송 - 1 단계
-            #for (head_id_, relation_id_, tail_id_) in sub_graphs:
-            #
-            #    embedding_sock.send(pack('!iii', int(
-            #        head_id_), int(relation_id_), int(tail_id_)))
+            for triple in sub_graphs:
+                
+                embedding_sock.send(pack('!iii', *triple))
 
             # 원소 한 번에 전송 - 2 단계
-            value_to_send = list()
-            value_to_send_extend = value_to_send.extend
-            
-            for (head_id_, relation_id_, tail_id_) in sub_graphs:
-            
-                value_to_send_extend((head_id_, relation_id_, tail_id_))
-            
-            embedding_sock.send(pack('!' + 'i' * len(value_to_send), * value_to_send))
+            #value_to_send = list()
+            #value_to_send_extend = value_to_send.extend
+            #
+            #for triple in sub_graphs:
+            #
+            #    value_to_send_extend(triple)
+            #
+            #embedding_sock.send(pack('!' + 'i' * len(value_to_send), * value_to_send))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
