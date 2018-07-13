@@ -651,6 +651,8 @@ public:
 				send(fd, &count, sizeof(count), 0);
 				count = ntohl(count);
 
+				printf("count in save : %d\n", count);
+
 				// 원소 한 번에 보냄 (릴레이션 한 번에) 를 밑에 사용하면, 아래 for 문을 주석처리
 
 				//for (int i = 0; i < count_relation(); i++){
@@ -712,11 +714,15 @@ public:
 
 				// 원소 한 번에 보냄 (릴레이션 한 번에)
 
+				printf("->1\n");
+
 				if (precision == 0) {
 
 					int buff_idx = 0;
 					int * idx_buff = (int *)calloc(count + 1, sizeof(int));
 					float * vector_buff = (float *)calloc(count * dim + 1, sizeof(float));
+
+					printf("->2\n");
 
 					for (int i = 0; i < count_relation(); i++) {
 
@@ -733,6 +739,8 @@ public:
 						}
 					}
 
+					printf("->3\n");
+
 					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * dim * sizeof(float), 0);
 
@@ -744,6 +752,8 @@ public:
 					int buff_idx = 0;
 					int * idx_buff = (int *)calloc(count + 1, sizeof(int));
 					half * vector_buff = (half *)calloc(count * dim + 1, sizeof(half));
+
+					printf("->2\n");
 
 					for (int i = 0; i < count_relation(); i++) {
 
@@ -759,6 +769,9 @@ public:
 							buff_idx++;
 						}
 					}
+
+					printf("->3\n");
+
 					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * dim * sizeof(half), 0);
 
