@@ -651,6 +651,8 @@ public:
 				send(fd, &count, sizeof(count), 0);
 				count = ntohl(count);
 
+				printf("count in save : %d\n", count);
+
 				// 원소 한 번에 보냄 (릴레이션 한 번에) 를 밑에 사용하면, 아래 for 문을 주석처리
 
 				//for (int i = 0; i < count_relation(); i++){
@@ -712,11 +714,15 @@ public:
 
 				// 원소 한 번에 보냄 (릴레이션 한 번에)
 
+				printf("->1\n");
+
 				if (precision == 0) {
 
 					int buff_idx = 0;
 					int * idx_buff = (int *)calloc(count + 1, sizeof(int));
 					float * vector_buff = (float *)calloc(count * dim + 1, sizeof(float));
+
+					printf("->2\n");
 
 					for (int i = 0; i < count_relation(); i++) {
 
@@ -733,6 +739,8 @@ public:
 						}
 					}
 
+					printf("->3\n");
+
 					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * dim * sizeof(float), 0);
 
@@ -744,6 +752,8 @@ public:
 					int buff_idx = 0;
 					int * idx_buff = (int *)calloc(count + 1, sizeof(int));
 					half * vector_buff = (half *)calloc(count * dim + 1, sizeof(half));
+
+					printf("->2\n");
 
 					for (int i = 0; i < count_relation(); i++) {
 
@@ -759,6 +769,9 @@ public:
 							buff_idx++;
 						}
 					}
+
+					printf("->3\n");
+
 					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * dim * sizeof(half), 0);
 
@@ -1037,6 +1050,9 @@ public:
 
 			try{
 
+				printf("load->1\n");
+				printf("load->count_relation : %d\n", count_relation());
+
 				int * id_buff = (int *)calloc(count_relation() + 1, sizeof(int));
 				
 				for (int i = 0; i < count_relation(); i++) {
@@ -1172,6 +1188,8 @@ public:
 
 				// 원소 한 번에 받음 - 2 단계 (릴레이션 한 번에)
 
+				printf("load->2\n");
+
 				if (precision == 0) {
 
 					float * vector_buff = (float *)calloc(count_relation() * dim + 1, sizeof(float));
@@ -1186,13 +1204,22 @@ public:
 						std::exit(-1);
 					}
 
+					printf("load->3\n");
+
 					for (int i = 0; i < count_relation(); i++) {
 
 						for (int j = 0; j < dim; j++) {
 
+							if (i == 1 && j < 10){
+
+								printf("%f ", (float) vector_buff[dim * i + j]);
+							}
+
 							embedding_relation[id_buff[i]](j) = vector_buff[dim * i + j];
 						}
 					}
+
+					printf("load->4\n");
 
 					free(vector_buff);
 				}
@@ -1210,13 +1237,23 @@ public:
 						std::exit(-1);
 					}
 
+					printf("load->3\n");
+
 					for (int i = 0; i < count_relation(); i++) {
 
 						for (int j = 0; j < dim; j++) {
 
+							if (i == 1 && j < 10){
+
+								printf("%f ", (float) vector_buff[dim * i + j]);
+							}
+
+
 							embedding_relation[id_buff[i]](j) = (float) vector_buff[dim * i + j];
 						}
 					}
+
+					printf("load->4\n");
 
 					free(vector_buff);
 				}
