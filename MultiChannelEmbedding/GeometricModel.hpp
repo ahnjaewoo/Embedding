@@ -1238,7 +1238,7 @@ public:
 
 						for (int j = 0; j < dim; j++) {
 
-							if (i == 1){
+							if (i == 1 && j < 10){
 
 								printf("%f ", (float) vector_buff[dim * i + j]);
 							}
