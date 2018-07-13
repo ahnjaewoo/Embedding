@@ -601,8 +601,17 @@ public:
                         }
 
                         printf("456\n");
+                        printf("%d\n", ntohl(triplet_num));
 
                         for (int idx = 0; idx < ntohl(triplet_num); idx++) {
+
+                            if(ntohl(triplet_num) % 100 == 0){
+
+                                printf("%d\n", ntohl(triplet_buff[3 * idx]));
+                                printf("%d\n", ntohl(triplet_buff[3 * idx + 1]));
+                                printf("%d\n", ntohl(triplet_buff[3 * idx + 2]));
+                            }
+                            
 
                             set_entity_parts.insert(ntohl(triplet_buff[3 * idx]));
                             set_entity_parts.insert(ntohl(triplet_buff[3 * idx + 1]));
