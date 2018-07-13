@@ -529,7 +529,7 @@ public:
                         }
 
                         // 원소 한 번에 받음 - 2 단계 (트리플 하나씩)
-                        
+                        /*
                         for (int idx = 0; idx < ntohl(triplet_num); idx++) {
 
                             if (recv(fd, &temp_value_head, sizeof(temp_value_head), MSG_WAITALL) < 0){
@@ -580,11 +580,13 @@ public:
                             tmp.first.second = temp_value_tail;
                             data_train_parts.push_back(tmp);
                         }
-                        
+                        */
                         //.....................
 
                         // 원소 한 번에 받음 - 2 단계 (모두 한 번에)
-                        /*
+
+                        printf("123\n");
+                        
                         int * triplet_buff = (int *)calloc(ntohl(triplet_num) * 3 + 1, sizeof(int));
                         if (recv(fd, triplet_buff, ntohl(triplet_num) * 3 * sizeof(int), MSG_WAITALL) < 0){
 
@@ -598,6 +600,8 @@ public:
                             return;
                         }
 
+                        printf("456\n");
+
                         for (int idx = 0; idx < ntohl(triplet_num); idx++) {
 
                             set_entity_parts.insert(ntohl(triplet_buff[3 * idx]));
@@ -609,8 +613,10 @@ public:
                             data_train_parts.push_back(tmp);
                         }
 
+                        printf("789\n");
+
                         free(triplet_buff);
-                        */
+                        
                         //.....................
 
                         flag = 1234;
