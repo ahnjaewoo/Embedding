@@ -585,7 +585,8 @@ proc = Popen([test_code_dir,
             str(lr),
             str(margin),
             str(data_root_id),
-            str(log_dir)],
+            str(log_dir),
+            str(precision)],
             cwd=preprocess_folder_dir)
 
 while True:
