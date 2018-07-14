@@ -416,14 +416,14 @@ maxmin_sock.send(pack('!i', 0))
 chunks = list()
 
 anchor_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
-anchors = list(unpack('!' + 'i' * int(anchor_len), sockRecv(maxmin_sock, 4 * int(anchor_len))))
-anchors = ' '.join([str(e) for e in anchors])
+anchors = unpack('!' + 'i' * int(anchor_len), sockRecv(maxmin_sock, 4 * int(anchor_len)))
+anchors = ' '.join(str(e) for e in anchors)
 
 for _ in range(num_worker):
 
     chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
-    chunk = list(unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
-    chunk = ' '.join([str(e) for e in chunk])
+    chunk = unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len))
+    chunk = ' '.join(str(e) for e in chunk)
     chunks.append(chunk)
 
 maxminTimes.append(timeit.default_timer() - timeNow)
@@ -511,14 +511,14 @@ while True:
         chunks = list()
         
         anchor_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        anchors = list(unpack('!' + 'i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len)))
-        anchors = ' '.join([str(e) for e in anchors])
+        anchors = unpack('!' + 'i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len))
+        anchors = ' '.join(str(e) for e in anchors)
         
         for _ in range(num_worker):
         
             chunk_len = chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
-            chunk = list(unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
-            chunk = ' '.join([str(e) for e in chunk])
+            chunk = unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len))
+            chunk = ' '.join(str(e) for e in chunk)
             chunks.append(chunk)
 
         maxminTimes.append(timeit.default_timer() - maxminStart)
@@ -528,7 +528,7 @@ while True:
         chunk_data = ''
 
     client.gather(workers)
-    result_iter = [worker.result() for worker in workers]
+    result_iter = (worker.result() for worker in workers)
     iterTimes.append(timeit.default_timer() - iterStart)
 
     if all([e[0] for e in result_iter]) == True:
@@ -539,7 +539,7 @@ while True:
         trial = 0
         cur_iter = cur_iter + 1
 
-        workTimes = [e[1] for e in result_iter]
+        workTimes = (e[1] for e in result_iter)
 
         # embedding.cpp 에서 model->run() 실행 시간을 worker.py 로 전송해서 그걸 소켓으로 전송
 
@@ -564,10 +564,10 @@ trainTime = timeit.default_timer() - trainStart
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
-entities_initialized = np.array([loads(decompress(v))
-                        for v in entities_initialized], dtype=np.float32)
-relations_initialized = np.array([loads(decompress(v))
-                         for v in relations_initialized], dtype=np.float32)
+entities_initialized = np.array((loads(decompress(v))
+                        for v in entities_initialized), dtype=np.float32)
+relations_initialized = np.array((loads(decompress(v))
+                         for v in relations_initialized), dtype=np.float32)
 
 
 maxmin_sock.send(pack('!i', 1))

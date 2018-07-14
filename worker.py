@@ -4,6 +4,7 @@ from time import sleep
 from zlib import compress, decompress
 from pickle import dumps, loads, HIGHEST_PROTOCOL
 from struct import pack, unpack
+from timeit import default_timer
 import logging
 import numpy as np
 import redis
@@ -11,7 +12,6 @@ import pickle
 import sys
 import os
 import socket
-import timeit
 
 
 chunk_data = sys.argv[1]
@@ -76,25 +76,25 @@ preprocess_folder_dir = "%s/preprocess/" % root_dir
 train_code_dir = "%s/MultiChannelEmbedding/Embedding.out" % root_dir
 temp_folder_dir = "%s/tmp" % root_dir
 
-workerStart = timeit.default_timer()
+workerStart = default_timer()
 # redis에서 embedding vector들 받아오기
 r = redis.StrictRedis(host=redis_ip_address, port=6379, db=0)
 entities = np.array(loads(decompress(r.get('entities'))))
 relations = np.array(loads(decompress(r.get('relations'))))
-entity_ids = np.array([int(i) for i in r.mget(entities)], dtype=np.int32)
-relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
+entity_ids = np.array((int(i) for i in r.mget(entities)), dtype=np.int32)
+relation_ids = np.array((int(i) for i in r.mget(relations)), dtype=np.int32)
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
 entity_id = {e: i for e, i in zip(entities, entity_ids)}
 relation_id = {r: i for e, i in zip(relations, relation_ids)}
 
-entities_initialized = np.array([loads(decompress(v))
-                        for v in entities_initialized], dtype=np.float32)
-relations_initialized = np.array([loads(decompress(v))
-                         for v in relations_initialized], dtype=np.float32)
+entities_initialized = np.array((loads(decompress(v))
+                        for v in entities_initialized), dtype=np.float32)
+relations_initialized = np.array((loads(decompress(v))
+                         for v in relations_initialized), dtype=np.float32)
 
-redisTime = timeit.default_timer() - workerStart
+redisTime = default_timer() - workerStart
 # printt('worker > redis server connection time : %f' % (redisTime))
 
 # embedding.cpp 와 socket 통신
@@ -114,7 +114,7 @@ while True:
     except Exception as e:
 
         sleep(0.5)
-        trial = trial + 1
+        trial += 1
         printt('[error] worker > exception occured in worker <-> embedding')
         printt('[error] worker > ' + str(e))
 
@@ -135,7 +135,7 @@ while True:
     except Exception as e:
 
         sleep(0.5)
-        trial = trial + 1
+        trial += 1
         printt('[error] worker > exception occured in worker <-> embedding')
         printt('[error] worker > ' + str(e))
 
@@ -156,7 +156,7 @@ while True:
 try:
 
     checksum = 0
-    timeNow = timeit.default_timer()
+    timeNow = default_timer()
 
     if cur_iter % 2 == 0:
         # entity 전송 - DataModel 생성자
@@ -230,9 +230,9 @@ try:
 
     else:
         # relation 전송 - DataModel 생성자
-        timeNow = timeit.default_timer()
+        timeNow = default_timer()
         sub_graphs = loads(decompress(r.get('sub_g_{}'.format(worker_id))))
-        redisTime += timeit.default_timer() - timeNow
+        redisTime += default_timer() - timeNow
         
         while checksum != 1:
 
@@ -282,9 +282,9 @@ try:
         #printt('worker > phase 1 : relation sent to DataModel finished')
         #fsLog.write('worker > phase 1 : relation sent to DataModel finished\n')
 
-    datamodelTime = timeit.default_timer() - timeNow
+    datamodelTime = default_timer() - timeNow
     checksum = 0
-    timeNow = timeit.default_timer()
+    timeNow = default_timer()
 
     # entity_vector 전송 - GeometricModel load
     while checksum != 1:
@@ -399,8 +399,8 @@ try:
             # fsLog.close()
             sys.exit(-1)
 
-    sockLoadTime = timeit.default_timer() - timeNow
-    timeNow = timeit.default_timer()
+    sockLoadTime = default_timer() - timeNow
+    timeNow = default_timer()
 
     #printt('worker > phase 2.2 : relation_vector sent to GeometricModel load function')
     #fsLog.write('worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
@@ -419,7 +419,7 @@ try:
 
             try:
 
-                embeddingTime = timeit.default_timer() - timeNow
+                embeddingTime = default_timer() - timeNow
                 # 처리 결과를 받아옴 - GeometricModel save
 
                 # 원소를 하나씩 받음
@@ -489,7 +489,7 @@ try:
                     # fsLog.close()
                     sys.exit(-1)
 
-                tempcount = tempcount + 1
+                tempcount += 1
                 flag = 9876
                 embedding_sock.send(pack('!i', flag))
                 success = 0
@@ -502,8 +502,8 @@ try:
                 embedding_sock.send(pack('!i', flag))
                 success = 1
 
-        sockSaveTime = timeit.default_timer() - timeNow
-        timeNow = timeit.default_timer()
+        sockSaveTime = default_timer() - timeNow
+        timeNow = default_timer()
 
         r.mset(entity_vectors)
         #printt('worker > entity_vectors updated - ' + worker_id)
@@ -511,7 +511,7 @@ try:
         #fsLog.write('worker > entity_vectors updated - ' + worker_id + '\n')
         #fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         # fsLog.close()
-        redisTime += timeit.default_timer() - timeNow
+        redisTime += default_timer() - timeNow
 
     else:
 
@@ -521,7 +521,7 @@ try:
 
             try:
 
-                embeddingTime = timeit.default_timer() - timeNow
+                embeddingTime = default_timer() - timeNow
                 # 처리 결과를 받아옴 - GeometricModel save
 
                 # 원소를 하나씩 전송
@@ -590,7 +590,7 @@ try:
                     # fsLog.close()
                     sys.exit(-1)
 
-                tempcount = tempcount + 1
+                tempcount += 1
                 flag = 9876
                 embedding_sock.send(pack('!i', flag))
                 success = 0
@@ -603,8 +603,8 @@ try:
                 embedding_sock.send(pack('!i', flag))
                 success = 1
 
-        sockSaveTime = timeit.default_timer() - timeNow
-        timeNow = timeit.default_timer()
+        sockSaveTime = default_timer() - timeNow
+        timeNow = default_timer()
 
         r.mset(relation_vectors)
         #printt('worker > relation_vectors updated - ' + worker_id)
@@ -612,7 +612,7 @@ try:
         #fsLog.write('worker > relation_vectors updated - ' + worker_id + '\n')
         #fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         # fsLog.close()
-        redisTime += timeit.default_timer() - timeNow
+        redisTime += default_timer() - timeNow
 
 except Exception as e:
 
@@ -631,7 +631,7 @@ except Exception as e:
     sys.exit(-1)
 
 
-workerTotalTime = timeit.default_timer() - workerStart
+workerTotalTime = default_timer() - workerStart
 modelRunTime = unpack('d', sockRecv(embedding_sock, 8))[0]
 embedding_sock.close()
 
