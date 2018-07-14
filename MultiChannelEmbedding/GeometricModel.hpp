@@ -723,7 +723,7 @@ public:
 						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
 							idx_buff[buff_idx] = htonl(i);
-							vector_buff[dim * buff_idx] = embedding_relation[i];
+							vector_buff[dim * buff_idx] = embedding_relation[i].value();
 							// for (int j = 0; j < dim; j++) {
 
 							// 	vector_buff[dim * buff_idx + j] = embedding_relation[i](j);
