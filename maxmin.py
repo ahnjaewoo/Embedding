@@ -188,7 +188,7 @@ while True:
 
             score = len(connected_entity[vertex].difference(anchor))
 
-            if score > best_score or (score == best_score and choice((True, False)):
+            if score > best_score or (score == best_score and choice((True, False))):
 
                 best = vertex
                 best_score = score
