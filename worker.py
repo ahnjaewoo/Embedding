@@ -250,7 +250,7 @@ try:
                 
             #     embedding_sock.send(pack('!iii', *triple))
 
-            원소 한 번에 전송 - 2 단계
+            # 원소 한 번에 전송 - 2 단계
             value_to_send = list()
             value_to_send_extend = value_to_send.extend
             
