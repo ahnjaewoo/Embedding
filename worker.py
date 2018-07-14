@@ -465,8 +465,8 @@ try:
                 entity_vector_list = np.array(entity_vector_list, dtype=np.float32).reshape(count_entity, embedding_dim)
 
                 entity_vectors = {
-                    entities[entity_id_list[_i]] + '_v': compress(dumps(entity_vector_list[_i], protocol=HIGHEST_PROTOCOL), 9)
-                    for _i in range(count_entity)}
+                    entities[_id + '_v']: compress(dumps(entity_vector_list[_i], protocol=HIGHEST_PROTOCOL), 9)
+                    for _i, _id in enumerate(entity_id_list)}
 
             except Exception as e:
 
