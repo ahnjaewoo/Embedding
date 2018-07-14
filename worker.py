@@ -162,9 +162,9 @@ try:
         # entity 전송 - DataModel 생성자
         chunk_anchor, chunk_entity = chunk_data.split('\n')
         chunk_anchor = chunk_anchor.split(' ')
-        chunk_anchor = [int(e) for e in chunk_anchor]
+        chunk_anchor = (int(e) for e in chunk_anchor)
         chunk_entity = chunk_entity.split(' ')
-        chunk_entity = [int(e) for e in chunk_entity]
+        chunk_entity = (int(e) for e in chunk_entity)
 
         if len(chunk_anchor) == 1 and chunk_anchor[0] == '':
 
@@ -197,7 +197,7 @@ try:
             #    '!' + 'i' * len(chunk_entity), * value_to_send))
 
             # 원소 한 번에 전송 - 2 단계
-            value_to_send = [len(chunk_anchor), len(chunk_entity), *chunk_anchor, *chunk_entity]
+            value_to_send = (len(chunk_anchor), len(chunk_entity), *chunk_anchor, *chunk_entity)
             embedding_sock.send(pack('!' + 'i' * (len(chunk_anchor) + len(chunk_entity) + 2), * value_to_send))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
@@ -251,13 +251,7 @@ try:
             #     embedding_sock.send(pack('!iii', *triple))
 
             # 원소 한 번에 전송 - 2 단계
-            value_to_send = list()
-            value_to_send_extend = value_to_send.extend
-            
-            for triple in sub_graphs:
-            
-               value_to_send_extend(triple)
-            
+            value_to_send = np.array(sub_graphs).flatten()
             embedding_sock.send(pack('!' + 'i' * len(value_to_send), * value_to_send))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
@@ -458,7 +452,7 @@ try:
                 #       np.array(temp_entity_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
                 
                 # 원소를 한 번에 받음 (엔티티 한 번에)
-                count_entity = int(unpack('!i', sockRecv(embedding_sock, 4))[0])
+                count_entity = unpack('!i', sockRecv(embedding_sock, 4))[0]
                 entity_id_list = unpack('!' + 'i' * count_entity, sockRecv(embedding_sock, count_entity * 4))
                 entity_vector_list = unpack(precision_string * count_entity * embedding_dim,
                     sockRecv(embedding_sock, precision_byte * embedding_dim * count_entity))
@@ -527,8 +521,6 @@ try:
 
             try:
 
-                relation_vectors = dict()
-
                 embeddingTime = timeit.default_timer() - timeNow
                 # 처리 결과를 받아옴 - GeometricModel save
 
@@ -561,7 +553,7 @@ try:
                 #       np.array(temp_relation_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
 
                 # 원소를 한 번에 받음 (릴레이션 한 번에)
-                count_relation = int(unpack('!i', sockRecv(embedding_sock, 4))[0])
+                count_relation = unpack('!i', sockRecv(embedding_sock, 4))[0]
                 relation_id_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, count_relation * 4))
                 relation_vector_list = unpack(precision_string * count_relation * embedding_dim,
                     sockRecv(embedding_sock, precision_byte * embedding_dim * count_relation))
