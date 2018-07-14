@@ -81,18 +81,18 @@ workerStart = default_timer()
 r = redis.StrictRedis(host=redis_ip_address, port=6379, db=0)
 entities = np.array(loads(decompress(r.get('entities'))))
 relations = np.array(loads(decompress(r.get('relations'))))
-entity_ids = np.array((int(i) for i in r.mget(entities)), dtype=np.int32)
-relation_ids = np.array((int(i) for i in r.mget(relations)), dtype=np.int32)
+entity_ids = np.array([int(i) for i in r.mget(entities)], dtype=np.int32)
+relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
 entity_id = {e: i for e, i in zip(entities, entity_ids)}
 relation_id = {r: i for e, i in zip(relations, relation_ids)}
 
-entities_initialized = np.array((loads(decompress(v))
-                        for v in entities_initialized), dtype=np.float32)
-relations_initialized = np.array((loads(decompress(v))
-                         for v in relations_initialized), dtype=np.float32)
+entities_initialized = np.array([loads(decompress(v))
+                        for v in entities_initialized], dtype=np.float32)
+relations_initialized = np.array([loads(decompress(v))
+                         for v in relations_initialized], dtype=np.float32)
 
 redisTime = default_timer() - workerStart
 # printt('worker > redis server connection time : %f' % (redisTime))
