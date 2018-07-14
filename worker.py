@@ -246,19 +246,19 @@ try:
             #    embedding_sock.send(pack('!i', tail_id_))
 
             # 원소 한 번에 전송 - 1 단계
-            for triple in sub_graphs:
+            # for triple in sub_graphs:
                 
-                embedding_sock.send(pack('!iii', *triple))
+            #     embedding_sock.send(pack('!iii', *triple))
 
-            # 원소 한 번에 전송 - 2 단계
-            #value_to_send = list()
-            #value_to_send_extend = value_to_send.extend
-            #
-            #for triple in sub_graphs:
-            #
-            #    value_to_send_extend(triple)
-            #
-            #embedding_sock.send(pack('!' + 'i' * len(value_to_send), * value_to_send))
+            원소 한 번에 전송 - 2 단계
+            value_to_send = list()
+            value_to_send_extend = value_to_send.extend
+            
+            for triple in sub_graphs:
+            
+               value_to_send_extend(triple)
+            
+            embedding_sock.send(pack('!' + 'i' * len(value_to_send), * value_to_send))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -425,8 +425,6 @@ try:
 
             try:
 
-                entity_vectors = dict()
-
                 embeddingTime = timeit.default_timer() - timeNow
                 # 처리 결과를 받아옴 - GeometricModel save
 
@@ -462,14 +460,13 @@ try:
                 # 원소를 한 번에 받음 (엔티티 한 번에)
                 count_entity = int(unpack('!i', sockRecv(embedding_sock, 4))[0])
                 entity_id_list = unpack('!' + 'i' * count_entity, sockRecv(embedding_sock, count_entity * 4))
-                entity_vector_list = list(unpack(precision_string * count_entity * embedding_dim,
-                    sockRecv(embedding_sock, precision_byte * embedding_dim * count_entity)))
+                entity_vector_list = unpack(precision_string * count_entity * embedding_dim,
+                    sockRecv(embedding_sock, precision_byte * embedding_dim * count_entity))
+                entity_vector_list = np.array(entity_vector_list, dtype=np.float32).reshape(count_entity, embedding_dim)
 
-                for _i in range(count_entity):
-
-                    temp_entity_vector = entity_vector_list[_i * embedding_dim:(_i + 1) * embedding_dim]
-                    entity_vectors[entities[entity_id_list[_i]] + '_v'] = compress(dumps(
-                        np.array(temp_entity_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
+                entity_vectors = {
+                    entities[entity_id_list[_i]] + '_v': compress(dumps(entity_vector_list[_i], protocol=HIGHEST_PROTOCOL), 9)
+                    for _i in range(count_entity)}
 
             except Exception as e:
 
