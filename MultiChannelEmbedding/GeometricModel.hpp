@@ -2250,22 +2250,6 @@ public:
 		single_or_total(sot), be_weight_normalized(be_weight_normalized), step_before(step_before),
 		normalizor(1.0 / pow(3.1415, dim / 2))
 	{
-		// logging.record() << "\t[Name]\tTransM";
-		// logging.record() << "\t[Dimension]\t" << dim;
-		// logging.record() << "\t[Learning Rate]\t" << alpha;
-		// logging.record() << "\t[Training Threshold]\t" << training_threshold;
-		// logging.record() << "\t[Cluster Counts]\t" << n_cluster;
-		// logging.record() << "\t[CRP Factor]\t" << CRP_factor;
-		//
-		// if (be_weight_normalized)
-		// 	logging.record() << "\t[Weight Normalized]\tTrue";
-		// else
-		// 	logging.record() << "\t[Weight Normalized]\tFalse";
-		//
-		// if (sot)
-		// 	logging.record() << "\t[Single or Total]\tTrue";
-		// else
-		// 	logging.record() << "\t[Single or Total]\tFalse";
 
 		embedding_entity.resize(count_entity());
 		embedding_clusters.resize(count_relation());
@@ -2424,6 +2408,93 @@ public:
 			relation_f = normalise(relation_f);
 	}
 
+	virtual void train_cluster_once_parts(
+		const pair<pair<int, int>, int>& triplet,
+		const pair<pair<int, int>, int>& triplet_f,
+		int cluster, double prob_true, double prob_false, double factor)
+	{
+		int head_id = triplet.first.first;
+		int tail_id = triplet.first.second;
+		int relation_id = triplet.second;
+		int head_f_id = triplet_f.first.first;
+		int tail_f_id = triplet_f.first.second;
+		int relation_f_id = triplet_f.second;
+
+		vec& head = embedding_entity[triplet.first.first];
+		vec& tail = embedding_entity[triplet.first.second];
+		vec& relation = embedding_clusters[triplet.second][cluster];
+		vec& head_f = embedding_entity[triplet_f.first.first];
+		vec& tail_f = embedding_entity[triplet_f.first.second];
+		vec& relation_f = embedding_clusters[triplet_f.second][cluster];
+
+		double prob_local_true = exp(-sum(abs(head + relation - tail)));
+		double prob_local_false = exp(-sum(abs(head_f + relation_f - tail_f)));
+
+		if (data_model.check_anchor.find(head_id) == data_model.check_anchor.end())
+		{
+			head -= factor * sign(head + relation - tail)
+			* prob_local_true / prob_true * fabs(weights_clusters[triplet.second][cluster]);
+			if (norm_L2(head) > 1.0) head = normalise(head);
+		}
+		if (data_model.check_anchor.find(tail_id) == data_model.check_anchor.end())
+		{
+			tail += factor * sign(head + relation - tail)
+			* prob_local_true / prob_true * fabs(weights_clusters[triplet.second][cluster]);
+			if (norm_L2(tail) > 1.0) tail = normalise(tail);
+		}
+		if (data_model.check_anchor.find(head_f_id) == data_model.check_anchor.end())
+		{
+			head_f += factor * sign(head_f + relation_f - tail_f)
+			* prob_local_false / prob_false * fabs(weights_clusters[triplet.second][cluster]);
+			if (norm_L2(head_f) > 1.0) head_f = normalise(head_f);
+		}
+		if (data_model.check_anchor.find(tail_f_id) == data_model.check_anchor.end())
+		{
+			tail_f -= factor * sign(head_f + relation_f - tail_f)
+			* prob_local_false / prob_false  * fabs(weights_clusters[triplet.second][cluster]);
+			if (norm_L2(tail_f) > 1.0) tail_f = normalise(tail_f);
+		}
+	}
+
+	virtual void train_cluster_once_parts_relation(
+		const pair<pair<int, int>, int>& triplet,
+		const pair<pair<int, int>, int>& triplet_f,
+		int cluster, double prob_true, double prob_false, double factor)
+	{
+		int head_id = triplet.first.first;
+		int tail_id = triplet.first.second;
+		int relation_id = triplet.second;
+		int head_f_id = triplet_f.first.first;
+		int tail_f_id = triplet_f.first.second;
+		int relation_f_id = triplet_f.second;
+
+		vec& head = embedding_entity[triplet.first.first];
+		vec& tail = embedding_entity[triplet.first.second];
+		vec& relation = embedding_clusters[triplet.second][cluster];
+		vec& head_f = embedding_entity[triplet_f.first.first];
+		vec& tail_f = embedding_entity[triplet_f.first.second];
+		vec& relation_f = embedding_clusters[triplet_f.second][cluster];
+
+		double prob_local_true = exp(-sum(abs(head + relation - tail)));
+		double prob_local_false = exp(-sum(abs(head_f + relation_f - tail_f)));
+
+		weights_clusters[triplet.second][cluster] +=
+			factor / prob_true * prob_local_true * sign(weights_clusters[triplet.second][cluster]);
+		weights_clusters[triplet_f.second][cluster] -=
+			factor / prob_false * prob_local_false  * sign(weights_clusters[triplet_f.second][cluster]);
+
+		relation -= factor * sign(head + relation - tail)
+			* prob_local_true / prob_true * fabs(weights_clusters[triplet.second][cluster]);
+		relation_f += factor * sign(head_f + relation_f - tail_f)
+			* prob_local_false / prob_false * fabs(weights_clusters[triplet.second][cluster]);
+
+		if (norm_L2(relation) > 1.0)
+			relation = normalise(relation);
+
+		if (norm_L2(relation_f) > 1.0)
+			relation_f = normalise(relation_f);
+	}
+
 	virtual void train_triplet(const pair<pair<int, int>, int>& triplet)
 	{
 		vec& head = embedding_entity[triplet.first.first];
@@ -2475,6 +2546,77 @@ public:
 
 		if (norm_L2(tail_f) > 1.0)
 			tail_f = normalise(tail_f);
+
+		if (be_weight_normalized)
+			weights_clusters[triplet.second] = normalise(weights_clusters[triplet.second]);
+	}
+
+	virtual void train_triplet_parts(const pair<pair<int, int>, int>& triplet) {
+
+		int head_id = triplet.first.first;
+		int tail_id = triplet.first.second;
+		int relation_id = triplet.second;
+
+		vec& head = embedding_entity[head_id];
+		vec& tail = embedding_entity[tail_id];
+
+		if (!head.is_finite())
+			cout << "d";
+
+		pair<pair<int, int>, int> triplet_f;
+		data_model.sample_false_triplet_parts(triplet, triplet_f);
+
+		double prob_true = training_prob_triplets(triplet);
+		double prob_false = training_prob_triplets(triplet_f);
+
+		if (prob_true / prob_false > exp(training_threshold))
+			return;
+
+		for (int c = 0; c<size_clusters[triplet.second]; ++c)
+		{
+			train_cluster_once_parts(triplet, triplet_f, c, prob_true, prob_false, alpha);
+		}
+	}
+
+	virtual void train_triplet_parts_relation(const pair<pair<int, int>, int>& triplet) {	
+		int head_id = triplet.first.first;
+		int tail_id = triplet.first.second;
+		int relation_id = triplet.second;
+
+		vec& head = embedding_entity[head_id];
+		vec& tail = embedding_entity[tail_id];
+
+		if (!head.is_finite())
+			cout << "d";
+
+		pair<pair<int, int>, int> triplet_f;
+		data_model.sample_false_triplet_parts(triplet, triplet_f);
+
+		double prob_true = training_prob_triplets(triplet);
+		double prob_false = training_prob_triplets(triplet_f);
+
+		if (prob_true / prob_false > exp(training_threshold))
+			return;
+
+		for (int c = 0; c<size_clusters[triplet.second]; ++c)
+		{
+			train_cluster_once_parts_relation(triplet, triplet_f, c, prob_true, prob_false, alpha);
+		}
+
+		double prob_new_component = CRP_factor * exp(-sum(abs(head - tail)));
+
+		if (randu() < prob_new_component / (prob_new_component + prob_true)
+			&& size_clusters[triplet.second] < 20
+			&& epos >= step_before)
+		{
+#pragma omp critical
+			{
+				//cout<<"A";
+				weights_clusters[triplet.second][size_clusters[triplet.second]] = CRP_factor;
+				embedding_clusters[triplet.second][size_clusters[triplet.second]] = (2 * randu(dim, 1) - 1)*sqrt(6.0 / dim); //tail - head;
+				++size_clusters[triplet.second];
+			}
+		}
 
 		if (be_weight_normalized)
 			weights_clusters[triplet.second] = normalise(weights_clusters[triplet.second]);
