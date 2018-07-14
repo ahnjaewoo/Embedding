@@ -604,8 +604,8 @@ public:
                             set_entity_parts.insert(ntohl(triplet_buff[3 * idx + 2]));
                             set_relation_parts.insert(ntohl(triplet_buff[3 * idx + 1]));
                             tmp.first.first = ntohl(triplet_buff[3 * idx]);
-                            tmp.second = ntohl(triplet_buff[3 * idx + 2]);
-                            tmp.first.second = ntohl(triplet_buff[3 * idx + 1]);
+                            tmp.second = ntohl(triplet_buff[3 * idx + 1]);
+                            tmp.first.second = ntohl(triplet_buff[3 * idx + 2]);
                             data_train_parts.push_back(tmp);
                         }
 
