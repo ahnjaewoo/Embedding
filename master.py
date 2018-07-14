@@ -23,6 +23,8 @@ parser.add_argument('--num_worker', type=int,
                     default=2, help='number of workers')
 parser.add_argument('--data_root', type=str, default='/fb15k',
                     help='root directory of data(must include a name of dataset)')
+parser.add_argument('--train_model', type=str, default='TransE',
+                    help='training model(TransE/TransG)')
 parser.add_argument('--niter', type=int, default=2,
                     help='total number of masters iterations')
 parser.add_argument('--train_iter', type=int, default=10,
@@ -33,6 +35,8 @@ parser.add_argument('--ndim', type=int, default=20,
                     help='dimension of embeddings')
 parser.add_argument('--lr', type=float, default=0.1, help='learning rate')
 parser.add_argument('--margin', type=int, default=2, help='margin')
+parser.add_argument('--ncluster', type=int, default=10, help='number of clusters in TransG model')
+parser.add_argument('--crp', type=float, default=0.05, help='crp factor in TransG model')
 parser.add_argument('--anchor_num', type=int, default=5,
                     help='number of anchor during entity training')
 parser.add_argument('--anchor_interval', type=int, default=6,
@@ -121,6 +125,22 @@ def data2id(data_root):
         print("[error] master > data root mismatch")
         sys.exit(1)
 
+def model2id(train_model):
+
+    if train_model.lower() == "transe":
+
+        return 0
+    
+    elif train_model.lower() == "transg":
+
+        return 1
+
+    else:
+    
+        print("[error] master > train model mismatch")
+        sys.exit(1)
+
+
 def install_libs():
 
     import os
@@ -203,6 +223,7 @@ if args.temp_dir == '':
 
 data_files = ['%s/train.txt' % args.data_root, '%s/dev.txt' % args.data_root, '%s/test.txt' % args.data_root]
 num_worker = args.num_worker
+train_model = model2id(args.train_model)
 niter = args.niter
 train_iter = args.train_iter
 n_dim = args.ndim
@@ -416,14 +437,14 @@ maxmin_sock.send(pack('!i', 0))
 chunks = list()
 
 anchor_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
-anchors = list(unpack('!' + 'i' * int(anchor_len), sockRecv(maxmin_sock, 4 * int(anchor_len))))
-anchors = ' '.join([str(e) for e in anchors])
+anchors = unpack('!' + 'i' * int(anchor_len), sockRecv(maxmin_sock, 4 * int(anchor_len)))
+anchors = ' '.join(str(e) for e in anchors)
 
 for _ in range(num_worker):
 
     chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
-    chunk = list(unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
-    chunk = ' '.join([str(e) for e in chunk])
+    chunk = unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len))
+    chunk = ' '.join(str(e) for e in chunk)
     chunks.append(chunk)
 
 maxminTimes.append(timeit.default_timer() - timeNow)
@@ -511,14 +532,14 @@ while True:
         chunks = list()
         
         anchor_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        anchors = list(unpack('!' + 'i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len)))
-        anchors = ' '.join([str(e) for e in anchors])
+        anchors = unpack('!' + 'i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len))
+        anchors = ' '.join(str(e) for e in anchors)
         
         for _ in range(num_worker):
         
             chunk_len = chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
-            chunk = list(unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len)))
-            chunk = ' '.join([str(e) for e in chunk])
+            chunk = unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len))
+            chunk = ' '.join(str(e) for e in chunk)
             chunks.append(chunk)
 
         maxminTimes.append(timeit.default_timer() - maxminStart)
@@ -550,7 +571,7 @@ while True:
 
         # 이터레이션 실패
         # redis 에 저장된 결과를 백업된 값으로 되돌림
-        trial = trial + 1
+        trial += 1
         # r.mset({str(entities[i]) + '_bak' : dumps(entities_initialized_bak[i], protocol=HIGHEST_PROTOCOL) for i in range(len(entities_initialized_bak))})
         # r.mset({str(relations[i]) + '_bak' : dumps(relations_initialized_bak[i], protocol=HIGHEST_PROTOCOL) for i in range(len(relations_initialized_bak))})
         printt('[error] master > iteration %d is failed, retry' % cur_iter)
