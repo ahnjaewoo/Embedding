@@ -171,11 +171,9 @@ while True:
 
         for it in range(anchor_interval):
 
-            if it in anchor_dict.keys():
-
-                for a in anchor_dict[it]:
-
-                    old_anchor.add(a)
+            if it in anchor_dict:
+                
+                old_anchor.update(anchor_dict[it])
 
     for i in range(anchor_num):
 
@@ -190,12 +188,12 @@ while True:
 
             score = len(connected_entity[vertex].difference(anchor))
 
-            if score > best_score or (score == best_score and choice([True, False])):
+            if score > best_score or (score == best_score and choice((True, False)):
 
                 best = vertex
                 best_score = score
 
-        if best == None:
+        if best is None:
 
             printt('[error] maxmin > no vertex added to anchor')
 
@@ -251,8 +249,7 @@ while True:
 
     # solve the min-cut partition problem of A~, finding A~ and edges
     non_anchor_id = entities_id.difference(anchor)
-    non_anchor_edge_list = [(h, t) for (
-        h, t) in edge_list if h in non_anchor_id and t in non_anchor_id]
+    non_anchor_edge_list = [(h, t) for h, t in edge_list if h in non_anchor_id and t in non_anchor_id]
 
     for (h, t) in non_anchor_edge_list:
 
@@ -274,8 +271,7 @@ while True:
         nseps=-1, numbering=-1, niter=cur_iter, seed=-1, minconn=-1, no2hop=-1,
         contig=-1, compress=-1, ccorder=-1, pfactor=-1, ufactor=-1, dbglvl=-1)
 
-    (edgecuts, parts) = nxmetis.partition(
-        G, nparts=partition_num, node_weight='node_weight')
+    edgecuts, parts = nxmetis.partition(G, nparts=partition_num, node_weight='node_weight')
 
     # putting residue randomly into non anchor set
     residue = non_anchor_id.difference(non_anchor_edge_included_vertex)
@@ -304,8 +300,7 @@ while True:
 
     # 원소 여러 개를 한 번에 전송
     master_sock.send(pack('!i', len(list(anchor))))
-    master_sock.send(pack(
-        '!' + 'i' * len(list(anchor)), * list(anchor)))
+    master_sock.send(pack('!' + 'i' * len(list(anchor)), * list(anchor)))
 
     for nas in parts:
 
