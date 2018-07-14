@@ -35,7 +35,7 @@ parser.add_argument('--ndim', type=int, default=20,
                     help='dimension of embeddings')
 parser.add_argument('--lr', type=float, default=0.1, help='learning rate')
 parser.add_argument('--margin', type=int, default=2, help='margin')
-parser.add_argument('--ncluster', type=int, default=10, help='number of clusters in TransG model')
+parser.add_argument('--n_cluster', type=int, default=10, help='number of clusters in TransG model')
 parser.add_argument('--crp', type=float, default=0.05, help='crp factor in TransG model')
 parser.add_argument('--anchor_num', type=int, default=5,
                     help='number of anchor during entity training')
@@ -154,7 +154,7 @@ def install_libs():
         os.system("pip install --upgrade hiredis")
 
 
-def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id, redis_ip, root_dir, debugging, precision, niter):
+def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id, redis_ip, root_dir, debugging, precision, niter, train_model, n_cluster, crp):
 
     # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
     socket_port = 50000 + niter * int(worker_id.split('_')[1]) + (cur_iter % niter)
@@ -173,7 +173,10 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
                             str(data_root_id),
                             str(socket_port),
                             log_dir,
-                            str(precision)],
+                            str(precision),
+                            str(train_model),
+                            str(n_cluster),
+                            str(crp)],
                             cwd=preprocess_folder_dir)
 
     worker_proc = Popen(["python",
@@ -229,6 +232,8 @@ train_iter = args.train_iter
 n_dim = args.ndim
 lr = args.lr
 margin = args.margin
+n_cluster = args.n_cluster
+crp = args.crp
 anchor_num = args.anchor_num
 anchor_interval = args.anchor_interval
 
@@ -488,7 +493,7 @@ while True:
                              "{}\n{}".format(anchors, chunks[i]),
                              'worker_%d' % i,
                              cur_iter, n_dim, lr, margin, train_iter, data_root_id,
-                             args.redis_ip, args.root_dir, args.debugging, args.precision, niter
+                             args.redis_ip, args.root_dir, args.debugging, args.precision, niter, train_model, n_cluster, crp
                              ) for i in range(num_worker)]
 
     if cur_iter % 2 == 1:
@@ -607,7 +612,10 @@ proc = Popen([test_code_dir,
             str(margin),
             str(data_root_id),
             str(log_dir),
-            str(precision)],
+            str(precision),
+            str(train_model),
+            str(n_cluster),
+            str(crp)],
             cwd=preprocess_folder_dir)
 
 while True:

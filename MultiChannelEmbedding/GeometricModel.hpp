@@ -244,21 +244,6 @@ public:
 		return -sum(abs(error));
 	}
 
-	virtual double prob_triplets_test(const pair<pair<int, int>, int>& triplet)
-	{
-		vec error = embedding_entity[triplet.first.first]
-			+ embedding_relation[triplet.second]
-			- embedding_entity[triplet.first.second];
-
-
-		//cout << "embedding_entity[triplet.first.first] = " << embedding_entity[triplet.first.first] << "\n";
-		//cout << "embedding_relation[triplet.second] = " << embedding_relation[triplet.second] << "\n";
-		//cout << "embedding_entity[triplet.first.second] = " << embedding_entity[triplet.first.second] << "\n";
-		//cout << "-sum(abs(error)) = " << -sum(abs(error)) << "\n";
-
-		return -sum(abs(error));
-	}
-
 	virtual void train_triplet(const pair<pair<int, int>, int>& triplet)
 	{
 		vec& head = embedding_entity[triplet.first.first];
@@ -2244,8 +2229,10 @@ public:
 		const bool is_preprocessed = false,
 		const int worker_num = 0,
 		const int master_epoch = 0,
-		const int fd = 0)
-		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd), dim(dim), alpha(alpha),
+		const int fd = 0,
+		FILE * fs_log = NULL,
+		const int precision = 0)
+		:Model(dataset, task_type, logging_base_path, is_preprocessed, worker_num, master_epoch, fd, fs_log, precision), dim(dim), alpha(alpha),
 		training_threshold(training_threshold), n_cluster(n_cluster), CRP_factor(CRP_factor),
 		single_or_total(sot), be_weight_normalized(be_weight_normalized), step_before(step_before),
 		normalizor(1.0 / pow(3.1415, dim / 2))

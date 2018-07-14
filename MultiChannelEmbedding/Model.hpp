@@ -77,7 +77,6 @@ public:
 
 public:
 	virtual double prob_triplets(const pair<pair<int, int>, int>& triplet) = 0;
-	virtual double prob_triplets_test(const pair<pair<int, int>, int>& triplet) = 0;
 	virtual void train_triplet(const pair<pair<int, int>, int>& triplet) = 0;
 	virtual void train_triplet_parts(const pair<pair<int, int>, int>& triplet) = 0;
 	virtual void train_triplet_parts_relation(const pair<pair<int, int>, int>& triplet) = 0;

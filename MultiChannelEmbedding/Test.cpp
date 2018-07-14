@@ -15,7 +15,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& data_root_id, string log_dir, int& precision);
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& data_root_id, string log_dir, int& precision, int& train_model, int& n_cluster, double& crp);
 
 // 400s for each experiment.
 int main(int argc, char* argv[]){
@@ -35,6 +35,9 @@ int main(int argc, char* argv[]){
 	int data_root_id = 0;
 	string log_dir;
 	int precision;
+	int train_model = 0;
+	int n_cluster = 10;
+	double crp = 0.05;
 	
 	// test.cpp is server
 	// worker.py is client
@@ -48,7 +51,7 @@ int main(int argc, char* argv[]){
 	int trial;
 	int success;
 
-	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, data_root_id, log_dir, precision);
+	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, data_root_id, log_dir, precision, train_model, n_cluster, crp);
 
 	bzero((char *)&test_addr, sizeof(test_addr));
 	test_addr.sin_family = AF_INET;
@@ -128,15 +131,36 @@ int main(int argc, char* argv[]){
 		fprintf(fs_log, "[info] test.cpp > accept socket successfully\n");
 	}
 
-	// choosing data root by data root id
-	if (data_root_id == 0){
 
-		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock, fs_log, precision);
-	}
-	else if (data_root_id == 1){
+	 // choosing data root by data root id
+        if (data_root_id == 0){
 
-		model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock, fs_log, precision);
-	}
+                if (train_model == 0) {
+                        model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock, fs_log, precision);
+                } else if (train_model == 1) {
+                        model = new TransG(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, n_cluster, crp, 10, false, true, true, worker_num, master_epoch, master_sock, fs_log, precision);
+                } else {
+                        printf("[error] embedding > training model mismatch, recieved : %d\n", train_model);
+                        printf("[error] embedding > return -1\n");
+                        fprintf(fs_log, "[error] embedding > training model mismatch, recieved : %d\n", train_model);
+                        fprintf(fs_log, "[error] embedding > return -1\n");
+                        return -1;
+                }
+        }
+        else if (data_root_id == 1){
+
+                if (train_model == 0) { 
+                        model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock, fs_log, precision);
+                } else if (train_model == 1) {
+                        model = new TransG(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, n_cluster, crp, 10, false, true, true, worker_num, master_epoch, master_sock, fs_log, precision);
+                } else { 
+                        printf("[error] embedding > training model mismatch, recieved : %d\n", train_model);
+                        printf("[error] embedding > return -1\n");
+                        fprintf(fs_log, "[error] embedding > training model mismatch, recieved : %d\n", train_model);
+                        fprintf(fs_log, "[error] embedding > return -1\n");
+                        return -1;
+                }
+        }
 	//else if (data_root_id == 2){
 	//
 	//	model = new TransE(Dbpedia, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock, fs_log);
@@ -167,75 +191,24 @@ int main(int argc, char* argv[]){
 	return 0;
 }
 
-void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& data_root_id, string log_dir, int& precision){
+void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& data_root_id, string log_dir, int& precision, int& train_model, int& n_cluster, double& crp){
 
-	if (argc == 2){
-		// very big problem for scaling!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		string worker = argv[1];
-		worker_num = worker.back() - '0';
+	if (argc == 12){
+	        string worker = argv[1];
+        	worker_num = worker.back() - '0';
+	        master_epoch = atoi(argv[2]);
+	        dim = atoi(argv[3]);
+	        alpha = atof(argv[4]);
+	        training_threshold = atof(argv[5]);
+	        data_root_id = atoi(argv[6]);
+	        log_dir = argv[7];
+	        precision = atoi(argv[8]);
+		train_model = atoi(argv[9]);
+		n_cluster = atoi(argv[10]);
+		crp = atof(argv[11]);
+	} else {
+		printf("[error] embedding > parameter number mismatch, recieved: %d\n", argc);
+                printf("[error] embedding > return \n");
+                return;
 	}
-	if (argc == 3){
-
-		string worker = argv[1];
-        worker_num = worker.back() - '0';
-		master_epoch = atoi(argv[2]);
-	}
-	if (argc == 4){
-
-		string worker = argv[1];
-        worker_num = worker.back() - '0';
-		master_epoch = atoi(argv[2]);
-		dim = atoi(argv[3]);
-	}
-	if (argc == 5){
-
-		string worker = argv[1];
-        worker_num = worker.back() - '0';
-		master_epoch = atoi(argv[2]);
-		dim = atoi(argv[3]);
-		alpha = atof(argv[4]);
-	}
-	if (argc == 6){
-
-		string worker = argv[1];
-        worker_num = worker.back() - '0';
-		master_epoch = atoi(argv[2]);
-		dim = atoi(argv[3]);
-		alpha = atof(argv[4]);
-		training_threshold = atof(argv[5]);
-	}
-	if (argc == 7){
-
-        string worker = argv[1];
-        worker_num = worker.back() - '0';
-        master_epoch = atoi(argv[2]);
-        dim = atoi(argv[3]);
-        alpha = atof(argv[4]);
-        training_threshold = atof(argv[5]);
-		data_root_id = atoi(argv[6]);
-    }
-	if (argc == 8){
-
-        string worker = argv[1];
-        worker_num = worker.back() - '0';
-        master_epoch = atoi(argv[2]);
-        dim = atoi(argv[3]);
-        alpha = atof(argv[4]);
-        training_threshold = atof(argv[5]);
-		data_root_id = atoi(argv[6]);
-		log_dir = argv[7];
-    }
-
-	if (argc == 9){
-
-        string worker = argv[1];
-        worker_num = worker.back() - '0';
-        master_epoch = atoi(argv[2]);
-        dim = atoi(argv[3]);
-        alpha = atof(argv[4]);
-        training_threshold = atof(argv[5]);
-        data_root_id = atoi(argv[6]);
-		log_dir = argv[7];
-		precision = atoi(argv[8]);
-    }
-} 
+}
