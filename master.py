@@ -127,11 +127,11 @@ def data2id(data_root):
 
 def model2id(train_model):
 
-    if train_model.lower() is "transe":
+    if train_model.lower() == "transe":
 
         return 0
     
-    elif train_model.lower() is "transg":
+    elif train_model.lower() == "transg":
 
         return 1
 
