@@ -549,7 +549,7 @@ while True:
         chunk_data = ''
 
     client.gather(workers)
-    result_iter = (worker.result() for worker in workers)
+    result_iter = [worker.result() for worker in workers]
     iterTimes.append(timeit.default_timer() - iterStart)
 
     if all([e[0] for e in result_iter]) == True:
@@ -560,7 +560,7 @@ while True:
         trial = 0
         cur_iter = cur_iter + 1
 
-        workTimes = (e[1] for e in result_iter)
+        workTimes = [e[1] for e in result_iter]
 
         # embedding.cpp 에서 model->run() 실행 시간을 worker.py 로 전송해서 그걸 소켓으로 전송
 
@@ -571,7 +571,7 @@ while True:
 
         # 이터레이션 실패
         # redis 에 저장된 결과를 백업된 값으로 되돌림
-        trial = trial + 1
+        trial += 1
         # r.mset({str(entities[i]) + '_bak' : dumps(entities_initialized_bak[i], protocol=HIGHEST_PROTOCOL) for i in range(len(entities_initialized_bak))})
         # r.mset({str(relations[i]) + '_bak' : dumps(relations_initialized_bak[i], protocol=HIGHEST_PROTOCOL) for i in range(len(relations_initialized_bak))})
         printt('[error] master > iteration %d is failed, retry' % cur_iter)
