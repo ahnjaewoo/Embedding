@@ -154,10 +154,10 @@ def install_libs():
         os.system("pip install --upgrade hiredis")
 
 
-def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id, redis_ip, root_dir, debugging, precision):
+def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id, redis_ip, root_dir, debugging, precision, niter):
 
     # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
-    socket_port = 50000 + 5 * int(worker_id.split('_')[1]) + (cur_iter % 5)
+    socket_port = 50000 + niter * int(worker_id.split('_')[1]) + (cur_iter % niter)
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
     log_dir = os.path.join(args.root_dir, 'logs/embedding_log_{}_iter_{}.txt'.format(worker_id, cur_iter))
 
@@ -487,8 +487,8 @@ while True:
     workers = [client.submit(work,
                              "{}\n{}".format(anchors, chunks[i]),
                              'worker_%d' % i,
-                             cur_iter, n_dim, lr, margin, train_iter,
-                             data_root_id, args.redis_ip, args.root_dir, args.debugging, args.precision
+                             cur_iter, n_dim, lr, margin, train_iter, data_root_id,
+                             args.redis_ip, args.root_dir, args.debugging, args.precision, niter
                              ) for i in range(num_worker)]
 
     if cur_iter % 2 == 1:
