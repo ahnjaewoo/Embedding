@@ -23,6 +23,8 @@ parser.add_argument('--num_worker', type=int,
                     default=2, help='number of workers')
 parser.add_argument('--data_root', type=str, default='/fb15k',
                     help='root directory of data(must include a name of dataset)')
+parser.add_argument('--train_model', type=str, default='TransE',
+                    help='training model(TransE/TransG)')
 parser.add_argument('--niter', type=int, default=2,
                     help='total number of masters iterations')
 parser.add_argument('--train_iter', type=int, default=10,
@@ -33,6 +35,8 @@ parser.add_argument('--ndim', type=int, default=20,
                     help='dimension of embeddings')
 parser.add_argument('--lr', type=float, default=0.1, help='learning rate')
 parser.add_argument('--margin', type=int, default=2, help='margin')
+parser.add_argument('--ncluster', type=int, default=10, help='number of clusters in TransG model')
+parser.add_argument('--crp', type=float, default=0.05, help='crp factor in TransG model')
 parser.add_argument('--anchor_num', type=int, default=5,
                     help='number of anchor during entity training')
 parser.add_argument('--anchor_interval', type=int, default=6,
@@ -121,6 +125,22 @@ def data2id(data_root):
         print("[error] master > data root mismatch")
         sys.exit(1)
 
+def model2id(train_model):
+
+    if train_model.lower() is "transe":
+
+        return 0
+    
+    elif train_model.lower() is "transg":
+
+        return 1
+
+    else:
+    
+        print("[error] master > train model mismatch")
+        sys.exit(1)
+
+
 def install_libs():
 
     import os
@@ -203,6 +223,7 @@ if args.temp_dir == '':
 
 data_files = ['%s/train.txt' % args.data_root, '%s/dev.txt' % args.data_root, '%s/test.txt' % args.data_root]
 num_worker = args.num_worker
+train_model = model2id(args.train_model)
 niter = args.niter
 train_iter = args.train_iter
 n_dim = args.ndim
