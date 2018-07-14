@@ -162,9 +162,9 @@ try:
         # entity 전송 - DataModel 생성자
         chunk_anchor, chunk_entity = chunk_data.split('\n')
         chunk_anchor = chunk_anchor.split(' ')
-        chunk_anchor = (int(e) for e in chunk_anchor)
+        chunk_anchor = [int(e) for e in chunk_anchor]
         chunk_entity = chunk_entity.split(' ')
-        chunk_entity = (int(e) for e in chunk_entity)
+        chunk_entity = [int(e) for e in chunk_entity]
 
         if len(chunk_anchor) == 1 and chunk_anchor[0] == '':
 
