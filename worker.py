@@ -462,10 +462,10 @@ try:
                 entity_id_list = unpack('!' + 'i' * count_entity, sockRecv(embedding_sock, count_entity * 4))
                 entity_vector_list = unpack(precision_string * count_entity * embedding_dim,
                     sockRecv(embedding_sock, precision_byte * embedding_dim * count_entity))
+                
                 entity_vector_list = np.array(entity_vector_list, dtype=np.float32).reshape(count_entity, embedding_dim)
-
                 entity_vectors = {
-                    entities[_id] + '_v': compress(dumps(entity_vector_list[_i], protocol=HIGHEST_PROTOCOL), 9)
+                    "%s_v" % entities[_id]: compress(dumps(entity_vector_list[_i], protocol=HIGHEST_PROTOCOL), 9)
                     for _i, _id in enumerate(entity_id_list)}
 
             except Exception as e:
@@ -563,14 +563,13 @@ try:
                 # 원소를 한 번에 받음 (릴레이션 한 번에)
                 count_relation = int(unpack('!i', sockRecv(embedding_sock, 4))[0])
                 relation_id_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, count_relation * 4))
-                relation_vector_list = list(unpack(precision_string * count_relation * embedding_dim,
-                    sockRecv(embedding_sock, precision_byte * embedding_dim * count_relation)))
+                relation_vector_list = unpack(precision_string * count_relation * embedding_dim,
+                    sockRecv(embedding_sock, precision_byte * embedding_dim * count_relation))
 
-                for _i in range(count_relation):
-
-                    temp_relation_vector = relation_vector_list[_i * embedding_dim:(_i + 1) * embedding_dim]
-                    relation_vectors[relations[relation_id_list[_i]] + '_v'] = compress(dumps(
-                        np.array(temp_relation_vector, dtype=np.float32), protocol=HIGHEST_PROTOCOL), 9)
+                relation_vector_list = np.array(relation_vector_list, dtype=np.float32).reshape(count_relation, embedding_dim)
+                relation_vectors = {
+                    "%s_v" % relations[_id]: compress(dumps(relation_vector_list[_i], protocol=HIGHEST_PROTOCOL), 9)
+                    for _i, _id in enumerate(relation_id_list)}
 
             except Exception as e:
 
