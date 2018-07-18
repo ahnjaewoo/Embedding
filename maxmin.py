@@ -144,104 +144,108 @@ for (hd, tl) in entity_graph:
 
     edge_list_append((entity2id[hd], entity2id[tl]))
 
-while True:
+try:
+    while True:
 
-    master_status = unpack('!i', sockRecv(master_sock, 4))[0]
+        master_status = unpack('!i', sockRecv(master_sock, 4))[0]
 
-    if master_status == 1:
-        # 연결을 끊음
-        # printt('[info] maxmin > received disconnect signal (master_status = 1)')
-        maxmin_sock.close()
-        sys.exit(0)
+        if master_status == 1:
+            # 연결을 끊음
+            # printt('[info] maxmin > received disconnect signal (master_status = 1)')
+            maxmin_sock.close()
+            sys.exit(0)
 
-    cur_iter = (unpack('!i', sockRecv(master_sock, 4))[0] + 1) // 2
+        cur_iter = (unpack('!i', sockRecv(master_sock, 4))[0] + 1) // 2
 
-    if cur_iter == 0:
+        if cur_iter == 0:
 
-        anchor_dict = dict()
-
-    else:
-
-        anchor_dict = old_anchor_dict
-        anchor = set()
-        old_anchor = set()
-
-        for it in range(anchor_interval):
-
-            if it in anchor_dict:
-                
-                old_anchor.update(anchor_dict[it])
-
-    for i in range(anchor_num):
-
-        best = None
-        best_score = 0
-
-        for vertex in entities_id.difference(anchor.union(old_anchor)):
-            # getting degree(v)
-            if len(connected_entity[vertex]) <= best_score:
-
-                continue
-
-            score = len(connected_entity[vertex].difference(anchor))
-
-            if score > best_score or (score == best_score and choice((True, False))):
-
-                best = vertex
-                best_score = score
-
-        if best is None:
-
-            printt('[error] maxmin > no vertex added to anchor')
+            anchor_dict = dict()
 
         else:
 
-            anchor.add(best)
+            anchor_dict = old_anchor_dict
+            anchor = set()
+            old_anchor = set()
 
-    anchor_dict[cur_iter % anchor_interval] = anchor
-    old_anchor_dict = anchor_dict
+            for it in range(anchor_interval):
 
-    # solve the min-cut partition problem of A~, finding A~ and edges
-    non_anchor_id = entities_id.difference(anchor)
-    non_anchor_edge_list = [(h, t) for h, t in edge_list if h in non_anchor_id and t in non_anchor_id]
+                if it in anchor_dict:
+                    
+                    old_anchor.update(anchor_dict[it])
 
-    for (h, t) in non_anchor_edge_list:
+        for i in range(anchor_num):
 
-        non_anchor_edge_included_vertex.add(h)
-        non_anchor_edge_included_vertex.add(t)
+            best = None
+            best_score = 0
 
-    # constructing nx.Graph and using metis in order to get min-cut partition
-    G = nx.Graph()
-    G.add_edges_from(non_anchor_edge_list)
+            for vertex in entities_id.difference(anchor.union(old_anchor)):
+                # getting degree(v)
+                if len(connected_entity[vertex]) <= best_score:
 
-    for node, degree in entity_degree.items():
+                    continue
 
-        if node in G:
+                score = len(connected_entity[vertex].difference(anchor))
 
-            G.node[node]['node_weight'] = degree
+                if score > best_score or (score == best_score and choice((True, False))):
 
-    options = nxmetis.MetisOptions(     # objtype=1 => vol
-        ptype=-1, objtype=1, ctype=-1, iptype=-1, rtype=-1, ncuts=-1,
-        nseps=-1, numbering=-1, niter=cur_iter, seed=-1, minconn=-1, no2hop=-1,
-        contig=-1, compress=-1, ccorder=-1, pfactor=-1, ufactor=-1, dbglvl=-1)
+                    best = vertex
+                    best_score = score
 
-    edgecuts, parts = nxmetis.partition(G, nparts=partition_num, node_weight='node_weight')
+            if best is None:
 
-    # putting residue randomly into non anchor set
-    residue = non_anchor_id.difference(non_anchor_edge_included_vertex)
+                printt('[error] maxmin > no vertex added to anchor')
 
-    for v in residue:
+            else:
 
-        parts[randint(0, partition_num - 1)].append(v)
+                anchor.add(best)
 
-    # printing the number of entities in each paritions
-    # printt('[info] maxmin > # of entities in each partitions : [%s]' % " ".join([str(len(p)) for p in parts]))
+        anchor_dict[cur_iter % anchor_interval] = anchor
+        old_anchor_dict = anchor_dict
 
-    # 원소 여러 개를 한 번에 전송
-    master_sock.send(pack('!i', len(list(anchor))))
-    master_sock.send(pack('!' + 'i' * len(list(anchor)), *list(anchor)))
+        # solve the min-cut partition problem of A~, finding A~ and edges
+        non_anchor_id = entities_id.difference(anchor)
+        non_anchor_edge_list = [(h, t) for h, t in edge_list if h in non_anchor_id and t in non_anchor_id]
 
-    for nas in parts:
+        for (h, t) in non_anchor_edge_list:
 
-        master_sock.send(pack('!i', len(nas)))
-        master_sock.send(pack('!' + 'i' * len(nas), *nas))
+            non_anchor_edge_included_vertex.add(h)
+            non_anchor_edge_included_vertex.add(t)
+
+        # constructing nx.Graph and using metis in order to get min-cut partition
+        G = nx.Graph()
+        G.add_edges_from(non_anchor_edge_list)
+
+        for node, degree in entity_degree.items():
+
+            if node in G:
+
+                G.node[node]['node_weight'] = degree
+
+        options = nxmetis.MetisOptions(     # objtype=1 => vol
+            ptype=-1, objtype=1, ctype=-1, iptype=-1, rtype=-1, ncuts=-1,
+            nseps=-1, numbering=-1, niter=cur_iter, seed=-1, minconn=-1, no2hop=-1,
+            contig=-1, compress=-1, ccorder=-1, pfactor=-1, ufactor=-1, dbglvl=-1)
+
+        edgecuts, parts = nxmetis.partition(G, nparts=partition_num, node_weight='node_weight')
+
+        # putting residue randomly into non anchor set
+        residue = non_anchor_id.difference(non_anchor_edge_included_vertex)
+
+        for v in residue:
+
+            parts[randint(0, partition_num - 1)].append(v)
+
+        # printing the number of entities in each paritions
+        # printt('[info] maxmin > # of entities in each partitions : [%s]' % " ".join([str(len(p)) for p in parts]))
+
+        # 원소 여러 개를 한 번에 전송
+        master_sock.send(pack('!i', len(list(anchor))))
+        master_sock.send(pack('!' + 'i' * len(list(anchor)), *list(anchor)))
+
+        for nas in parts:
+
+            master_sock.send(pack('!i', len(nas)))
+            master_sock.send(pack('!' + 'i' * len(nas), *nas))
+
+except:
+    master_sock.close()
