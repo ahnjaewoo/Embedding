@@ -335,6 +335,10 @@ try:
     #printt('worker > phase 2.2 : relation_vector sent to GeometricModel load function')
     #fsLog.write('worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
 
+    del entities_initialized
+    del relations_initialized
+    del value_to_send_vector
+
     tempcount = 0
 
     if cur_iter % 2 == 0:
