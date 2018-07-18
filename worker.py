@@ -119,7 +119,7 @@ while True:
             sys.exit(-1)
         
         sleep(0.5)
-        printt('[error] worker > exception occured in worker <-> embedding')
+        printt('[error] worker > exception when constructing socket in worker <-> embedding')
         printt('[error] worker > ' + str(e))
 
         
@@ -142,7 +142,7 @@ while True:
             sys.exit(-1)
         
         sleep(0.5)
-        printt('[error] worker > exception occured in worker <-> embedding')
+        printt('[error] worker > exception when connecting socket in worker <-> embedding')
         printt('[error] worker > ' + str(e))
 
 
@@ -195,7 +195,8 @@ try:
 
                 printt('[error] worker > unknown error in phase 1 - ' + worker_id)
                 printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
-                printt('[error] worker > return -1')
+                printt(len(value_to_send))
+                printt('[error] worker > return -1, DataModel entity send')
                 # fsLog.write('[error] worker > unknown error in phase 1 - ' + worker_id + '\n')
                 # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
                 # fsLog.write('[error] worker > return -1\n')
@@ -238,7 +239,8 @@ try:
 
                 printt('[error] worker > unknown error in phase 1 - ' + worker_id)
                 printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
-                printt('[error] worker > return -1')
+                printt(len(value_to_send))
+                printt('[error] worker > return -1, DataModel relation send')
                 # fsLog.write('[error] worker > unknown error in phase 1 - ' + worker_id + '\n')
                 # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
                 # fsLog.write('[error] worker > return -1\n')
