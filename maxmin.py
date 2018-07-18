@@ -53,7 +53,8 @@ if debugging == 'yes':
     sys.excepthook = handle_exception
 
 elif debugging == 'no':
-    printt = print
+    def printt(str_):
+        print(str_)
 
 
 def sockRecv(sock, length):
