@@ -333,14 +333,10 @@ relations_initialized = normalize(np.random.randn(len(relations), n_dim))
 entity_ids = np.array([int(i) for i in r.mget(entities)], dtype=np.int32)
 relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
 
-r.mset({
-    entity + '_v': compress(dumps(
-        entities_initialized[i],
-        protocol=HIGHEST_PROTOCOL), 9) for i, entity in enumerate(entities)})
-r.mset({
-    relation + '_v': compress(dumps(
-        relations_initialized[i],
-        protocol=HIGHEST_PROTOCOL), 9) for i, relation in enumerate(relations)})
+r.mset({f'{entity}_v': compress(dumps(vector,
+        protocol=HIGHEST_PROTOCOL), 9) for vector, entity in zip(entities_initialized, entities)})
+r.mset({f'{relation}_v': compress(dumps(vector,
+        protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(relations_initialized, relations)})
 
 if args.use_scheduler_config_file == 'True':
 
@@ -367,16 +363,8 @@ iterTimes = list()
 # master.py 는 client
 
 
-
-proc = Popen([args.pypy_dir,
-            'maxmin.py',
-            str(num_worker),
-            '0',
-            str(anchor_num),
-            str(anchor_interval),
-            args.root_dir,
-            args.data_root,
-            args.debugging])
+proc = Popen([args.pypy_dir, 'maxmin.py', str(num_worker), '0', str(anchor_num),
+              str(anchor_interval), args.root_dir, args.data_root, args.debugging])
 
 while True:
 
@@ -543,7 +531,7 @@ while True:
         
         for _ in range(num_worker):
         
-            chunk_len = chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
+            chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
             chunk = unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len))
             chunk = ' '.join(str(e) for e in chunk)
             chunks.append(chunk)
@@ -558,7 +546,7 @@ while True:
     result_iter = [worker.result() for worker in workers]
     iterTimes.append(timeit.default_timer() - iterStart)
 
-    if all([e[0] for e in result_iter]) == True:
+    if all([e[0] for e in result_iter]):
 
         # 이터레이션 성공
         printt('master > iteration time : %f' % (timeit.default_timer() - timeNow))
@@ -605,19 +593,9 @@ maxmin_sock.close()
 
 worker_id = 'worker_0'
 log_dir = os.path.join(args.root_dir, 'logs/test_log.txt')
-proc = Popen([test_code_dir,
-            worker_id,
-            '-1',
-            str(n_dim),
-            str(lr),
-            str(margin),
-            str(data_root_id),
-            str(log_dir),
-            str(precision),
-            str(train_model),
-            str(n_cluster),
-            str(crp)],
-            cwd=preprocess_folder_dir)
+proc = Popen([test_code_dir, worker_id, '-1', str(n_dim), str(lr), str(margin),
+              str(data_root_id), str(log_dir), str(precision), str(train_model),
+              str(n_cluster), str(crp)], cwd=preprocess_folder_dir)
 
 while True:
 

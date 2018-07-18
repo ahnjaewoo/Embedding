@@ -46,8 +46,7 @@ if debugging == 'yes':
             sys.__excepthook__(exc_type, exc_value, exc_traceback)
             return
 
-        logger.error("exception", exc_info=(
-            exc_type, exc_value, exc_traceback))
+        logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
 
     sys.excepthook = handle_exception
 
@@ -175,7 +174,7 @@ try:
 
             # 원소 한 번에 전송 - 2 단계
             value_to_send = (len(chunk_anchor), len(chunk_entity), *chunk_anchor, *chunk_entity)
-            embedding_sock.send(pack('!' + 'i' * (len(chunk_anchor) + len(chunk_entity) + 2), * value_to_send))
+            embedding_sock.send(pack('!' + 'i' * (len(chunk_anchor) + len(chunk_entity) + 2), *value_to_send))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -260,7 +259,7 @@ try:
         for id_, vector in zip(entity_ids, entities_initialized):
         
             embedding_sock.send(pack('!i', id_))
-            embedding_sock.send(pack(precision_string * len(vector), * vector))
+            embedding_sock.send(pack(precision_string * len(vector), *vector))
 
         checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -312,15 +311,13 @@ try:
 
         elif checksum == 9876:
 
-            printt(
-                '[error] worker > retry phase 2 (relation) - worker.py - ' + worker_id)
+            printt('[error] worker > retry phase 2 (relation) - worker.py - ' + worker_id)
             # fsLog.write('[error] worker > retry phase 2 (relation) - ' + worker_id + '\n')
             checksum = 0
 
         else:
 
-            printt(
-                '[error] worker > unknown error in phase 2 (relation) - ' + worker_id)
+            printt('[error] worker > unknown error in phase 2 (relation) - ' + worker_id)
             printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
             printt('[error] worker > return -1')
             # fsLog.write('[error] worker > unknown error in phase 2 (relation) - ' + worker_id + '\n')
@@ -356,8 +353,7 @@ try:
                     sockRecv(embedding_sock, precision_byte * embedding_dim * count_entity))
                 
                 entity_vector_list = np.array(entity_vector_list, dtype=np_dtype).reshape(count_entity, embedding_dim)
-                entity_vectors = {
-                    f"{entities[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
+                entity_vectors = {f"{entities[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
                     for vector, id_ in zip(entity_vector_list, entity_id_list)}
 
             except Exception as e:
@@ -430,8 +426,7 @@ try:
                     sockRecv(embedding_sock, precision_byte * embedding_dim * count_relation))
 
                 relation_vector_list = np.array(relation_vector_list, dtype=np_dtype).reshape(count_relation, embedding_dim)
-                relation_vectors = {
-                    f"{relations[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
+                relation_vectors = {f"{relations[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
                     for vector, id_ in zip(relation_vector_list, relation_id_list)}
 
             except Exception as e:

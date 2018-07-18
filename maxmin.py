@@ -17,15 +17,9 @@ anchor_interval = int(sys.argv[4])
 root_dir = sys.argv[5]
 data_root = sys.argv[6]
 debugging = sys.argv[7]
-logging.basicConfig(filename='%s/maxmin.log' %
-                    root_dir, filemode='w', level=logging.DEBUG)
-logger = logging.getLogger()
-handler = logging.StreamHandler(stream=sys.stdout)
-logger.addHandler(handler)
 
 if debugging == 'yes':
-    logging.basicConfig(filename='%s/master.log' %
-                        root_dir, filemode='w', level=logging.DEBUG)
+    logging.basicConfig(filename='%s/master.log' % root_dir, filemode='w', level=logging.DEBUG)
     logger = logging.getLogger()
     handler = logging.StreamHandler(stream=sys.stdout)
     logger.addHandler(handler)
