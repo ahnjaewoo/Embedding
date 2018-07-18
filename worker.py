@@ -5,7 +5,6 @@ from zlib import compress, decompress
 from pickle import dumps, loads, HIGHEST_PROTOCOL
 from struct import pack, unpack
 from timeit import default_timer
-from itertools import izip
 import logging
 import numpy as np
 import redis
@@ -87,8 +86,8 @@ relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
-entity_id = {e: i for e, i in izip(entities, entity_ids)}
-relation_id = {r: i for e, i in izip(relations, relation_ids)}
+entity_id = {e: i for e, i in zip(entities, entity_ids)}
+relation_id = {r: i for e, i in zip(relations, relation_ids)}
 
 entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
 relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
@@ -252,7 +251,7 @@ try:
     # entity_vector 전송 - GeometricModel load
     while checksum != 1:
         
-        for vector, id_ in izip(entities_initialized, entity_ids):
+        for vector, id_ in zip(entities_initialized, entity_ids):
         
            embedding_sock.send(pack('!i', id_))
            embedding_sock.send(pack(precision_string * len(vector), * vector))
@@ -290,7 +289,7 @@ try:
     # relation_vector 전송 - GeometricModel load
     while checksum != 1:
         
-        for vector, ids_ in izip(relations_initialized, relation_ids):
+        for vector, ids_ in zip(relations_initialized, relation_ids):
             
            embedding_sock.send(pack('!i', ids_))
            embedding_sock.send(pack(precision_string * len(vector), * vector))
@@ -350,7 +349,7 @@ try:
                 entity_vector_list = np.array(entity_vector_list, dtype=np_dtype).reshape(count_entity, embedding_dim)
                 entity_vectors = {
                     "%s_v" % entities[_id]: compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
-                    for _id, vector in izip(entity_id_list, entity_vector_list)}
+                    for _id, vector in zip(entity_id_list, entity_vector_list)}
 
             except Exception as e:
 
@@ -423,7 +422,7 @@ try:
                 relation_vector_list = np.array(relation_vector_list, dtype=np_dtype).reshape(count_relation, embedding_dim)
                 relation_vectors = {
                     "%s_v" % relations[_id]: compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
-                    for _id, vector in izip(relation_id_list, relation_vector_list)}
+                    for _id, vector in zip(relation_id_list, relation_vector_list)}
 
             except Exception as e:
 
