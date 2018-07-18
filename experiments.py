@@ -20,7 +20,7 @@ precision = 1
 key_list = ['dataset', 'num_worker', 'master_epoch', 'worker_iter', 'ndim', 'lr',
             'Raw.BestMEANS', 'Raw.BestMRR', 'Raw.BestHITS', 'Filter.BestMEANS',
             'Filter.BestMRR', 'Filter.BestHITS', 'Accuracy', 'preprocessing_time',
-            'train_time', 'avg_work_time', 'avg_work_time', 'avg_maxmin_time',
+            'train_time', 'avg_work_time', 'avg_worker_time', 'avg_maxmin_time',
             'avg_datamodel_sock_time', 'avg_socket_load_time', 'avg_embedding_time',
             'avg_model_run_time', 'avg_socket_save_time', 'avg_redis_time']
 

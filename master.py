@@ -157,10 +157,9 @@ def install_libs():
 
 def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id, redis_ip, root_dir, debugging, precision, niter, train_model, n_cluster, crp):
 
-    # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
     socket_port = 50000 + (cur_iter + 1) * int(worker_id.split('_')[1])
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
-    log_dir = os.path.join(args.root_dir, 'logs/embedding_log_{}_iter_{}.txt'.format(worker_id, cur_iter))
+    log_dir = f'{root_dir}/logs/embedding_log_{worker_id}_iter_{cur_iter}.txt'
 
     workStart = timeit.default_timer()
 
@@ -195,8 +194,8 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     embedding_proc.wait()
     worker_proc.wait()
 
-    embedding_return = int(embedding_proc.returncode)
-    worker_return = int(worker_proc.returncode)
+    embedding_return = embedding_proc.returncode
+    worker_return = worker_proc.returncode
 
     if embedding_return < 0 or worker_return < 0:
 
@@ -210,6 +209,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
         # worker_return 은 string 형태? byte 형태? 의 pickle 을 가지고 있음
         timeNow = timeit.default_timer()
         return (True, timeNow - workStart)
+
 
 if args.data_root[0] != '/':
 
@@ -479,10 +479,9 @@ while True:
     iterStart = timeit.default_timer()
     
     workers = [client.submit(work,
-                             "{}\n{}".format(anchors, chunks[i]),
-                             'worker_%d' % i,
-                             cur_iter, n_dim, lr, margin, train_iter, data_root_id,
-                             args.redis_ip, args.root_dir, args.debugging, args.precision, niter, train_model, n_cluster, crp
+                             "{}\n{}".format(anchors, chunks[i]), 'worker_%d' % i, cur_iter, n_dim,
+                             lr, margin, train_iter, data_root_id, args.redis_ip, args.root_dir,
+                             args.debugging, args.precision, niter, train_model, n_cluster, crp
                              ) for i in range(num_worker)]
 
     if cur_iter % 2 == 1:
