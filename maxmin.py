@@ -246,6 +246,7 @@ try:
 
             master_sock.send(pack('!i', len(nas)))
             master_sock.send(pack('!' + 'i' * len(nas), *nas))
-
 except:
+    pass
+finally:
     master_sock.close()

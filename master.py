@@ -59,6 +59,7 @@ args = parser.parse_args()
 precision = int(args.precision)
 precision_string = 'f' if precision == 0 else 'e'
 precision_byte = 4 if precision == 0 else 2
+np_dtype = np.float32 if precision == 0 else np.float16
 
 if args.debugging == 'yes':
 
@@ -591,9 +592,9 @@ entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
 entities_initialized = np.array([loads(decompress(v))
-                        for v in entities_initialized], dtype=np.float32)
+                        for v in entities_initialized], dtype=np_dtype)
 relations_initialized = np.array([loads(decompress(v))
-                         for v in relations_initialized], dtype=np.float32)
+                         for v in relations_initialized], dtype=np_dtype)
 
 
 maxmin_sock.send(pack('!i', 1))
@@ -652,10 +653,11 @@ success = 0
 while success != 1:
 
     # 원소를 한 번에 전송 - 2 단계
-    value_to_send_vector = entities_initialized.flatten()
-    test_sock.send(pack('!' + 'i' * len(entity_ids), * entity_ids))
-    test_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
-
+    for id_, vector in zip(entity_ids, entities_initialized):
+        
+            test_sock.send(pack('!i', id_))
+            test_sock.send(pack(precision_string * len(vector), * vector))
+    
     checksum = unpack('!i', sockRecv(test_sock, 4))[0]
 
     if checksum == 1234:
@@ -682,9 +684,10 @@ success = 0
 while success != 1:
 
     # 원소를 한 번에 전송 - 2 단계
-    value_to_send_vector = relations_initialized.flatten()
-    test_sock.send(pack('!' + 'i' * len(relation_ids), * relation_ids))
-    test_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
+    for id_, vector in zip(relation_ids, relations_initialized):
+        
+            test_sock.send(pack('!i', id_))
+            test_sock.send(pack(precision_string * len(vector), * vector))
 
     checksum = unpack('!i', sockRecv(test_sock, 4))[0]
 
