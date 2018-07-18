@@ -66,7 +66,7 @@ int main(int argc, char* argv[]){
 	// IP addr / port are from master.py
 	if ((embedding_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
 
-		printf("[error] embedding > create socket - worker_%d\n", worker_num);
+		cout << "[error] embedding > create socket - worker_" << worker_num << endl;
 		printf("[error] embedding > return -1\n");
 		fprintf(fs_log, "[error] embedding > create socket - worker_%d\n", worker_num);
 		fprintf(fs_log, "[error] embedding > return -1\n");
@@ -79,7 +79,7 @@ int main(int argc, char* argv[]){
 
 	if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
 
-		printf("[error] embedding > bind socket - worker_%d\n", worker_num);
+		cout << "[error] embedding > bind socket - worker_" << worker_num << endl;
 		printf("[error] embedding > return -1\n");
 		fprintf(fs_log, "[error] embedding > bind socket - worker_%d\n", worker_num);
 		fprintf(fs_log, "[error] embedding > return -1\n");
@@ -88,7 +88,7 @@ int main(int argc, char* argv[]){
 	
 	if (listen(embedding_sock, 1) < 0){
 
-		printf("[error] embedding > listen socket - worker_%d\n", worker_num);
+		cout << "[error] embedding > listen socket - worker_" << worker_num << endl;
 		printf("[error] embedding > return -1\n");
 		fprintf(fs_log, "[error] embedding > listen socket - worker_%d\n", worker_num);
 		fprintf(fs_log, "[error] embedding > return -1\n");
@@ -98,7 +98,7 @@ int main(int argc, char* argv[]){
 	len = sizeof(worker_addr);
 	if ((worker_sock = accept(embedding_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
 
-		printf("[error] embedding > accept socket - worker_%d\n", worker_num);
+		cout << "[error] embedding > accept socket - worker_" << worker_num << endl;
 		printf("[error] embedding > return -1\n");
 		fprintf(fs_log, "[error] embedding > accept socket - worker_%d\n", worker_num);
 		fprintf(fs_log, "[error] embedding > return -1\n");

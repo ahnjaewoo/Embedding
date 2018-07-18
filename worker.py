@@ -25,6 +25,7 @@ debugging = sys.argv[8]
 precision = int(sys.argv[9])
 precision_string = 'f' if precision == 0 else 'e'
 precision_byte = 4 if precision == 0 else 2
+np_dtype = np.float32 if precision == 0 else np.float16
 
 if debugging == 'yes':
     logging.basicConfig(filename='%s/%s_%d.log' % (root_dir,
@@ -33,10 +34,10 @@ if debugging == 'yes':
     handler = logging.StreamHandler(stream=sys.stdout)
     logger.addHandler(handler)
 
-    def printt(str):
+    def printt(str_):
 
-        print(str)
-        logger.warning(str + '\n')
+        print(str_)
+        logger.warning(str_ + '\n')
 
     def handle_exception(exc_type, exc_value, exc_traceback):
 
@@ -45,8 +46,7 @@ if debugging == 'yes':
             sys.__excepthook__(exc_type, exc_value, exc_traceback)
             return
 
-        logger.error("exception", exc_info=(
-            exc_type, exc_value, exc_traceback))
+        logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
 
     sys.excepthook = handle_exception
 
@@ -83,16 +83,14 @@ entities = np.array(loads(decompress(r.get('entities'))))
 relations = np.array(loads(decompress(r.get('relations'))))
 entity_ids = np.array([int(i) for i in r.mget(entities)], dtype=np.int32)
 relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
-entities_initialized = r.mget([entity + '_v' for entity in entities])
-relations_initialized = r.mget([relation + '_v' for relation in relations])
+entities_initialized = r.mget([f'{entity}_v' for entity in entities])
+relations_initialized = r.mget([f'{relation}_v' for relation in relations])
 
 entity_id = {e: i for e, i in zip(entities, entity_ids)}
 relation_id = {r: i for e, i in zip(relations, relation_ids)}
 
-entities_initialized = np.array([loads(decompress(v))
-                        for v in entities_initialized], dtype=np.float32)
-relations_initialized = np.array([loads(decompress(v))
-                         for v in relations_initialized], dtype=np.float32)
+entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
+relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
 
 redisTime = default_timer() - workerStart
 # printt('worker > redis server connection time : %f' % (redisTime))
@@ -112,17 +110,18 @@ while True:
         break
 
     except Exception as e:
-
-        sleep(0.5)
+        
         trial += 1
-        printt('[error] worker > exception occured in worker <-> embedding')
+        if trial == 5:
+    
+            printt(f'[error] worker > iteration {cur_iter} failed - {worker_id}')
+            printt('[error] worker > return -1')
+            sys.exit(-1)
+        
+        sleep(0.5)
+        printt('[error] worker > exception when constructing socket in worker <-> embedding')
         printt('[error] worker > ' + str(e))
 
-    if trial == 5:
-
-        printt(f'[error] worker > iteration {cur_iter} failed - {worker_id}')
-        printt('[error] worker > return -1')
-        sys.exit(-1)
 
 trial = 0
 while True:
@@ -133,17 +132,18 @@ while True:
         break
 
     except Exception as e:
-
-        sleep(0.5)
+        
         trial += 1
-        printt('[error] worker > exception occured in worker <-> embedding')
+        if trial == 5:
+    
+            printt(f'[error] worker > iteration {cur_iter} failed - {worker_id}')
+            printt('[error] worker > return -1')
+            sys.exit(-1)
+        
+        sleep(0.5)
+        printt('[error] worker > exception when connecting socket in worker <-> embedding')
         printt('[error] worker > ' + str(e))
 
-    if trial == 5:
-
-        printt(f'[error] worker > iteration {cur_iter} failed - {worker_id}')
-        printt('[error] worker > return -1')
-        sys.exit(-1)
 
 #printt('worker > port number of ' + worker_id + ' = ' + socket_port)
 # printt('worker > socket connected (worker <-> embedding)')
@@ -194,11 +194,13 @@ try:
 
                 printt('[error] worker > unknown error in phase 1 - ' + worker_id)
                 printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
-                printt('[error] worker > return -1')
+                printt(len(value_to_send))
+                printt('[error] worker > return -1, DataModel entity send')
                 # fsLog.write('[error] worker > unknown error in phase 1 - ' + worker_id + '\n')
                 # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
                 # fsLog.write('[error] worker > return -1\n')
                 # fsLog.close()
+                embedding_sock.close()
                 sys.exit(-1)
 
         #printt('worker > phase 1 : entity sent to DataModel finished')
@@ -207,7 +209,7 @@ try:
     else:
         # relation 전송 - DataModel 생성자
         timeNow = default_timer()
-        sub_graphs = loads(decompress(r.get('sub_g_{}'.format(worker_id))))
+        sub_graphs = loads(decompress(r.get(f'sub_g_{worker_id}')))
         redisTime += default_timer() - timeNow
         
         while checksum != 1:
@@ -236,11 +238,13 @@ try:
 
                 printt('[error] worker > unknown error in phase 1 - ' + worker_id)
                 printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
-                printt('[error] worker > return -1')
+                printt(len(value_to_send))
+                printt('[error] worker > return -1, DataModel relation send')
                 # fsLog.write('[error] worker > unknown error in phase 1 - ' + worker_id + '\n')
                 # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
                 # fsLog.write('[error] worker > return -1\n')
                 # fsLog.close()
+                embedding_sock.close()
                 sys.exit(-1)
 
         #printt('worker > phase 1 : relation sent to DataModel finished')
@@ -252,12 +256,12 @@ try:
 
     # entity_vector 전송 - GeometricModel load
     while checksum != 1:
-
-        # 원소를 한 번에 전송 - 2 단계
-        value_to_send_vector = entities_initialized.flatten()
-        embedding_sock.send(pack('!' + 'i' * len(entity_ids), * entity_ids))
-        embedding_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
-
+        
+        for vector, id_ in zip(entities_initialized, entity_ids):
+        
+           embedding_sock.send(pack('!i', id_))
+           embedding_sock.send(pack(precision_string * len(vector), * vector))
+        
         checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
         if checksum == 1234:
@@ -281,6 +285,7 @@ try:
             # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
             # fsLog.write('[error] worker > return -1\n')
             # fsLog.close()
+            embedding_sock.close()
             sys.exit(-1)
 
     #printt('worker > phase 2.1 : entity_vector sent to GeometricModel load function')
@@ -290,11 +295,11 @@ try:
 
     # relation_vector 전송 - GeometricModel load
     while checksum != 1:
-
-        # 원소를 한 번에 전송 - 2 단계
-        value_to_send_vector = relations_initialized.flatten()
-        embedding_sock.send(pack('!' + 'i' * len(relation_ids), * relation_ids))
-        embedding_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
+        
+        for vector, ids_ in zip(relations_initialized, relation_ids):
+            
+           embedding_sock.send(pack('!i', ids_))
+           embedding_sock.send(pack(precision_string * len(vector), * vector))
 
         checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -321,6 +326,7 @@ try:
             # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
             # fsLog.write('[error] worker > return -1\n')
             # fsLog.close()
+            embedding_sock.close()
             sys.exit(-1)
 
     sockLoadTime = default_timer() - timeNow
@@ -352,10 +358,10 @@ try:
                 entity_vector_list = unpack(precision_string * count_entity * embedding_dim,
                     sockRecv(embedding_sock, precision_byte * embedding_dim * count_entity))
                 
-                entity_vector_list = np.array(entity_vector_list, dtype=np.float32).reshape(count_entity, embedding_dim)
+                entity_vector_list = np.array(entity_vector_list, dtype=np_dtype).reshape(count_entity, embedding_dim)
                 entity_vectors = {
-                    "%s_v" % entities[_id]: compress(dumps(entity_vector_list[_i], protocol=HIGHEST_PROTOCOL), 9)
-                    for _i, _id in enumerate(entity_id_list)}
+                    "%s_v" % entities[_id]: compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
+                    for _id, vector in zip(entity_id_list, entity_vector_list)}
 
             except Exception as e:
 
@@ -382,6 +388,7 @@ try:
                     # fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
                     # fsLog.write('[error] worker > return -1\n')
                     # fsLog.close()
+                    embedding_sock.close()
                     sys.exit(-1)
 
                 tempcount += 1
@@ -425,10 +432,10 @@ try:
                 relation_vector_list = unpack(precision_string * count_relation * embedding_dim,
                     sockRecv(embedding_sock, precision_byte * embedding_dim * count_relation))
 
-                relation_vector_list = np.array(relation_vector_list, dtype=np.float32).reshape(count_relation, embedding_dim)
+                relation_vector_list = np.array(relation_vector_list, dtype=np_dtype).reshape(count_relation, embedding_dim)
                 relation_vectors = {
-                    "%s_v" % relations[_id]: compress(dumps(relation_vector_list[_i], protocol=HIGHEST_PROTOCOL), 9)
-                    for _i, _id in enumerate(relation_id_list)}
+                    "%s_v" % relations[_id]: compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
+                    for _id, vector in zip(relation_id_list, relation_vector_list)}
 
             except Exception as e:
 
@@ -455,6 +462,7 @@ try:
                     # fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
                     # fsLog.write('[error] worker > return -1\n')
                     # fsLog.close()
+                    embedding_sock.close()
                     sys.exit(-1)
 
                 tempcount += 1
@@ -495,6 +503,7 @@ except Exception as e:
     # fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
     # fsLog.write('[error] worker > return -1\n')
     # fsLog.close()
+    embedding_sock.close()
     sys.exit(-1)
 
 
