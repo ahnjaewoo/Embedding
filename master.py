@@ -68,10 +68,10 @@ if args.debugging == 'yes':
     handler = logging.StreamHandler(stream=sys.stdout)
     logger.addHandler(handler)
     
-    def printt(str):
+    def printt(str_):
 
-        print(str)
-        logger.warning(str + '\n')
+        print(str_)
+        logger.warning(str_ + '\n')
 
     def handle_exception(exc_type, exc_value, exc_traceback):
 
@@ -158,39 +158,19 @@ def install_libs():
 def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id, redis_ip, root_dir, debugging, precision, niter, train_model, n_cluster, crp):
 
     # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
-    socket_port = 50000 + niter * int(worker_id.split('_')[1]) + (cur_iter % niter)
+    socket_port = 50000 + int(worker_id.split('_')[1]) * cur_iter
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
     log_dir = os.path.join(args.root_dir, 'logs/embedding_log_{}_iter_{}.txt'.format(worker_id, cur_iter))
 
     workStart = timeit.default_timer()
 
-    embedding_proc = Popen([train_code_dir, 
-                            worker_id,
-                            str(cur_iter),
-                            str(n_dim),
-                            str(lr),
-                            str(margin),
-                            str(train_iter),
-                            str(data_root_id),
-                            str(socket_port),
-                            log_dir,
-                            str(precision),
-                            str(train_model),
-                            str(n_cluster),
-                            str(crp)],
+    embedding_proc = Popen([train_code_dir, worker_id, str(cur_iter), str(n_dim), str(lr),
+                            str(margin), str(train_iter), str(data_root_id), str(socket_port),
+                            log_dir, str(precision), str(train_model), str(n_cluster), str(crp)],
                             cwd=preprocess_folder_dir)
 
-    worker_proc = Popen(["python",
-                         worker_code_dir,
-                         chunk_data,
-                         worker_id,
-                         str(cur_iter),
-                         str(n_dim),
-                         redis_ip,
-                         root_dir,
-                         str(socket_port),
-                         debugging,
-                         str(precision)])
+    worker_proc = Popen(["python", worker_code_dir, chunk_data, worker_id, str(cur_iter), str(n_dim),
+                         redis_ip, root_dir, str(socket_port), debugging, str(precision)])
 
     embedding_proc.wait()
     worker_proc.wait()
@@ -248,10 +228,11 @@ data_root_id = data2id(args.data_root)
 
 masterStart = timeit.default_timer()
 # 여기서 전처리 C++ 프로그램 비동기 호출
-proc = Popen(["%spreprocess.out" % preprocess_folder_dir,
-              str(data_root_id)], cwd=preprocess_folder_dir)
+proc = Popen(["%spreprocess.out" % preprocess_folder_dir, str(data_root_id)], cwd=preprocess_folder_dir)
 # printt('master > Preprocessing started')
 
+entities_append = entities.append
+relations_append = relations.append
 for file in data_files:
 
     with open(args.root_dir + file, 'r') as f:
@@ -262,19 +243,19 @@ for file in data_files:
 
             if head not in entity2id:
 
-                entities.append(head)
+                entities_append(head)
                 entity2id[head] = entity_cnt
                 entity_cnt += 1
 
             if tail not in entity2id:
 
-                entities.append(tail)
+                entities_append(tail)
                 entity2id[tail] = entity_cnt
                 entity_cnt += 1
 
             if relation not in relation2id:
 
-                relations.append(relation)
+                relations_append(relation)
                 relation2id[relation] = relations_cnt
                 relations_cnt += 1
 
@@ -285,12 +266,11 @@ with open(args.root_dir + data_files[0], 'r') as f:
     for line in f:
 
         head, relation, tail = line[:-1].split("\t")
-        head, relation, tail = entity2id[head], relation2id[relation], entity2id[tail]
-        relation_triples[relation].append((head, tail))
+        relation_triples[relation2id[relation]].append((entity2id[head], entity2id[tail]))
 
 relation_each_num = [(k, len(v)) for k, v in relation_triples.items()]
 relation_each_num = sorted(relation_each_num, key=lambda x: x[1], reverse=True)
-allocated_relation_worker = [[[], 0] for i in range(num_worker)]
+allocated_relation_worker = [([], 0) for i in range(num_worker)]
 
 for i, (relation, num) in enumerate(relation_each_num):
 
@@ -307,11 +287,13 @@ sub_graphs = {}
 for c, (relation_list, num) in enumerate(allocated_relation_worker):
 
     g = []
+    g_append = g.append
     for relation in relation_list:
         for (head, tail) in relation_triples[relation]:
-            g.append((head, relation, tail))
-    sub_graphs['sub_g_worker_%d' % c] = compress(dumps(
-        g, protocol=HIGHEST_PROTOCOL), 9)
+            g_append((head, relation, tail))
+    
+    sub_graphs['sub_g_w_%d' % c] = compress(dumps(g, protocol=HIGHEST_PROTOCOL), 9)
+
 
 r = redis.StrictRedis(host = args.redis_ip, port = 6379, db = 0)
 r.mset(sub_graphs)
@@ -330,16 +312,12 @@ r.set('relations', compress(dumps(relations, protocol=HIGHEST_PROTOCOL), 9))
 entities_initialized = normalize(np.random.randn(len(entities), n_dim))
 relations_initialized = normalize(np.random.randn(len(relations), n_dim))
 
-entity_ids = np.array([int(i) for i in r.mget(entities)], dtype=np.int32)
-relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
+entity_ids = np.array([int(id_) for id_ in r.mget(entities)], dtype=np.int32)
+relation_ids = np.array([int(id_) for id_ in r.mget(relations)], dtype=np.int32)
 
-r.mset({
-    entity + '_v': compress(dumps(
-        entities_initialized[i],
+r.mset({entity + '_v': compress(dumps(entities_initialized[i],
         protocol=HIGHEST_PROTOCOL), 9) for i, entity in enumerate(entities)})
-r.mset({
-    relation + '_v': compress(dumps(
-        relations_initialized[i],
+r.mset({relation + '_v': compress(dumps(relations_initialized[i],
         protocol=HIGHEST_PROTOCOL), 9) for i, relation in enumerate(relations)})
 
 if args.use_scheduler_config_file == 'True':
@@ -363,20 +341,8 @@ maxminTimes = list()
 iterTimes = list()
 
 # max-min process 실행, socket 연결
-# maxmin.cpp 가 server
-# master.py 는 client
-
-
-
-proc = Popen([args.pypy_dir,
-            'maxmin.py',
-            str(num_worker),
-            '0',
-            str(anchor_num),
-            str(anchor_interval),
-            args.root_dir,
-            args.data_root,
-            args.debugging])
+proc = Popen([args.pypy_dir, 'maxmin.py', str(num_worker), '0', str(anchor_num),
+              str(anchor_interval), args.root_dir, args.data_root, args.debugging])
 
 while True:
 
@@ -409,36 +375,9 @@ while True:
 
 timeNow = timeit.default_timer()
 maxmin_sock.send(pack('!i', 0))
-#maxmin_sock.send(pack('!i', num_worker))
 maxmin_sock.send(pack('!i', 0))
-#maxmin_sock.send(pack('!i', anchor_num))
-#maxmin_sock.send(pack('!i', anchor_interval))
 
 # maxmin 의 결과를 소켓으로 받음
-#
-# 원소를 하나씩 받음
-#anchors = ""
-#anchor_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
-#
-#for _ in range(anchor_len):
-#
-#    anchors += str(unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
-#
-#anchors = anchors[:-1]
-#
-#chunks = list()
-#for _ in range(num_worker):
-#
-#    chunk = ""
-#    chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
-#
-#    for _ in range(chunk_len):
-#
-#        chunk += str(unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
-#    
-#    chunk = chunk[:-1]
-#    chunks.append(chunk)
-
 # 원소를 한 번에 받음
 chunks = list()
 
@@ -490,11 +429,9 @@ while True:
     printt('[info] master > iteration %d' % cur_iter)
     iterStart = timeit.default_timer()
     
-    workers = [client.submit(work,
-                             "{}\n{}".format(anchors, chunks[i]),
-                             'worker_%d' % i,
-                             cur_iter, n_dim, lr, margin, train_iter, data_root_id,
-                             args.redis_ip, args.root_dir, args.debugging, args.precision, niter, train_model, n_cluster, crp
+    workers = [client.submit(work, "{}\n{}".format(anchors, chunks[i]), 'w_%d' % i, cur_iter,
+                             n_dim, lr, margin, train_iter, data_root_id, args.redis_ip, args.root_dir,
+                             args.debugging, args.precision, niter, train_model, n_cluster, crp
                              ) for i in range(num_worker)]
 
     if cur_iter % 2 == 1:
@@ -502,38 +439,10 @@ while True:
         
         maxminStart = timeit.default_timer()
 
-        # try 가 들어가야 함
         maxmin_sock.send(pack('!i', 0))
-        #maxmin_sock.send(pack('!i', num_worker))
         maxmin_sock.send(pack('!i', cur_iter))
-        #maxmin_sock.send(pack('!i', anchor_num))
-        #maxmin_sock.send(pack('!i', anchor_interval))
-
+        
         # maxmin 의 결과를 소켓으로 받음
-        #
-        # 원소를 하나씩 받음
-        #anchors = ""
-        #anchor_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        #
-        #for _ in range(anchor_len):
-        #    
-        #    anchors += str(unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
-        #
-        #anchors = anchors[:-1]
-        #
-        #chunks = list()
-        #for _ in range(num_worker):
-        #
-        #    chunk = ''
-        #    chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        #
-        #    for _ in range(chunk_len):
-        #   
-        #        chunk += str(unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
-        #   
-        #    chunk = chunk[:-1]
-        #    chunks.append(chunk)
-
         # 원소를 한 번에 받음
         chunks = list()
         
@@ -543,7 +452,7 @@ while True:
         
         for _ in range(num_worker):
         
-            chunk_len = chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
+            chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
             chunk = unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len))
             chunk = ' '.join(str(e) for e in chunk)
             chunks.append(chunk)
@@ -558,19 +467,19 @@ while True:
     result_iter = [worker.result() for worker in workers]
     iterTimes.append(timeit.default_timer() - iterStart)
 
-    if all([e[0] for e in result_iter]) == True:
+    if all(e[0] for e in result_iter):
 
         # 이터레이션 성공
         printt('master > iteration time : %f' % (timeit.default_timer() - timeNow))
         success = True
         trial = 0
-        cur_iter = cur_iter + 1
+        cur_iter += 1
 
         workTimes = [e[1] for e in result_iter]
 
         # embedding.cpp 에서 model->run() 실행 시간을 worker.py 로 전송해서 그걸 소켓으로 전송
 
-        printt('master > Total embedding times : ' + str(workTimes))
+        printt('master > Total embedding times : {}'.format(workTimes))
         # printt('master > Average total embedding time : ' + str(np.mean(workTimes)))
 
     else:
@@ -584,40 +493,25 @@ while True:
         
 trainTime = timeit.default_timer() - trainStart
 
-# test part
-# printt('master > test start')
 
+# ========== test part ==========
 # load entity vector
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
-entities_initialized = np.array([loads(decompress(v))
-                        for v in entities_initialized], dtype=np_dtype)
-relations_initialized = np.array([loads(decompress(v))
-                         for v in relations_initialized], dtype=np_dtype)
+entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
+relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
 
 
 maxmin_sock.send(pack('!i', 1))
 maxmin_sock.close()
 
-###############################################################################
-###############################################################################
-
-worker_id = 'worker_0'
+worker_id = 'w_0'
 log_dir = os.path.join(args.root_dir, 'logs/test_log.txt')
-proc = Popen([test_code_dir,
-            worker_id,
-            '-1',
-            str(n_dim),
-            str(lr),
-            str(margin),
-            str(data_root_id),
-            str(log_dir),
-            str(precision),
-            str(train_model),
-            str(n_cluster),
-            str(crp)],
-            cwd=preprocess_folder_dir)
+proc = Popen([test_code_dir, worker_id, '-1', str(n_dim), str(lr), str(margin),
+              str(data_root_id), str(log_dir), str(precision), str(train_model),
+              str(n_cluster), str(crp)],
+              cwd=preprocess_folder_dir)
 
 while True:
 
@@ -706,9 +600,6 @@ while success != 1:
 
 # printt('master > relation_vector sent to Geome tricModel load function (for test)')
 
-del entities_initialized
-del relations_initialized
-
 test_return = proc.communicate()
 test_sock.close()
 
@@ -720,7 +611,7 @@ if test_return == -1:
 totalTime = timeit.default_timer() - masterStart
 printt('master > Total elapsed time : %f' % (totalTime))
 
-workerLogKeys = [f'worker_{n}_{i}' for i in range(niter) for n in range(num_worker)]
+workerLogKeys = [f'w_{n}_{i}' for i in range(niter) for n in range(num_worker)]
 workerLogs = r.mget(workerLogKeys)
 
 redisConnTime = list()

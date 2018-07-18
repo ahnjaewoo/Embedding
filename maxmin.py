@@ -31,15 +31,15 @@ if debugging == 'yes':
     logger.addHandler(handler)
     loggerOn = True
 
-    def printt(str):
+    def printt(str_):
 
         global loggerOn
 
-        print(str)
+        print(str_)
 
         if loggerOn:
 
-            logger.warning(str + '\n')
+            logger.warning(str_ + '\n')
 
     def handle_exception(exc_type, exc_value, exc_traceback):
 
@@ -48,14 +48,12 @@ if debugging == 'yes':
             sys.__excepthook__(exc_type, exc_value, exc_traceback)
             return
 
-        logger.error("exception", exc_info=(
-            exc_type, exc_value, exc_traceback))
+        logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
 
     sys.excepthook = handle_exception
 
 elif debugging == 'no':
-    def printt(str):
-        print(str)
+    printt = print
 
 
 def sockRecv(sock, length):
@@ -88,8 +86,7 @@ maxmin_sock.listen(1)
 master_sock, master_addr = maxmin_sock.accept()
 
 # printt('[info] maxmin > socket connected (master <-> maxmin)')
-data_files = ['%s/train.txt' % data_root, '%s/dev.txt' %
-              data_root, '%s/test.txt' % data_root]
+data_files = ['%s/train.txt' % data_root, '%s/dev.txt' % data_root, '%s/test.txt' % data_root]
 anchor_dict = dict()
 old_anchor = set()
 
@@ -104,6 +101,9 @@ entity_cnt = 0
 old_anchor_dict = None
 
 entity_degree = defaultdict(int)
+entities_add = entities.add
+entity_graph_append = entity_graph.append
+edge_list_append = edge_list.append
 
 for file in data_files:
 
@@ -112,8 +112,8 @@ for file in data_files:
         for line in f:
 
             head, relation, tail = line[:-1].split("\t")
-            entities.add(head)
-            entities.add(tail)
+            entities_add(head)
+            entities_add(tail)
 
             if head not in entity2id:
 
@@ -133,7 +133,7 @@ with open(root_dir + data_files[0], 'r') as f:
     for line in f:
 
         head, relation, tail = line[:-1].split("\t")
-        entity_graph.append((head, tail))
+        entity_graph_append((head, tail))
         connected_entity[entity2id[head]].add(entity2id[tail])
         connected_entity[entity2id[tail]].add(entity2id[head])
 
@@ -141,7 +141,7 @@ entities_id = {entity2id[v] for v in entities}
 
 for (hd, tl) in entity_graph:
 
-    edge_list.append((entity2id[hd], entity2id[tl]))
+    edge_list_append((entity2id[hd], entity2id[tl]))
 
 while True:
 
@@ -238,9 +238,9 @@ while True:
 
     # 원소 여러 개를 한 번에 전송
     master_sock.send(pack('!i', len(list(anchor))))
-    master_sock.send(pack('!' + 'i' * len(list(anchor)), * list(anchor)))
+    master_sock.send(pack('!' + 'i' * len(list(anchor)), *list(anchor)))
 
     for nas in parts:
 
         master_sock.send(pack('!i', len(nas)))
-        master_sock.send(pack('!' + 'i' * len(nas), * nas))
+        master_sock.send(pack('!' + 'i' * len(nas), *nas))

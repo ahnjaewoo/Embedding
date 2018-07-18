@@ -5,6 +5,7 @@ from zlib import compress, decompress
 from pickle import dumps, loads, HIGHEST_PROTOCOL
 from struct import pack, unpack
 from timeit import default_timer
+from itertools import izip
 import logging
 import numpy as np
 import redis
@@ -34,10 +35,10 @@ if debugging == 'yes':
     handler = logging.StreamHandler(stream=sys.stdout)
     logger.addHandler(handler)
 
-    def printt(str):
+    def printt(str_):
 
-        print(str)
-        logger.warning(str + '\n')
+        print(str_)
+        logger.warning(str_ + '\n')
 
     def handle_exception(exc_type, exc_value, exc_traceback):
 
@@ -46,8 +47,7 @@ if debugging == 'yes':
             sys.__excepthook__(exc_type, exc_value, exc_traceback)
             return
 
-        logger.error("exception", exc_info=(
-            exc_type, exc_value, exc_traceback))
+        logger.error("exception", exc_info=(exc_type, exc_value, exc_traceback))
 
     sys.excepthook = handle_exception
 
@@ -87,13 +87,11 @@ relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
-entity_id = {e: i for e, i in zip(entities, entity_ids)}
-relation_id = {r: i for e, i in zip(relations, relation_ids)}
+entity_id = {e: i for e, i in izip(entities, entity_ids)}
+relation_id = {r: i for e, i in izip(relations, relation_ids)}
 
-entities_initialized = np.array([loads(decompress(v))
-                        for v in entities_initialized], dtype=np_dtype)
-relations_initialized = np.array([loads(decompress(v))
-                         for v in relations_initialized], dtype=np_dtype)
+entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
+relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
 
 redisTime = default_timer() - workerStart
 # printt('worker > redis server connection time : %f' % (redisTime))
@@ -254,9 +252,9 @@ try:
     # entity_vector 전송 - GeometricModel load
     while checksum != 1:
         
-        for i, vector in enumerate(entities_initialized):
+        for vector, id_ in izip(entities_initialized, entity_ids):
         
-           embedding_sock.send(pack('!i', entity_ids[i]))
+           embedding_sock.send(pack('!i', id_))
            embedding_sock.send(pack(precision_string * len(vector), * vector))
         
         checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
@@ -292,9 +290,9 @@ try:
     # relation_vector 전송 - GeometricModel load
     while checksum != 1:
         
-        for i, vector in enumerate(relations_initialized):
+        for vector, ids_ in izip(relations_initialized, relation_ids):
             
-           embedding_sock.send(pack('!i', relation_ids[i]))
+           embedding_sock.send(pack('!i', ids_))
            embedding_sock.send(pack(precision_string * len(vector), * vector))
 
         checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
@@ -351,8 +349,8 @@ try:
                 
                 entity_vector_list = np.array(entity_vector_list, dtype=np_dtype).reshape(count_entity, embedding_dim)
                 entity_vectors = {
-                    "%s_v" % entities[_id]: compress(dumps(entity_vector_list[_i], protocol=HIGHEST_PROTOCOL), 9)
-                    for _i, _id in enumerate(entity_id_list)}
+                    "%s_v" % entities[_id]: compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
+                    for _id, vector in izip(entity_id_list, entity_vector_list)}
 
             except Exception as e:
 
@@ -424,8 +422,8 @@ try:
 
                 relation_vector_list = np.array(relation_vector_list, dtype=np_dtype).reshape(count_relation, embedding_dim)
                 relation_vectors = {
-                    "%s_v" % relations[_id]: compress(dumps(relation_vector_list[_i], protocol=HIGHEST_PROTOCOL), 9)
-                    for _i, _id in enumerate(relation_id_list)}
+                    "%s_v" % relations[_id]: compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
+                    for _id, vector in izip(relation_id_list, relation_vector_list)}
 
             except Exception as e:
 
