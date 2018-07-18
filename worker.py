@@ -297,7 +297,7 @@ try:
     while checksum != 1:
 
         # 원소를 한 번에 전송 - 2 단계   
-        for id_, vector in enumerate(relation_ids, relations_initialized):
+        for id_, vector in zip(relation_ids, relations_initialized):
             
             embedding_sock.send(pack('!i', id_))
             embedding_sock.send(pack(precision_string * len(vector), * vector))
@@ -432,7 +432,7 @@ try:
                 relation_vector_list = np.array(relation_vector_list, dtype=np_dtype).reshape(count_relation, embedding_dim)
                 relation_vectors = {
                     f"{relations[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
-                    for vector, id_ in enumerate(relation_vector_list, relation_id_list)}
+                    for vector, id_ in zip(relation_vector_list, relation_id_list)}
 
             except Exception as e:
 
