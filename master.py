@@ -315,9 +315,9 @@ relations_initialized = normalize(np.random.randn(len(relations), n_dim))
 entity_ids = np.array([int(id_) for id_ in r.mget(entities)], dtype=np.int32)
 relation_ids = np.array([int(id_) for id_ in r.mget(relations)], dtype=np.int32)
 
-r.mset({entity + '_v': compress(dumps(entities_initialized[i],
+r.mset({f'{entity}_v': compress(dumps(entities_initialized[i],
         protocol=HIGHEST_PROTOCOL), 9) for i, entity in enumerate(entities)})
-r.mset({relation + '_v': compress(dumps(relations_initialized[i],
+r.mset({f'{relation}_v': compress(dumps(relations_initialized[i],
         protocol=HIGHEST_PROTOCOL), 9) for i, relation in enumerate(relations)})
 
 if args.use_scheduler_config_file == 'True':
@@ -496,8 +496,8 @@ trainTime = timeit.default_timer() - trainStart
 
 # ========== test part ==========
 # load entity vector
-entities_initialized = r.mget([entity + '_v' for entity in entities])
-relations_initialized = r.mget([relation + '_v' for relation in relations])
+entities_initialized = r.mget([f'{entity}_v' for entity in entities])
+relations_initialized = r.mget([f'{relation}_v' for relation in relations])
 
 entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
 relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)

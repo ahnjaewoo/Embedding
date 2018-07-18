@@ -83,8 +83,8 @@ entities = np.array(loads(decompress(r.get('entities'))))
 relations = np.array(loads(decompress(r.get('relations'))))
 entity_ids = np.array([int(i) for i in r.mget(entities)], dtype=np.int32)
 relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
-entities_initialized = r.mget([entity + '_v' for entity in entities])
-relations_initialized = r.mget([relation + '_v' for relation in relations])
+entities_initialized = r.mget([f'{entity}_v' for entity in entities])
+relations_initialized = r.mget([f'{relation}_v' for relation in relations])
 
 entity_id = {e: i for e, i in zip(entities, entity_ids)}
 relation_id = {r: i for e, i in zip(relations, relation_ids)}
