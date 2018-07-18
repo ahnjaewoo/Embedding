@@ -430,7 +430,7 @@ while True:
     printt('[info] master > iteration %d' % cur_iter)
     iterStart = timeit.default_timer()
     
-    workers = [client.submit(work, num_worker, f"{anchors}\n{chunks[i]}", 'w_%d' % i, cur_iter, n_dim,
+    workers = [client.submit(work, f"{anchors}\n{chunks[i]}", 'w_%d' % i, num_worker, cur_iter, n_dim,
                              lr, margin, train_iter, data_root_id, args.redis_ip, args.root_dir,
                              args.debugging, args.precision, niter, train_model, n_cluster, crp
                              ) for i in range(num_worker)]
