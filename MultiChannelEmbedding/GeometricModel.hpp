@@ -581,8 +581,6 @@ public:
 						}
 					}
 
-					printf("->3\n");
-
 					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * dim * sizeof(half), 0);
 
