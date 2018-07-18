@@ -646,8 +646,6 @@ public:
 		while(!success){
 
 			try{
-
-				int * id_buff = (int *)calloc(count_entity() + 1, sizeof(int));
 				
 				for (int i = 0; i < count_entity(); i++) {
 					
@@ -662,61 +660,48 @@ public:
 	                }
 
 					entity_id = ntohl(entity_id);
-					id_buff[i] = entity_id; 		// 원소 한 번에 받을 때 사용 (2 단계)
-				}
 
-				if (precision == 0) {
+					if(precision == 0) {
+						float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
+						if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
 
-					float * vector_buff = (float *)calloc(count_entity() * dim + 1, sizeof(float));
-					if (recv(fd, vector_buff, count_entity() * dim * sizeof(float), MSG_WAITALL) < 0){
-
-						printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
-						printf("[error] GeometricModel.hpp > return -1\n");
-						fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
-						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-						close(fd);
-						fclose(fs_log);
-						std::exit(-1);
-					}
-
-					for (int i = 0; i < count_entity(); i++) {
+							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+							printf("[error] GeometricModel.hpp > return -1\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+							close(fd);
+							fclose(fs_log);
+							std::exit(-1);
+						}
 
 						for (int j = 0; j < dim; j++) {
 
-							embedding_entity[id_buff[i]](j) = vector_buff[dim * i + j];
+							embedding_entity[entity_id](j) = vector_buff[j];						
 						}
+
+						free(vector_buff);
 					}
+					else {
+						half * vector_buff = (half *)calloc(dim + 1, sizeof(half));
+						if (recv(fd, vector_buff, dim * sizeof(half), MSG_WAITALL) < 0){
 
-					free(vector_buff);
-				}
-				else{
-
-					half * vector_buff = (half *)calloc(count_entity() * dim + 1, sizeof(half));
-					if (recv(fd, vector_buff, count_entity() * dim * sizeof(half), MSG_WAITALL) < 0){
-
-						printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
-						printf("[error] GeometricModel.hpp > return -1\n");
-						fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
-						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-						close(fd);
-						fclose(fs_log);
-						std::exit(-1);
-					}
-
-					for (int i = 0; i < count_entity(); i++) {
+							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+							printf("[error] GeometricModel.hpp > return -1\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+							close(fd);
+							fclose(fs_log);
+							std::exit(-1);
+						}
 
 						for (int j = 0; j < dim; j++) {
 
-							embedding_entity[id_buff[i]](j) = (float) vector_buff[dim * i + j];
+							embedding_entity[entity_id](j) = (float) vector_buff[j];						
 						}
+
+						free(vector_buff);
 					}
-
-					free(vector_buff);
 				}
-
-				//.....................
-
-				free(id_buff);
 
 				flag = 1234;
 				flag = htonl(flag);
@@ -745,8 +730,6 @@ public:
 
 			try{
 
-				int * id_buff = (int *)calloc(count_relation() + 1, sizeof(int));
-				
 				for (int i = 0; i < count_relation(); i++) {
 					
 					int relation_id;
@@ -760,64 +743,48 @@ public:
 	                }
 
 					relation_id = ntohl(relation_id);
-					id_buff[i] = relation_id; 		// 원소 한 번에 받을 때 사용 (2 단계)
-					//.....................
-				}
+					
+					if(precision == 0) {
+						float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
+						if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
 
-				// 원소 한 번에 받음 - 2 단계 (릴레이션 한 번에)
-
-				if (precision == 0) {
-
-					float * vector_buff = (float *)calloc(count_relation() * dim + 1, sizeof(float));
-					if (recv(fd, vector_buff, count_relation() * dim * sizeof(float), MSG_WAITALL) < 0){
-
-						printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
-						printf("[error] GeometricModel.hpp > return -1\n");
-						fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
-						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-						close(fd);
-						fclose(fs_log);
-						std::exit(-1);
-					}
-
-					for (int i = 0; i < count_relation(); i++) {
+							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+							printf("[error] GeometricModel.hpp > return -1\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+							close(fd);
+							fclose(fs_log);
+							std::exit(-1);
+						}
 
 						for (int j = 0; j < dim; j++) {
 
-							embedding_relation[id_buff[i]](j) = vector_buff[dim * i + j];
+							embedding_relation[relation_id](j) = vector_buff[j];
 						}
+
+						free(vector_buff);
 					}
+					else {
+						half * vector_buff = (half *)calloc(dim + 1, sizeof(half));
+						if (recv(fd, vector_buff, dim * sizeof(half), MSG_WAITALL) < 0){
 
-					free(vector_buff);
-				}
-				else{
-
-					half * vector_buff = (half *)calloc(count_relation() * dim + 1, sizeof(half));
-					if (recv(fd, vector_buff, count_relation() * dim * sizeof(half), MSG_WAITALL) < 0){
-
-						printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
-						printf("[error] GeometricModel.hpp > return -1\n");
-						fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
-						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-						close(fd);
-						fclose(fs_log);
-						std::exit(-1);
-					}
-
-					for (int i = 0; i < count_relation(); i++) {
+							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+							printf("[error] GeometricModel.hpp > return -1\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+							close(fd);
+							fclose(fs_log);
+							std::exit(-1);
+						}
 
 						for (int j = 0; j < dim; j++) {
 
-							embedding_relation[id_buff[i]](j) = (float) vector_buff[dim * i + j];
+							embedding_relation[relation_id](j) = (float) vector_buff[j];
 						}
+
+						free(vector_buff);
 					}
-
-					free(vector_buff);
 				}
-
-				//.....................
-
-				free(id_buff);
 
                 flag = 1234;
                 flag = htonl(flag);
