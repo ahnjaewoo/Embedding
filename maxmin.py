@@ -143,7 +143,6 @@ for (hd, tl) in entity_graph:
 
     edge_list.append((entity2id[hd], entity2id[tl]))
 
-
 while True:
 
     master_status = unpack('!i', sockRecv(master_sock, 4))[0]
@@ -154,10 +153,7 @@ while True:
         maxmin_sock.close()
         sys.exit(0)
 
-    #partition_num = unpack('!i', sockRecv(master_sock, 4))[0]
     cur_iter = (unpack('!i', sockRecv(master_sock, 4))[0] + 1) // 2
-    #anchor_num = unpack('!i', sockRecv(master_sock, 4))[0]
-    #anchor_interval = unpack('!i', sockRecv(master_sock, 4))[0]
 
     if cur_iter == 0:
 
@@ -201,49 +197,6 @@ while True:
 
             anchor.add(best)
 
-    # printing # of 1st connected entity of anchors
-    #tac = defaultdict(bool)
-    # for i,v in enumerate(anchor):
-    #    for e in connected_entity[v]:
-    #        tac[e] = True
-    #    temp_cnt = 0
-    #    for e in range(entity_cnt):
-    #        if tac[e]:
-    #            temp_cnt += 1
-    #    print("1hop anchor 1 - %d(%d): %d/%d" % (i+1, v, temp_cnt, entity_cnt))
-    # print("")
-    # printing # of 2nd connected entity of anchors
-    #tac = defaultdict(bool)
-    # for i,v in enumerate(anchor):
-    #    for e in connected_entity[v]:
-    #        tac[e] = True
-    #        for se in connected_entity[e]:
-    #            tac[se] = True
-    #    temp_cnt = 0
-    #    for e in range(entity_cnt):
-    #        if tac[e]:
-    #            temp_cnt += 1
-    #    print("2hop anchor 1 - %d(%d): %d/%d" % (i+1, v, temp_cnt, entity_cnt))
-    # print("")
-    # printing # of 3rd connected entity of anchors
-    #tac = defaultdict(bool)
-    # for i,v in enumerate(anchor):
-    #    for e in connected_entity[v]:
-    #        tac[e] = True
-    #        for se in connected_entity[e]:
-    #            tac[se] = True
-    #            for te in connected_entity[se]:
-    #                tac[te] = True
-    #    temp_cnt = 0
-    #    for e in range(entity_cnt):
-    #        if tac[e]:
-    #            temp_cnt += 1
-    #    print("3hop anchor 1 - %d(%d): %d/%d" % (i+1, v, temp_cnt, entity_cnt))
-    # print("")
-
-    # for i,v in enumerate(anchor):
-    #    print('anchor %d(%d): %d' % (i, v, len(connected_entity[v])))
-
     anchor_dict[cur_iter % anchor_interval] = anchor
     old_anchor_dict = anchor_dict
 
@@ -282,21 +235,6 @@ while True:
 
     # printing the number of entities in each paritions
     # printt('[info] maxmin > # of entities in each partitions : [%s]' % " ".join([str(len(p)) for p in parts]))
-
-    # 원소 하나씩 전송
-    #master_sock.send(pack('!i', len(list(anchor))))
-    #
-    # for anchor_val in list(anchor):
-    #
-    #    master_sock.send(pack('!i', anchor_val))
-    #
-    # for nas in parts:
-    #
-    #    master_sock.send(pack('!i', len(nas)))
-    #
-    #    for nas_val in nas:
-    #
-    #        master_sock.send(pack('!i', nas_val))
 
     # 원소 여러 개를 한 번에 전송
     master_sock.send(pack('!i', len(list(anchor))))

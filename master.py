@@ -645,88 +645,11 @@ while True:
         printt('[error] master > ' + str(e))
 
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
-# entity 전송 - DataModel 생성자
-chunk_anchor = list()
-chunk_entity = list()
-
-checksum = 0
-success = 0
-
-if len(chunk_anchor) == 1 and chunk_anchor[0] == '':
-    
-    chunk_anchor = []
-"""
-while success != 1:
-
-    test_sock.send(pack('!i', len(chunk_anchor)))
-
-    for iter_anchor in chunk_anchor:
-        
-        test_sock.send(pack('!i', int(iter_anchor)))
-
-    test_sock.send(pack('!i', len(chunk_entity)))
-
-    for iter_entity in chunk_entity:
-        
-        test_sock.send(pack('!i', int(iter_entity)))
-
-    #checksum = unpack('!i', sockRecv(test_sock, 4))[0]
-
-    if checksum == 1234:
-
-        # printt('master > phase 1 finished (for test)')
-        success = 1
-
-    elif checksum == 9876:
-
-        printt('[error] master > retry phase 1 (for test)')
-        success = 0
-
-    else:
-
-        printt('[error] master > unknown error in phase 1 (for test)')
-        success = 0
-
-#printt('master > chunk or relation sent to DataModel (for test)')
-"""
 checksum = 0
 success = 0
 
 # entity_vector 전송 - GeometricModel load
 while success != 1:
-
-    # 원소를 하나씩 전송
-    #for i, vector in enumerate(entities_initialized):
-    #    
-    #    entity_name = str(entities[i])
-    #    test_sock.send(pack('!i', entity2id[entity_name]))  # entity id 를 int 로 전송
-    #
-    #    for v in vector:
-    #
-    #        test_sock.send(pack('f', float(v)))
-
-    # 원소를 한 번에 전송 - 1 단계
-    #for i, vector in enumerate(entities_initialized):
-    #
-    #    entity_name = str(entities[i])
-    #    value_to_send = [float(v) for v in vector]
-    #    value_to_send.insert(0, entity2id[entity_name])
-    #    test_sock.send(pack('!' + 'i' + 'f' * len(vector), * value_to_send))
-
-    # 원소를 한 번에 전송 - 2 단계
-    #value_to_send_id = list()
-    #value_to_send_vector = list()
-    #id_entity = dict()
-    #
-    #for i, vector in enumerate(entities_initialized):
-    #
-    #    entity_name = str(entities[i])
-    #    id_entity[entity2id[entity_name]] = entity_name
-    #    value_to_send_id.append(entity2id[entity_name])
-    #    value_to_send_vector = value_to_send_vector + vector.tolist()
-    #
-    #test_sock.send(pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
-    #test_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
 
     # 원소를 한 번에 전송 - 2 단계
     value_to_send_vector = entities_initialized.flatten()
@@ -757,39 +680,6 @@ success = 0
 
 # relation_vector 전송 - GeometricModel load
 while success != 1:
-
-    # 원소를 하나씩 전송
-    #for i, relation in enumerate(relations_initialized):
-    #    
-    #    relation_name = str(relations[i])
-    #    test_sock.send(pack('!i', relation2id[relation_name]))  # relation id 를 int 로 전송
-    # 
-    #    for v in relation:
-    #
-    #        test_sock.send(pack('f', float(v)))
-
-    # 원소를 한 번에 전송 - 1 단계
-    #for i, relation in enumerate(relations_initialized):
-    #
-    #    relation_name = str(relations[i])
-    #    value_to_send = [float(v) for v in relation]
-    #    value_to_send.insert(0, relation2id[relation_name])
-    #    test_sock.send(pack('!' + 'i' + 'f' * len(relation), * value_to_send))
-
-    # 원소를 한 번에 전송 - 2 단계
-    #value_to_send_id = list()
-    #value_to_send_vector = list()
-    #id_relation = dict()
-    #
-    #for i, relation in enumerate(relations_initialized):
-    #
-    #    relation_name = str(relations[i])
-    #    id_relation[relation2id[relation_name]] = relation_name
-    #    value_to_send_id.append(relation2id[relation_name])
-    #    value_to_send_vector = value_to_send_vector + relation.tolist()
-    #
-    #test_sock.send(pack('!' + 'i' * len(value_to_send_id), * value_to_send_id))
-    #test_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
 
     # 원소를 한 번에 전송 - 2 단계
     value_to_send_vector = relations_initialized.flatten()
