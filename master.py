@@ -651,11 +651,11 @@ success = 0
 
 # entity_vector 전송 - GeometricModel load
 while success != 1:
-
-    # 원소를 한 번에 전송 - 2 단계
-    value_to_send_vector = entities_initialized.flatten()
-    test_sock.send(pack('!' + 'i' * len(entity_ids), * entity_ids))
-    test_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
+    
+    for i, vector in enumerate(entities_initialized):
+        
+           test_sock.send(pack('!i', entity_ids[i]))
+           test_sock.send(pack(precision_string * len(vector), * vector))
 
     checksum = unpack('!i', sockRecv(test_sock, 4))[0]
 
@@ -681,11 +681,11 @@ success = 0
 
 # relation_vector 전송 - GeometricModel load
 while success != 1:
-
-    # 원소를 한 번에 전송 - 2 단계
-    value_to_send_vector = relations_initialized.flatten()
-    test_sock.send(pack('!' + 'i' * len(relation_ids), * relation_ids))
-    test_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
+    
+    for i, vector in enumerate(relations_initialized):
+            
+           test_sock.send(pack('!i', relation_ids[i]))
+           test_sock.send(pack(precision_string * len(vector), * vector))
 
     checksum = unpack('!i', sockRecv(test_sock, 4))[0]
 
@@ -720,7 +720,7 @@ if test_return == -1:
 totalTime = timeit.default_timer() - masterStart
 printt('master > Total elapsed time : %f' % (totalTime))
 
-workerLogKeys = ['worker_' + str(n) + '_' + str(i) for i in range(niter) for n in range(num_worker)]
+workerLogKeys = [f'worker_{n}_{i}' for i in range(niter) for n in range(num_worker)]
 workerLogs = r.mget(workerLogKeys)
 
 redisConnTime = list()
