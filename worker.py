@@ -25,6 +25,7 @@ debugging = sys.argv[8]
 precision = int(sys.argv[9])
 precision_string = 'f' if precision == 0 else 'e'
 precision_byte = 4 if precision == 0 else 2
+np_dtype = np.float32 if precision == 0 else np.float16
 
 if debugging == 'yes':
     logging.basicConfig(filename='%s/%s_%d.log' % (root_dir,
@@ -90,9 +91,9 @@ entity_id = {e: i for e, i in zip(entities, entity_ids)}
 relation_id = {r: i for e, i in zip(relations, relation_ids)}
 
 entities_initialized = np.array([loads(decompress(v))
-                        for v in entities_initialized], dtype=np.float32)
+                        for v in entities_initialized], dtype=np_dtype)
 relations_initialized = np.array([loads(decompress(v))
-                         for v in relations_initialized], dtype=np.float32)
+                         for v in relations_initialized], dtype=np_dtype)
 
 redisTime = default_timer() - workerStart
 # printt('worker > redis server connection time : %f' % (redisTime))
@@ -348,7 +349,7 @@ try:
                 entity_vector_list = unpack(precision_string * count_entity * embedding_dim,
                     sockRecv(embedding_sock, precision_byte * embedding_dim * count_entity))
                 
-                entity_vector_list = np.array(entity_vector_list, dtype=np.float32).reshape(count_entity, embedding_dim)
+                entity_vector_list = np.array(entity_vector_list, dtype=np_dtype).reshape(count_entity, embedding_dim)
                 entity_vectors = {
                     "%s_v" % entities[_id]: compress(dumps(entity_vector_list[_i], protocol=HIGHEST_PROTOCOL), 9)
                     for _i, _id in enumerate(entity_id_list)}
@@ -421,7 +422,7 @@ try:
                 relation_vector_list = unpack(precision_string * count_relation * embedding_dim,
                     sockRecv(embedding_sock, precision_byte * embedding_dim * count_relation))
 
-                relation_vector_list = np.array(relation_vector_list, dtype=np.float32).reshape(count_relation, embedding_dim)
+                relation_vector_list = np.array(relation_vector_list, dtype=np_dtype).reshape(count_relation, embedding_dim)
                 relation_vectors = {
                     "%s_v" % relations[_id]: compress(dumps(relation_vector_list[_i], protocol=HIGHEST_PROTOCOL), 9)
                     for _i, _id in enumerate(relation_id_list)}

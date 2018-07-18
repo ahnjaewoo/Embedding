@@ -59,6 +59,7 @@ args = parser.parse_args()
 precision = int(args.precision)
 precision_string = 'f' if precision == 0 else 'e'
 precision_byte = 4 if precision == 0 else 2
+np_dtype = np.float32 if precision == 0 else np.float16
 
 if args.debugging == 'yes':
 
@@ -591,9 +592,9 @@ entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
 entities_initialized = np.array([loads(decompress(v))
-                        for v in entities_initialized], dtype=np.float32)
+                        for v in entities_initialized], dtype=np_dtype)
 relations_initialized = np.array([loads(decompress(v))
-                         for v in relations_initialized], dtype=np.float32)
+                         for v in relations_initialized], dtype=np_dtype)
 
 
 maxmin_sock.send(pack('!i', 1))
