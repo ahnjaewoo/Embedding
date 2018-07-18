@@ -254,9 +254,10 @@ try:
     while checksum != 1:
 
         # 원소를 한 번에 전송 - 2 단계
-        value_to_send_vector = entities_initialized.flatten()
-        embedding_sock.send(pack('!' + 'i' * len(entity_ids), * entity_ids))
-        embedding_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
+        for i, vector in enumerate(entities_initialized):
+        
+            embedding_sock.send(pack('!i', entity_ids[i]))
+            embedding_sock.send(pack(precision_string * len(vector), * vector))
 
         checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -291,11 +292,12 @@ try:
     # relation_vector 전송 - GeometricModel load
     while checksum != 1:
 
-        # 원소를 한 번에 전송 - 2 단계
-        value_to_send_vector = relations_initialized.flatten()
-        embedding_sock.send(pack('!' + 'i' * len(relation_ids), * relation_ids))
-        embedding_sock.send(pack(precision_string * len(value_to_send_vector), * value_to_send_vector))
-
+        # 원소를 한 번에 전송 - 2 단계   
+        for i, vector in enumerate(relations_initialized):
+            
+            embedding_sock.send(pack('!i', relation_ids[i]))
+            embedding_sock.send(pack(precision_string * len(vector), * vector))
+        
         checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
         if checksum == 1234:
@@ -328,10 +330,6 @@ try:
 
     #printt('worker > phase 2.2 : relation_vector sent to GeometricModel load function')
     #fsLog.write('worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
-
-    del entities_initialized
-    del relations_initialized
-    del value_to_send_vector
 
     tempcount = 0
 
