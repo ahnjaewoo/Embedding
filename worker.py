@@ -122,7 +122,6 @@ while True:
         printt('[error] worker > exception when constructing socket in worker <-> embedding')
         printt('[error] worker > ' + str(e))
 
-        
 
 trial = 0
 while True:
