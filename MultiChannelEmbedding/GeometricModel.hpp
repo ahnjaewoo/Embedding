@@ -385,9 +385,7 @@ public:
 
 	virtual void save(const string& filename, FILE * fs_log) override{
 
-		// int string_len;
 		int count = 0;
-		float value_to_send;
 
 		// master_epoch이 짝수일 때, entity embedding
 		if (master_epoch % 2 == 0){
@@ -636,10 +634,6 @@ public:
 	{
 
 		// filename 파라미터가 전혀 사용되지 않음을 참고
-		// string key;
-		int key_length;
-		float temp_vector;
-		vector<char> temp_buff(256);
   		int success = 0;
 		int flag = 0;
 
@@ -1875,6 +1869,8 @@ public:
 		record.save(filename + replace_all(relation_name, "/", "_") + ".ppm", pgm_binary);
 	}
 
+	// 원본 save 함수
+	/*
 	virtual void save(const string& filename, FILE * fs_log) override
 	{
 		ofstream fout(filename, ios::binary);
@@ -1882,13 +1878,214 @@ public:
 		storage_vmat<double>::save(weights_clusters, fout);
 		fout.close();
 	}
+	*/
 
+	virtual void save(const string& filename, FILE * fs_log) override{
+
+		// const string& filename 이 안쓰임을 유의
+
+		// master_epoch이 짝수일 때, entity embedding
+		if (master_epoch % 2 == 0){
+
+			int checksum = 0;
+			int flag = 0;
+
+			while(checksum != 1){
+
+				if (precision == 0) {
+
+					//float * vector_buff = (float *)calloc(count * dim + 1, sizeof(float));
+					//vector_buff[dim * buff_idx + j] = embedding_entity[i](j);
+					//send(fd, vector_buff, count * dim * sizeof(float), 0);
+				}
+				else{
+
+					//half * vector_buff = (half *)calloc(count * dim + 1, sizeof(half));
+					//vector_buff[dim * buff_idx + j] = (half)embedding_entity[i](j);
+					//send(fd, vector_buff, count * dim * sizeof(half), 0);
+				}
+
+                if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
+
+                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
+                    printf("[error] GeometricModel.hpp > return -1\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+                    close(fd);
+                    fclose(fs_log);
+                    std::exit(-1);
+                }
+
+                flag = ntohl(flag);
+
+                if(flag == 1234){
+
+                	checksum = 1;
+                }
+                else if(flag == 9876){
+
+                	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+                	fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+                	checksum = 0;
+                }
+                else{
+
+                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
+                	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
+                	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
+                    fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+                    checksum = 0;
+                }
+			}
+		}
+		// master_epoch이 홀수일 때, relation embedding
+		else{
+
+			int checksum = 0;
+			int flag = 0;
+
+			while(checksum != 1){
+
+				if (precision == 0) {
+
+					//float * vector_buff = (float *)calloc(count * dim + 1, sizeof(float));
+					//vector_buff[dim * buff_idx + j] = embedding_entity[i](j);
+					//send(fd, vector_buff, count * dim * sizeof(float), 0);
+				}
+				else{
+
+					//half * vector_buff = (half *)calloc(count * dim + 1, sizeof(half));
+					//vector_buff[dim * buff_idx + j] = (half)embedding_entity[i](j);
+					//send(fd, vector_buff, count * dim * sizeof(half), 0);
+				}
+
+                if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
+
+                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
+                    printf("[error] GeometricModel.hpp > return -1\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+                    close(fd);
+                    fclose(fs_log);
+                    std::exit(-1);
+                }
+
+                flag = ntohl(flag);
+
+                if(flag == 1234){
+
+                	checksum = 1;
+                }
+                else if(flag == 9876){
+
+                	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+                	fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+                	checksum = 0;
+                }
+                else{
+
+                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
+                	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
+                	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
+                    fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+                    checksum = 0;
+                }
+			}
+		}
+	}
+
+	// 원본 load 함수
+	/*
 	virtual void load(const string& filename, FILE * fs_log) override
 	{
 		ifstream fin(filename, ios::binary);
 		storage_vmat<double>::load(embedding_entity, fin);
 		storage_vmat<double>::load(weights_clusters, fin);
 		fin.close();
+	}
+	*/
+
+	virtual void load(const string& filename, FILE * fs_log) override{
+
+		// const string& filename 이 안쓰임을 유의
+
+		int success = 0;
+		int flag = 0;
+
+		// entity 전송
+		while(!success){
+
+			try{
+
+				if (precision == 0) {
+
+					//float * vector_buff = (float *)calloc(count_entity() * dim + 1, sizeof(float));
+					//embedding_entity[id_buff[i]](j) = vector_buff[dim * i + j];
+				}
+				else{
+
+					//half * vector_buff = (half *)calloc(count_entity() * dim + 1, sizeof(half));
+					//embedding_entity[id_buff[i]](j) = (float) vector_buff[dim * i + j];
+				}
+
+				flag = 1234;
+				flag = htonl(flag);
+				send(fd, &flag, sizeof(flag), 0);
+				success = 1;
+			}
+        	catch(std::exception& e){
+
+                printf("[error] GeometricModel.hpp > exception occured\n");
+                printf("%s\n", e.what());
+                fprintf(fs_log, "[error] GeometricModel.hpp > exception occured\n");
+                fprintf(fs_log, "%s\n", e.what());
+                success = 0;
+                flag = 9876;
+                flag = htonl(flag);
+                send(fd, &flag, sizeof(flag), 0);
+        	}
+        }
+
+		success = 0;
+		flag = 0;
+
+		// relation 전송
+		while(!success){
+
+			try{
+
+				if (precision == 0) {
+
+					//float * vector_buff = (float *)calloc(count_relation() * dim + 1, sizeof(float));
+					//embedding_relation[id_buff[i]](j) = vector_buff[dim * i + j];
+				}
+				else{
+
+					//half * vector_buff = (half *)calloc(count_relation() * dim + 1, sizeof(half));
+					//embedding_relation[id_buff[i]](j) = (float) vector_buff[dim * i + j];
+				}
+
+                flag = 1234;
+                flag = htonl(flag);
+                send(fd, &flag, sizeof(flag), 0);
+                success = 1;
+			}
+			catch(std::exception& e){
+
+				printf("[error] GeometricModel.hpp > exception occured\n");
+				printf("%s\n", e.what());
+				fprintf(fs_log, "[error] GeometricModel.hpp > exception occured\n");
+				fprintf(fs_log, "%s\n", e.what());
+				success = 0;
+				flag = 9876;
+				flag = htonl(flag);
+				send(fd, &flag, sizeof(flag), 0);
+			}
+		}
 	}
 
 	virtual void train_cluster_once(
