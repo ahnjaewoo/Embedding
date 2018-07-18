@@ -157,7 +157,7 @@ def install_libs():
 def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id, redis_ip, root_dir, debugging, precision, niter, train_model, n_cluster, crp):
 
     # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
-    socket_port = 50000 + cur_iter * int(worker_id.split('_')[1]) + cur_iter
+    socket_port = 50000 + (cur_iter + 1) * int(worker_id.split('_')[1])
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
     log_dir = os.path.join(args.root_dir, 'logs/embedding_log_{}_iter_{}.txt'.format(worker_id, cur_iter))
 
