@@ -110,17 +110,19 @@ while True:
         break
 
     except Exception as e:
-
-        sleep(0.5)
+        
         trial += 1
+        if trial == 5:
+    
+            printt(f'[error] worker > iteration {cur_iter} failed - {worker_id}')
+            printt('[error] worker > return -1')
+            sys.exit(-1)
+        
+        sleep(0.5)
         printt('[error] worker > exception occured in worker <-> embedding')
         printt('[error] worker > ' + str(e))
 
-    if trial == 5:
-
-        printt(f'[error] worker > iteration {cur_iter} failed - {worker_id}')
-        printt('[error] worker > return -1')
-        sys.exit(-1)
+        
 
 trial = 0
 while True:
@@ -131,17 +133,18 @@ while True:
         break
 
     except Exception as e:
-
-        sleep(0.5)
+        
         trial += 1
+        if trial == 5:
+    
+            printt(f'[error] worker > iteration {cur_iter} failed - {worker_id}')
+            printt('[error] worker > return -1')
+            sys.exit(-1)
+        
+        sleep(0.5)
         printt('[error] worker > exception occured in worker <-> embedding')
         printt('[error] worker > ' + str(e))
 
-    if trial == 5:
-
-        printt(f'[error] worker > iteration {cur_iter} failed - {worker_id}')
-        printt('[error] worker > return -1')
-        sys.exit(-1)
 
 #printt('worker > port number of ' + worker_id + ' = ' + socket_port)
 # printt('worker > socket connected (worker <-> embedding)')
@@ -197,6 +200,7 @@ try:
                 # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
                 # fsLog.write('[error] worker > return -1\n')
                 # fsLog.close()
+                embedding_sock.close()
                 sys.exit(-1)
 
         #printt('worker > phase 1 : entity sent to DataModel finished')
@@ -205,7 +209,7 @@ try:
     else:
         # relation 전송 - DataModel 생성자
         timeNow = default_timer()
-        sub_graphs = loads(decompress(r.get('sub_g_{}'.format(worker_id))))
+        sub_graphs = loads(decompress(r.get(f'sub_g_{worker_id}')))
         redisTime += default_timer() - timeNow
         
         while checksum != 1:
@@ -239,6 +243,7 @@ try:
                 # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
                 # fsLog.write('[error] worker > return -1\n')
                 # fsLog.close()
+                embedding_sock.close()
                 sys.exit(-1)
 
         #printt('worker > phase 1 : relation sent to DataModel finished')
@@ -279,6 +284,7 @@ try:
             # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
             # fsLog.write('[error] worker > return -1\n')
             # fsLog.close()
+            embedding_sock.close()
             sys.exit(-1)
 
     #printt('worker > phase 2.1 : entity_vector sent to GeometricModel load function')
@@ -319,6 +325,7 @@ try:
             # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
             # fsLog.write('[error] worker > return -1\n')
             # fsLog.close()
+            embedding_sock.close()
             sys.exit(-1)
 
     sockLoadTime = default_timer() - timeNow
@@ -376,6 +383,7 @@ try:
                     # fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
                     # fsLog.write('[error] worker > return -1\n')
                     # fsLog.close()
+                    embedding_sock.close()
                     sys.exit(-1)
 
                 tempcount += 1
@@ -449,6 +457,7 @@ try:
                     # fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
                     # fsLog.write('[error] worker > return -1\n')
                     # fsLog.close()
+                    embedding_sock.close()
                     sys.exit(-1)
 
                 tempcount += 1
@@ -489,6 +498,7 @@ except Exception as e:
     # fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
     # fsLog.write('[error] worker > return -1\n')
     # fsLog.close()
+    embedding_sock.close()
     sys.exit(-1)
 
 

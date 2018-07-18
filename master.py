@@ -160,7 +160,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     # dask 에 submit 하는 함수에는 logger.warning 을 사용하면 안됨
     socket_port = 50000 + int(worker_id.split('_')[1]) * (cur_iter + 1)
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
-    log_dir = os.path.join(args.root_dir, 'logs/embedding_log_{}_iter_{}.txt'.format(worker_id, cur_iter))
+    log_dir = os.path.join(args.root_dir, f'logs/embedding_log_{worker_id}_iter_{cur_iter}.txt')
 
     workStart = timeit.default_timer()
 
@@ -429,8 +429,8 @@ while True:
     printt('[info] master > iteration %d' % cur_iter)
     iterStart = timeit.default_timer()
     
-    workers = [client.submit(work, "{}\n{}".format(anchors, chunks[i]), 'w_%d' % i, cur_iter,
-                             n_dim, lr, margin, train_iter, data_root_id, args.redis_ip, args.root_dir,
+    workers = [client.submit(work, f"{anchors}\n{chunks[i]}", 'w_%d' % i, cur_iter, n_dim, lr,
+                             margin, train_iter, data_root_id, args.redis_ip, args.root_dir,
                              args.debugging, args.precision, niter, train_model, n_cluster, crp
                              ) for i in range(num_worker)]
 
@@ -479,7 +479,7 @@ while True:
 
         # embedding.cpp 에서 model->run() 실행 시간을 worker.py 로 전송해서 그걸 소켓으로 전송
 
-        printt('master > Total embedding times : {}'.format(workTimes))
+        printt(f'master > Total embedding times : {workTimes}')
         # printt('master > Average total embedding time : ' + str(np.mean(workTimes)))
 
     else:
