@@ -436,11 +436,10 @@ while True:
     printt('[info] master > iteration %d' % cur_iter)
     iterStart = timeit.default_timer()
     
-    workers = [client.submit(work,
-                             "{}\n{}".format(anchors, chunks[i]), 'worker_%d' % i, cur_iter,
-                             n_dim, lr, margin, train_iter, data_root_id, args.redis_ip, args.root_dir,
-                             args.debugging, args.precision, niter, train_model, n_cluster, crp
-                             ) for i in range(num_worker)]
+    workers = [client.submit(work, "{}\n{}".format(anchors, chunks[i]), 'worker_%d' % i,
+                             cur_iter, n_dim, lr, margin, train_iter, data_root_id,
+                             args.redis_ip, args.root_dir, args.debugging, args.precision,
+                             niter, train_model, n_cluster, crp) for i in range(num_worker)]
 
     if cur_iter % 2 == 1:
         # entity partitioning: max-min cut 실행, anchor 등 재분배
