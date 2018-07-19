@@ -405,34 +405,8 @@ maxmin_sock.send(pack('!i', 0))
 #maxmin_sock.send(pack('!i', anchor_num))
 #maxmin_sock.send(pack('!i', anchor_interval))
 
-# maxmin 의 결과를 소켓으로 받음
-#
-# 원소를 하나씩 받음
-#anchors = ""
-#anchor_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
-#
-#for _ in range(anchor_len):
-#
-#    anchors += str(unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
-#
-#anchors = anchors[:-1]
-#
-#chunks = list()
-#for _ in range(num_worker):
-#
-#    chunk = ""
-#    chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
-#
-#    for _ in range(chunk_len):
-#
-#        chunk += str(unpack('!i', sockRecv(maxmin_sock, 4))[0]) + " "
-#    
-#    chunk = chunk[:-1]
-#    chunks.append(chunk)
-
 # 원소를 한 번에 받음
 chunks = list()
-
 anchor_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
 anchors = unpack('!' + 'i' * int(anchor_len), sockRecv(maxmin_sock, 4 * int(anchor_len)))
 anchors = ' '.join(str(e) for e in anchors)

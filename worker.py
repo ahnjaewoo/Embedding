@@ -89,10 +89,8 @@ relations_initialized = r.mget([f'{relation}_v' for relation in relations])
 entity_id = {e: i for e, i in zip(entities, entity_ids)}
 relation_id = {r: i for e, i in zip(relations, relation_ids)}
 
-entities_initialized = np.array([loads(decompress(v))
-                        for v in entities_initialized], dtype=np_dtype)
-relations_initialized = np.array([loads(decompress(v))
-                         for v in relations_initialized], dtype=np_dtype)
+entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
+relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
 
 redisTime = default_timer() - workerStart
 # printt('worker > redis server connection time : %f' % (redisTime))
@@ -103,48 +101,14 @@ redisTime = default_timer() - workerStart
 # worker.py 가 client
 # 첫 iteration 에서눈 Embedding.cpp 의 실행, 소켓 생성을 기다림
 
-trial = 0
-while True:
+try:
 
-    try:
+    embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    embedding_sock.connect(('127.0.0.1', socket_port))
 
-        embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        break
-
-    except Exception as e:
-        
-        trial += 1
-        if trial == 5:
-    
-            printt(f'[error] worker > iteration {cur_iter} failed - {worker_id}')
-            printt('[error] worker > return -1')
-            sys.exit(-1)
-
-        sleep(0.5)
-        printt('[error] worker > exception occured when binding socket <-> embedding')
-        printt('[error] worker > ' + str(e))
-
-
-trial = 0
-while True:
-
-    try:
-
-        embedding_sock.connect(('127.0.0.1', socket_port))
-        break
-
-    except Exception as e:
-        
-        trial += 1
-        if trial == 5:
-    
-            printt(f'[error] worker > iteration {cur_iter} failed - {worker_id}')
-            printt('[error] worker > return -1')
-            sys.exit(-1)
-        
-        sleep(0.5)
-        printt('[error] worker > exception occured when connecting socket <-> embedding')
-        printt('[error] worker > ' + str(e))
+except Exception as e:
+    printt('[error] worker > exception occured when connecting socket <-> embedding')
+    printt('[error] worker > ' + str(e))
 
 
 #printt('worker > port number of ' + worker_id + ' = ' + socket_port)
@@ -219,7 +183,7 @@ try:
 
             # 원소 한 번에 전송 - 2 단계
             value_to_send = np.array(sub_graphs).flatten()
-            embedding_sock.send(pack('!' + 'i' * len(value_to_send), * value_to_send))
+            embedding_sock.send(pack('!' + 'i' * len(value_to_send), *value_to_send))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -419,8 +383,8 @@ try:
             try:
 
                 embeddingTime = default_timer() - timeNow
-                # 처리 결과를 받아옴 - GeometricModel save
 
+                # 처리 결과를 받아옴 - GeometricModel save
                 # 원소를 한 번에 받음 (릴레이션 한 번에)
                 count_relation = unpack('!i', sockRecv(embedding_sock, 4))[0]
                 relation_id_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, count_relation * 4))
