@@ -83,8 +83,8 @@ entities = np.array(loads(decompress(r.get('entities'))))
 relations = np.array(loads(decompress(r.get('relations'))))
 entity_ids = np.array([int(i) for i in r.mget(entities)], dtype=np.int32)
 relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
-entities_initialized = r.mget([entity + '_v' for entity in entities])
-relations_initialized = r.mget([relation + '_v' for relation in relations])
+entities_initialized = r.mget([f'{entity}_v' for entity in entities])
+relations_initialized = r.mget([f'{relation}_v' for relation in relations])
 
 entity_id = {e: i for e, i in zip(entities, entity_ids)}
 relation_id = {r: i for e, i in zip(relations, relation_ids)}
@@ -112,17 +112,18 @@ while True:
         break
 
     except Exception as e:
+        
+        trial += 1
+        if trial == 5:
+    
+            printt(f'[error] worker > iteration {cur_iter} failed - {worker_id}')
+            printt('[error] worker > return -1')
+            sys.exit(-1)
 
         sleep(0.5)
-        trial += 1
         printt('[error] worker > exception occured when binding socket <-> embedding')
         printt('[error] worker > ' + str(e))
 
-    if trial == 5:
-
-        printt(f'[error] worker > iteration {cur_iter} failed - {worker_id}')
-        printt('[error] worker > return -1')
-        sys.exit(-1)
 
 trial = 0
 while True:
@@ -133,17 +134,18 @@ while True:
         break
 
     except Exception as e:
-
-        sleep(0.5)
+        
         trial += 1
+        if trial == 5:
+    
+            printt(f'[error] worker > iteration {cur_iter} failed - {worker_id}')
+            printt('[error] worker > return -1')
+            sys.exit(-1)
+        
+        sleep(0.5)
         printt('[error] worker > exception occured when connecting socket <-> embedding')
         printt('[error] worker > ' + str(e))
 
-    if trial == 5:
-
-        printt(f'[error] worker > iteration {cur_iter} failed - {worker_id}')
-        printt('[error] worker > return -1')
-        sys.exit(-1)
 
 #printt('worker > port number of ' + worker_id + ' = ' + socket_port)
 # printt('worker > socket connected (worker <-> embedding)')
@@ -208,7 +210,7 @@ try:
     else:
         # relation 전송 - DataModel 생성자
         timeNow = default_timer()
-        sub_graphs = loads(decompress(r.get('sub_g_{}'.format(worker_id))))
+        sub_graphs = loads(decompress(r.get(f'sub_g_{worker_id}')))
         redisTime += default_timer() - timeNow
         
         while checksum != 1:
@@ -299,7 +301,7 @@ try:
         for id_, vector in zip(relation_ids, relations_initialized):
             
             embedding_sock.send(pack('!i', id_))
-            embedding_sock.send(pack(precision_string * len(vector), * vector))
+            embedding_sock.send(pack(precision_string * len(vector), *vector))
         
         checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 

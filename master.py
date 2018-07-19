@@ -239,7 +239,9 @@ anchor_num = args.anchor_num
 anchor_interval = args.anchor_interval
 
 entities = list()
+entities_append = entities.append
 relations = list()
+relations_append = relations.append
 entity2id = dict()
 relation2id = dict()
 entity_cnt = 0
@@ -262,19 +264,19 @@ for file in data_files:
 
             if head not in entity2id:
 
-                entities.append(head)
+                entities_append(head)
                 entity2id[head] = entity_cnt
                 entity_cnt += 1
 
             if tail not in entity2id:
 
-                entities.append(tail)
+                entities_append(tail)
                 entity2id[tail] = entity_cnt
                 entity_cnt += 1
 
             if relation not in relation2id:
 
-                relations.append(relation)
+                relations_append(relation)
                 relation2id[relation] = relations_cnt
                 relations_cnt += 1
 
@@ -307,9 +309,10 @@ sub_graphs = {}
 for c, (relation_list, num) in enumerate(allocated_relation_worker):
 
     g = []
+    g_append = g.append
     for relation in relation_list:
         for (head, tail) in relation_triples[relation]:
-            g.append((head, relation, tail))
+            g_append((head, relation, tail))
     sub_graphs['sub_g_worker_%d' % c] = compress(dumps(
         g, protocol=HIGHEST_PROTOCOL), 9)
 
@@ -340,7 +343,7 @@ r.mset({f'{relation}_v': compress(dumps(vector,
 
 if args.use_scheduler_config_file == 'True':
 
-    client = Client(scheduler_file=temp_folder_dir + '/scheduler.json', name='Embedding')
+    client = Client(scheduler_file=f'{temp_folder_dir}/scheduler.json', name='Embedding')
 
 else:
 
@@ -479,10 +482,9 @@ while True:
     iterStart = timeit.default_timer()
     
     workers = [client.submit(work,
-                             "{}\n{}".format(anchors, chunks[i]),
-                             'worker_%d' % i,
-                             cur_iter, n_dim, lr, margin, train_iter, data_root_id,
-                             args.redis_ip, args.root_dir, args.debugging, args.precision, niter, train_model, n_cluster, crp
+                             "{}\n{}".format(anchors, chunks[i]), 'worker_%d' % i, cur_iter,
+                             n_dim, lr, margin, train_iter, data_root_id, args.redis_ip, args.root_dir,
+                             args.debugging, args.precision, niter, train_model, n_cluster, crp
                              ) for i in range(num_worker)]
 
     if cur_iter % 2 == 1:
@@ -579,11 +581,8 @@ trainTime = timeit.default_timer() - trainStart
 entities_initialized = r.mget([entity + '_v' for entity in entities])
 relations_initialized = r.mget([relation + '_v' for relation in relations])
 
-entities_initialized = np.array([loads(decompress(v))
-                        for v in entities_initialized], dtype=np_dtype)
-relations_initialized = np.array([loads(decompress(v))
-                         for v in relations_initialized], dtype=np_dtype)
-
+entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
+relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
 
 maxmin_sock.send(pack('!i', 1))
 maxmin_sock.close()
