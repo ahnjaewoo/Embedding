@@ -74,8 +74,10 @@ int main(int argc, char* argv[]){
 	}
 
 	// to solve bind error
-	nSockOpt = 1;
-	setsockopt(embedding_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt));
+	// nSockOpt = 1;
+	// setsockopt(embedding_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt));
+	struct linger solinger = {1, 3};
+	setsockopt(embedding_sock, SOL_SOCKET, SO_LINGER, &solinger, sizeof(struct linger));
 
 	if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
 
