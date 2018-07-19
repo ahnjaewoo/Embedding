@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from subprocess import Popen, PIPE
-from time import time
+from time import time, sleep
 
 #FB15K, WN18
 # 워커 갯수 2,4,6,8
@@ -32,6 +32,7 @@ with open("result.csv", 'w') as result_file:
         for num_worker in num_workers:
             for master_epoch, worker_iter in master_worker_epochs:
                 for ndim in ndims:
+                    sleep(60)
                     process = Popen(['python', 'master.py', '--data_root',
                                      '/' + dataset, '--num_worker', str(num_worker),
                                      '--train_iter', str(worker_iter),
