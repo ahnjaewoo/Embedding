@@ -85,7 +85,7 @@ try:
 except Exception as e:
     printt('[error] worker > exception occured when connecting socket <-> embedding')
     printt('[error] worker > ' + str(e))
-    sys.exit(-1)
+    sys.exit(1)
 
 
 preprocess_folder_dir = "%s/preprocess/" % root_dir
@@ -166,7 +166,7 @@ try:
                 # fsLog.write('[error] worker > return -1\n')
                 # fsLog.close()
                 embedding_sock.close()
-                sys.exit(-1)
+                sys.exit(1)
 
         #printt('worker > phase 1 : entity sent to DataModel finished')
         #fsLog.write('worker > phase 1 : entity sent to DataModel finished\n')
@@ -209,7 +209,7 @@ try:
                 # fsLog.write('[error] worker > return -1\n')
                 # fsLog.close()
                 embedding_sock.close()
-                sys.exit(-1)
+                sys.exit(1)
 
         #printt('worker > phase 1 : relation sent to DataModel finished')
         #fsLog.write('worker > phase 1 : relation sent to DataModel finished\n')
@@ -251,7 +251,7 @@ try:
             # fsLog.write('[error] worker > return -1\n')
             # fsLog.close()
             embedding_sock.close()
-            sys.exit(-1)
+            sys.exit(1)
 
     #printt('worker > phase 2.1 : entity_vector sent to GeometricModel load function')
     #fsLog.write('worker > phase 2.1 : entity_vector sent to GeometricModel load function\n')
@@ -291,7 +291,7 @@ try:
             # fsLog.write('[error] worker > return -1\n')
             # fsLog.close()
             embedding_sock.close()
-            sys.exit(-1)
+            sys.exit(1)
 
     sockLoadTime = default_timer() - timeNow
     timeNow = default_timer()
@@ -348,7 +348,7 @@ try:
                     # fsLog.write('[error] worker > return -1\n')
                     # fsLog.close()
                     embedding_sock.close()
-                    sys.exit(-1)
+                    sys.exit(1)
 
                 tempcount += 1
                 flag = 9876
@@ -421,7 +421,7 @@ try:
                     # fsLog.write('[error] worker > return -1\n')
                     # fsLog.close()
                     embedding_sock.close()
-                    sys.exit(-1)
+                    sys.exit(1)
 
                 tempcount += 1
                 flag = 9876
@@ -462,7 +462,7 @@ except Exception as e:
     # fsLog.write('[error] worker > return -1\n')
     # fsLog.close()
     embedding_sock.close()
-    sys.exit(-1)
+    sys.exit(1)
 
 
 workerTotalTime = default_timer() - workerStart

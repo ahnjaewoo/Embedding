@@ -155,7 +155,8 @@ def install_libs():
         os.system("pip install --upgrade hiredis")
 
 
-def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id, redis_ip, root_dir, debugging, precision, niter, train_model, n_cluster, crp):
+def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id, redis_ip,
+         root_dir, debugging, precision, niter, train_model, n_cluster, crp):
 
     socket_port = 50000 + (cur_iter + 1) * int(worker_id.split('_')[1])
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
@@ -163,33 +164,13 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
 
     workStart = timeit.default_timer()
 
-    embedding_proc = Popen([train_code_dir, 
-                            worker_id,
-                            str(cur_iter),
-                            str(n_dim),
-                            str(lr),
-                            str(margin),
-                            str(train_iter),
-                            str(data_root_id),
-                            str(socket_port),
-                            log_dir,
-                            str(precision),
-                            str(train_model),
-                            str(n_cluster),
-                            str(crp)],
+    embedding_proc = Popen([train_code_dir, worker_id, str(cur_iter), str(n_dim), str(lr),
+                            str(margin), str(train_iter), str(data_root_id), str(socket_port),
+                            log_dir, str(precision), str(train_model), str(n_cluster), str(crp)],
                             cwd=preprocess_folder_dir)
 
-    worker_proc = Popen(["python",
-                         worker_code_dir,
-                         chunk_data,
-                         worker_id,
-                         str(cur_iter),
-                         str(n_dim),
-                         redis_ip,
-                         root_dir,
-                         str(socket_port),
-                         debugging,
-                         str(precision)])
+    worker_proc = Popen(["python", worker_code_dir, chunk_data, worker_id, str(cur_iter), str(n_dim),
+                         redis_ip, root_dir, str(socket_port), debugging, str(precision)])
 
     embedding_proc.wait()
     worker_proc.wait()
@@ -197,7 +178,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     embedding_return = embedding_proc.returncode
     worker_return = worker_proc.returncode
 
-    if embedding_return < 0 or worker_return < 0:
+    if embedding_return < 0 or worker_return > 0:
 
         # embedding.cpp 또는 worker.py 가 비정상 종료
         # 이번 이터레이션을 취소, 한 번 더 수행
@@ -659,9 +640,6 @@ while success != 1:
 
 # printt('master > relation_vector sent to Geome tricModel load function (for test)')
 
-del entities_initialized
-del relations_initialized
-
 test_return = proc.communicate()
 test_sock.close()
 
@@ -673,7 +651,7 @@ if test_return == -1:
 totalTime = timeit.default_timer() - masterStart
 printt('master > Total elapsed time : %f' % (totalTime))
 
-workerLogKeys = ['worker_' + str(n) + '_' + str(i) for i in range(niter) for n in range(num_worker)]
+workerLogKeys = [f'worker_{n}_{i}' for i in range(niter) for n in range(num_worker)]
 workerLogs = r.mget(workerLogKeys)
 
 redisConnTime = list()
