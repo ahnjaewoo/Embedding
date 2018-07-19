@@ -65,7 +65,7 @@ with open("result.csv", 'w') as result_file:
                                 else:
                                     result_file.write(f"{value}, ")
 
-
+"""
 key_list = ['dataset', 'train_iter', 'ndim', 'lr', 'Raw.BestMEANS', 'Raw.BestMRR',
             'Raw.BestHITS', 'Filter.BestMEANS', 'Filter.BestMRR', 'Filter.BestHITS',
             'Accuracy', 'train_time']
@@ -103,3 +103,4 @@ with open("baseline_result.csv", 'w') as result_file:
                         result_file.write(f"{value}\n")
                     else:
                         result_file.write(f"{value}, ")
+"""

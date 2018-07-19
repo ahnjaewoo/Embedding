@@ -509,7 +509,7 @@ while True:
         printt('master > iteration time : %f' % (timeit.default_timer() - timeNow))
         success = True
         trial = 0
-        cur_iter = cur_iter + 1
+        cur_iter += 1
 
         workTimes = [e[1] for e in result_iter]
 
