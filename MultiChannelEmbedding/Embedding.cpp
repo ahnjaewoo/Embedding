@@ -106,11 +106,6 @@ int main(int argc, char* argv[]){
 		fprintf(fs_log, "[error] embedding > return -1\n");
 		return -1;
 	}
-	else{
-
-		// printf("embedding > accept socket successfully - worker_%d\n", worker_num);
-		// fprintf(fs_log, "embedding > accept socket successfully - worker_%d\n", worker_num);
-	}
 
 	// choosing data root by data root id
 	if (data_root_id == 0){
@@ -121,25 +116,25 @@ int main(int argc, char* argv[]){
 			model = new TransG(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, n_cluster, crp, 10, false, true, true, worker_num, master_epoch, worker_sock, fs_log, precision);
 		} else {
 			printf("[error] embedding > training model mismatch, recieved : %d\n", train_model);
-	                printf("[error] embedding > return -1\n");
-        	        fprintf(fs_log, "[error] embedding > training model mismatch, recieved : %d\n", train_model);
-                	fprintf(fs_log, "[error] embedding > return -1\n");
-	                return -1;
+	        printf("[error] embedding > return -1\n");
+        	fprintf(fs_log, "[error] embedding > training model mismatch, recieved : %d\n", train_model);
+            fprintf(fs_log, "[error] embedding > return -1\n");
+	        return -1;
 		}
 	}
 	else if (data_root_id == 1){
 
 		if (train_model == 0) { 
-                	model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock, fs_log, precision);
-                } else if (train_model == 1) {
+            model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, worker_sock, fs_log, precision);
+        } else if (train_model == 1) {
 			model = new TransG(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, n_cluster, crp, 10, false, true, true, worker_num, master_epoch, worker_sock, fs_log, precision);
-                } else { 
+        } else { 
 			printf("[error] embedding > training model mismatch, recieved : %d\n", train_model);
-                        printf("[error] embedding > return -1\n");
-                        fprintf(fs_log, "[error] embedding > training model mismatch, recieved : %d\n", train_model);
-                        fprintf(fs_log, "[error] embedding > return -1\n");
-                        return -1;
-                }
+            printf("[error] embedding > return -1\n");
+            fprintf(fs_log, "[error] embedding > training model mismatch, recieved : %d\n", train_model);
+            fprintf(fs_log, "[error] embedding > return -1\n");
+            return -1;
+        }
 	}
 	//else if (data_root_id == 2){
 	//
@@ -179,23 +174,23 @@ int main(int argc, char* argv[]){
 
 void getParams(int argc, char* argv[], int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& train_iter, int& data_root_id, int& socket_port, string log_dir, int& precision, int& train_model, int& n_cluster, double& crp){
 	if (argc == 14) {
-       		string worker = argv[1];
-        	worker_num = worker.back() - '0';
-        	master_epoch = atoi(argv[2]);
-	        dim = atoi(argv[3]);
-	        alpha = atof(argv[4]);
-	        training_threshold = atof(argv[5]);
-	        train_iter = atoi(argv[6]);
-	        data_root_id = atoi(argv[7]);
-	        socket_port = atoi(argv[8]);
-	        log_dir = argv[9];
-	        precision = atoi(argv[10]);
+       	string worker = argv[1];
+        worker_num = worker.back() - '0';
+        master_epoch = atoi(argv[2]);
+	    dim = atoi(argv[3]);
+	    alpha = atof(argv[4]);
+	    training_threshold = atof(argv[5]);
+	    train_iter = atoi(argv[6]);
+	    data_root_id = atoi(argv[7]);
+	    socket_port = atoi(argv[8]);
+	    log_dir = argv[9];
+	    precision = atoi(argv[10]);
 		train_model = atoi(argv[11]);
 		n_cluster = atoi(argv[12]);
 		crp = atof(argv[13]);
 	} else {
 		printf("[error] embedding > parameter number mismatch, recieved: %d\n", argc);
-                printf("[error] embedding > return \n");
+        printf("[error] embedding > return \n");
 		return;
 	}
 }

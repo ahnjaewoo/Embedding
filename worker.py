@@ -72,6 +72,22 @@ def sockRecv(sock, length):
     return data
 
 
+# embedding.cpp 와 socket 통신
+# worker 가 실행될 때 전달받은 ip 와 port 로 접속
+# Embedding.cpp 가 server, 프로세느는 master.py 가 생성
+# worker.py 가 client
+# 첫 iteration 에서눈 Embedding.cpp 의 실행, 소켓 생성을 기다림
+
+try:
+    embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    embedding_sock.connect(('127.0.0.1', socket_port))
+
+except Exception as e:
+    printt('[error] worker > exception occured when connecting socket <-> embedding')
+    printt('[error] worker > ' + str(e))
+    sys.exit(-1)
+
+
 preprocess_folder_dir = "%s/preprocess/" % root_dir
 train_code_dir = "%s/MultiChannelEmbedding/Embedding.out" % root_dir
 temp_folder_dir = "%s/tmp" % root_dir
@@ -94,22 +110,6 @@ relations_initialized = np.array([loads(decompress(v)) for v in relations_initia
 
 redisTime = default_timer() - workerStart
 # printt('worker > redis server connection time : %f' % (redisTime))
-
-# embedding.cpp 와 socket 통신
-# worker 가 실행될 때 전달받은 ip 와 port 로 접속
-# Embedding.cpp 가 server, 프로세느는 master.py 가 생성
-# worker.py 가 client
-# 첫 iteration 에서눈 Embedding.cpp 의 실행, 소켓 생성을 기다림
-
-try:
-
-    embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    embedding_sock.connect(('127.0.0.1', socket_port))
-
-except Exception as e:
-    printt('[error] worker > exception occured when connecting socket <-> embedding')
-    printt('[error] worker > ' + str(e))
-
 
 #printt('worker > port number of ' + worker_id + ' = ' + socket_port)
 # printt('worker > socket connected (worker <-> embedding)')
