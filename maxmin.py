@@ -91,7 +91,6 @@ edge_list = list()
 entity2id = dict()
 connected_entity = defaultdict(set)
 anchor = set()
-non_anchor_edge_included_vertex = set()
 entity_cnt = 0
 old_anchor_dict = None
 
@@ -140,6 +139,7 @@ for (hd, tl) in entity_graph:
 
 try:
     while True:
+        non_anchor_edge_included_vertex = set()
 
         master_status = unpack('!i', sockRecv(master_sock, 4))[0]
 
