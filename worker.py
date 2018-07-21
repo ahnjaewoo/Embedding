@@ -67,7 +67,7 @@ def sockRecv(sock, length):
 
             return None
 
-        data = data + buff
+        data += buff
 
     return data
 
@@ -96,16 +96,15 @@ workerStart = default_timer()
 # redis에서 embedding vector들 받아오기
 r = redis.StrictRedis(host=redis_ip_address, port=6379, db=0)
 entities = np.array(loads(decompress(r.get('entities'))))
-relations = np.array(loads(decompress(r.get('relations'))))
 entity_ids = np.array([int(i) for i in r.mget(entities)], dtype=np.int32)
-relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
-entities_initialized = r.mget([f'{entity}_v' for entity in entities])
-relations_initialized = r.mget([f'{relation}_v' for relation in relations])
-
 entity_id = {e: i for e, i in zip(entities, entity_ids)}
-relation_id = {r: i for e, i in zip(relations, relation_ids)}
-
+entities_initialized = r.mget([f'{entity}_v' for entity in entities])
 entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
+
+relations = np.array(loads(decompress(r.get('relations'))))
+relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
+relation_id = {r: i for e, i in zip(relations, relation_ids)}
+relations_initialized = r.mget([f'{relation}_v' for relation in relations])
 relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
 
 redisTime = default_timer() - workerStart

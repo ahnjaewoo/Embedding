@@ -438,7 +438,7 @@ while True:
     printt('[info] master > iteration %d' % cur_iter)
     iterStart = timeit.default_timer()
     
-    workers = [client.submit(work, init_port, "{}\n{}".format(anchors, chunks[i]), 'worker_%d' % i,
+    workers = [client.submit(work, init_port, f"{anchors}\n{chunks[i]}", f'worker_{i}',
                              cur_iter, n_dim, lr, margin, train_iter, data_root_id,
                              args.redis_ip, args.root_dir, args.debugging, args.precision,
                              train_model, n_cluster, crp) for i in range(num_worker)]
@@ -539,10 +539,9 @@ trainTime = timeit.default_timer() - trainStart
 # printt('master > test start')
 
 # load entity vector
-entities_initialized = r.mget([entity + '_v' for entity in entities])
-relations_initialized = r.mget([relation + '_v' for relation in relations])
-
+entities_initialized = r.mget([f'{entity}_v' for entity in entities])
 entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
+relations_initialized = r.mget(['{relation]_v' for relation in relations])
 relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
 
 maxmin_sock.send(pack('!i', 1))
