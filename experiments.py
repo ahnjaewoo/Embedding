@@ -32,7 +32,7 @@ with open("result.csv", 'w') as result_file:
         for num_worker in num_workers:
             for master_epoch, worker_iter in master_worker_epochs:
                 for ndim in ndims:
-                    sleep(60)
+                    sleep(120)
                     process = Popen(['python', 'master.py', '--data_root',
                                      '/' + dataset, '--num_worker', str(num_worker),
                                      '--train_iter', str(worker_iter),

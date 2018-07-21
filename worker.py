@@ -83,7 +83,7 @@ try:
     embedding_sock.connect(('127.0.0.1', socket_port))
 
 except Exception as e:
-    printt('[error] worker > exception occured when connecting socket <-> embedding')
+    printt(f'[error] worker > exception occured when connecting socket <-> embedding, {worker_id}, {cur_iter}th iter')
     printt('[error] worker > ' + str(e))
     sys.exit(1)
 
