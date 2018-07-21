@@ -156,7 +156,7 @@ def work(init_port, chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_it
          data_root_id, redis_ip, root_dir, debugging, precision, train_model, n_cluster,
          crp):
 
-    socket_port = 50000 + (cur_iter + 1) * int(worker_id.split('_')[1])
+    socket_port = init_port + (cur_iter + 1) * int(worker_id.split('_')[1])
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
     log_dir = os.path.join(root_dir, 'logs/embedding_log_{}_iter_{}.txt'.format(worker_id, cur_iter))
 
@@ -342,8 +342,6 @@ iterTimes = list()
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
 # master.py 는 client
-
-
 proc = Popen([args.pypy_dir, 'maxmin.py', str(num_worker), '0', str(anchor_num),
               str(anchor_interval), args.root_dir, args.data_root, args.debugging])
 
@@ -352,20 +350,7 @@ while True:
     try:
 
         maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        break
-    
-    except Exception as e:
-    
-        sleep(0.5)
-        printt('[error] master > exception occured in master <-> maxmin')
-        printt('[error] master > ' + str(e))
-
-while True:
-    
-    try:
-    
         maxmin_sock.connect(('127.0.0.1', 7847))
-        # printt('master > maxmin connection succeed')
         break
     
     except Exception as e:
@@ -378,10 +363,7 @@ while True:
 
 timeNow = timeit.default_timer()
 maxmin_sock.send(pack('!i', 0))
-#maxmin_sock.send(pack('!i', num_worker))
 maxmin_sock.send(pack('!i', 0))
-#maxmin_sock.send(pack('!i', anchor_num))
-#maxmin_sock.send(pack('!i', anchor_interval))
 
 # 원소를 한 번에 받음
 chunks = list()
@@ -405,9 +387,6 @@ cur_iter = 0
 trial  = 0
 success = False
 
-entities = loads(decompress(r.get('entities')))
-relations = loads(decompress(r.get('relations')))
-
 trainStart = timeit.default_timer()
 init_port = 50000
 
@@ -428,7 +407,7 @@ while True:
         printt('[error] master > training failed, exit')
         maxmin_sock.send(pack('!i', 1))
         maxmin_sock.close()
-        sys.exit(-1)
+        sys.exit(1)
 
     # 작업 배정
     printt('[info] master > iteration %d' % cur_iter)
@@ -499,10 +478,10 @@ while True:
         trial += 1
 
         r.mset({
-            entity : compress(dumps(entities_initialized_bak[i], protocol=HIGHEST_PROTOCOL)) \
+            f'{entity}_v' : compress(dumps(entities_initialized_bak[i], protocol=HIGHEST_PROTOCOL))
             for vector, entity in zip(entities_initialized_bak, entities)})
         r.mset({
-            relation : compress(dumps(relations_initialized_bak[i], protocol=HIGHEST_PROTOCOL)) \
+            f'{relation}_v' : compress(dumps(relations_initialized_bak[i], protocol=HIGHEST_PROTOCOL))
             for vector, relation in zip(relations_initialized_bak, relations)})
         printt('[error] master > iteration %d is failed, retry' % cur_iter)
         
@@ -624,7 +603,7 @@ test_sock.close()
 if test_return == -1:
 
     printt('[error] master > test failed, exit')
-    sys.exit(-1)
+    sys.exit(1)
 
 totalTime = timeit.default_timer() - masterStart
 printt('master > Total elapsed time : %f' % (totalTime))
@@ -665,3 +644,5 @@ with open("logs/test_log.txt", 'a') as f:
     f.write("\n== avg_model_run_time = {}\n".format(str(np.mean(modelRunTime))))                    # embedding.cpp 에서 측정한 modelRunTime
     f.write("\n== avg_socket_save_time = {}\n".format(str(np.mean(sockSaveTime))))                  # worker.py 에서 측정한 sockSaveTime
     f.write("\n== avg_redis_time = {}\n".format(str(np.mean(redisTime))))                           # worker.py 에서 측정한 redisTime   
+
+sys.exit(0)
