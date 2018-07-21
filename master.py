@@ -155,8 +155,9 @@ def install_libs():
         os.system("pip install --upgrade hiredis")
 
 
-def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id, redis_ip,
-         root_dir, debugging, precision, niter, train_model, n_cluster, crp):
+def work(init_port, chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter,
+         data_root_id, redis_ip, root_dir, debugging, precision, train_model, n_cluster,
+         crp):
 
     socket_port = 50000 + (cur_iter + 1) * int(worker_id.split('_')[1])
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
@@ -412,14 +413,15 @@ entities = loads(decompress(r.get('entities')))
 relations = loads(decompress(r.get('relations')))
 
 trainStart = timeit.default_timer()
+init_port = 50000
 
 while True:
 
     # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
-    # entities_initialized_bak = r.mget([entity + '_v' for entity in entities])
-    # entities_initialized_bak = [loads(v) for v in entities_initialized_bak]
-    # relations_initialized_bak = r.mget([relation + '_v' for relation in relations])
-    # relations_initialized_bak = [loads(v) for v in relations_initialized_bak]
+    entities_initialized_bak = r.mget([f'{entity}_v' for entity in entities])
+    entities_initialized_bak = np.array([loads(decompress(v)) for v in entities_initialized_bak])
+    relations_initialized_bak = r.mget([f'{relation}_v' for relation in relations])
+    relations_initialized_bak = np.array([loads(decompress(v)) for v in relations_initialized_bak])
 
     if cur_iter == niter:
 
@@ -436,10 +438,10 @@ while True:
     printt('[info] master > iteration %d' % cur_iter)
     iterStart = timeit.default_timer()
     
-    workers = [client.submit(work, "{}\n{}".format(anchors, chunks[i]), 'worker_%d' % i,
+    workers = [client.submit(work, init_port, "{}\n{}".format(anchors, chunks[i]), 'worker_%d' % i,
                              cur_iter, n_dim, lr, margin, train_iter, data_root_id,
                              args.redis_ip, args.root_dir, args.debugging, args.precision,
-                             niter, train_model, n_cluster, crp) for i in range(num_worker)]
+                             train_model, n_cluster, crp) for i in range(num_worker)]
 
     if cur_iter % 2 == 1:
         # entity partitioning: max-min cut 실행, anchor 등 재분배
@@ -521,9 +523,14 @@ while True:
 
         # 이터레이션 실패
         # redis 에 저장된 결과를 백업된 값으로 되돌림
+        init_port += niter * num_worker
         trial += 1
-        # r.mset({str(entities[i]) + '_bak' : dumps(entities_initialized_bak[i], protocol=HIGHEST_PROTOCOL) for i in range(len(entities_initialized_bak))})
-        # r.mset({str(relations[i]) + '_bak' : dumps(relations_initialized_bak[i], protocol=HIGHEST_PROTOCOL) for i in range(len(relations_initialized_bak))})
+        r.mset({
+            entity : compress(dumps(entities_initialized_bak[i], protocol=HIGHEST_PROTOCOL)) 
+            for vector, entity in zip(entities_initialized_bak, entities))})
+        r.mset({
+            relation : compress(dumps(relations_initialized_bak[i], protocol=HIGHEST_PROTOCOL)) 
+            for vector, relation in zip(relations_initialized_bak, relations))})
         printt('[error] master > iteration %d is failed, retry' % cur_iter)
         
 trainTime = timeit.default_timer() - trainStart
