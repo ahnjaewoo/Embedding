@@ -526,11 +526,11 @@ while True:
         init_port += niter * num_worker
         trial += 1
         r.mset({
-            entity : compress(dumps(entities_initialized_bak[i], protocol=HIGHEST_PROTOCOL)) 
-            for vector, entity in zip(entities_initialized_bak, entities))})
+            entity : compress(dumps(entities_initialized_bak[i], protocol=HIGHEST_PROTOCOL)) \
+            for vector, entity in zip(entities_initialized_bak, entities)})
         r.mset({
-            relation : compress(dumps(relations_initialized_bak[i], protocol=HIGHEST_PROTOCOL)) 
-            for vector, relation in zip(relations_initialized_bak, relations))})
+            relation : compress(dumps(relations_initialized_bak[i], protocol=HIGHEST_PROTOCOL)) \
+            for vector, relation in zip(relations_initialized_bak, relations)})
         printt('[error] master > iteration %d is failed, retry' % cur_iter)
         
 trainTime = timeit.default_timer() - trainStart
