@@ -19,8 +19,7 @@ import os
 
 # argument parse
 parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
-parser.add_argument('--num_worker', type=int,
-                    default=2, help='number of workers')
+parser.add_argument('--num_worker', type=int, default=2, help='number of workers')
 parser.add_argument('--data_root', type=str, default='/fb15k',
                     help='root directory of data(must include a name of dataset)')
 parser.add_argument('--train_model', type=str, default='TransE',
@@ -29,10 +28,8 @@ parser.add_argument('--niter', type=int, default=2,
                     help='total number of masters iterations')
 parser.add_argument('--train_iter', type=int, default=10,
                     help='total number of workers(actual) training iterations')
-parser.add_argument('--install', default='True',
-                    help='install libraries in each worker')
-parser.add_argument('--ndim', type=int, default=20,
-                    help='dimension of embeddings')
+parser.add_argument('--install', default='True', help='install libraries in each worker')
+parser.add_argument('--ndim', type=int, default=20, help='dimension of embeddings')
 parser.add_argument('--lr', type=float, default=0.1, help='learning rate')
 parser.add_argument('--margin', type=int, default=2, help='margin')
 parser.add_argument('--n_cluster', type=int, default=10, help='number of clusters in TransG model')
@@ -310,13 +307,12 @@ r.mset(entity2id)
 r.mset(relation2id)
 
 r.set('entities', compress(dumps(entities, protocol=HIGHEST_PROTOCOL), 9))
+entity_ids = np.array(list(entity2id.values()), dtype=np.int32)
+entities_initialized = normalize(np.random.randn(len(entities), n_dim). copy=False)
+
 r.set('relations', compress(dumps(relations, protocol=HIGHEST_PROTOCOL), 9))
-
-entities_initialized = normalize(np.random.randn(len(entities), n_dim))
+relation_ids = np.array(list(relation2id.values()), dtype=np.int32)
 relations_initialized = normalize(np.random.randn(len(relations), n_dim))
-
-entity_ids = np.array([int(i) for i in r.mget(entities)], dtype=np.int32)
-relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
 
 r.mset({f'{entity}_v': compress(dumps(vector,
         protocol=HIGHEST_PROTOCOL), 9) for vector, entity in zip(entities_initialized, entities)})
@@ -448,37 +444,8 @@ while True:
         
         maxminStart = timeit.default_timer()
 
-        # try 가 들어가야 함
         maxmin_sock.send(pack('!i', 0))
-        #maxmin_sock.send(pack('!i', num_worker))
         maxmin_sock.send(pack('!i', cur_iter))
-        #maxmin_sock.send(pack('!i', anchor_num))
-        #maxmin_sock.send(pack('!i', anchor_interval))
-
-        # maxmin 의 결과를 소켓으로 받음
-        #
-        # 원소를 하나씩 받음
-        #anchors = ""
-        #anchor_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        #
-        #for _ in range(anchor_len):
-        #    
-        #    anchors += str(unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
-        #
-        #anchors = anchors[:-1]
-        #
-        #chunks = list()
-        #for _ in range(num_worker):
-        #
-        #    chunk = ''
-        #    chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
-        #
-        #    for _ in range(chunk_len):
-        #   
-        #        chunk += str(unpack('!i', sockRecv(maxmin_sock, 4))[0]) + ' '
-        #   
-        #    chunk = chunk[:-1]
-        #    chunks.append(chunk)
 
         # 원소를 한 번에 받음
         chunks = list()
@@ -523,8 +490,14 @@ while True:
 
         # 이터레이션 실패
         # redis 에 저장된 결과를 백업된 값으로 되돌림
-        init_port += niter * num_worker
+        plus_port = niter * num_worker
+        if init_port < 65000 + plus_port:
+            init_port += plus_portr
+        else:
+            init_port = 50000
+
         trial += 1
+
         r.mset({
             entity : compress(dumps(entities_initialized_bak[i], protocol=HIGHEST_PROTOCOL)) \
             for vector, entity in zip(entities_initialized_bak, entities)})
@@ -535,20 +508,20 @@ while True:
         
 trainTime = timeit.default_timer() - trainStart
 
+###############################################################################
+###############################################################################
+
 # test part
 # printt('master > test start')
 
 # load entity vector
 entities_initialized = r.mget([f'{entity}_v' for entity in entities])
 entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
-relations_initialized = r.mget(['{relation]_v' for relation in relations])
+relations_initialized = r.mget([f'{relation}_v' for relation in relations])
 relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
 
 maxmin_sock.send(pack('!i', 1))
 maxmin_sock.close()
-
-###############################################################################
-###############################################################################
 
 worker_id = 'worker_0'
 log_dir = os.path.join(args.root_dir, 'logs/test_log.txt')
