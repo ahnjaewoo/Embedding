@@ -308,7 +308,7 @@ r.mset(relation2id)
 
 r.set('entities', compress(dumps(entities, protocol=HIGHEST_PROTOCOL), 9))
 entity_ids = np.array(list(entity2id.values()), dtype=np.int32)
-entities_initialized = normalize(np.random.randn(len(entities), n_dim). copy=False)
+entities_initialized = normalize(np.random.randn(len(entities), n_dim))
 
 r.set('relations', compress(dumps(relations, protocol=HIGHEST_PROTOCOL), 9))
 relation_ids = np.array(list(relation2id.values()), dtype=np.int32)
