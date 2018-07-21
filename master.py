@@ -154,7 +154,7 @@ def install_libs():
 
 def work(init_port, chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter,
          data_root_id, redis_ip, root_dir, debugging, precision, train_model, n_cluster,
-         crp):
+         crp, pypy_dir):
 
     socket_port = 50000 + (cur_iter + 1) * int(worker_id.split('_')[1])
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
@@ -167,7 +167,7 @@ def work(init_port, chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_it
                             log_dir, str(precision), str(train_model), str(n_cluster), str(crp)],
                             cwd=preprocess_folder_dir)
 
-    worker_proc = Popen(["python", worker_code_dir, chunk_data, worker_id, str(cur_iter), str(n_dim),
+    worker_proc = Popen([pypy_dir, worker_code_dir, chunk_data, worker_id, str(cur_iter), str(n_dim),
                          redis_ip, root_dir, str(socket_port), debugging, str(precision)])
 
     embedding_proc.wait()
@@ -492,7 +492,7 @@ while True:
         # redis 에 저장된 결과를 백업된 값으로 되돌림
         plus_port = niter * num_worker
         if init_port < 65000 + plus_port:
-            init_port += plus_portr
+            init_port += plus_port
         else:
             init_port = 50000
 
@@ -527,7 +527,7 @@ worker_id = 'worker_0'
 log_dir = os.path.join(args.root_dir, 'logs/test_log.txt')
 proc = Popen([test_code_dir, worker_id, '-1', str(n_dim), str(lr), str(margin),
               str(data_root_id), str(log_dir), str(precision), str(train_model),
-              str(n_cluster), str(crp)], cwd=preprocess_folder_dir)
+              str(n_cluster), str(crp), args.pypy_dir], cwd=preprocess_folder_dir)
 
 while True:
 
