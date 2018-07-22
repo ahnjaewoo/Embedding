@@ -82,7 +82,7 @@ int main(int argc, char* argv[]){
 
 	if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
 
-		cout << "[error] embedding > bind socket - worker_" << worker_num << endl;
+		cout << "[error] embedding > bind socket - worker_" << worker_num << ", " << socket_port << endl;
 		printf("[error] embedding > return -1\n");
 		fprintf(fs_log, "[error] embedding > bind socket - worker_%d\n", worker_num);
 		fprintf(fs_log, "[error] embedding > return -1\n");
