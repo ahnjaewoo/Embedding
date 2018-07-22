@@ -33,3 +33,5 @@ test_val = struct.unpack('eeee', test_val)
 print(test_val)
 
 embedding_sock.send(struct.pack('e', 0.333))
+
+embedding_sock.close()

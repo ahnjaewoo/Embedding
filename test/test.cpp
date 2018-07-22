@@ -12,7 +12,7 @@
 int main(int argc, char *argv[])
 {
         unsigned int len;
-        int nSockOpt;
+        int nSockOpt = 1;
 	int embedding_sock, worker_sock;
         struct sockaddr_in embedding_addr;
         struct sockaddr_in worker_addr;
@@ -29,6 +29,8 @@ int main(int argc, char *argv[])
                 printf("[error] embedding > create socket\n");
                 return -1;
         }
+
+        setsockopt(embedding_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt));
 
         if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0)
         {
@@ -48,13 +50,13 @@ int main(int argc, char *argv[])
                 return -1;
         }
         temp = 0.011555;
-        printf("size of %d\n", sizeof(temp));
+        printf("size of %ld\n", sizeof(temp));
 
         half * temp_array = (half *)calloc(5, sizeof(half));
         for (int j = 0; j < 4; j++) {
                 temp_array[j] = temp;
         }
-        printf("size of %d\n", sizeof(temp_array));
+        printf("size of %ld\n", sizeof(temp_array));
 
         send(worker_sock, temp_array, 4*sizeof(half), 0);
         
@@ -63,5 +65,7 @@ int main(int argc, char *argv[])
         float test_v = (float) temp;
 
         printf("%f\n", test_v);
+
+        close(worker_sock);
         
 }
