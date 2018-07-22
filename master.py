@@ -479,10 +479,10 @@ while True:
         trial += 1
 
         r.mset({
-            f'{entity}_v' : compress(dumps(entities_initialized_bak[i], protocol=HIGHEST_PROTOCOL))
+            f'{entity}_v' : compress(dumps(vector, protocol=HIGHEST_PROTOCOL))
             for vector, entity in zip(entities_initialized_bak, entities)})
         r.mset({
-            f'{relation}_v' : compress(dumps(relations_initialized_bak[i], protocol=HIGHEST_PROTOCOL))
+            f'{relation}_v' : compress(dumps(vector, protocol=HIGHEST_PROTOCOL))
             for vector, relation in zip(relations_initialized_bak, relations)})
         printt('[error] master > iteration %d is failed, retry' % cur_iter)
         
