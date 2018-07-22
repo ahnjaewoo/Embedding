@@ -51,6 +51,7 @@ parser.add_argument('--use_scheduler_config_file', default='False',
                     help='wheter to use scheduler config file or use scheduler ip directly')
 parser.add_argument('--debugging', type=str, default='yes', help='debugging mode or not')
 parser.add_argument('--precision', type=int, default=0, help='single:0, half: 1')
+parser.add_argument('--init_port', type=int, default=50000, help='initial port')
 args = parser.parse_args()
 
 precision = int(args.precision)
@@ -388,7 +389,7 @@ trial  = 0
 success = False
 
 trainStart = timeit.default_timer()
-init_port = 50000
+init_port = args.init_port
 
 while True:
 
