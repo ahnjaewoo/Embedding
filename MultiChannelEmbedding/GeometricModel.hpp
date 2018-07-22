@@ -1865,18 +1865,35 @@ public:
 
 	virtual void save(const string& filename, FILE * fs_log) override
 	{
-		ofstream fout(filename, ios::binary);
-		storage_vmat<double>::save(embedding_entity, fout);
-		storage_vmat<double>::save(weights_clusters, fout);
-		fout.close();
+		// 1. master_epoch이 짝수일 때, entity 관련 변수 저장
+		//	- embedding_entity 저장
+		//	- CRP_factor(사실상 계속 똑같은 값이라 한 번 저장하고 그 이후엔 저장 안 해도 됨)
+		// 2. master_epoch이 홀수일 때, relation 관련 변수 저장
+		//	- embedding_clusters 저장
+		//	- weights_clusters 저장
+		//	- size_clusters 저장
+		//	- CRP_factor(사실상 계속 똑같은 값이라 한 번 저장하고 그 이후엔 저장 안 해도 됨)
 	}
 
 	virtual void load(const string& filename, FILE * fs_log) override
 	{
-		ifstream fin(filename, ios::binary);
-		storage_vmat<double>::load(embedding_entity, fin);
-		storage_vmat<double>::load(weights_clusters, fin);
-		fin.close();
+		// 1. vector<vec> embedding_entity는 TransE랑 똑같이 로드함
+		//	- count_entity()만큼 for문 돌림
+		//		- 그 안에 dim만큼 double 변수 로드
+		// 2. vector<vector<vec>> embedding_clusters
+		// 	- count_relation()만큼 for문 돌림
+		//		- 그 안에 30번의 for문 돌림
+		//			- 그 안에 dim만큼 double 변수 로드
+		// 3. vector<vec> weights_clusters
+		//	- count_relation()만큼 for문 돌림
+		//		- vec의 디멘션은 dim 변수가 아니라 21로 고정되어 있음
+		//		- 21개의 double 중, n_cluster(int 값)만큼만 double 변수 로드
+		//		- 나머지 21 - #n_cluster는 0으로 채움(이미 초기화되어있으니 굳이 구현할 필요는 없음)
+		// 4. vector<int> size_clusters
+		//	- count_relation()만큼 for문 돌림
+		//		- int 변수 로드
+		// 5. double CRP_factor
+		//	- double 변수 로드
 	}
 
 	virtual void train_cluster_once(
