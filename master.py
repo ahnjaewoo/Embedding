@@ -157,19 +157,19 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
          redis_ip, root_dir, debugging, precision, train_model, n_cluster, crp):
 
     # socket_port = init_port + (cur_iter + 1) * int(worker_id.split('_')[1])
-    socket_port = select_random()
+    socket_port = str(select_random())
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
     log_dir = os.path.join(root_dir, 'logs/embedding_log_{}_iter_{}.txt'.format(worker_id, cur_iter))
 
     workStart = timeit.default_timer()
 
     embedding_proc = Popen([train_code_dir, worker_id, str(cur_iter), str(n_dim), str(lr),
-                            str(margin), str(train_iter), str(data_root_id), str(socket_port),
+                            str(margin), str(train_iter), str(data_root_id), socket_port,
                             log_dir, str(precision), str(train_model), str(n_cluster), str(crp)],
                             cwd=preprocess_folder_dir)
 
     worker_proc = Popen(["python", worker_code_dir, chunk_data, worker_id, str(cur_iter), str(n_dim),
-                         redis_ip, root_dir, str(socket_port), debugging, str(precision)])
+                         redis_ip, root_dir, socket_port, debugging, str(precision)])
 
     worker_proc.wait()
     worker_return = worker_proc.returncode
@@ -348,16 +348,17 @@ iterTimes = list()
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
 # master.py 는 client
+maxmin_port = select_random()
 proc = Popen([args.pypy_dir, 'maxmin.py', str(num_worker), '0', str(anchor_num),
               str(anchor_interval), args.root_dir, args.data_root, args.debugging,
-              str(select_random())])
+              str(maxmin_port)])
 
 while True:
 
     try:
 
         maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        maxmin_sock.connect(('127.0.0.1', select_random()))
+        maxmin_sock.connect(('127.0.0.1', maxmin_port))
         break
     
     except Exception as e:
@@ -505,9 +506,10 @@ maxmin_sock.close()
 
 worker_id = 'worker_0'
 log_dir = os.path.join(args.root_dir, 'logs/test_log.txt')
+test_port = select_random()
 proc = Popen([test_code_dir, worker_id, '-1', str(n_dim), str(lr), str(margin),
               str(data_root_id), str(log_dir), str(precision), str(train_model),
-              str(n_cluster), str(crp), str(select_random())],
+              str(n_cluster), str(crp), str(test_port)],
               cwd=preprocess_folder_dir)
 
 while True:
@@ -527,7 +529,7 @@ while True:
 
     try:
 
-        test_sock.connect(('127.0.0.1', select_random()))
+        test_sock.connect(('127.0.0.1', test_port))
         break
 
     except Exception as e:
