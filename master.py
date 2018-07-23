@@ -350,7 +350,7 @@ iterTimes = list()
 # master.py 는 client
 proc = Popen([args.pypy_dir, 'maxmin.py', str(num_worker), '0', str(anchor_num),
               str(anchor_interval), args.root_dir, args.data_root, args.debugging,
-              int(select_random())])
+              str(select_random())])
 
 while True:
 
