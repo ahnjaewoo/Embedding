@@ -1774,6 +1774,8 @@ public:
 				elem_vec.resize(21);
 				elem_vec.fill(0.0);
 			}
+			
+			this->CRP_factor = CRP_factor / data_model.data_train.size() * count_relation();
 
 			// load 함수 부분이 소켓과 연동되어야 함, load 함수 자체에서 처리
 			load("", fs_log);
