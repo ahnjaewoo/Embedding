@@ -385,17 +385,13 @@ public:
 
 	virtual void save(const string& filename, FILE * fs_log) override{
 
-		// int string_len;
-		int count = 0;
-		float value_to_send;
-
-		// master_epoch이 짝수일 때, entity embedding
 		if (master_epoch % 2 == 0){
-
-			int checksum = 0;
+			// master_epoch이 짝수일 때, entity embedding
 			int flag = 0;
+			int count = 0;
+			int checksum = 0;
 
-			while(checksum != 1){
+			while (checksum != 1){
 
 				count = 0;
 
@@ -414,20 +410,20 @@ public:
 				
 				// 원소 한 번에 보냄 (엔티티 한 번에)
 
-				if (precision == 0) {
+				if (precision == 0){
 
 					int buff_idx = 0;
 					int * idx_buff = (int *)calloc(count + 1, sizeof(int));
 					float * vector_buff = (float *)calloc(count * dim + 1, sizeof(float));
 
-					for (int i = 0; i < count_entity(); i++) {
+					for (int i = 0; i < count_entity(); i++){
 
 						if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
 						&& data_model.check_parts.find(i) != data_model.check_parts.end()){						
 
 							idx_buff[buff_idx] = htonl(i);
 
-							for (int j = 0; j < dim; j++) {
+							for (int j = 0; j < dim; j++){
 
 								vector_buff[dim * buff_idx + j] = embedding_entity[i](j);
 							}
@@ -448,14 +444,14 @@ public:
 					int * idx_buff = (int *)calloc(count + 1, sizeof(int));
 					half * vector_buff = (half *)calloc(count * dim + 1, sizeof(half));
 
-					for (int i = 0; i < count_entity(); i++) {
+					for (int i = 0; i < count_entity(); i++){
 
 						if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
 						&& data_model.check_parts.find(i) != data_model.check_parts.end()){	
 
 							idx_buff[buff_idx] = htonl(i);
 
-							for (int j = 0; j < dim; j++) {
+							for (int j = 0; j < dim; j++){
 
 								vector_buff[dim * buff_idx + j] = (half)embedding_entity[i](j);
 							}
@@ -486,26 +482,24 @@ public:
 
                 flag = ntohl(flag);
 
-                if(flag == 1234){
+                if (flag == 1234){
 
                 	checksum = 1;
                 }
-                else if(flag == 9876){
+                else if (flag == 9876){
 
-                	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
-                	fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+                	printf("[error] GeometricModel.hpp > retry phase 3 (transE:entity)\n");
+                	fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transE:entity)\n");
                 	checksum = 0;
                 }
                 else{
 
-                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
+                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (transE:entity)\n");
                 	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
-					//printf("[error] GeometricModel.hpp > recv value = %d\n", recv_val);
-                	printf("[error] GeometricModel.hpp > retry phase 3 (entity)\n");
-                    fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (entity)\n");
+                	printf("[error] GeometricModel.hpp > retry phase 3 (transE:entity)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (transE:entity)\n");
                     fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
-					//fprintf(fs_log, "[error] GeometricModel.hpp > recv value = %d\n", recv_val);
-                    fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (entity)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transE:entity)\n");
                     checksum = 0;
                 }
 			}
@@ -515,10 +509,11 @@ public:
 		}
 		else{
 			// master_epoch 이 홀수일 때, relation embedding
-			int checksum = 0;
 			int flag = 0;
+			int count = 0;
+			int checksum = 0;
 
-			while(checksum != 1){
+			while (checksum != 1){
 
 				for (int i = 0; i < count_relation(); i++){
 
@@ -540,12 +535,12 @@ public:
 					int * idx_buff = (int *)calloc(count + 1, sizeof(int));
 					float * vector_buff = (float *)calloc(count * dim + 1, sizeof(float));
 
-					for (int i = 0; i < count_relation(); i++) {
+					for (int i = 0; i < count_relation(); i++){
 
 						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
 							idx_buff[buff_idx] = htonl(i);
-							for (int j = 0; j < dim; j++) {
+							for (int j = 0; j < dim; j++){
 
 								vector_buff[dim * buff_idx + j] = embedding_relation[i](j);
 							}
@@ -566,13 +561,13 @@ public:
 					int * idx_buff = (int *)calloc(count + 1, sizeof(int));
 					half * vector_buff = (half *)calloc(count * dim + 1, sizeof(half));
 
-					for (int i = 0; i < count_relation(); i++) {
+					for (int i = 0; i < count_relation(); i++){
 
 						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
 							idx_buff[buff_idx] = htonl(i);
 
-							for (int j = 0; j < dim; j++) {
+							for (int j = 0; j < dim; j++){
 
 								vector_buff[dim * buff_idx + j] = (half)embedding_relation[i](j);
 							}
@@ -603,28 +598,27 @@ public:
 
                 flag = ntohl(flag);
 
-                if(flag == 1234){
+                if (flag == 1234){
 
                 	checksum = 1;
                 }
-                else if(flag == 9876){
+                else if (flag == 9876){
 
-                	printf("[error] GeometricModel.hpp > retry phase 3 (relation)\n");
-                	fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (relation)\n");
+                	printf("[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n");
+                	fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n");
                 	checksum = 0;
                 }
                 else{
 
-                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (relation)\n");
+                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (transE:relation)\n");
                 	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
-                	printf("[error] GeometricModel.hpp > retry phase 3 (relation)\n");
-                    fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (relation)\n");
+                	printf("[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (transE:relation)\n");
                     fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
-                    fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (relation)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n");
                     checksum = 0;
                 }
 			}
-
 			// printf("[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
 			// fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
 		}
@@ -632,22 +626,18 @@ public:
 
 	virtual void load(const string& filename, FILE * fs_log) override
 	{
-
 		// filename 파라미터가 전혀 사용되지 않음을 참고
-		// string key;
-		int key_length;
-		float temp_vector;
-		vector<char> temp_buff(256);
-  		int success = 0;
 		int flag = 0;
+  		int success = 0;
 
-		while(!success){
+		while (!success){
 
 			try{
 				
 				for (int i = 0; i < count_entity(); i++) {
 					
 					int entity_id;
+
 	                if (recv(fd, &entity_id, sizeof(int), MSG_WAITALL) < 0){
 
 	                	printf("[error] GeometricModel.hpp > recv entity_id\n");
@@ -659,20 +649,21 @@ public:
 
 					entity_id = ntohl(entity_id);
 
-					if(precision == 0) {
+					if (precision == 0){
+
 						float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
 						if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
 
-							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)\n");
 							printf("[error] GeometricModel.hpp > return -1\n");
-							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)\n");
 							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
 							close(fd);
 							fclose(fs_log);
 							std::exit(-1);
 						}
 
-						for (int j = 0; j < dim; j++) {
+						for (int j = 0; j < dim; j++){
 
 							embedding_entity[entity_id](j) = vector_buff[j];						
 						}
@@ -680,19 +671,20 @@ public:
 						free(vector_buff);
 					}
 					else {
+
 						half * vector_buff = (half *)calloc(dim + 1, sizeof(half));
 						if (recv(fd, vector_buff, dim * sizeof(half), MSG_WAITALL) < 0){
 
-							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)\n");
 							printf("[error] GeometricModel.hpp > return -1\n");
-							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (entity)\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)\n");
 							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
 							close(fd);
 							fclose(fs_log);
 							std::exit(-1);
 						}
 
-						for (int j = 0; j < dim; j++) {
+						for (int j = 0; j < dim; j++){
 
 							embedding_entity[entity_id](j) = (float) vector_buff[j];						
 						}
@@ -706,7 +698,7 @@ public:
 				send(fd, &flag, sizeof(flag), 0);
 				success = 1;
 			}
-        	catch(std::exception& e){
+        	catch (std::exception& e){
 
                 printf("[error] GeometricModel.hpp > exception occured\n");
                 printf("%s\n", e.what());
@@ -724,7 +716,7 @@ public:
 		success = 0;
 		flag = 0;
 
-		while(!success){
+		while (!success){
 
 			try{
 
@@ -733,8 +725,8 @@ public:
 					int relation_id;
 	                if (recv(fd, &relation_id, sizeof(int), MSG_WAITALL) < 0){
 
-	                	printf("[error] recv relation_id in GeometricModel.hpp\n");
-	                	fprintf(fs_log, "[error] recv relation_id in GeometricModel.hpp\n");
+	                	printf("[error] GeometricModel.hpp > recv relation_id\n");
+	                	fprintf(fs_log, "[error] GeometricModel.hpp > recv relation_id\n");
 	                    close(fd);
 	                    fclose(fs_log);
 	                    break;
@@ -742,40 +734,44 @@ public:
 
 					relation_id = ntohl(relation_id);
 					
-					if(precision == 0) {
+					if (precision == 0){
+						
 						float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
+						
 						if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
 
-							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)\n");
 							printf("[error] GeometricModel.hpp > return -1\n");
-							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)\n");
 							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
 							close(fd);
 							fclose(fs_log);
 							std::exit(-1);
 						}
 
-						for (int j = 0; j < dim; j++) {
+						for (int j = 0; j < dim; j++){
 
 							embedding_relation[relation_id](j) = vector_buff[j];
 						}
 
 						free(vector_buff);
 					}
-					else {
+					else{
+
 						half * vector_buff = (half *)calloc(dim + 1, sizeof(half));
+						
 						if (recv(fd, vector_buff, dim * sizeof(half), MSG_WAITALL) < 0){
 
-							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)\n");
 							printf("[error] GeometricModel.hpp > return -1\n");
-							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (relation)\n");
+							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)\n");
 							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
 							close(fd);
 							fclose(fs_log);
 							std::exit(-1);
 						}
 
-						for (int j = 0; j < dim; j++) {
+						for (int j = 0; j < dim; j++){
 
 							embedding_relation[relation_id](j) = (float) vector_buff[j];
 						}
@@ -789,7 +785,7 @@ public:
                 send(fd, &flag, sizeof(flag), 0);
                 success = 1;
 			}
-			catch(std::exception& e){
+			catch (std::exception& e){
 
 				printf("[error] GeometricModel.hpp > exception occured\n");
 				printf("%s\n", e.what());
@@ -1873,6 +1869,382 @@ public:
 		//	- weights_clusters 저장
 		//	- size_clusters 저장
 		//	- CRP_factor(사실상 계속 똑같은 값이라 한 번 저장하고 그 이후엔 저장 안 해도 됨)
+
+		if (matser_epoch % 2 == 0){
+
+			int flag = 0;
+			int count = 0;
+			int checksum = 0;
+
+			// master_epoch 가 짝수일 때, entity 관련 변수 전송
+			while (checksum != 1){
+
+				count = 0;
+
+				for (int i = 0; i < count_entity(); i++){
+
+					if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+					&& data_model.check_parts.find(i) != data_model.check_parts.end()){
+
+						count++;
+					}
+				}
+
+				count = htonl(count);
+				send(fd, &count, sizeof(count), 0);
+				count = ntohl(count);
+				
+				// 원소 한 번에 보냄 (엔티티 한 번에)
+
+				if (precision == 0){
+
+					int buff_idx = 0;
+					int * idx_buff = (int *)calloc(count + 1, sizeof(int));
+					float * vector_buff = (float *)calloc(count * dim + 1, sizeof(float));
+
+					// embedding_entity 전송
+
+					for (int i = 0; i < count_entity(); i++){
+
+						if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+						&& data_model.check_parts.find(i) != data_model.check_parts.end()){						
+
+							idx_buff[buff_idx] = htonl(i);
+
+							for (int j = 0; j < dim; j++){
+
+								vector_buff[dim * buff_idx + j] = embedding_entity[i](j);
+							}
+
+							buff_idx++;
+						}
+					}
+
+					send(fd, idx_buff, count * sizeof(int), 0);
+					send(fd, vector_buff, count * dim * sizeof(float), 0);
+
+					free(idx_buff);
+					free(vector_buff);
+
+					//.....................
+
+					// (필요시) CRP_factor 전송
+
+
+
+
+					//.....................
+				}
+				else{
+
+					int buff_idx = 0;
+					int * idx_buff = (int *)calloc(count + 1, sizeof(int));
+					half * vector_buff = (half *)calloc(count * dim + 1, sizeof(half));
+
+					// embedding_entity 전송
+
+					for (int i = 0; i < count_entity(); i++){
+
+						if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+						&& data_model.check_parts.find(i) != data_model.check_parts.end()){	
+
+							idx_buff[buff_idx] = htonl(i);
+
+							for (int j = 0; j < dim; j++){
+
+								vector_buff[dim * buff_idx + j] = (half)embedding_entity[i](j);
+							}
+
+							buff_idx++;
+						}
+					}
+
+					send(fd, idx_buff, count * sizeof(int), 0);
+					send(fd, vector_buff, count * dim * sizeof(half), 0);
+
+					free(idx_buff);
+					free(vector_buff);
+
+					//.....................
+
+					// (필요시) CRP_factor 전송
+
+
+
+
+					//.....................
+				}
+
+				//.....................
+
+	            if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
+
+	            	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
+	                printf("[error] GeometricModel.hpp > return -1\n");
+	                fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
+	                fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+	                close(fd);
+	                fclose(fs_log);
+	                std::exit(-1);
+	            }
+
+	            flag = ntohl(flag);
+
+	            if (flag == 1234){
+
+	            	checksum = 1;
+	            }
+	            else if (flag == 9876){
+
+	            	printf("[error] GeometricModel.hpp > retry phase 3 (transG:entity)\n");
+	            	fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transG:entity)\n");
+	            	checksum = 0;
+	            }
+	            else{
+
+	            	printf("[error] GeometricModel.hpp > unknown error of phase 3 (transG:entity)\n");
+	            	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
+	            	printf("[error] GeometricModel.hpp > retry phase 3 (transG:entity)\n");
+	                fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (transG:entity)\n");
+	                fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
+	                fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transG:entity)\n");
+	                checksum = 0;
+	            }
+			}
+		}
+		else{
+
+			// master_epoch 가 홀수일 때, relation 관련 변수 전송
+			int flag = 0;
+			int count = 0;
+			int checksum = 0;
+
+			while (checksum != 1){
+				//	- embedding_clusters 전송
+				//	- weights_clusters 전송
+				//	- size_clusters 전송
+				//	- CRP_factor 전송
+				for (int i = 0; i < count_relation(); i++){
+
+					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
+
+						count++;
+					}
+				}
+
+				count = htonl(count);
+				send(fd, &count, sizeof(count), 0);
+				count = ntohl(count);
+
+				// 원소 한 번에 보냄 (릴레이션 한 번에)
+
+				if (precision == 0){
+
+					int buff_idx = 0;
+					int * idx_buff = NULL;
+					float * vector_buff = NULL;
+
+					// embedding_clusters 전송 (수정 필요)
+					
+					idx_buff = (int *)calloc(count + 1, sizeof(int));
+					vector_buff = (float *)calloc(count * dim + 1, sizeof(float));
+
+					for (int i = 0; i < count_relation(); i++){
+
+						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
+
+							idx_buff[buff_idx] = htonl(i);
+							for (int j = 0; j < dim; j++){
+
+								vector_buff[dim * buff_idx + j] = embedding_relation[i](j);
+							}
+
+							buff_idx++;
+						}
+					}
+
+					send(fd, idx_buff, count * sizeof(int), 0);
+					send(fd, vector_buff, count * dim * sizeof(float), 0);
+
+					free(idx_buff);
+					free(vector_buff);
+
+					//.....................
+
+					// (필요시) weights_clusters 전송
+
+					//idx_buff = (int *)calloc(count + 1, sizeof(int));
+					//vector_buff = (float *)calloc(count * dim + 1, sizeof(float));
+
+					for (int i = 0; i < count_relation(); i++){
+
+						// 여기서 인덱스 i 에 대한 필터링이 들어가는지 확인
+
+						for (int j = 0; j < 21; j++){
+
+							for (int k = 0; k < n_cluster, k++){
+
+
+							}
+						}
+					}
+
+					//send(fd, idx_buff, count * sizeof(int), 0);
+					//send(fd, vector_buff, count * dim * sizeof(float), 0);
+
+					free(idx_buff);
+					free(vector_buff);
+
+					//.....................
+
+					// (필요시) size_clusters 전송
+
+					//idx_buff = (int *)calloc(count + 1, sizeof(int));
+					//vector_buff = (float *)calloc(count * dim + 1, sizeof(float));
+
+					for (int i = 0; i < count_relation(); i++){
+
+						// 여기서 인덱스 i 에 대한 필터링이 들어가는지 확인
+					}
+
+					//send(fd, idx_buff, count * sizeof(int), 0);
+					//send(fd, vector_buff, count * dim * sizeof(float), 0);
+
+					free(idx_buff);
+					free(vector_buff);
+
+					//.....................
+
+					// (필요시) CRP_factor 전송
+
+
+
+
+					//.....................
+				}
+				else{
+
+					int buff_idx = 0;
+					int * idx_buff = NULL;
+					half * vector_buff = NULL;
+
+					// embedding_clusters 전송 (수정 필요)
+
+					idx_buff = (int *)calloc(count + 1, sizeof(int));
+					vector_buff = (half *)calloc(count * dim + 1, sizeof(half));
+
+					for (int i = 0; i < count_relation(); i++){
+
+						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
+
+							idx_buff[buff_idx] = htonl(i);
+
+							for (int j = 0; j < dim; j++){
+
+								vector_buff[dim * buff_idx + j] = (half)embedding_relation[i](j);
+							}
+
+							buff_idx++;
+						}
+					}
+
+					send(fd, idx_buff, count * sizeof(int), 0);
+					send(fd, vector_buff, count * dim * sizeof(half), 0);
+
+					free(idx_buff);
+					free(vector_buff);
+
+					//.....................
+
+					// (필요시) weights_clusters 전송
+
+					//idx_buff = (int *)calloc(count + 1, sizeof(int));
+					//vector_buff = (half *)calloc(count * dim + 1, sizeof(half));
+
+					for (int i = 0; i < count_relation(); i++){
+
+						// 여기서 인덱스 i 에 대한 필터링이 들어가는지 확인
+
+						for (int j = 0; j < 21; j++){
+
+							for (int k = 0; k < n_cluster, k++){
+
+
+							}
+						}
+					}
+
+					//send(fd, idx_buff, count * sizeof(int), 0);
+					//send(fd, vector_buff, count * dim * sizeof(half), 0);
+
+					free(idx_buff);
+					free(vector_buff);
+
+					//.....................
+
+					// (필요시) size_clusters 전송
+
+					//idx_buff = (int *)calloc(count + 1, sizeof(int));
+					//vector_buff = (half *)calloc(count * dim + 1, sizeof(half));
+
+					for (int i = 0; i < count_relation(); i++){
+
+						// 여기서 인덱스 i 에 대한 필터링이 들어가는지 확인
+					}
+
+					//send(fd, idx_buff, count * sizeof(int), 0);
+					//send(fd, vector_buff, count * dim * sizeof(half), 0);
+
+					free(idx_buff);
+					free(vector_buff);
+
+					//.....................
+
+					// (필요시) CRP_factor 전송
+
+
+
+
+					//.....................
+				}
+
+				//.....................
+
+                if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
+
+                	printf("[error] GeometricModel.hpp > recv flag (phase 3)\n");
+                    printf("[error] GeometricModel.hpp > return -1\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+                    close(fd);
+                    fclose(fs_log);
+                    std::exit(-1);
+                }
+
+                flag = ntohl(flag);
+
+                if (flag == 1234){
+
+                	checksum = 1;
+                }
+                else if (flag == 9876){
+
+                	printf("[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n");
+                	fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n");
+                	checksum = 0;
+                }
+                else{
+
+                	printf("[error] GeometricModel.hpp > unknown error of phase 3 (transE:relation)\n");
+                	printf("[error] GeometricModel.hpp > flag = %d\n", flag);
+                	printf("[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (transE:relation)\n");
+                    fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
+                    fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n");
+                    checksum = 0;
+                }
+			}
+		}
 	}
 
 	virtual void load(const string& filename, FILE * fs_log) override
