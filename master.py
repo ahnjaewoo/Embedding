@@ -213,7 +213,7 @@ if args.temp_dir == '':
 
     temp_folder_dir = "%s/tmp" % args.root_dir
 
-data_files = ['%s/train.txt' % args.data_root, '%s/dev.txt' % args.data_root, '%s/test.txt' % args.data_root]
+data_files = ('%s/train.txt' % args.data_root, '%s/dev.txt' % args.data_root, '%s/test.txt' % args.data_root)
 num_worker = args.num_worker
 train_model = model2id(args.train_model)
 niter = args.niter

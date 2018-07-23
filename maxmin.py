@@ -81,7 +81,7 @@ maxmin_sock.listen(1)
 master_sock, master_addr = maxmin_sock.accept()
 
 # printt('[info] maxmin > socket connected (master <-> maxmin)')
-data_files = ['%s/train.txt' % data_root, '%s/dev.txt' % data_root, '%s/test.txt' % data_root]
+data_files = ('%s/train.txt' % data_root, '%s/dev.txt' % data_root, '%s/test.txt' % data_root)
 anchor_dict = dict()
 old_anchor = set()
 
