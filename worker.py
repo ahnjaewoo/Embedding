@@ -321,6 +321,24 @@ try:
                 entity_vectors = {f"{entities[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
                     for vector, id_ in zip(entity_vector_list, entity_id_list)}
 
+
+
+
+                # transG 에 추가되는 분기
+                #if mode == 'transG':
+
+
+
+
+
+                #    pass
+
+
+
+
+
+
+
             except Exception as e:
 
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -383,6 +401,14 @@ try:
 
                 embeddingTime = default_timer() - timeNow
 
+
+
+
+
+                # transE 에서는 embedding_relation 을 전송
+                #if mode == 'transE':
+
+
                 # 처리 결과를 받아옴 - GeometricModel save
                 # 원소를 한 번에 받음 (릴레이션 한 번에)
                 count_relation = unpack('!i', sockRecv(embedding_sock, 4))[0]
@@ -393,6 +419,25 @@ try:
                 relation_vector_list = np.array(relation_vector_list, dtype=np_dtype).reshape(count_relation, embedding_dim)
                 relation_vectors = {f"{relations[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
                     for vector, id_ in zip(relation_vector_list, relation_id_list)}
+
+
+
+                # transG 에 추가되는 분기
+                #if mode == 'transG':
+
+
+
+
+
+                #    pass
+
+
+
+
+
+
+
+
 
             except Exception as e:
 
