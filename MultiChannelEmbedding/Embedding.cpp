@@ -75,13 +75,14 @@ int main(int argc, char* argv[]){
 
 	// to solve bind error
 	nSockOpt = 1;
-	setsockopt(embedding_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt));
-	// struct linger solinger = {1, 3};
-	// setsockopt(embedding_sock, SOL_SOCKET, SO_LINGER, &solinger, sizeof(struct linger));
+	if (setsockopt(embedding_sock, SOL_SOCKET, SO_REUSEPORT, &nSockOpt, sizeof(nSockOpt)) < 0) {
+		cout << "[error] embedding > bind socket - worker_" << worker_num << endl;
+		return -1;
+	}
 
 	if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
 
-		cout << "[error] embedding > bind socket - worker_" << worker_num << endl;
+		cout << "[error] embedding > bind socket - worker_" << worker_num << ", " << socket_port << endl;
 		printf("[error] embedding > return -1\n");
 		fprintf(fs_log, "[error] embedding > bind socket - worker_%d\n", worker_num);
 		fprintf(fs_log, "[error] embedding > return -1\n");
