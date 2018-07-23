@@ -175,9 +175,11 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     worker_return = worker_proc.returncode
 
     if worker_return > 0:
+        # worker.py가 비정상 종료 (embedding이 중간에 비정상이면 worker.py도 비정상)
 
-        # embedding.cpp 또는 worker.py 가 비정상 종료
-        # 이번 이터레이션을 취소, 한 번 더 수행
+        if embedding_proc.poll() is None:
+            embedding_proc.kill()
+
         return (False, None)
 
     else:
@@ -186,6 +188,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
         embedding_return = embedding_proc.returncode
 
         if embedding_return < 0:
+            # worker.py는 정상 종료 되었지만 embedding이 비정상 정료
             return (False, None)
 
         else:
