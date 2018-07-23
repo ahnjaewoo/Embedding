@@ -419,7 +419,6 @@ while True:
         sys.exit(1)
 
     # 작업 배정
-    printt('[info] master > iteration %d' % cur_iter)
     iterStart = timeit.default_timer()
     
     workers = [client.submit(work, f"{anchors}\n{chunks[i]}", f'worker_{i}', cur_iter,
@@ -462,7 +461,7 @@ while True:
     if all([e[0] for e in result_iter]):
 
         # 이터레이션 성공
-        printt('master > iteration time : %f' % (timeit.default_timer() - timeNow))
+        printt('master > iter %d - time : %f' % (cur_iter, timeit.default_timer() - timeNow))
         success = True
         trial = 0
         cur_iter += 1
