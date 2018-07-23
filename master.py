@@ -7,6 +7,7 @@ from collections import defaultdict
 from zlib import compress, decompress
 from pickle import dumps, loads, HIGHEST_PROTOCOL
 from struct import pack, unpack
+from port_for import select_random
 import logging
 import numpy as np
 import redis
@@ -157,7 +158,8 @@ def work(init_port, chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_it
          data_root_id, redis_ip, root_dir, debugging, precision, train_model, n_cluster,
          crp):
 
-    socket_port = init_port + (cur_iter + 1) * int(worker_id.split('_')[1])
+    # socket_port = init_port + (cur_iter + 1) * int(worker_id.split('_')[1])
+    socket_port = select_random()
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
     log_dir = os.path.join(root_dir, 'logs/embedding_log_{}_iter_{}.txt'.format(worker_id, cur_iter))
 
