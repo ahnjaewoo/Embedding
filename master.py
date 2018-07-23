@@ -159,7 +159,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     # socket_port = init_port + (cur_iter + 1) * int(worker_id.split('_')[1])
     socket_port = str(select_random())
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
-    log_dir = os.path.join(root_dir, 'logs/embedding_log_{}_iter_{}.txt'.format(worker_id, cur_iter))
+    log_dir = os.path.join(root_dir, f'logs/embedding_log_{worker_id}_iter_{cur_iter}.txt')
 
     workStart = timeit.default_timer()
 
@@ -281,8 +281,7 @@ allocated_relation_worker = [[[], 0] for i in range(num_worker)]
 
 for i, (relation, num) in enumerate(relation_each_num):
 
-    allocated_relation_worker = sorted(
-        allocated_relation_worker, key=lambda x: x[1])
+    allocated_relation_worker = sorted(allocated_relation_worker, key=lambda x: x[1])
     allocated_relation_worker[0][0].append(relation)
     allocated_relation_worker[0][1] += num
 
@@ -301,7 +300,7 @@ for c, (relation_list, num) in enumerate(allocated_relation_worker):
     sub_graphs['sub_g_worker_%d' % c] = compress(dumps(
         g, protocol=HIGHEST_PROTOCOL), 9)
 
-r = redis.StrictRedis(host = args.redis_ip, port = 6379, db = 0)
+r = redis.StrictRedis(host=args.redis_ip, port=6379, db=0)
 r.mset(sub_graphs)
 
 del relation_each_num
@@ -509,8 +508,7 @@ log_dir = os.path.join(args.root_dir, 'logs/test_log.txt')
 test_port = select_random()
 proc = Popen([test_code_dir, worker_id, '-1', str(n_dim), str(lr), str(margin),
               str(data_root_id), str(log_dir), str(precision), str(train_model),
-              str(n_cluster), str(crp), str(test_port)],
-              cwd=preprocess_folder_dir)
+              str(n_cluster), str(crp), str(test_port)], cwd=preprocess_folder_dir)
 
 while True:
 
@@ -521,7 +519,7 @@ while True:
 
     except Exception as e:
 
-        sleep(1)
+        sleep(0.5)
         printt('[error] master > exception occured in master <-> test')
         printt('[error] master > ' + str(e))
 
@@ -534,7 +532,7 @@ while True:
 
     except Exception as e:
 
-        sleep(1)
+        sleep(0.5)
         printt('[error] master > exception occured in master <-> test')
         printt('[error] master > ' + str(e))
 
@@ -580,7 +578,7 @@ while success != 1:
     for id_, vector in zip(relation_ids, relations_initialized):
         
             test_sock.send(pack('!i', id_))
-            test_sock.send(pack(precision_string * len(vector), * vector))
+            test_sock.send(pack(precision_string * len(vector), *vector))
 
     checksum = unpack('!i', sockRecv(test_sock, 4))[0]
 
