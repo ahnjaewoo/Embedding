@@ -17,6 +17,7 @@ anchor_interval = int(sys.argv[4])
 root_dir = sys.argv[5]
 data_root = sys.argv[6]
 debugging = sys.argv[7]
+maxmin_port = int(sys.argv[8])
 
 if debugging == 'yes':
     logging.basicConfig(filename='%s/master.log' % root_dir, filemode='w', level=logging.DEBUG)
@@ -73,7 +74,6 @@ def sockRecv(sock, length):
 # master.py 는 client
 # master 와 maxmin 은 같은 ip 상에서 작동, 포트를 임의로 7847 로 지정
 maxmin_addr = '127.0.0.1'
-maxmin_port = 7847
 maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 maxmin_sock.bind((maxmin_addr, maxmin_port))
 maxmin_sock.listen(1)

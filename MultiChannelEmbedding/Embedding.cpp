@@ -75,7 +75,7 @@ int main(int argc, char* argv[]){
 
 	// to solve bind error
 	nSockOpt = 1;
-	if (setsockopt(embedding_sock, SOL_SOCKET, SO_REUSEPORT, &nSockOpt, sizeof(nSockOpt)) < 0) {
+	if (setsockopt(embedding_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt)) < 0) {
 		cout << "[error] embedding > bind socket - worker_" << worker_num << endl;
 		return -1;
 	}

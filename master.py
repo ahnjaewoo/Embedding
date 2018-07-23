@@ -52,7 +52,6 @@ parser.add_argument('--use_scheduler_config_file', default='False',
                     help='wheter to use scheduler config file or use scheduler ip directly')
 parser.add_argument('--debugging', type=str, default='yes', help='debugging mode or not')
 parser.add_argument('--precision', type=int, default=0, help='single:0, half: 1')
-parser.add_argument('--init_port', type=int, default=50000, help='initial port')
 args = parser.parse_args()
 
 precision = int(args.precision)
@@ -154,9 +153,8 @@ def install_libs():
         os.system("pip install --upgrade hiredis")
 
 
-def work(init_port, chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter,
-         data_root_id, redis_ip, root_dir, debugging, precision, train_model, n_cluster,
-         crp):
+def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id,
+         redis_ip, root_dir, debugging, precision, train_model, n_cluster, crp):
 
     # socket_port = init_port + (cur_iter + 1) * int(worker_id.split('_')[1])
     socket_port = select_random()
@@ -173,13 +171,10 @@ def work(init_port, chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_it
     worker_proc = Popen(["python", worker_code_dir, chunk_data, worker_id, str(cur_iter), str(n_dim),
                          redis_ip, root_dir, str(socket_port), debugging, str(precision)])
 
-    embedding_proc.wait()
     worker_proc.wait()
-
-    embedding_return = embedding_proc.returncode
     worker_return = worker_proc.returncode
 
-    if embedding_return < 0 or worker_return > 0:
+    if worker_return > 0:
 
         # embedding.cpp 또는 worker.py 가 비정상 종료
         # 이번 이터레이션을 취소, 한 번 더 수행
@@ -187,10 +182,18 @@ def work(init_port, chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_it
 
     else:
 
-        # 모두 성공적으로 수행
-        # worker_return 은 string 형태? byte 형태? 의 pickle 을 가지고 있음
-        timeNow = timeit.default_timer()
-        return (True, timeNow - workStart)
+        embedding_proc.wait()
+        embedding_return = embedding_proc.returncode
+
+        if embedding_return < 0:
+            return (False, None)
+
+        else:
+
+            # 모두 성공적으로 수행
+            # worker_return 은 string 형태? byte 형태? 의 pickle 을 가지고 있음
+            timeNow = timeit.default_timer()
+            return (True, timeNow - workStart)
 
 
 if args.data_root[0] != '/':
@@ -346,14 +349,15 @@ iterTimes = list()
 # maxmin.cpp 가 server
 # master.py 는 client
 proc = Popen([args.pypy_dir, 'maxmin.py', str(num_worker), '0', str(anchor_num),
-              str(anchor_interval), args.root_dir, args.data_root, args.debugging])
+              str(anchor_interval), args.root_dir, args.data_root, args.debugging,
+              int(select_random())])
 
 while True:
 
     try:
 
         maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        maxmin_sock.connect(('127.0.0.1', 7847))
+        maxmin_sock.connect(('127.0.0.1', select_random()))
         break
     
     except Exception as e:
@@ -391,7 +395,6 @@ trial  = 0
 success = False
 
 trainStart = timeit.default_timer()
-init_port = args.init_port
 
 while True:
 
@@ -416,8 +419,8 @@ while True:
     printt('[info] master > iteration %d' % cur_iter)
     iterStart = timeit.default_timer()
     
-    workers = [client.submit(work, init_port, f"{anchors}\n{chunks[i]}", f'worker_{i}',
-                             cur_iter, n_dim, lr, margin, train_iter, data_root_id,
+    workers = [client.submit(work, f"{anchors}\n{chunks[i]}", f'worker_{i}', cur_iter,
+                             n_dim, lr, margin, train_iter, data_root_id,
                              args.redis_ip, args.root_dir, args.debugging, args.precision,
                              train_model, n_cluster, crp) for i in range(num_worker)]
 
@@ -472,12 +475,6 @@ while True:
 
         # 이터레이션 실패
         # redis 에 저장된 결과를 백업된 값으로 되돌림
-        plus_port = niter * num_worker
-        if init_port < 65000 + plus_port:
-            init_port += plus_port
-        else:
-            init_port = 50000
-
         trial += 1
 
         r.mset({
@@ -487,7 +484,8 @@ while True:
             f'{relation}_v' : compress(dumps(vector, protocol=HIGHEST_PROTOCOL))
             for vector, relation in zip(relations_initialized_bak, relations)})
         printt('[error] master > iteration %d is failed, retry' % cur_iter)
-        
+
+
 trainTime = timeit.default_timer() - trainStart
 
 ###############################################################################
@@ -509,7 +507,8 @@ worker_id = 'worker_0'
 log_dir = os.path.join(args.root_dir, 'logs/test_log.txt')
 proc = Popen([test_code_dir, worker_id, '-1', str(n_dim), str(lr), str(margin),
               str(data_root_id), str(log_dir), str(precision), str(train_model),
-              str(n_cluster), str(crp)], cwd=preprocess_folder_dir)
+              str(n_cluster), str(crp), str(select_random())],
+              cwd=preprocess_folder_dir)
 
 while True:
 
@@ -528,7 +527,7 @@ while True:
 
     try:
 
-        test_sock.connect(('127.0.0.1', 7874))
+        test_sock.connect(('127.0.0.1', select_random()))
         break
 
     except Exception as e:
