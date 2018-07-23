@@ -194,7 +194,7 @@ int main(int argc, char* argv[]){
 
 void getParams(int argc, char* argv[], int& test_port, int& dim, double& alpha, double& training_threshold, int& worker_num, int& master_epoch, int& data_root_id, string log_dir, int& precision, int& train_model, int& n_cluster, double& crp){
 
-	if (argc == 12){
+	if (argc == 13){
 		string worker = argv[1];
 		worker_num = worker.back() - '0';
 		master_epoch = atoi(argv[2]);
