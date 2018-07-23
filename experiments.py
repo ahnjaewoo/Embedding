@@ -16,7 +16,6 @@ master_worker_epochs = [(100, 5), (50, 10), (25, 20)]
 lr = 0.001
 ndims = [50, 100]
 precision = 1
-init_port = 50000
 
 key_list = ['dataset', 'num_worker', 'master_epoch', 'worker_iter', 'ndim', 'lr',
             'Raw.BestMEANS', 'Raw.BestMRR', 'Raw.BestHITS', 'Filter.BestMEANS',
@@ -38,8 +37,7 @@ with open("result.csv", 'w') as result_file:
                                      '--train_iter', str(worker_iter),
                                      '--niter', str(master_epoch), '--ndim', str(ndim),
                                      '--lr', str(lr), '--debugging', 'no',
-                                     '--precision', str(precision),
-                                     '--init_port', str(init_port)])
+                                     '--precision', str(precision))])
                     process.communicate()
 
                     print(f"dataset: {dataset}")
@@ -53,12 +51,6 @@ with open("result.csv", 'w') as result_file:
                     result_file.write(f"{master_epoch}, {worker_iter}, ")
                     result_file.write(f"{ndim}, ")
                     result_file.write(f"{lr}, ")
-
-                    plus_port = num_worker * master_epoch
-                    if init_port + 2 * plus_port > 65000:
-                        init_port = 50000
-                    else:
-                        init_port += plus_port
                     
                     with open("logs/test_log.txt", 'r') as f:
                         for line in f:
