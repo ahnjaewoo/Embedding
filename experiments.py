@@ -73,8 +73,7 @@ with open("baseline_result.csv", 'w') as result_file:
 
     for dataset_id, dataset in enumerate(datasets):
         for ndim in ndims:
-            process = Popen(['./Embedding.out', str(dataset_id),
-                             str(ndim), str(lr)],
+            process = Popen(['./Embedding.out', str(dataset_id), str(ndim), str(lr)],
                             stdout=PIPE, stderr=PIPE, cwd='./baseline/')
             out, _ = process.communicate()
             lines = out.decode('utf-8').split("\n")
@@ -83,10 +82,7 @@ with open("baseline_result.csv", 'w') as result_file:
             print(f"train_iter: {train_iter}")
             print(f"ndim: {ndim}")
             print(f"lr: {lr}")
-            result_file.write(f"{dataset}, ")
-            result_file.write(f"{train_iter}, ")
-            result_file.write(f"{ndim}, ")
-            result_file.write(f"{lr}, ")
+            result_file.write(f"{dataset}, {train_iter}, {ndim}, {lr}, ")
 
             for line in lines:
                 line = line[:-1]
