@@ -1,5 +1,4 @@
 # coding: utf-8
-
 from subprocess import Popen, PIPE
 
 #FB15K, WN18
@@ -17,7 +16,7 @@ ndims = (50, 100)
 precisions = (0, 1)
 precision_names = ('single', 'half')
 
-key_list = ['dataset', 'num_worker', 'master_epoch', 'worker_iter', 'ndim', 'lr',
+key_list = ['dataset', 'num_worker', 'master_epoch', 'worker_iter', 'ndim', 'precision', 'lr',
             'Raw.BestMEANS', 'Raw.BestMRR', 'Raw.BestHITS', 'Filter.BestMEANS',
             'Filter.BestMRR', 'Filter.BestHITS', 'Accuracy', 'preprocessing_time',
             'train_time', 'avg_work_time', 'avg_worker_time', 'avg_maxmin_time',
@@ -48,11 +47,7 @@ with open("result.csv", 'w') as result_file:
                         print(f"ndim: {ndim}")
                         print(f"precision: {precision_names[precision]}")
                         print(f"lr: {lr}")
-                        result_file.write(f"{dataset}, ")
-                        result_file.write(f"{num_worker}, ")
-                        result_file.write(f"{master_epoch}, {worker_iter}, ")
-                        result_file.write(f"{ndim}, ")
-                        result_file.write(f"{lr}, ")
+                        result_file.write(f"{dataset}, {num_worker}, {master_epoch}, {worker_iter}, {ndim}, {precision_names[precision]}, {lr}, ")
                         
                         with open("logs/test_log.txt", 'r') as f:
                             for line in f:
@@ -65,7 +60,6 @@ with open("result.csv", 'w') as result_file:
                                     else:
                                         result_file.write(f"{value}, ")
 
-"""
 key_list = ['dataset', 'train_iter', 'ndim', 'lr', 'Raw.BestMEANS', 'Raw.BestMRR',
             'Raw.BestHITS', 'Filter.BestMEANS', 'Filter.BestMRR', 'Filter.BestHITS',
             'Accuracy', 'train_time']
@@ -103,4 +97,3 @@ with open("baseline_result.csv", 'w') as result_file:
                         result_file.write(f"{value}\n")
                     else:
                         result_file.write(f"{value}, ")
-"""
