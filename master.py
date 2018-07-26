@@ -169,7 +169,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
                             cwd=preprocess_folder_dir)
 
     worker_proc = Popen(["python", worker_code_dir, chunk_data, worker_id, str(cur_iter), str(n_dim),
-                         redis_ip, root_dir, socket_port, debugging, str(precision)])
+                         redis_ip, root_dir, socket_port, debugging, str(precision), str(train_model), str(n_cluster), str(crp)])
 
     worker_proc.wait()
     worker_return = worker_proc.returncode

@@ -13,7 +13,6 @@ import sys
 import os
 import socket
 
-
 chunk_data = sys.argv[1]
 worker_id = sys.argv[2]
 cur_iter = int(sys.argv[3])
@@ -26,6 +25,9 @@ precision = int(sys.argv[9])
 precision_string = 'f' if precision == 0 else 'e'
 precision_byte = 4 if precision == 0 else 2
 np_dtype = np.float32 if precision == 0 else np.float16
+train_model = int(sys.argv[10])
+n_cluster = int(sys.argv[11])
+crp = float(sys.argv[12])
 
 if debugging == 'yes':
     logging.basicConfig(filename='%s/%s_%d.log' % (root_dir,
@@ -321,23 +323,11 @@ try:
                 entity_vectors = {f"{entities[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
                     for vector, id_ in zip(entity_vector_list, entity_id_list)}
 
-
-
-
                 # transG 에 추가되는 분기
-                #if mode == 'transG':
-
-
-
-
-
+                # transG 의 짝수 이터레이션에선 추가로 전송할 게 없음
+                #if train_model == 1:
+                #
                 #    pass
-
-
-
-
-
-
 
             except Exception as e:
 
@@ -400,44 +390,49 @@ try:
             try:
 
                 embeddingTime = default_timer() - timeNow
-
-
-
-
+                # 처리 결과를 받아옴 - GeometricModel save
 
                 # transE 에서는 embedding_relation 을 전송
-                #if mode == 'transE':
+                if train_model == 0:
+                    # 원소를 한 번에 받음 (릴레이션 한 번에)
+                    count_relation = unpack('!i', sockRecv(embedding_sock, 4))[0]
+                    relation_id_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, count_relation * 4))
+                    relation_vector_list = unpack(precision_string * count_relation * embedding_dim,
+                        sockRecv(embedding_sock, precision_byte * embedding_dim * count_relation))
 
-
-                # 처리 결과를 받아옴 - GeometricModel save
-                # 원소를 한 번에 받음 (릴레이션 한 번에)
-                count_relation = unpack('!i', sockRecv(embedding_sock, 4))[0]
-                relation_id_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, count_relation * 4))
-                relation_vector_list = unpack(precision_string * count_relation * embedding_dim,
-                    sockRecv(embedding_sock, precision_byte * embedding_dim * count_relation))
-
-                relation_vector_list = np.array(relation_vector_list, dtype=np_dtype).reshape(count_relation, embedding_dim)
-                relation_vectors = {f"{relations[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
-                    for vector, id_ in zip(relation_vector_list, relation_id_list)}
-
-
-
+                    relation_vector_list = np.array(relation_vector_list, dtype=np_dtype).reshape(count_relation, embedding_dim)
+                    relation_vectors = {f"{relations[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
+                        for vector, id_ in zip(relation_vector_list, relation_id_list)}
+                
                 # transG 에 추가되는 분기
-                #if mode == 'transG':
-
-
-
-
-
-                #    pass
-
-
-
-
-
-
-
-
+                elif train_model == 1:
+                    # 원소를 한 번에 받음
+                    count_cluster = unpack('!i', sockRecv(embedding_sock, 4))[0]
+                    cluster_id_list = unpack('!' + 'i' * count_cluster, sockRecv(embedding_sock, count_cluster * 4))
+                    # embedding_clusters 전송
+                    cluster_vector_list = unpack(precision_string * count_cluster * embedding_dim,
+                        sockRecv(embedding_sock, 30 * precision_byte * embedding_dim * count_cluster))
+                    ############################################### redis key 이름을 변경해야 함 #################################
+                    cluster_vector_list = np.array(cluster_vector_list, dtype=np_dtype).reshape(count_cluster, 30, embedding_dim)
+                    cluster_vectors = {f"{relations[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
+                        for vector, id_ in zip(cluster_vector_list, cluster_id_list)}
+                    ############################################### redis key 이름을 변경해야 함 #################################
+                    # weights_clusters 전송
+                    weights_clusters_list = unpack(precision_string * count_cluster * 21,
+                        sockRecv(embedding_sock, precision_byte * 21 * count_cluster))
+                    ############################################### redis key 이름을 변경해야 함 #################################
+                    weights_clusters_list = np.array(weights_clusters_list, dtype=np_dtype).reshape(count_cluster, 21)
+                    weights_clusters = {f"{relations[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
+                        for vector, id_ in zip(weights_clusters_list, cluster_id_list)}
+                    ############################################### redis key 이름을 변경해야 함 #################################
+                    # size_clusters 전송
+                    size_clusters_list = unpack(4 * count_cluster,
+                        sockRecv(embedding_sock, 4 * count_cluster))
+                    ############################################### redis key 이름을 변경해야 함 #################################
+                    size_clusters_list = np.array(size_clusters_list, dtype=np.dtype(int)).reshape(count_cluster)
+                    size_clusters = {f"{relations[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
+                        for vector, id_ in zip(size_clusters_list, cluster_id_list)}
+                    ############################################### redis key 이름을 변경해야 함 #################################
 
             except Exception as e:
 
@@ -483,12 +478,22 @@ try:
         sockSaveTime = default_timer() - timeNow
         timeNow = default_timer()
 
-        r.mset(relation_vectors)
+        if train_model == 0:
+            # transE
+            r.mset(relation_vectors)
+
+        elif train_model == 1:
+            # transG
+            r.mset(cluster_vectors)
+            r.mset(weights_clusters)
+            r.mset(size_clusters)
+
         #printt('worker > relation_vectors updated - ' + worker_id)
         #printt('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
         #fsLog.write('worker > relation_vectors updated - ' + worker_id + '\n')
         #fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         # fsLog.close()
+
         redisTime += default_timer() - timeNow
 
 except Exception as e:

@@ -1896,7 +1896,7 @@ public:
 				send(fd, &count, sizeof(count), 0);
 				count = ntohl(count);
 				
-				// 원소 한 번에 보냄 (엔티티 한 번에)
+				// 원소 한 번에 보냄
 
 				if (precision == 0){
 
@@ -1930,12 +1930,7 @@ public:
 
 					//.....................
 
-					// (필요시) CRP_factor 전송
-
-
-
-
-					//.....................
+					// CRP_factor 전송은 필요없음
 				}
 				else{
 
@@ -1969,12 +1964,7 @@ public:
 
 					//.....................
 
-					// (필요시) CRP_factor 전송
-
-
-
-
-					//.....................
+					// CRP_factor 전송은 필요없음
 				}
 
 				//.....................
@@ -2026,37 +2016,40 @@ public:
 				//	- weights_clusters 전송
 				//	- size_clusters 전송
 				//	- CRP_factor 전송
+				int buff_idx = 0;
+				int * idx_buff = NULL;
+
 				for (int i = 0; i < count_relation(); i++){
 
 					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
+						idx_buff[buff_idx] = htonl(i);
 						count++;
+						buff_idx++;
 					}
 				}
 
+				idx_buff = (int *)calloc(count + 1, sizeof(int));
 				count = htonl(count);
 				send(fd, &count, sizeof(count), 0);
+				send(fd, idx_buff, count * sizeof(int), 0);
 				count = ntohl(count);
+				free(idx_buff);
 
-				// 원소 한 번에 보냄 (릴레이션 한 번에)
+				// 원소 한 번에 보냄
 
 				if (precision == 0){
 
-					int buff_idx = 0;
-					int * idx_buff = NULL;
 					float * vector_buff = NULL;
 
 					// embedding_clusters 전송
 
-					buff_idx = 0;
-					idx_buff = (int *)calloc(count + 1, sizeof(int));
 					vector_buff = (float *)calloc(count * 30 * dim + 1, sizeof(float));
 
 					for (int i = 0; i < count_relation(); i++){
 
 						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
-							idx_buff[buff_idx] = htonl(i);
 							for (int j = 0; j < 30; j++){
 
 								for (int k = 0; k < dim; k++){
@@ -2064,67 +2057,47 @@ public:
 									vector_buff[dim * 30 * buff_idx + dim * j + k] = embedding_clusters[i][j](k);
 								}
 							}
-
-							buff_idx++;
 						}
 					}
 
-					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * 30 * dim * sizeof(float), 0);
-
-					free(idx_buff);
 					free(vector_buff);
 
 					//.....................
 
 					// weights_clusters 전송
 
-					buff_idx = 0;
-					idx_buff = (int *)calloc(count + 1, sizeof(int));
 					vector_buff = (float *)calloc(count * 21 + 1, sizeof(float));
 
 					for (int i = 0; i < count_relation(); i++){
 
 						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
-							idx_buff[buff_idx] = htonl(i);
 							for (int j = 0; j < 21; j++){
 								// n_cluster 를 생각하지 않고 그냥 21 개의 값을 전송
 								vector_buff[21 * buff_idx + j] = weights_clusters[i](j);
 							}
-
-							buff_idx++;
 						}
 					}
 
-					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * 21 * sizeof(float), 0);
-
-					free(idx_buff);
 					free(vector_buff);
 
 					//.....................
 
 					// size_clusters 전송
 
-					buff_idx = 0;
-					idx_buff = (int *)calloc(count + 1, sizeof(int));
 					vector_buff = (int *)calloc(count + 1, sizeof(int));
 
 					for (int i = 0; i < count_relation(); i++){
 
 						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
-							idx_buff[buff_idx] = htonl(i);
 							vector_buff = size_clusters[i];
-							buff_idx++;
 						}
 					}
 
-					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * sizeof(int), 0);
-
-					free(idx_buff);
 					free(vector_buff);
 
 					//.....................
@@ -2133,20 +2106,16 @@ public:
 				}
 				else{
 
-					int buff_idx = 0;
-					int * idx_buff = NULL;
 					half * vector_buff = NULL;
 
 					// embedding_clusters 전송
 
-					idx_buff = (int *)calloc(count + 1, sizeof(int));
 					vector_buff = (half *)calloc(count * 30 * dim + 1, sizeof(half));
 
 					for (int i = 0; i < count_relation(); i++){
 
 						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
-							idx_buff[buff_idx] = htonl(i);
 							for (int j = 0; j < 30; j++){
 
 								for (int k = 0; k < dim; k++){
@@ -2154,67 +2123,47 @@ public:
 									vector_buff[dim * 30 * buff_idx + dim * j + k] = (half)embedding_clusters[i][j](k);
 								}
 							}
-
-							buff_idx++;
 						}
 					}
 
-					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * 30 * dim * sizeof(half), 0);
-
-					free(idx_buff);
 					free(vector_buff);
 
 					//.....................
 
-					// (필요시) weights_clusters 전송
+					// weights_clusters 전송
 
-					idx_buff = (int *)calloc(count + 1, sizeof(int));
 					vector_buff = (half *)calloc(count * 21 + 1, sizeof(half));
 
 					for (int i = 0; i < count_relation(); i++){
 
-						// 여기서 인덱스 i 에 대한 필터링이 들어가는지 확인
-
 						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
-							idx_buff[buff_idx] = htonl(i);
 							for (int j = 0; j < 21; j++){
 								// n_cluster 를 생각하지 않고 그냥 21 개의 값을 전송
 								vector_buff[21 * buff_idx + j] = (half)weights_clusters[i](j);
 							}
-
-							buff_idx++;
 						}
 					}
 
-					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * 21 * sizeof(half), 0);
-
-					free(idx_buff);
 					free(vector_buff);
 
 					//.....................
 
-					// (필요시) size_clusters 전송
+					// size_clusters 전송
 
-					idx_buff = (int *)calloc(count + 1, sizeof(int));
 					vector_buff = (int *)calloc(count + 1, sizeof(int));
 
 					for (int i = 0; i < count_relation(); i++){
 
 						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
-							idx_buff[buff_idx] = htonl(i);
 							vector_buff = size_clusters[i];
-							buff_idx++;
 						}
 					}
 
-					send(fd, idx_buff, count * sizeof(int), 0);
 					send(fd, vector_buff, count * sizeof(int), 0);
-
-					free(idx_buff);
 					free(vector_buff);
 
 					//.....................
