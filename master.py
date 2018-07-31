@@ -570,36 +570,134 @@ while success != 1:
 
 # printt('master > entity_vector sent to GeometricModel load function (for test)')
 
-checksum = 0
-success = 0
 
-# relation_vector 전송 - GeometricModel load
-while success != 1:
+# transE 에서는 embedding_relation 을 전송
+if train_model == 0:
+    # relation_vector 전송 - GeometricModel load
+    checksum = 0
+    success = 0
 
-    # 원소를 한 번에 전송 - 2 단계
-    for id_, vector in zip(relation_ids, relations_initialized):
-        
-            test_sock.send(pack('!i', id_))
-            test_sock.send(pack(precision_string * len(vector), *vector))
+    while success != 1:
 
-    checksum = unpack('!i', sockRecv(test_sock, 4))[0]
+        # 원소를 한 번에 전송 - 2 단계
+        for id_, vector in zip(relation_ids, relations_initialized):
+            
+                test_sock.send(pack('!i', id_))
+                test_sock.send(pack(precision_string * len(vector), *vector))
 
-    if checksum == 1234:
+        checksum = unpack('!i', sockRecv(test_sock, 4))[0]
 
-        # printt('master > phase 2 (relation) finished (for test)')
-        success = 1
+        if checksum == 1234:
 
-    elif checksum == 9876:
+            # printt('master > phase 2 (transE:relation) finished (for test)')
+            success = 1
 
-        printt('[error] master > retry phase 2 (relation) (for test)')
-        success = 0
+        elif checksum == 9876:
 
-    else:
+            printt('[error] master > retry phase 2 (transE:relation) (for test)')
+            success = 0
 
-        printt('[error] master > unknown error in phase 2 (relation) (for test)')
-        success = 0
+        else:
 
-# printt('master > relation_vector sent to Geome tricModel load function (for test)')
+            printt('[error] master > unknown error in phase 2 (transE:relation) (for test)')
+            success = 0
+
+    # printt('master > relation_vector sent to Geome tricModel load function (for test)')
+
+# transG 에 추가되는 분기
+elif train_model == 1:
+    # embedding_clusters 전송 - GeometricModel load
+    checksum = 0
+    success = 0
+
+    while success != 1:
+
+        # 원소를 한 번에 전송 - 2 단계
+
+
+
+        ############################
+
+        checksum = unpack('!i', sockRecv(test_sock, 4))[0]
+
+        if checksum == 1234:
+
+            # printt('master > phase 2 (transG:relation) finished (for test)')
+            success = 1
+
+        elif checksum == 9876:
+
+            printt('[error] master > retry phase 2 (transG:relation) (for test)')
+            success = 0
+
+        else:
+
+            printt('[error] master > unknown error in phase 2 (transG:relation) (for test)')
+            success = 0
+
+    # printt('master > relation_vector sent to Geome tricModel load function (for test)')
+
+    # weights_clusters 전송 - GeometricModel load
+    checksum = 0
+    success = 0
+
+    while success != 1:
+
+        # 원소를 한 번에 전송 - 2 단계
+
+
+
+        ############################
+
+        checksum = unpack('!i', sockRecv(test_sock, 4))[0]
+
+        if checksum == 1234:
+
+            # printt('master > phase 2 (transG:relation) finished (for test)')
+            success = 1
+
+        elif checksum == 9876:
+
+            printt('[error] master > retry phase 2 (transG:relation) (for test)')
+            success = 0
+
+        else:
+
+            printt('[error] master > unknown error in phase 2 (transG:relation) (for test)')
+            success = 0
+
+    # printt('master > relation_vector sent to Geome tricModel load function (for test)')
+
+    # size_clusters 전송 - GeometricModel load
+    checksum = 0
+    success = 0
+
+    while success != 1:
+
+        # 원소를 한 번에 전송 - 2 단계
+
+
+
+        ############################
+
+        checksum = unpack('!i', sockRecv(test_sock, 4))[0]
+
+        if checksum == 1234:
+
+            # printt('master > phase 2 (transG:relation) finished (for test)')
+            success = 1
+
+        elif checksum == 9876:
+
+            printt('[error] master > retry phase 2 (transG:relation) (for test)')
+            success = 0
+
+        else:
+
+            printt('[error] master > unknown error in phase 2 (transG:relation) (for test)')
+            success = 0
+
+    # printt('master > relation_vector sent to Geome tricModel load function (for test)')
 
 test_return = proc.communicate()
 test_sock.close()

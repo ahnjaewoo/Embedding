@@ -232,22 +232,22 @@ try:
 
         if checksum == 1234:
 
-            #printt('worker > phase 2 (entity) finished - ' + worker_id)
-            #fsLog.write('worker > phase 2 (entity) finished - ' + worker_id + '\n')
+            #printt('worker > phase 2 (transE:entity) finished - ' + worker_id)
+            #fsLog.write('worker > phase 2 (transE:entity) finished - ' + worker_id + '\n')
             checksum = 1
 
         elif checksum == 9876:
 
-            printt('[error] worker > retry phase 2 (entity) - ' + worker_id)
-            # fsLog.write('[error] worker > retry phase 2 (entity) - ' + worker_id + '\n')
+            printt('[error] worker > retry phase 2 (transE:entity) - ' + worker_id)
+            # fsLog.write('[error] worker > retry phase 2 (transE:entity) - ' + worker_id + '\n')
             checksum = 0
 
         else:
 
-            printt('[error] worker > unknown error in phase 2 (entity) - ' + worker_id)
+            printt('[error] worker > unknown error in phase 2 (transE:entity) - ' + worker_id)
             printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
             printt('[error] worker > return -1')
-            # fsLog.write('[error] worker > unknown error in phase 2 (entity) - ' + worker_id + '\n')
+            # fsLog.write('[error] worker > unknown error in phase 2 (transE:entity) - ' + worker_id + '\n')
             # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
             # fsLog.write('[error] worker > return -1\n')
             # fsLog.close()
@@ -257,42 +257,157 @@ try:
     #printt('worker > phase 2.1 : entity_vector sent to GeometricModel load function')
     #fsLog.write('worker > phase 2.1 : entity_vector sent to GeometricModel load function\n')
 
-    checksum = 0
+    # transE 에서는 embedding_relation 을 전송
+    if train_model == 0:
+        # relation_vector 전송 - GeometricModel load
+        checksum = 0
 
-    # relation_vector 전송 - GeometricModel load
-    while checksum != 1:
+        while checksum != 1:
 
-        # 원소를 한 번에 전송 - 2 단계   
-        for id_, vector in zip(relation_ids, relations_initialized):
+            # 원소를 한 번에 전송 - 2 단계   
+            for id_, vector in zip(relation_ids, relations_initialized):
+                
+                embedding_sock.send(pack('!i', id_))
+                embedding_sock.send(pack(precision_string * len(vector), *vector))
             
-            embedding_sock.send(pack('!i', id_))
-            embedding_sock.send(pack(precision_string * len(vector), *vector))
-        
-        checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
+            checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
-        if checksum == 1234:
+            if checksum == 1234:
 
-            #printt('worker > phase 2 (relation) finished - ' + worker_id)
-            #fsLog.write('worker > phase 2 (relation) finished - ' + worker_id + '\n')
-            checksum = 1
+                #printt('worker > phase 2 (transE:relation) finished - ' + worker_id)
+                #fsLog.write('worker > phase 2 (transE:relation) finished - ' + worker_id + '\n')
+                checksum = 1
 
-        elif checksum == 9876:
+            elif checksum == 9876:
 
-            printt('[error] worker > retry phase 2 (relation) - worker.py - ' + worker_id)
-            # fsLog.write('[error] worker > retry phase 2 (relation) - ' + worker_id + '\n')
-            checksum = 0
+                printt('[error] worker > retry phase 2 (transE:relation) - worker.py - ' + worker_id)
+                # fsLog.write('[error] worker > retry phase 2 (transE:relation) - ' + worker_id + '\n')
+                checksum = 0
 
-        else:
+            else:
 
-            printt('[error] worker > unknown error in phase 2 (relation) - ' + worker_id)
-            printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
-            printt('[error] worker > return -1')
-            # fsLog.write('[error] worker > unknown error in phase 2 (relation) - ' + worker_id + '\n')
-            # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
-            # fsLog.write('[error] worker > return -1\n')
-            # fsLog.close()
-            embedding_sock.close()
-            sys.exit(1)
+                printt('[error] worker > unknown error in phase 2 (transE:relation) - ' + worker_id)
+                printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
+                printt('[error] worker > return -1')
+                # fsLog.write('[error] worker > unknown error in phase 2 (transE:relation) - ' + worker_id + '\n')
+                # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+                # fsLog.write('[error] worker > return -1\n')
+                # fsLog.close()
+                embedding_sock.close()
+                sys.exit(1)
+
+    # transG 에 추가되는 분기
+    elif train_model == 1:
+        # embedding_clusters 전송 - GeometricModel load
+        checksum = 0
+
+        while checksum != 1:
+
+            # 원소를 한 번에 전송
+            
+
+
+            ############################
+            
+            checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
+
+            if checksum == 1234:
+
+                #printt('worker > phase 2 (transG:relation) finished - ' + worker_id)
+                #fsLog.write('worker > phase 2 (transG:relation) finished - ' + worker_id + '\n')
+                checksum = 1
+
+            elif checksum == 9876:
+
+                printt('[error] worker > retry phase 2 (transG:relation) - worker.py - ' + worker_id)
+                # fsLog.write('[error] worker > retry phase 2 (transG:relation) - ' + worker_id + '\n')
+                checksum = 0
+
+            else:
+
+                printt('[error] worker > unknown error in phase 2 (transG:relation) - ' + worker_id)
+                printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
+                printt('[error] worker > return -1')
+                # fsLog.write('[error] worker > unknown error in phase 2 (transG:relation) - ' + worker_id + '\n')
+                # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+                # fsLog.write('[error] worker > return -1\n')
+                # fsLog.close()
+                embedding_sock.close()
+                sys.exit(1)
+
+        # weights_clusters 전송 - GeometricModel load
+        checksum = 0
+
+        while checksum != 1:
+
+            # 원소를 한 번에 전송
+            
+
+
+            ############################
+            
+            checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
+
+            if checksum == 1234:
+
+                #printt('worker > phase 2 (transG:relation) finished - ' + worker_id)
+                #fsLog.write('worker > phase 2 (transG:relation) finished - ' + worker_id + '\n')
+                checksum = 1
+
+            elif checksum == 9876:
+
+                printt('[error] worker > retry phase 2 (transG:relation) - worker.py - ' + worker_id)
+                # fsLog.write('[error] worker > retry phase 2 (transG:relation) - ' + worker_id + '\n')
+                checksum = 0
+
+            else:
+
+                printt('[error] worker > unknown error in phase 2 (transG:relation) - ' + worker_id)
+                printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
+                printt('[error] worker > return -1')
+                # fsLog.write('[error] worker > unknown error in phase 2 (transG:relation) - ' + worker_id + '\n')
+                # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+                # fsLog.write('[error] worker > return -1\n')
+                # fsLog.close()
+                embedding_sock.close()
+                sys.exit(1)
+
+        # size_clusters 전송 - GeometricModel load
+        checksum = 0
+
+        while checksum != 1:
+
+            # 원소를 한 번에 전송
+            
+
+
+            ############################
+            
+            checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
+
+            if checksum == 1234:
+
+                #printt('worker > phase 2 (transG:relation) finished - ' + worker_id)
+                #fsLog.write('worker > phase 2 (transG:relation) finished - ' + worker_id + '\n')
+                checksum = 1
+
+            elif checksum == 9876:
+
+                printt('[error] worker > retry phase 2 (transG:relation) - worker.py - ' + worker_id)
+                # fsLog.write('[error] worker > retry phase 2 (transG:relation) - ' + worker_id + '\n')
+                checksum = 0
+
+            else:
+
+                printt('[error] worker > unknown error in phase 2 (transG:relation) - ' + worker_id)
+                printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
+                printt('[error] worker > return -1')
+                # fsLog.write('[error] worker > unknown error in phase 2 (transG:relation) - ' + worker_id + '\n')
+                # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+                # fsLog.write('[error] worker > return -1\n')
+                # fsLog.close()
+                embedding_sock.close()
+                sys.exit(1)
 
     sockLoadTime = default_timer() - timeNow
     timeNow = default_timer()
