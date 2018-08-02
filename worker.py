@@ -544,7 +544,7 @@ try:
                     size_clusters_list = unpack(4 * count_cluster,
                         sockRecv(embedding_sock, 4 * count_cluster))
                     ############################################### redis key 이름을 변경해야 함 #################################
-                    size_clusters_list = np.array(size_clusters_list, dtype=np.dtype(int)).reshape(count_cluster)
+                    size_clusters_list = np.array(size_clusters_list, dtype=np.int32).reshape(count_cluster)
                     size_clusters = {f"{relations[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
                         for vector, id_ in zip(size_clusters_list, cluster_id_list)}
                     ############################################### redis key 이름을 변경해야 함 #################################
