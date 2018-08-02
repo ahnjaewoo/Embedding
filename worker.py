@@ -103,11 +103,27 @@ entity_id = {e: i for e, i in zip(entities, entity_ids)}
 entities_initialized = r.mget([f'{entity}_v' for entity in entities])
 entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
 
-relations = np.array(loads(decompress(r.get('relations'))))
-relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
-relation_id = {r: i for e, i in zip(relations, relation_ids)}
-relations_initialized = r.mget([f'{relation}_v' for relation in relations])
-relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
+# transE 에서는 embedding_relation 을 전송
+if train_model == 0:
+
+    relations = np.array(loads(decompress(r.get('relations'))))
+    relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
+    relation_id = {r: i for e, i in zip(relations, relation_ids)}
+    relations_initialized = r.mget([f'{relation}_v' for relation in relations])
+    relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
+
+# transG 에 추가되는 분기
+elif train_model == 1:
+
+    pass
+
+
+
+
+
+
+
+
 
 redisTime = default_timer() - workerStart
 # printt('worker > redis server connection time : %f' % (redisTime))
