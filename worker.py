@@ -130,7 +130,7 @@ redisTime = default_timer() - workerStart
 # printt('worker > socket connected (worker <-> embedding)')
 
 # 파일로 로그를 저장하기 위한 부분
-# fsLog = open(os.path.join(root_dir, 'logs/worker_log_' + worker_id + '_iter_' + cur_iter + '.txt'), 'w')
+fsLog = open(os.path.join(root_dir, f'logs/worker_log_{worker_id}_iter_{cur_iter}.txt'), 'w')
 # fsLog.write('line 143 start\n')
 
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
@@ -396,7 +396,7 @@ try:
             # 원소를 한 번에 전송
             for vector in size_clusters:
                 
-                embedding_sock.send(pack('!' + 'i' * len(vector), *vector))
+                embedding_sock.send(pack('!i', vector))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
