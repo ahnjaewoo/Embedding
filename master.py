@@ -23,8 +23,8 @@ parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
 parser.add_argument('--num_worker', type=int, default=2, help='number of workers')
 parser.add_argument('--data_root', type=str, default='/fb15k',
                     help='root directory of data(must include a name of dataset)')
-parser.add_argument('--train_model', type=str, default='TransE',
-                    help='training model(TransE/TransG)')
+parser.add_argument('--train_model', type=str, default='transE',
+                    help='training model(transE/transG)')
 parser.add_argument('--niter', type=int, default=2,
                     help='total number of masters iterations')
 parser.add_argument('--train_iter', type=int, default=10,
@@ -33,7 +33,7 @@ parser.add_argument('--install', default='True', help='install libraries in each
 parser.add_argument('--ndim', type=int, default=20, help='dimension of embeddings')
 parser.add_argument('--lr', type=float, default=0.1, help='learning rate')
 parser.add_argument('--margin', type=int, default=2, help='margin')
-parser.add_argument('--n_cluster', type=int, default=10, help='number of clusters in TransG model')
+parser.add_argument('--n_cluster', type=int, default=10, help='number of initial clusters in TransG model')
 parser.add_argument('--crp', type=float, default=0.05, help='crp factor in TransG model')
 parser.add_argument('--anchor_num', type=int, default=5,
                     help='number of anchor during entity training')
@@ -126,11 +126,11 @@ def data2id(data_root):
 
 def model2id(train_model):
 
-    if train_model.lower() == "transe":
+    if train_model == "transE":
 
         return 0
     
-    elif train_model.lower() == "transg":
+    elif train_model == "transG":
 
         return 1
 
@@ -169,7 +169,8 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
                             cwd=preprocess_folder_dir)
 
     worker_proc = Popen(["python", worker_code_dir, chunk_data, worker_id, str(cur_iter), str(n_dim),
-                         redis_ip, root_dir, socket_port, debugging, str(precision), str(train_model), str(n_cluster), str(crp)])
+                         redis_ip, root_dir, socket_port, debugging, str(precision), str(train_model),
+                         str(n_cluster), str(crp)])
 
     worker_proc.wait()
     worker_return = worker_proc.returncode
@@ -316,16 +317,34 @@ r.mset(relation2id)
 
 r.set('entities', compress(dumps(entities, protocol=HIGHEST_PROTOCOL), 9))
 entity_ids = np.array(list(entity2id.values()), dtype=np.int32)
-entities_initialized = normalize(np.random.randn(len(entities), n_dim))
-
-r.set('relations', compress(dumps(relations, protocol=HIGHEST_PROTOCOL), 9))
-relation_ids = np.array(list(relation2id.values()), dtype=np.int32)
-relations_initialized = normalize(np.random.randn(len(relations), n_dim))
+entities_initialized = normalize(np.random.randn(len(entities), n_dim).astype(np_dtype))
 
 r.mset({f'{entity}_v': compress(dumps(vector,
         protocol=HIGHEST_PROTOCOL), 9) for vector, entity in zip(entities_initialized, entities)})
-r.mset({f'{relation}_v': compress(dumps(vector,
-        protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(relations_initialized, relations)})
+
+r.set('relations', compress(dumps(relations, protocol=HIGHEST_PROTOCOL), 9))
+relation_ids = np.array(list(relation2id.values()), dtype=np.int32)
+if train_model == 0:
+    
+    relations_initialized = normalize(np.random.randn(len(relations), n_dim).astype(np.append))
+
+    r.mset({f'{relation}_v': compress(dumps(vector,
+            protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(relations_initialized, relations)})
+    
+else:
+    embedding_clusters = normalize(np.random.randn(len(relations), 21 * n_dim).astype(np_dtype))
+    r.mset({f'{relation}_cv': compress(dumps(vector,
+            protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(embedding_clusters, relations)})
+
+    weights_clusters = np.zeros(len(relations), 21).astype(np_dtype)
+    weights_clusters[:, :n_cluster] = 1
+    normalize(weights_clusters, norm='l1', copy=False)
+    r.mset({f'{relation}_wv': compress(dumps(vector,
+            protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(weights_clusters, relations)})
+
+    size_clusters = np.full(len(relations), n_cluster, dtype=np.int32)
+    r.mset({f'{relation}_s': compress(dumps(vector,
+            protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(size_clusters, relations)})
 
 if args.use_scheduler_config_file == 'True':
 
