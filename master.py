@@ -332,7 +332,9 @@ if train_model == 0:
             protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(relations_initialized, relations)})
     
 else:
-    embedding_clusters = normalize(np.random.randn(len(relations), 21 * n_dim).astype(np_dtype))
+    # xavier initialization
+    embedding_clusters = np.random.random((len(relations), 21 * n_dim)).astype(np_dtype)
+    embedding_clusters = (2 * embedding_clusters * 2 - 1) * np.sqrt(6 / n_dim)
     r.mset({f'{relation}_cv': compress(dumps(vector,
             protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(embedding_clusters, relations)})
 
