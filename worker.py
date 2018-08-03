@@ -552,7 +552,7 @@ try:
                     weights_clusters = {f"{relations[id_]}_wv": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
                         for vector, id_ in zip(weights_clusters_list, relation_id_list)}
                     # size_clusters 전송
-                    size_clusters_list = unpack('i' * count_relation, sockRecv(embedding_sock, 4 * count_relation))
+                    size_clusters_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, 4 * count_relation))
                     size_clusters_list = np.array(size_clusters_list, dtype=np.int32).reshape(count_relation)
                     size_clusters = {f"{relations[id_]}_s": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
                         for vector, id_ in zip(size_clusters_list, relation_id_list)}
