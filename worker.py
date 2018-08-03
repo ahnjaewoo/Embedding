@@ -246,22 +246,22 @@ try:
 
         if checksum == 1234:
 
-            printt('worker > phase 2 (transE:entity) finished - ' + worker_id)
-            fsLog.write('worker > phase 2 (transE:entity) finished - ' + worker_id + '\n')
+            printt('worker > phase 2 (entity) finished - ' + worker_id)
+            fsLog.write('worker > phase 2 (entity) finished - ' + worker_id + '\n')
             checksum = 1
 
         elif checksum == 9876:
 
-            printt('[error] worker > retry phase 2 (transE:entity) - ' + worker_id)
-            fsLog.write('[error] worker > retry phase 2 (transE:entity) - ' + worker_id + '\n')
+            printt('[error] worker > retry phase 2 (entity) - ' + worker_id)
+            fsLog.write('[error] worker > retry phase 2 (entity) - ' + worker_id + '\n')
             checksum = 0
 
         else:
 
-            printt('[error] worker > unknown error in phase 2 (transE:entity) - ' + worker_id)
+            printt('[error] worker > unknown error in phase 2 (entity) - ' + worker_id)
             printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
             printt('[error] worker > return -1')
-            fsLog.write('[error] worker > unknown error in phase 2 (transE:entity) - ' + worker_id + '\n')
+            fsLog.write('[error] worker > unknown error in phase 2 (entity) - ' + worker_id + '\n')
             fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
             fsLog.write('[error] worker > return -1\n')
             fsLog.close()
