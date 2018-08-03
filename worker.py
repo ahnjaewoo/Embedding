@@ -103,27 +103,25 @@ entity_id = {e: i for e, i in zip(entities, entity_ids)}
 entities_initialized = r.mget([f'{entity}_v' for entity in entities])
 entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
 
+relations = np.array(loads(decompress(r.get('relations'))))
+relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
+relation_id = {r: i for e, i in zip(relations, relation_ids)}
+
 # transE 에서는 embedding_relation 을 전송
 if train_model == 0:
 
-    relations = np.array(loads(decompress(r.get('relations'))))
-    relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
-    relation_id = {r: i for e, i in zip(relations, relation_ids)}
     relations_initialized = r.mget([f'{relation}_v' for relation in relations])
     relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
 
 # transG 에 추가되는 분기
 elif train_model == 1:
 
-    pass
-
-
-
-
-
-
-
-
+    embedding_clusters = r.mget([f'{relation}_cv' for relation in relations])
+    embedding_clusters = np.array([loads(decompress(v)) for v in embedding_clusters], dtype=np_dtype)
+    weights_clusters = r.mget([f'{relation}_wv' for relation in relations])
+    weights_clusters = np.array([loads(decompress(v)) for v in weights_clusters], dtype=np_dtype)
+    size_clusters = r.mget([f'{relation}_s' for relation in relations])
+    size_clusters = np.array([loads(decompress(v)) for v in size_clusters], dtype=np.int32)
 
 redisTime = default_timer() - workerStart
 # printt('worker > redis server connection time : %f' % (redisTime))
@@ -280,7 +278,7 @@ try:
 
         while checksum != 1:
 
-            # 원소를 한 번에 전송 - 2 단계   
+            # 원소를 한 번에 전송
             for id_, vector in zip(relation_ids, relations_initialized):
                 
                 embedding_sock.send(pack('!i', id_))
@@ -320,10 +318,12 @@ try:
         while checksum != 1:
 
             # 원소를 한 번에 전송
-            
+            for id_, vector in zip(relation_ids, embedding_clusters):
+                
+                embedding_sock.send(pack('!i', id_))
+                embedding_sock.send(pack(precision_string * len(vector), *vector))
 
-
-            ############################
+            ################################ 여기서 vector 를 flatten 해주어야할 수 있음
             
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -357,10 +357,10 @@ try:
         while checksum != 1:
 
             # 원소를 한 번에 전송
-            
-
-
-            ############################
+            for id_, vector in zip(relation_ids, weights_clusters):
+                
+                embedding_sock.send(pack('!i', id_))
+                embedding_sock.send(pack(precision_string * len(vector), *vector))
             
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -394,11 +394,10 @@ try:
         while checksum != 1:
 
             # 원소를 한 번에 전송
-            
+            for vector in size_clusters:
+                
+                embedding_sock.send(pack('!' + 'i' * len(vector), *vector))
 
-
-            ############################
-            
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
             if checksum == 1234:
@@ -444,7 +443,7 @@ try:
                 embeddingTime = default_timer() - timeNow
                 # 처리 결과를 받아옴 - GeometricModel save
                 
-                # 원소를 한 번에 받음 (엔티티 한 번에)
+                # 원소를 한 번에 받음
                 count_entity = unpack('!i', sockRecv(embedding_sock, 4))[0]
                 entity_id_list = unpack('!' + 'i' * count_entity, sockRecv(embedding_sock, count_entity * 4))
                 entity_vector_list = unpack(precision_string * count_entity * embedding_dim,
@@ -525,7 +524,7 @@ try:
 
                 # transE 에서는 embedding_relation 을 전송
                 if train_model == 0:
-                    # 원소를 한 번에 받음 (릴레이션 한 번에)
+                    # 원소를 한 번에 받음
                     count_relation = unpack('!i', sockRecv(embedding_sock, 4))[0]
                     relation_id_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, count_relation * 4))
                     relation_vector_list = unpack(precision_string * count_relation * embedding_dim,
