@@ -238,9 +238,9 @@ public:
 	        output.close();
     	}
 
-        //printf("DataModel > DataModel constructor called\n");
-        //fprintf(fs_log, "DataModel > DataModel constructor called\n");
-        //printf("DataModel > master_epoch = %d\n", master_epoch);
+        //cout << "[info] DataModel > DataModel constructor called\n";
+        //fprintf(fs_log, "[info] DataModel > DataModel constructor called\n");
+        //cout << "[info] DataModel > master_epoch = " << master_epoch << endl;
         
         if (master_epoch >= 0){
 
@@ -261,8 +261,8 @@ public:
 
                         if (recv(fd, &anchor_num, sizeof(anchor_num), MSG_WAITALL) < 0){
 
-                            printf("[error] DataModel > recv anchor_num\n");
-                            printf("[error] DataModel > return -1\n");
+                            cout << "[error] DataModel > recv anchor_num\n";
+                            cout << "[error] DataModel > return -1\n";
                             fprintf(fs_log, "[error] DataModel > recv anchor_num\n");
                             fprintf(fs_log,  "[error] DataModel > return -1\n");
                             close(fd);
@@ -273,8 +273,8 @@ public:
 
                         if (recv(fd, &entity_num, sizeof(entity_num), MSG_WAITALL) < 0){
 
-                            printf("[error] DataModel > recv entity_num\n");
-                            printf("[error] DataModel > return -1\n");
+                            cout << "[error] DataModel > recv entity_num\n";
+                            cout << "[error] DataModel > return -1\n";
                             fprintf(fs_log, "[error] DataModel > recv entity_num\n");
                             fprintf(fs_log, "[error] DataModel > return -1\n");   
                             std::exit(-1);
@@ -286,8 +286,8 @@ public:
                         int * anchor_buff = (int *)calloc(ntohl(anchor_num) + 1, sizeof(int));
                         if (recv(fd, anchor_buff, ntohl(anchor_num) * sizeof(int), MSG_WAITALL) < 0){
 
-                            printf("[error] DataModel > recv anchor_buff\n");
-                            printf("[error] DataModel > return -1\n");
+                            cout << "[error] DataModel > recv anchor_buff\n";
+                            cout << "[error] DataModel > return -1\n";
                             fprintf(fs_log, "[error] DataModel > recv anchor_buff\n");
                             fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
@@ -309,8 +309,8 @@ public:
                         int * entity_buff = (int *)calloc(ntohl(entity_num) + 1, sizeof(int));
                         if (recv(fd, entity_buff, ntohl(entity_num) * sizeof(int), MSG_WAITALL) < 0){
 
-                            printf("[error] DataModel > recv entity_buff\n");
-                            printf("[error] DataModel > return -1\n");
+                            cout << "[error] DataModel > recv entity_buff\n";
+                            cout << "[error] DataModel > return -1\n";
                             fprintf(fs_log, "[error] DataModel > recv entity_buff\n");
                             fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
@@ -348,8 +348,8 @@ public:
                     }
                     catch(std::exception& e){
 
-                        printf("[error] DataModel >  entity : exception occured\n");
-                        printf("%s\n", e.what());
+                        cout << "[error] DataModel >  entity : exception occured\n";
+                        cout << "%s\n" << e.what();
                         fprintf(fs_log, "[error] DataModel >  entity : exception occured\n");
                         fprintf(fs_log, "%s\n", e.what());
                         success = 0;
@@ -358,8 +358,8 @@ public:
                         send(fd, &flag, sizeof(flag), 0);
                     }
                 }
-                // cout << "DataModel > entity preprocesing let's get it!" << endl;
-                // fprintf(fs_log, "DataModel > entity preprocesing let's get it!\n");
+                //cout << "[info] DataModel > entity preprocesing let's get it!" << endl;
+                //fprintf(fs_log, "[info] DataModel > entity preprocesing let's get it!\n");
             }
             else {
                 //relation
@@ -379,7 +379,7 @@ public:
                         if (recv(fd, &triplet_num, sizeof(triplet_num), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv triplet_num" << endl;
-                            printf("[error] DataModel > return -1\n");
+                            cout << "[error] DataModel > return -1\n";
                             fprintf(fs_log, "[error] DataModel > recv triplet_num\n");
                             fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
@@ -393,8 +393,8 @@ public:
                         int * triplet_buff = (int *)calloc(ntohl(triplet_num) * 3 + 1, sizeof(int));
                         if (recv(fd, triplet_buff, ntohl(triplet_num) * 3 * sizeof(int), MSG_WAITALL) < 0){
 
-                            printf("[error] DataModel > recv triplet_buff\n");
-                            printf("[error] DataModel > return -1\n");
+                            cout << "[error] DataModel > recv triplet_buff\n";
+                            cout << "[error] DataModel > return -1\n";
                             fprintf(fs_log, "[error] DataModel > recv triplet_buff\n");
                             fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
@@ -425,8 +425,8 @@ public:
                     }
                     catch(std::exception& e){
 
-                        printf("[error] DataModel > relation : exception occured\n");
-                        printf("%s\n", e.what());
+                        cout << "[error] DataModel > relation : exception occured\n";
+                        cout << "%s\n" << e.what();
                         fprintf(fs_log, "[error] DataModel > relation : exception occured\n");
                         fprintf(fs_log, "%s\n", e.what());
                         success = 0;
@@ -435,15 +435,15 @@ public:
                         send(fd, &flag, sizeof(flag), 0);
                     }
                 }
-                //cout << "DataModel > relation preprocessing let's get it!" << endl;
+                //cout << "[info] DataModel > relation preprocessing let's get it!" << endl;
             }
             vector_entity_parts.assign(set_entity_parts.begin(), set_entity_parts.end());
             vector_relation_parts.assign(set_relation_parts.begin(), set_relation_parts.end());
         }
-        // cout << "DataModel > # of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << endl;
-        // cout << "DataModel > # of test triples: " << data_test_true.size() << endl;
-        // fprintf(fs_log, "DataModel > # of triples in worker_%d : %d/%d\n", worker_num, data_train_parts.size(), data_train.size());
-        // fprintf(fs_log, "DataModel > # of test triples : %d\n", data_test_true.size());
+        //cout << "[info] DataModel > # of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << endl;
+        //cout << "[info] DataModel > # of test triples: " << data_test_true.size() << endl;
+        //fprintf(fs_log, "[info] DataModel > # of triples in worker_%d : %d/%d\n", worker_num, data_train_parts.size(), data_train.size());
+        //fprintf(fs_log, "[info] DataModel > # of test triples : %d\n", data_test_true.size());
     }
 
     DataModel(const Dataset& dataset, const string& file_zero_shot, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd, FILE * fs_log)

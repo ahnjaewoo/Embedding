@@ -67,7 +67,7 @@ int main(int argc, char* argv[]){
 	if ((embedding_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
 
 		cout << "[error] embedding > create socket - worker_" << worker_num << endl;
-		printf("[error] embedding > return -1\n");
+		cout << "[error] embedding > return -1\n";
 		fprintf(fs_log, "[error] embedding > create socket - worker_%d\n", worker_num);
 		fprintf(fs_log, "[error] embedding > return -1\n");
 		return -1;
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]){
 	if (bind(embedding_sock, (struct sockaddr *)&embedding_addr, sizeof(embedding_addr)) < 0){
 
 		cout << "[error] embedding > bind socket - worker_" << worker_num << ", " << socket_port << endl;
-		printf("[error] embedding > return -1\n");
+		cout << "[error] embedding > return -1\n";
 		fprintf(fs_log, "[error] embedding > bind socket - worker_%d\n", worker_num);
 		fprintf(fs_log, "[error] embedding > return -1\n");
 		return -1;
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]){
 	if (listen(embedding_sock, 1) < 0){
 
 		cout << "[error] embedding > listen socket - worker_" << worker_num << endl;
-		printf("[error] embedding > return -1\n");
+		cout << "[error] embedding > return -1\n";
 		fprintf(fs_log, "[error] embedding > listen socket - worker_%d\n", worker_num);
 		fprintf(fs_log, "[error] embedding > return -1\n");
 		return -1;
@@ -102,7 +102,7 @@ int main(int argc, char* argv[]){
 	if ((worker_sock = accept(embedding_sock, (struct sockaddr *)&worker_addr, &len)) < 0){
 
 		cout << "[error] embedding > accept socket - worker_" << worker_num << endl;
-		printf("[error] embedding > return -1\n");
+		cout << "[error] embedding > return -1\n";
 		fprintf(fs_log, "[error] embedding > accept socket - worker_%d\n", worker_num);
 		fprintf(fs_log, "[error] embedding > return -1\n");
 		return -1;
@@ -116,8 +116,8 @@ int main(int argc, char* argv[]){
 		} else if (train_model == 1) {
 			model = new TransG(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, n_cluster, crp, 10, false, true, true, worker_num, master_epoch, worker_sock, fs_log, precision);
 		} else {
-			printf("[error] embedding > training model mismatch, recieved : %d\n", train_model);
-	        printf("[error] embedding > return -1\n");
+			cout << "[error] embedding > training model mismatch, recieved : " << train_model << endl;
+	        cout << "[error] embedding > return -1\n";
         	fprintf(fs_log, "[error] embedding > training model mismatch, recieved : %d\n", train_model);
             fprintf(fs_log, "[error] embedding > return -1\n");
 	        return -1;
@@ -130,8 +130,8 @@ int main(int argc, char* argv[]){
         } else if (train_model == 1) {
 			model = new TransG(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, n_cluster, crp, 10, false, true, true, worker_num, master_epoch, worker_sock, fs_log, precision);
         } else { 
-			printf("[error] embedding > training model mismatch, recieved : %d\n", train_model);
-            printf("[error] embedding > return -1\n");
+			cout << "[error] embedding > training model mismatch, recieved : " << train_model << endl;
+            cout << "[error] embedding > return -1\n";
             fprintf(fs_log, "[error] embedding > training model mismatch, recieved : %d\n", train_model);
             fprintf(fs_log, "[error] embedding > return -1\n");
             return -1;
@@ -143,8 +143,8 @@ int main(int argc, char* argv[]){
 	//}
 	else{
 
-		printf("[error] embedding > wrong data_root_id, recieved : %d\n", data_root_id);
-		printf("[error] embedding > return -1\n");
+		cout << "[error] embedding > wrong data_root_id, recieved : " << data_root_id << endl;
+		cout << "[error] embedding > return -1\n";
 		fprintf(fs_log, "[error] embedding > wrong data_root_id, recieved : %d\n", data_root_id);
 		fprintf(fs_log, "[error] embedding > return -1\n");
 		return -1;
@@ -158,12 +158,12 @@ int main(int argc, char* argv[]){
 
 	gettimeofday(&after, NULL);
 	run_time = after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0;
-	// cout << "embedding > model->run end, training time : " << run_time << "seconds" << endl;
+	//cout << "embedding > model->run end, training time : " << run_time << "seconds" << endl;
 	fprintf(fs_log, "embedding > testing time : %lf seconds\n", run_time);
 	
 	model->save(to_string(worker_num), fs_log);
-	// cout << "embedding > model->save end" << endl;
-	// fprintf(fs_log, "embedding > model->save end\n");
+	//cout << "embedding > model->save end" << endl;
+	//fprintf(fs_log, "embedding > model->save end\n");
 	send(worker_sock, &run_time, sizeof(run_time), 0);
 
 	delete model;

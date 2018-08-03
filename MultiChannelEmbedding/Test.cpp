@@ -67,8 +67,8 @@ int main(int argc, char* argv[]){
 	// create socket and check it is valid
 	if ((test_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
 
-		printf("[error] test.cpp > create socket\n");
-		printf("[error] test.cpp > return -1\n");
+		cout << "[error] test.cpp > create socket\n";
+		cout << "[error] test.cpp > return -1\n";
 		fprintf(fs_log, "[error] test.cpp > create socket\n");
 		fprintf(fs_log, "[error] test.cpp > return -1\n");
 		return -1;
@@ -85,7 +85,7 @@ int main(int argc, char* argv[]){
 
 		if (bind(test_sock, (struct sockaddr *)&test_addr, sizeof(test_addr)) < 0){
 
-			printf("[error] test.cpp > bind socket, retry\n");
+			cout << "[error] test.cpp > bind socket, retry\n";
 			fprintf(fs_log, "[error] test.cpp > bind socket, retry\n");
 			trial = trial + 1;
 			success = 0;
@@ -100,8 +100,8 @@ int main(int argc, char* argv[]){
 
 	if(trial >= 5){
 
-		printf("[error] test.cpp > cannot bind socket, terminate");
-		printf("[error] test.cpp > return -1\n");
+		cout << "[error] test.cpp > cannot bind socket, terminate";
+		cout << "[error] test.cpp > return -1\n";
 		fprintf(fs_log, "[error] test.cpp > cannot bind socket, terminate");
 		fprintf(fs_log, "[error] test.cpp > return -1\n");
 		return -1;
@@ -109,8 +109,8 @@ int main(int argc, char* argv[]){
 
 	if (listen(test_sock, 1) < 0){
 
-		printf("[error] test.cpp > listen socket\n");
-		printf("[error] test.cpp > return -1\n");
+		cout << "[error] test.cpp > listen socket\n";
+		cout << "[error] test.cpp > return -1\n";
 		fprintf(fs_log, "[error] test.cpp > listen socket\n");
 		fprintf(fs_log, "[error] test.cpp > return -1\n");
 		return -1;
@@ -120,15 +120,15 @@ int main(int argc, char* argv[]){
 
 	if ((master_sock = accept(test_sock, (struct sockaddr *)&master_addr, &len)) < 0){
 
-		printf("[error] test.cpp > accept socket\n");
-		printf("[error] test.cpp > return -1\n");
+		cout << "[error] test.cpp > accept socket\n";
+		cout << "[error] test.cpp > return -1\n";
 		fprintf(fs_log, "[error] test.cpp > accept socket\n");
 		fprintf(fs_log, "[error] test.cpp > return -1\n");
 		return -1;
 	}
 	else{
 
-		printf("[info] test.cpp > accept socket successfully\n");
+		cout << "[info] test.cpp > accept socket successfully\n";
 		fprintf(fs_log, "[info] test.cpp > accept socket successfully\n");
 	}
 
@@ -141,8 +141,8 @@ int main(int argc, char* argv[]){
 			} else if (train_model == 1) {
 				model = new TransG(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, n_cluster, crp, 10, false, true, true, worker_num, master_epoch, master_sock, fs_log, precision);
 			} else {
-				printf("[error] embedding > training model mismatch, recieved : %d\n", train_model);
-				printf("[error] embedding > return -1\n");
+				cout << "[error] embedding > training model mismatch, recieved : " << train_model << endl;
+				cout << "[error] embedding > return -1\n";
 				fprintf(fs_log, "[error] embedding > training model mismatch, recieved : %d\n", train_model);
 				fprintf(fs_log, "[error] embedding > return -1\n");
 				return -1;
@@ -155,8 +155,8 @@ int main(int argc, char* argv[]){
                 } else if (train_model == 1) {
                     model = new TransG(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, n_cluster, crp, 10, false, true, true, worker_num, master_epoch, master_sock, fs_log, precision);
                 } else { 
-					printf("[error] embedding > training model mismatch, recieved : %d\n", train_model);
-					printf("[error] embedding > return -1\n");
+					cout << "[error] embedding > training model mismatch, recieved : " << train_model << endl;
+					cout << "[error] embedding > return -1\n";
 					fprintf(fs_log, "[error] embedding > training model mismatch, recieved : %d\n", train_model);
 					fprintf(fs_log, "[error] embedding > return -1\n");
 					return -1;
@@ -168,7 +168,7 @@ int main(int argc, char* argv[]){
 	//}
 	else{
 
-		printf("[error] test.cpp > wrong data_root_id, recieved : %d\n", data_root_id);
+		cout << "[error] test.cpp > wrong data_root_id, recieved : " << data_root_id << endl;
 		fprintf(fs_log, "[error] test.cpp > wrong data_root_id, recieved : %d\n", data_root_id);
 	}
 
@@ -176,7 +176,7 @@ int main(int argc, char* argv[]){
 	struct timeval after, before;
 	gettimeofday(&before, NULL);
 
-    printf("[info] test.cpp > test start\n");
+    cout << "[info] test.cpp > test start\n";
     fprintf(fs_log, "[info] test.cpp > test start\n");
 
 	model->test();
