@@ -539,30 +539,29 @@ try:
                 elif train_model == 1:
                     # 원소를 한 번에 받음
                     count_relation = unpack('!i', sockRecv(embedding_sock, 4))[0]
-                    cluster_id_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, count_relation * 4))
+                    relation_id_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, count_relation * 4))
                     # embedding_clusters 전송
-                    cluster_vector_list = unpack(precision_string * count_relation * embedding_dim,
+                    cluster_vector_list = unpack(precision_string * count_relation * embedding_dim * 30,
                         sockRecv(embedding_sock, 30 * precision_byte * embedding_dim * count_relation))
                     ############################################### redis key 이름을 변경해야 함 #################################
                     cluster_vector_list = np.array(cluster_vector_list, dtype=np_dtype).reshape(count_relation, 30, embedding_dim)
-                    cluster_vectors = {f"{relations[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
-                        for vector, id_ in zip(cluster_vector_list, cluster_id_list)}
+                    cluster_vectors = {f"{relations[id_]}_cv": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
+                        for vector, id_ in zip(cluster_vector_list, relation_id_list)}
                     ############################################### redis key 이름을 변경해야 함 #################################
                     # weights_clusters 전송
                     weights_clusters_list = unpack(precision_string * count_relation * 21,
                         sockRecv(embedding_sock, precision_byte * 21 * count_relation))
                     ############################################### redis key 이름을 변경해야 함 #################################
                     weights_clusters_list = np.array(weights_clusters_list, dtype=np_dtype).reshape(count_relation, 21)
-                    weights_clusters = {f"{relations[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
-                        for vector, id_ in zip(weights_clusters_list, cluster_id_list)}
+                    weights_clusters = {f"{relations[id_]}_wv": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
+                        for vector, id_ in zip(weights_clusters_list, relation_id_list)}
                     ############################################### redis key 이름을 변경해야 함 #################################
                     # size_clusters 전송
-                    size_clusters_list = unpack(4 * count_relation,
-                        sockRecv(embedding_sock, 4 * count_relation))
+                    size_clusters_list = unpack('i' * count_relation, sockRecv(embedding_sock, 4 * count_relation))
                     ############################################### redis key 이름을 변경해야 함 #################################
                     size_clusters_list = np.array(size_clusters_list, dtype=np.int32).reshape(count_relation)
                     size_clusters = {f"{relations[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
-                        for vector, id_ in zip(size_clusters_list, cluster_id_list)}
+                        for vector, id_ in zip(size_clusters_list, relation_id_list)}
                     ############################################### redis key 이름을 변경해야 함 #################################
 
             except Exception as e:
