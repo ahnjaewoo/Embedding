@@ -1870,7 +1870,7 @@ public:
 		//	- weights_clusters 저장
 		//	- size_clusters 저장
 
-		if (matser_epoch % 2 == 0){
+		if (master_epoch % 2 == 0){
 
 			int flag = 0;
 			int count = 0;
@@ -2127,7 +2127,7 @@ public:
 
 				// size_clusters 전송
 
-				int idx = 0
+				int idx = 0;
 				int * vector_buff = (int *)calloc(count + 1, sizeof(int));
 
 				for (int i = 0; i < count_relation(); i++){
