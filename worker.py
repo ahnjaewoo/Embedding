@@ -161,8 +161,8 @@ try:
 
             if checksum == 1234:
 
-                printt('worker > phase 1 finished - ' + worker_id)
-                fsLog.write('worker > phase 1 finished - ' + worker_id + '\n')
+                printt('[info] worker > phase 1 finished - ' + worker_id)
+                fsLog.write('[info] worker > phase 1 finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
@@ -183,8 +183,8 @@ try:
                 embedding_sock.close()
                 sys.exit(1)
 
-        printt('worker > phase 1 : entity sent to DataModel finished')
-        fsLog.write('worker > phase 1 : entity sent to DataModel finished\n')
+        printt('[info] worker > phase 1 : entity sent to DataModel finished')
+        fsLog.write('[info] worker > phase 1 : entity sent to DataModel finished\n')
 
     else:
         # relation 전송 - DataModel 생성자
@@ -204,8 +204,8 @@ try:
 
             if checksum == 1234:
 
-                printt('worker > phase 1 finished - ' + worker_id)
-                fsLog.write('worker > phase 1 finished - ' + worker_id + '\n')
+                printt('[info] worker > phase 1 finished - ' + worker_id)
+                fsLog.write('[info] worker > phase 1 finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
@@ -226,8 +226,8 @@ try:
                 embedding_sock.close()
                 sys.exit(1)
 
-        printt('worker > phase 1 : relation sent to DataModel finished')
-        fsLog.write('worker > phase 1 : relation sent to DataModel finished\n')
+        printt('[info] worker > phase 1 : relation sent to DataModel finished')
+        fsLog.write('[info] worker > phase 1 : relation sent to DataModel finished\n')
 
     datamodelTime = default_timer() - timeNow
     checksum = 0
@@ -246,8 +246,8 @@ try:
 
         if checksum == 1234:
 
-            printt('worker > phase 2 (entity) finished - ' + worker_id)
-            fsLog.write('worker > phase 2 (entity) finished - ' + worker_id + '\n')
+            printt('[info] worker > phase 2 (entity) finished - ' + worker_id)
+            fsLog.write('[info] worker > phase 2 (entity) finished - ' + worker_id + '\n')
             checksum = 1
 
         elif checksum == 9876:
@@ -268,8 +268,8 @@ try:
             embedding_sock.close()
             sys.exit(1)
 
-    printt('worker > phase 2.1 : entity_vector sent to GeometricModel load function')
-    fsLog.write('worker > phase 2.1 : entity_vector sent to GeometricModel load function\n')
+    printt('[info] worker > phase 2.1 : entity_vector sent to GeometricModel load function')
+    fsLog.write('[info] worker > phase 2.1 : entity_vector sent to GeometricModel load function\n')
 
     # transE 에서는 embedding_relation 을 전송
     if train_model == 0:
@@ -288,8 +288,8 @@ try:
 
             if checksum == 1234:
 
-                printt('worker > phase 2 (transE:relation) finished - ' + worker_id)
-                fsLog.write('worker > phase 2 (transE:relation) finished - ' + worker_id + '\n')
+                printt('[info] worker > phase 2 (transE:relation) finished - ' + worker_id)
+                fsLog.write('[info] worker > phase 2 (transE:relation) finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
@@ -329,8 +329,8 @@ try:
 
             if checksum == 1234:
 
-                printt('worker > phase 2 (transG:relation) finished - ' + worker_id)
-                fsLog.write('worker > phase 2 (transG:relation) finished - ' + worker_id + '\n')
+                printt('[info] worker > phase 2 (transG:relation) finished - ' + worker_id)
+                fsLog.write('[info] worker > phase 2 (transG:relation) finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
@@ -366,8 +366,8 @@ try:
 
             if checksum == 1234:
 
-                printt('worker > phase 2 (transG:relation) finished - ' + worker_id)
-                fsLog.write('worker > phase 2 (transG:relation) finished - ' + worker_id + '\n')
+                printt('[info] worker > phase 2 (transG:relation) finished - ' + worker_id)
+                fsLog.write('[info] worker > phase 2 (transG:relation) finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
@@ -402,8 +402,8 @@ try:
 
             if checksum == 1234:
 
-                printt('worker > phase 2 (transG:relation) finished - ' + worker_id)
-                fsLog.write('worker > phase 2 (transG:relation) finished - ' + worker_id + '\n')
+                printt('[info] worker > phase 2 (transG:relation) finished - ' + worker_id)
+                fsLog.write('[info] worker > phase 2 (transG:relation) finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
@@ -427,8 +427,8 @@ try:
     sockLoadTime = default_timer() - timeNow
     timeNow = default_timer()
 
-    printt('worker > phase 2.2 : relation_vector sent to GeometricModel load function')
-    fsLog.write('worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
+    printt('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function')
+    fsLog.write('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
 
     tempcount = 0
 
@@ -494,8 +494,8 @@ try:
 
             else:
 
-                printt('worker > phase 3 (entity) finished - ' + worker_id)
-                fsLog.write('worker > phase 3 (entity) finished - ' + worker_id + '\n')
+                printt('[info] worker > phase 3 (entity) finished - ' + worker_id)
+                fsLog.write('[info] worker > phase 3 (entity) finished - ' + worker_id + '\n')
                 flag = 1234
                 embedding_sock.send(pack('!i', flag))
                 success = 1
@@ -504,10 +504,10 @@ try:
         timeNow = default_timer()
 
         r.mset(entity_vectors)
-        printt('worker > entity_vectors updated - ' + worker_id)
-        printt('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
-        fsLog.write('worker > entity_vectors updated - ' + worker_id + '\n')
-        fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
+        printt('[info] worker > entity_vectors updated - ' + worker_id)
+        printt('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
+        fsLog.write('[info] worker > entity_vectors updated - ' + worker_id + '\n')
+        fsLog.write('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         fsLog.close()
         redisTime += default_timer() - timeNow
 
@@ -592,8 +592,8 @@ try:
 
             else:
 
-                printt('worker > phase 3 (relation) finished - ' + worker_id)
-                fsLog.write('worker > phase 3 (relation) finished - ' + worker_id + '\n')
+                printt('[info] worker > phase 3 (relation) finished - ' + worker_id)
+                fsLog.write('[info] worker > phase 3 (relation) finished - ' + worker_id + '\n')
                 flag = 1234
                 embedding_sock.send(pack('!i', flag))
                 success = 1
@@ -611,10 +611,10 @@ try:
             r.mset(weights_clusters)
             r.mset(size_clusters)
 
-        printt('worker > relation_vectors updated - ' + worker_id)
-        printt('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
-        fsLog.write('worker > relation_vectors updated - ' + worker_id + '\n')
-        fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
+        printt('[info] worker > relation_vectors updated - ' + worker_id)
+        printt('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
+        fsLog.write('[info] worker > relation_vectors updated - ' + worker_id + '\n')
+        fsLog.write('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
         fsLog.close()
 
         redisTime += default_timer() - timeNow
