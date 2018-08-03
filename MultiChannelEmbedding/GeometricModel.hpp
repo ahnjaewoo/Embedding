@@ -2521,6 +2521,8 @@ public:
 			}
 		}
 
+		cout << "load finish!" << endl;
+
 		//.....................
 
 		// CRP_factor 전송은 필요없음
