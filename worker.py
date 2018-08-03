@@ -161,14 +161,14 @@ try:
 
             if checksum == 1234:
 
-                #printt('worker > phase 1 finished - ' + worker_id)
-                #fsLog.write('worker > phase 1 finished - ' + worker_id + '\n')
+                printt('worker > phase 1 finished - ' + worker_id)
+                fsLog.write('worker > phase 1 finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
 
                 printt('[error] worker > retry phase 1 - ' + worker_id)
-                # fsLog.write('[error] worker > retry phase 1 - ' + worker_id + '\n')
+                fsLog.write('[error] worker > retry phase 1 - ' + worker_id + '\n')
                 checksum = 0
 
             else:
@@ -176,15 +176,15 @@ try:
                 printt('[error] worker > unknown error in phase 1 - ' + worker_id)
                 printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
                 printt('[error] worker > return -1')
-                # fsLog.write('[error] worker > unknown error in phase 1 - ' + worker_id + '\n')
-                # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
-                # fsLog.write('[error] worker > return -1\n')
-                # fsLog.close()
+                fsLog.write('[error] worker > unknown error in phase 1 - ' + worker_id + '\n')
+                fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+                fsLog.write('[error] worker > return -1\n')
+                fsLog.close()
                 embedding_sock.close()
                 sys.exit(1)
 
-        #printt('worker > phase 1 : entity sent to DataModel finished')
-        #fsLog.write('worker > phase 1 : entity sent to DataModel finished\n')
+        printt('worker > phase 1 : entity sent to DataModel finished')
+        fsLog.write('worker > phase 1 : entity sent to DataModel finished\n')
 
     else:
         # relation 전송 - DataModel 생성자
@@ -204,14 +204,14 @@ try:
 
             if checksum == 1234:
 
-                #printt('worker > phase 1 finished - ' + worker_id)
-                #fsLog.write('worker > phase 1 finished - ' + worker_id + '\n')
+                printt('worker > phase 1 finished - ' + worker_id)
+                fsLog.write('worker > phase 1 finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
 
                 printt('[error] worker > retry phase 1 - ' + worker_id)
-                # fsLog.write('[error] worker > retry phase 1 - ' + worker_id + '\n')
+                fsLog.write('[error] worker > retry phase 1 - ' + worker_id + '\n')
                 checksum = 0
 
             else:
@@ -219,15 +219,15 @@ try:
                 printt('[error] worker > unknown error in phase 1 - ' + worker_id)
                 printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
                 printt('[error] worker > return -1')
-                # fsLog.write('[error] worker > unknown error in phase 1 - ' + worker_id + '\n')
-                # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
-                # fsLog.write('[error] worker > return -1\n')
-                # fsLog.close()
+                fsLog.write('[error] worker > unknown error in phase 1 - ' + worker_id + '\n')
+                fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+                fsLog.write('[error] worker > return -1\n')
+                fsLog.close()
                 embedding_sock.close()
                 sys.exit(1)
 
-        #printt('worker > phase 1 : relation sent to DataModel finished')
-        #fsLog.write('worker > phase 1 : relation sent to DataModel finished\n')
+        printt('worker > phase 1 : relation sent to DataModel finished')
+        fsLog.write('worker > phase 1 : relation sent to DataModel finished\n')
 
     datamodelTime = default_timer() - timeNow
     checksum = 0
@@ -246,14 +246,14 @@ try:
 
         if checksum == 1234:
 
-            #printt('worker > phase 2 (transE:entity) finished - ' + worker_id)
-            #fsLog.write('worker > phase 2 (transE:entity) finished - ' + worker_id + '\n')
+            printt('worker > phase 2 (transE:entity) finished - ' + worker_id)
+            fsLog.write('worker > phase 2 (transE:entity) finished - ' + worker_id + '\n')
             checksum = 1
 
         elif checksum == 9876:
 
             printt('[error] worker > retry phase 2 (transE:entity) - ' + worker_id)
-            # fsLog.write('[error] worker > retry phase 2 (transE:entity) - ' + worker_id + '\n')
+            fsLog.write('[error] worker > retry phase 2 (transE:entity) - ' + worker_id + '\n')
             checksum = 0
 
         else:
@@ -261,15 +261,15 @@ try:
             printt('[error] worker > unknown error in phase 2 (transE:entity) - ' + worker_id)
             printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
             printt('[error] worker > return -1')
-            # fsLog.write('[error] worker > unknown error in phase 2 (transE:entity) - ' + worker_id + '\n')
-            # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
-            # fsLog.write('[error] worker > return -1\n')
-            # fsLog.close()
+            fsLog.write('[error] worker > unknown error in phase 2 (transE:entity) - ' + worker_id + '\n')
+            fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+            fsLog.write('[error] worker > return -1\n')
+            fsLog.close()
             embedding_sock.close()
             sys.exit(1)
 
-    #printt('worker > phase 2.1 : entity_vector sent to GeometricModel load function')
-    #fsLog.write('worker > phase 2.1 : entity_vector sent to GeometricModel load function\n')
+    printt('worker > phase 2.1 : entity_vector sent to GeometricModel load function')
+    fsLog.write('worker > phase 2.1 : entity_vector sent to GeometricModel load function\n')
 
     # transE 에서는 embedding_relation 을 전송
     if train_model == 0:
@@ -288,14 +288,14 @@ try:
 
             if checksum == 1234:
 
-                #printt('worker > phase 2 (transE:relation) finished - ' + worker_id)
-                #fsLog.write('worker > phase 2 (transE:relation) finished - ' + worker_id + '\n')
+                printt('worker > phase 2 (transE:relation) finished - ' + worker_id)
+                fsLog.write('worker > phase 2 (transE:relation) finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
 
                 printt('[error] worker > retry phase 2 (transE:relation) - worker.py - ' + worker_id)
-                # fsLog.write('[error] worker > retry phase 2 (transE:relation) - ' + worker_id + '\n')
+                fsLog.write('[error] worker > retry phase 2 (transE:relation) - ' + worker_id + '\n')
                 checksum = 0
 
             else:
@@ -303,10 +303,10 @@ try:
                 printt('[error] worker > unknown error in phase 2 (transE:relation) - ' + worker_id)
                 printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
                 printt('[error] worker > return -1')
-                # fsLog.write('[error] worker > unknown error in phase 2 (transE:relation) - ' + worker_id + '\n')
-                # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
-                # fsLog.write('[error] worker > return -1\n')
-                # fsLog.close()
+                fsLog.write('[error] worker > unknown error in phase 2 (transE:relation) - ' + worker_id + '\n')
+                fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+                fsLog.write('[error] worker > return -1\n')
+                fsLog.close()
                 embedding_sock.close()
                 sys.exit(1)
 
@@ -329,14 +329,14 @@ try:
 
             if checksum == 1234:
 
-                #printt('worker > phase 2 (transG:relation) finished - ' + worker_id)
-                #fsLog.write('worker > phase 2 (transG:relation) finished - ' + worker_id + '\n')
+                printt('worker > phase 2 (transG:relation) finished - ' + worker_id)
+                fsLog.write('worker > phase 2 (transG:relation) finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
 
                 printt('[error] worker > retry phase 2 (transG:relation) - worker.py - ' + worker_id)
-                # fsLog.write('[error] worker > retry phase 2 (transG:relation) - ' + worker_id + '\n')
+                fsLog.write('[error] worker > retry phase 2 (transG:relation) - ' + worker_id + '\n')
                 checksum = 0
 
             else:
@@ -344,10 +344,10 @@ try:
                 printt('[error] worker > unknown error in phase 2 (transG:relation) - ' + worker_id)
                 printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
                 printt('[error] worker > return -1')
-                # fsLog.write('[error] worker > unknown error in phase 2 (transG:relation) - ' + worker_id + '\n')
-                # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
-                # fsLog.write('[error] worker > return -1\n')
-                # fsLog.close()
+                fsLog.write('[error] worker > unknown error in phase 2 (transG:relation) - ' + worker_id + '\n')
+                fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+                fsLog.write('[error] worker > return -1\n')
+                fsLog.close()
                 embedding_sock.close()
                 sys.exit(1)
 
@@ -366,14 +366,14 @@ try:
 
             if checksum == 1234:
 
-                #printt('worker > phase 2 (transG:relation) finished - ' + worker_id)
-                #fsLog.write('worker > phase 2 (transG:relation) finished - ' + worker_id + '\n')
+                printt('worker > phase 2 (transG:relation) finished - ' + worker_id)
+                fsLog.write('worker > phase 2 (transG:relation) finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
 
                 printt('[error] worker > retry phase 2 (transG:relation) - worker.py - ' + worker_id)
-                # fsLog.write('[error] worker > retry phase 2 (transG:relation) - ' + worker_id + '\n')
+                fsLog.write('[error] worker > retry phase 2 (transG:relation) - ' + worker_id + '\n')
                 checksum = 0
 
             else:
@@ -381,10 +381,10 @@ try:
                 printt('[error] worker > unknown error in phase 2 (transG:relation) - ' + worker_id)
                 printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
                 printt('[error] worker > return -1')
-                # fsLog.write('[error] worker > unknown error in phase 2 (transG:relation) - ' + worker_id + '\n')
-                # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
-                # fsLog.write('[error] worker > return -1\n')
-                # fsLog.close()
+                fsLog.write('[error] worker > unknown error in phase 2 (transG:relation) - ' + worker_id + '\n')
+                fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+                fsLog.write('[error] worker > return -1\n')
+                fsLog.close()
                 embedding_sock.close()
                 sys.exit(1)
 
@@ -402,14 +402,14 @@ try:
 
             if checksum == 1234:
 
-                #printt('worker > phase 2 (transG:relation) finished - ' + worker_id)
-                #fsLog.write('worker > phase 2 (transG:relation) finished - ' + worker_id + '\n')
+                printt('worker > phase 2 (transG:relation) finished - ' + worker_id)
+                fsLog.write('worker > phase 2 (transG:relation) finished - ' + worker_id + '\n')
                 checksum = 1
 
             elif checksum == 9876:
 
                 printt('[error] worker > retry phase 2 (transG:relation) - worker.py - ' + worker_id)
-                # fsLog.write('[error] worker > retry phase 2 (transG:relation) - ' + worker_id + '\n')
+                fsLog.write('[error] worker > retry phase 2 (transG:relation) - ' + worker_id + '\n')
                 checksum = 0
 
             else:
@@ -417,18 +417,18 @@ try:
                 printt('[error] worker > unknown error in phase 2 (transG:relation) - ' + worker_id)
                 printt('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id)
                 printt('[error] worker > return -1')
-                # fsLog.write('[error] worker > unknown error in phase 2 (transG:relation) - ' + worker_id + '\n')
-                # fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
-                # fsLog.write('[error] worker > return -1\n')
-                # fsLog.close()
+                fsLog.write('[error] worker > unknown error in phase 2 (transG:relation) - ' + worker_id + '\n')
+                fsLog.write('[error] worker > received checksum = ' + str(checksum) + ' - ' + worker_id + '\n')
+                fsLog.write('[error] worker > return -1\n')
+                fsLog.close()
                 embedding_sock.close()
                 sys.exit(1)
 
     sockLoadTime = default_timer() - timeNow
     timeNow = default_timer()
 
-    #printt('worker > phase 2.2 : relation_vector sent to GeometricModel load function')
-    #fsLog.write('worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
+    printt('worker > phase 2.2 : relation_vector sent to GeometricModel load function')
+    fsLog.write('worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
 
     tempcount = 0
 
@@ -469,9 +469,9 @@ try:
                     printt('[error] worker > retry phase 3 (entity) - ' + worker_id)
                     printt('[error] worker > ' + str(e))
                     printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
-                    # fsLog.write('[error] worker > retry phase 3 (entity) - ' + worker_id + '\n')
-                    # fsLog.write('[error] worker > ' + str(e) + '\n')
-                    # fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
+                    fsLog.write('[error] worker > retry phase 3 (entity) - ' + worker_id + '\n')
+                    fsLog.write('[error] worker > ' + str(e) + '\n')
+                    fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
 
                 else:
 
@@ -479,11 +479,11 @@ try:
                     printt('[error] worker > ' + str(e))
                     printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
                     printt('[error] worker > return -1')
-                    # fsLog.write('[error] worker > retry phase 3 (entity) - ' + worker_id + '\n')
-                    # fsLog.write('[error] worker > ' + str(e) + '\n')
-                    # fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
-                    # fsLog.write('[error] worker > return -1\n')
-                    # fsLog.close()
+                    fsLog.write('[error] worker > retry phase 3 (entity) - ' + worker_id + '\n')
+                    fsLog.write('[error] worker > ' + str(e) + '\n')
+                    fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
+                    fsLog.write('[error] worker > return -1\n')
+                    fsLog.close()
                     embedding_sock.close()
                     sys.exit(1)
 
@@ -494,8 +494,8 @@ try:
 
             else:
 
-                #printt('worker > phase 3 (entity) finished - ' + worker_id)
-                #fsLog.write('worker > phase 3 (entity) finished - ' + worker_id + '\n')
+                printt('worker > phase 3 (entity) finished - ' + worker_id)
+                fsLog.write('worker > phase 3 (entity) finished - ' + worker_id + '\n')
                 flag = 1234
                 embedding_sock.send(pack('!i', flag))
                 success = 1
@@ -504,11 +504,11 @@ try:
         timeNow = default_timer()
 
         r.mset(entity_vectors)
-        #printt('worker > entity_vectors updated - ' + worker_id)
-        #printt('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
-        #fsLog.write('worker > entity_vectors updated - ' + worker_id + '\n')
-        #fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
-        # fsLog.close()
+        printt('worker > entity_vectors updated - ' + worker_id)
+        printt('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
+        fsLog.write('worker > entity_vectors updated - ' + worker_id + '\n')
+        fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
+        fsLog.close()
         redisTime += default_timer() - timeNow
 
     else:
@@ -567,9 +567,9 @@ try:
                     printt('[error] worker > retry phase 3 (relation) - ' + worker_id)
                     printt('[error] worker > ' + str(e))
                     printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
-                    # fsLog.write('[error] worker > retry phase 3 (relation) - ' + worker_id + '\n')
-                    # fsLog.write('[error] worker > ' + str(e) + '\n')
-                    # fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
+                    fsLog.write('[error] worker > retry phase 3 (relation) - ' + worker_id + '\n')
+                    fsLog.write('[error] worker > ' + str(e) + '\n')
+                    fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
 
                 else:
 
@@ -577,11 +577,11 @@ try:
                     printt('[error] worker > ' + str(e))
                     printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
                     printt('[error] worker > return -1')
-                    # fsLog.write('[error] worker > retry phase 3 (relation) - ' + worker_id + '\n')
-                    # fsLog.write('[error] worker > ' + str(e) + '\n')
-                    # fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
-                    # fsLog.write('[error] worker > return -1\n')
-                    # fsLog.close()
+                    fsLog.write('[error] worker > retry phase 3 (relation) - ' + worker_id + '\n')
+                    fsLog.write('[error] worker > ' + str(e) + '\n')
+                    fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
+                    fsLog.write('[error] worker > return -1\n')
+                    fsLog.close()
                     embedding_sock.close()
                     sys.exit(1)
 
@@ -592,8 +592,8 @@ try:
 
             else:
 
-                #printt('worker > phase 3 (relation) finished - ' + worker_id)
-                #fsLog.write('worker > phase 3 (relation) finished - ' + worker_id + '\n')
+                printt('worker > phase 3 (relation) finished - ' + worker_id)
+                fsLog.write('worker > phase 3 (relation) finished - ' + worker_id + '\n')
                 flag = 1234
                 embedding_sock.send(pack('!i', flag))
                 success = 1
@@ -611,11 +611,11 @@ try:
             r.mset(weights_clusters)
             r.mset(size_clusters)
 
-        #printt('worker > relation_vectors updated - ' + worker_id)
-        #printt('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
-        #fsLog.write('worker > relation_vectors updated - ' + worker_id + '\n')
-        #fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
-        # fsLog.close()
+        printt('worker > relation_vectors updated - ' + worker_id)
+        printt('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
+        fsLog.write('worker > relation_vectors updated - ' + worker_id + '\n')
+        fsLog.write('worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
+        fsLog.close()
 
         redisTime += default_timer() - timeNow
 
@@ -628,11 +628,11 @@ except Exception as e:
     printt('[error] worker > ' + str(e))
     printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
     printt('[error] worker > return -1')
-    # fsLog.write('[error] worker > exception occured in iteration - ' + str(worker_id) + '\n')
-    # fsLog.write('[error] worker > ' + str(e) + '\n')
-    # fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
-    # fsLog.write('[error] worker > return -1\n')
-    # fsLog.close()
+    fsLog.write('[error] worker > exception occured in iteration - ' + str(worker_id) + '\n')
+    fsLog.write('[error] worker > ' + str(e) + '\n')
+    fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
+    fsLog.write('[error] worker > return -1\n')
+    fsLog.close()
     embedding_sock.close()
     sys.exit(1)
 
