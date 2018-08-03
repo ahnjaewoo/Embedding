@@ -338,7 +338,7 @@ else:
     r.mset({f'{relation}_cv': compress(dumps(vector,
             protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(embedding_clusters, relations)})
 
-    weights_clusters = np.zeros(len(relations), 21).astype(np_dtype)
+    weights_clusters = np.zeros((len(relations), 21)).astype(np_dtype)
     weights_clusters[:, :n_cluster] = 1
     normalize(weights_clusters, norm='l1', copy=False)
     r.mset({f'{relation}_wv': compress(dumps(vector,
