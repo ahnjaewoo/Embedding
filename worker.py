@@ -394,9 +394,7 @@ try:
         while checksum != 1:
 
             # 원소를 한 번에 전송
-            for vector in size_clusters:
-                
-                embedding_sock.send(pack('!i', vector))
+            embedding_sock.send(pack('!' + 'i' * len(size_clusters), *size_clusters))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
