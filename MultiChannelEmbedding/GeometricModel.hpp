@@ -2036,23 +2036,23 @@ public:
 
 					// embedding_clusters 전송
 
-					vector_buff = (float *)calloc(count * 30 * dim + 1, sizeof(float));
+					vector_buff = (float *)calloc(count * 21 * dim + 1, sizeof(float));
 
 					for (int i = 0; i < count_relation(); i++){
 
 						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
-							for (int j = 0; j < 30; j++){
+							for (int j = 0; j < 21; j++){
 
 								for (int k = 0; k < dim; k++){
 									// 인덱싱에 에러가 있을 수 있음
-									vector_buff[dim * 30 * buff_idx + dim * j + k] = embedding_clusters[i][j](k);
+									vector_buff[dim * 21 * buff_idx + dim * j + k] = embedding_clusters[i][j](k);
 								}
 							}
 						}
 					}
 
-					send(fd, vector_buff, count * 30 * dim * sizeof(float), 0);
+					send(fd, vector_buff, count * 21 * dim * sizeof(float), 0);
 					free(vector_buff);
 
 					//.....................
@@ -2083,23 +2083,23 @@ public:
 
 					// embedding_clusters 전송
 
-					vector_buff = (half *)calloc(count * 30 * dim + 1, sizeof(half));
+					vector_buff = (half *)calloc(count * 21 * dim + 1, sizeof(half));
 
 					for (int i = 0; i < count_relation(); i++){
 
 						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
-							for (int j = 0; j < 30; j++){
+							for (int j = 0; j < 21; j++){
 
 								for (int k = 0; k < dim; k++){
 									// 인덱싱에 에러가 있을 수 있음
-									vector_buff[dim * 30 * buff_idx + dim * j + k] = (half)embedding_clusters[i][j](k);
+									vector_buff[dim * 21 * buff_idx + dim * j + k] = (half)embedding_clusters[i][j](k);
 								}
 							}
 						}
 					}
 
-					send(fd, vector_buff, count * 30 * dim * sizeof(half), 0);
+					send(fd, vector_buff, count * 21 * dim * sizeof(half), 0);
 					free(vector_buff);
 
 					//.....................
@@ -2315,9 +2315,9 @@ public:
 					
 					if (precision == 0){
 						
-						float * vector_buff = (float *)calloc(30 * dim + 1, sizeof(float));
+						float * vector_buff = (float *)calloc(21 * dim + 1, sizeof(float));
 						
-						if (recv(fd, vector_buff, 30 * dim * sizeof(float), MSG_WAITALL) < 0){
+						if (recv(fd, vector_buff, 21 * dim * sizeof(float), MSG_WAITALL) < 0){
 
 							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n");
 							printf("[error] GeometricModel.hpp > return -1\n");
@@ -2328,7 +2328,7 @@ public:
 							std::exit(-1);
 						}
 
-						for (int j = 0; j < 30; j++){
+						for (int j = 0; j < 21; j++){
 
 							for (int k = 0; k < dim; k++){
 								// 인덱싱에 에러가 있을 수 있음
@@ -2340,9 +2340,9 @@ public:
 					}
 					else{
 
-						half * vector_buff = (half *)calloc(30 * dim + 1, sizeof(half));
+						half * vector_buff = (half *)calloc(21 * dim + 1, sizeof(half));
 						
-						if (recv(fd, vector_buff, 30 * dim * sizeof(half), MSG_WAITALL) < 0){
+						if (recv(fd, vector_buff, 21 * dim * sizeof(half), MSG_WAITALL) < 0){
 
 							printf("[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n");
 							printf("[error] GeometricModel.hpp > return -1\n");
@@ -2353,7 +2353,7 @@ public:
 							std::exit(-1);
 						}
 
-						for (int j = 0; j < 30; j++){
+						for (int j = 0; j < 21; j++){
 
 							for (int k = 0; k < dim; k++){
 								// 인덱싱에 에러가 있을 수 있음
