@@ -2332,7 +2332,7 @@ public:
 
 							for (int k = 0; k < dim; k++){
 								// 인덱싱에 에러가 있을 수 있음
-								embedding_clusters[relation_id](j)(k) = vector_buff[dim * j + k];
+								embedding_clusters[relation_id][j](k) = vector_buff[dim * j + k];
 							}
 						}
 
@@ -2357,7 +2357,7 @@ public:
 
 							for (int k = 0; k < dim; k++){
 								// 인덱싱에 에러가 있을 수 있음
-								embedding_clusters[relation_id](j)(k) = (float) vector_buff[dim * j + k];
+								embedding_clusters[relation_id][j](k) = (float) vector_buff[dim * j + k];
 							}
 						}
 
