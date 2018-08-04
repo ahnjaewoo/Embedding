@@ -1814,6 +1814,14 @@ public:
 		double	mixed_prob = 1e-100;
 		for (int c = 0; c<size_clusters[triplet.second]; ++c)
 		{
+
+
+
+			// 여기 쯤에서 embedding_clusters 을 살펴보아야 함
+
+
+
+
 			vec error_c = embedding_entity[triplet.first.first] + embedding_clusters[triplet.second][c]
 				- embedding_entity[triplet.first.second];
 			mixed_prob = max(mixed_prob, fabs(weights_clusters[triplet.second][c])
@@ -1828,6 +1836,13 @@ public:
 		double	mixed_prob = 1e-100;
 		for (int c = 0; c<size_clusters[triplet.second]; ++c)
 		{
+
+
+
+			// 여기 쯤에서 embedding_clusters 을 살펴보아야 함
+
+
+			
 			vec error_c = embedding_entity[triplet.first.first] + embedding_clusters[triplet.second][c]
 				- embedding_entity[triplet.first.second];
 			mixed_prob += fabs(weights_clusters[triplet.second][c]) * exp(-sum(abs(error_c)));
