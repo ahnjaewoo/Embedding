@@ -1818,7 +1818,7 @@ public:
 
 
 			// 여기 쯤에서 embedding_clusters 을 살펴보아야 함
-
+			cout << embedding_clusters[triplet.second][c] << endl;
 
 
 
@@ -1840,6 +1840,7 @@ public:
 
 
 			// 여기 쯤에서 embedding_clusters 을 살펴보아야 함
+			cout << embedding_clusters[triplet.second][c] << endl;
 
 
 			
