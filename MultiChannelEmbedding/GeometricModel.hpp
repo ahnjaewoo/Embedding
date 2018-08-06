@@ -1829,7 +1829,7 @@ public:
 		for (int c = 0; c<size_clusters[triplet.second]; ++c)
 		{
 			// 여기 쯤에서 embedding_clusters 을 살펴보아야 함
-			cout << embedding_clusters[triplet.second][c] << endl << triplet.second << endl << c << '========' << endl;
+			cout << embedding_clusters[triplet.second][c] << endl << triplet.second << endl << c << "========" << endl;
 			
 
 
