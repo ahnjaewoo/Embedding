@@ -1829,14 +1829,24 @@ public:
 		for (int c = 0; c<size_clusters[triplet.second]; ++c)
 		{
 			// 여기 쯤에서 embedding_clusters 을 살펴보아야 함
-			cout << embedding_clusters[triplet.second][c] << endl << triplet.second << endl << c << "========" << endl;
+			//cout << embedding_clusters[triplet.second][c] << endl << triplet.second << endl << c << "========" << endl;
 			
+			try{
 
+				vec error_c = embedding_entity[triplet.first.first] + embedding_clusters[triplet.second][c]
+				-1- embedding_entity[triplet.first.second];
+				mixed_prob += fabs(weights_clusters[triplet.second][c]) * exp(-sum(abs(error_c)));
+			}
+			catch(std::exception& e){
 
-			
-			vec error_c = embedding_entity[triplet.first.first] + embedding_clusters[triplet.second][c]
-				- embedding_entity[triplet.first.second];
-			mixed_prob += fabs(weights_clusters[triplet.second][c]) * exp(-sum(abs(error_c)));
+				cout << "embedding_entity" << endl;
+				cout << embedding_entity[triplet.first.first] << endl;
+				cout << "embedding_clusters" << endl;
+				cout << embedding_clusters[triplet.second][c] << endl;
+				cout << "========================" << endl;
+
+				std::exit(-1);
+			}
 		}
 
 		return mixed_prob;
