@@ -540,7 +540,7 @@ try:
                     # embedding_clusters 전송
                     cluster_vector_list = unpack(precision_string * count_relation * embedding_dim * 21,
                         sockRecv(embedding_sock, 21 * precision_byte * embedding_dim * count_relation))
-                    cluster_vector_list = np.array(cluster_vector_list, dtype=np_dtype).reshape(count_relation, 21, embedding_dim)
+                    cluster_vector_list = np.array(cluster_vector_list, dtype=np_dtype).reshape(count_relation, 21 * embedding_dim)
                     cluster_vectors = {f"{relations[id_]}_cv": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
                         for vector, id_ in zip(cluster_vector_list, relation_id_list)}
                     # weights_clusters 전송
