@@ -2518,7 +2518,7 @@ public:
 
 				for (int i = 0; i < count_relation(); i++) {
 						
-					size_clusters[i] = vector_buff[i];
+					size_clusters[i] = ntohl(vector_buff[i]);
 				}
 				
 				free(vector_buff);
