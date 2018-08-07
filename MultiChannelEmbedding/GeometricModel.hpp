@@ -1766,7 +1766,7 @@ public:
 		if (is_preprocessed) {
 			for_each(embedding_entity.begin(), embedding_entity.end(), [=](vec& elem) {elem = vec(dim); });
 			for (auto &elem_vec : embedding_clusters) {
-				elem_vec.resize(30);
+				elem_vec.resize(21);
 				for_each(elem_vec.begin(), elem_vec.end(), [=](vec& elem) {elem = vec(dim); });
 			}
 			for (auto & elem_vec : weights_clusters)
@@ -1785,7 +1785,7 @@ public:
 			embedding_clusters.resize(count_relation());
 			for (auto &elem_vec : embedding_clusters)
 			{
-				elem_vec.resize(30);
+				elem_vec.resize(21);
 				for_each(elem_vec.begin(), elem_vec.end(), [=](vec& elem){elem = (2 * randu(dim, 1) - 1)*sqrt(6.0 / dim); });
 			}
 
