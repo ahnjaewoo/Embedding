@@ -2031,7 +2031,7 @@ public:
 				//	- size_clusters 전송
 				//	- CRP_factor 전송
 				int buff_idx = 0;
-				int * idx_buff = NULL;
+				int * idx_buff = (int *)calloc(count + 1, sizeof(int));;
 
 				for (int i = 0; i < count_relation(); i++){
 
@@ -2043,7 +2043,6 @@ public:
 					}
 				}
 
-				idx_buff = (int *)calloc(count + 1, sizeof(int));
 				count = htonl(count);
 				send(fd, &count, sizeof(count), 0);
 				send(fd, idx_buff, count * sizeof(int), 0);
