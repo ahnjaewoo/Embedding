@@ -1838,7 +1838,8 @@ public:
 				mixed_prob += fabs(weights_clusters[triplet.second][c]) * exp(-sum(abs(error_c)));
 			}
 			catch(std::exception& e){
-
+				
+				cout << size_clusters[triplet.second] << endl;
 				cout << "triplet.first.first" << endl;
 				cout << triplet.first.first << endl;
 				cout << "embedding_entity" << endl;
