@@ -1839,8 +1839,12 @@ public:
 			}
 			catch(std::exception& e){
 
+				cout << "triplet.first.first" << end;
+				cout << triplet.first.first << endl;
 				cout << "embedding_entity" << endl;
 				cout << embedding_entity[triplet.first.first] << endl;
+				cout << "triplet.second" << endl;
+				cout << triplet.second << endl;
 				cout << "embedding_clusters" << endl;
 				cout << embedding_clusters[triplet.second][c] << endl;
 				cout << "========================" << endl;
