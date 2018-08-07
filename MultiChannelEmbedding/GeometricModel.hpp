@@ -1839,7 +1839,7 @@ public:
 			}
 			catch(std::exception& e){
 
-				cout << "triplet.first.first" << end;
+				cout << "triplet.first.first" << endl;
 				cout << triplet.first.first << endl;
 				cout << "embedding_entity" << endl;
 				cout << embedding_entity[triplet.first.first] << endl;
