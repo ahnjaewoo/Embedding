@@ -2054,8 +2054,9 @@ public:
 
 				count = htonl(count);
 				send(fd, &count, sizeof(count), 0);
-				send(fd, idx_buff, count * sizeof(int), 0);
 				count = ntohl(count);
+
+				send(fd, idx_buff, count * sizeof(int), 0);
 				free(idx_buff);
 
 				if (precision == 0){
