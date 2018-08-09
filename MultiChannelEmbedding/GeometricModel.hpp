@@ -2066,7 +2066,7 @@ public:
 					// embedding_clusters 전송
 
 					vector_buff = (float *)calloc(count * 21 * dim + 1, sizeof(float));
-
+					buff_idx = 0;
 					for (int i = 0; i < count_relation(); i++){
 
 						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
@@ -2078,6 +2078,7 @@ public:
 									vector_buff[dim * 21 * buff_idx + dim * j + k] = embedding_clusters[i][j](k);
 								}
 							}
+							buff_idx++;
 						}
 					}
 
@@ -2089,7 +2090,7 @@ public:
 					// weights_clusters 전송
 
 					vector_buff = (float *)calloc(count * 21 + 1, sizeof(float));
-
+					buff_idx = 0;
 					for (int i = 0; i < count_relation(); i++){
 
 						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
@@ -2098,6 +2099,7 @@ public:
 								// n_cluster 를 생각하지 않고 그냥 21 개의 값을 전송
 								vector_buff[21 * buff_idx + j] = weights_clusters[i](j);
 							}
+							buff_idx++;
 						}
 					}
 
