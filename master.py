@@ -700,7 +700,7 @@ elif train_model == 1:
         # 원소를 한 번에 전송 - 2 단계
         for vector in size_clusters:
             
-            test_sock.send(pack('!' + 'i' * len(vector), *vector))
+            test_sock.send(pack('!i', vector))
 
         checksum = unpack('!i', sockRecv(test_sock, 4))[0]
 
