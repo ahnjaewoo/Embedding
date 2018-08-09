@@ -2137,7 +2137,7 @@ public:
 					// weights_clusters 전송
 
 					vector_buff = (half *)calloc(count * 21 + 1, sizeof(half));
-					buff_idx = 0
+					buff_idx = 0;
 					for (int i = 0; i < count_relation(); i++){
 
 						if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
