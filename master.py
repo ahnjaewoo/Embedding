@@ -636,8 +636,8 @@ elif train_model == 1:
         # 원소를 한 번에 전송 - 2 단계
         for id_, vector in zip(relation_ids, embedding_clusters):
             
-            embedding_sock.send(pack('!i', id_))
-            embedding_sock.send(pack(precision_string * len(vector), *vector))
+            test_sock.send(pack('!i', id_))
+            test_sock.send(pack(precision_string * len(vector), *vector))
 
         ################################ 여기서 vector 를 flatten 해주어야할 수 있음
 
@@ -669,8 +669,8 @@ elif train_model == 1:
         # 원소를 한 번에 전송 - 2 단계
         for id_, vector in zip(relation_ids, weights_clusters):
             
-            embedding_sock.send(pack('!i', id_))
-            embedding_sock.send(pack(precision_string * len(vector), *vector))
+            test_sock.send(pack('!i', id_))
+            test_sock.send(pack(precision_string * len(vector), *vector))
 
         checksum = unpack('!i', sockRecv(test_sock, 4))[0]
 
@@ -700,7 +700,7 @@ elif train_model == 1:
         # 원소를 한 번에 전송 - 2 단계
         for vector in size_clusters:
             
-            embedding_sock.send(pack('!' + 'i' * len(vector), *vector))
+            test_sock.send(pack('!' + 'i' * len(vector), *vector))
 
         checksum = unpack('!i', sockRecv(test_sock, 4))[0]
 
