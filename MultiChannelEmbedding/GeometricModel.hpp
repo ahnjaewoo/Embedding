@@ -2123,9 +2123,9 @@ public:
 								for (int k = 0; k < dim; k++){
 									// 인덱싱에 에러가 있을 수 있음
 									vector_buff[dim * 21 * buff_idx + dim * j + k] = (half)embedding_clusters[i][j](k);
-									buff_idx++;
 								}
 							}
+							buff_idx++;
 						}
 					}
 
@@ -2145,8 +2145,8 @@ public:
 							for (int j = 0; j < 21; j++){
 								// n_cluster 를 생각하지 않고 그냥 21 개의 값을 전송
 								vector_buff[21 * buff_idx + j] = (half)weights_clusters[i](j);
-								buff_idx++;
 							}
+							buff_idx++;
 						}
 					}
 
