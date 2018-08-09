@@ -2031,15 +2031,23 @@ public:
 				//	- weights_clusters 전송
 				//	- size_clusters 전송
 				//	- CRP_factor 전송
+
+				for (int i = 0; i < count_relation(); i++){
+
+					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
+
+						count ++;
+					}
+				}
+
 				int buff_idx = 0;
-				int * idx_buff = (int *)calloc(count + 1, sizeof(int));;
+				int * idx_buff = (int *)calloc(count + 1, sizeof(int));
 
 				for (int i = 0; i < count_relation(); i++){
 
 					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
 						idx_buff[buff_idx] = htonl(i);
-						count++;
 						buff_idx++;
 					}
 				}
