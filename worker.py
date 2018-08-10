@@ -464,6 +464,7 @@ try:
 
                 if tempcount < 3:
 
+                    pass
                     #printt('[error] worker > retry phase 3 (entity) - ' + worker_id)
                     #printt('[error] worker > ' + str(e))
                     #printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
@@ -562,6 +563,7 @@ try:
 
                 if tempcount < 3:
 
+                    pass
                     #printt('[error] worker > retry phase 3 (relation) - ' + worker_id)
                     #printt('[error] worker > ' + str(e))
                     #printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
