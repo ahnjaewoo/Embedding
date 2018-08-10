@@ -326,7 +326,7 @@ r.set('relations', compress(dumps(relations, protocol=HIGHEST_PROTOCOL), 9))
 relation_ids = np.array(list(relation2id.values()), dtype=np.int32)
 if train_model == 0:
     
-    relations_initialized = normalize(np.random.randn(len(relations), n_dim).astype(np.append))
+    relations_initialized = normalize(np.random.randn(len(relations), n_dim).astype(np.dtype))
 
     r.mset({f'{relation}_v': compress(dumps(vector,
             protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(relations_initialized, relations)})
