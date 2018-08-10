@@ -261,10 +261,10 @@ public:
 
                         if (recv(fd, &anchor_num, sizeof(anchor_num), MSG_WAITALL) < 0){
 
-                            cout << "[error] DataModel > recv anchor_num\n";
-                            cout << "[error] DataModel > return -1\n";
-                            fprintf(fs_log, "[error] DataModel > recv anchor_num\n");
-                            fprintf(fs_log,  "[error] DataModel > return -1\n");
+                            //cout << "[error] DataModel > recv anchor_num\n";
+                            //cout << "[error] DataModel > return -1\n";
+                            //fprintf(fs_log, "[error] DataModel > recv anchor_num\n");
+                            //fprintf(fs_log,  "[error] DataModel > return -1\n");
                             close(fd);
                             fclose(fs_log);
                             std::exit(-1);
@@ -273,10 +273,10 @@ public:
 
                         if (recv(fd, &entity_num, sizeof(entity_num), MSG_WAITALL) < 0){
 
-                            cout << "[error] DataModel > recv entity_num\n";
-                            cout << "[error] DataModel > return -1\n";
-                            fprintf(fs_log, "[error] DataModel > recv entity_num\n");
-                            fprintf(fs_log, "[error] DataModel > return -1\n");   
+                            //cout << "[error] DataModel > recv entity_num\n";
+                            //cout << "[error] DataModel > return -1\n";
+                            //fprintf(fs_log, "[error] DataModel > recv entity_num\n");
+                            //fprintf(fs_log, "[error] DataModel > return -1\n");   
                             std::exit(-1);
                             close(fd);
                             fclose(fs_log);
@@ -286,10 +286,10 @@ public:
                         int * anchor_buff = (int *)calloc(ntohl(anchor_num) + 1, sizeof(int));
                         if (recv(fd, anchor_buff, ntohl(anchor_num) * sizeof(int), MSG_WAITALL) < 0){
 
-                            cout << "[error] DataModel > recv anchor_buff\n";
-                            cout << "[error] DataModel > return -1\n";
-                            fprintf(fs_log, "[error] DataModel > recv anchor_buff\n");
-                            fprintf(fs_log, "[error] DataModel > return -1\n");
+                            //cout << "[error] DataModel > recv anchor_buff\n";
+                            //cout << "[error] DataModel > return -1\n";
+                            //fprintf(fs_log, "[error] DataModel > recv anchor_buff\n");
+                            //fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
                             fclose(fs_log);
                             std::exit(-1);
@@ -309,10 +309,10 @@ public:
                         int * entity_buff = (int *)calloc(ntohl(entity_num) + 1, sizeof(int));
                         if (recv(fd, entity_buff, ntohl(entity_num) * sizeof(int), MSG_WAITALL) < 0){
 
-                            cout << "[error] DataModel > recv entity_buff\n";
-                            cout << "[error] DataModel > return -1\n";
-                            fprintf(fs_log, "[error] DataModel > recv entity_buff\n");
-                            fprintf(fs_log, "[error] DataModel > return -1\n");
+                            //cout << "[error] DataModel > recv entity_buff\n";
+                            //cout << "[error] DataModel > return -1\n";
+                            //fprintf(fs_log, "[error] DataModel > recv entity_buff\n");
+                            //fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
                             fclose(fs_log);
                             std::exit(-1);
@@ -348,10 +348,10 @@ public:
                     }
                     catch(std::exception& e){
 
-                        cout << "[error] DataModel >  entity : exception occured\n";
-                        cout << "%s\n" << e.what();
-                        fprintf(fs_log, "[error] DataModel >  entity : exception occured\n");
-                        fprintf(fs_log, "%s\n", e.what());
+                        //cout << "[error] DataModel >  entity : exception occured\n";
+                        //cout << "%s\n" << e.what();
+                        //fprintf(fs_log, "[error] DataModel >  entity : exception occured\n");
+                        //fprintf(fs_log, "%s\n", e.what());
                         success = 0;
                         flag = 9876;
                         flag = htonl(flag);
@@ -378,10 +378,10 @@ public:
 
                         if (recv(fd, &triplet_num, sizeof(triplet_num), MSG_WAITALL) < 0){
 
-                            cout << "[error] DataModel > recv triplet_num" << endl;
-                            cout << "[error] DataModel > return -1\n";
-                            fprintf(fs_log, "[error] DataModel > recv triplet_num\n");
-                            fprintf(fs_log, "[error] DataModel > return -1\n");
+                            //cout << "[error] DataModel > recv triplet_num" << endl;
+                            //cout << "[error] DataModel > return -1\n";
+                            //fprintf(fs_log, "[error] DataModel > recv triplet_num\n");
+                            //fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
                             fclose(fs_log);
                             std::exit(-1);
@@ -393,10 +393,10 @@ public:
                         int * triplet_buff = (int *)calloc(ntohl(triplet_num) * 3 + 1, sizeof(int));
                         if (recv(fd, triplet_buff, ntohl(triplet_num) * 3 * sizeof(int), MSG_WAITALL) < 0){
 
-                            cout << "[error] DataModel > recv triplet_buff\n";
-                            cout << "[error] DataModel > return -1\n";
-                            fprintf(fs_log, "[error] DataModel > recv triplet_buff\n");
-                            fprintf(fs_log, "[error] DataModel > return -1\n");
+                            //cout << "[error] DataModel > recv triplet_buff\n";
+                            //cout << "[error] DataModel > return -1\n";
+                            //fprintf(fs_log, "[error] DataModel > recv triplet_buff\n");
+                            //fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
                             fclose(fs_log);
                             std::exit(-1);
@@ -425,10 +425,10 @@ public:
                     }
                     catch(std::exception& e){
 
-                        cout << "[error] DataModel > relation : exception occured\n";
-                        cout << "%s\n" << e.what();
-                        fprintf(fs_log, "[error] DataModel > relation : exception occured\n");
-                        fprintf(fs_log, "%s\n", e.what());
+                        //cout << "[error] DataModel > relation : exception occured\n";
+                        //cout << "%s\n" << e.what();
+                        //fprintf(fs_log, "[error] DataModel > relation : exception occured\n");
+                        //fprintf(fs_log, "%s\n", e.what());
                         success = 0;
                         flag = 9876;
                         flag = htonl(flag);
