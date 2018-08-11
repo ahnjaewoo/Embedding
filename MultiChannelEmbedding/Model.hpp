@@ -195,6 +195,9 @@ public:
 		double real_hit = 0;
 		for (auto r = 0; r < data_model.set_relation.size(); ++r)
 		{
+
+			cout << "test > 199" << endl;
+
 			vector<pair<double, bool>>	threshold_dev;
 			for (auto i = data_model.data_dev_true.begin(); i != data_model.data_dev_true.end(); ++i)
 			{
@@ -325,6 +328,9 @@ public:
 			{
 				for (auto j = 0; j != data_model.set_relation.size(); ++j)
 				{
+
+					cout << "test > 329" << endl;
+
 					t.second = j;
 
 					if (score_i >= prob_triplets(t))
@@ -340,6 +346,10 @@ public:
 			{
 				for (auto j = 0; j != data_model.set_entity.size(); ++j)
 				{
+
+					cout << "test > 347" << endl;
+
+
 					if (task_type == LinkPredictionHead || part == 1)
 						t.first.first = j;
 					else

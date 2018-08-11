@@ -1820,6 +1820,10 @@ public:
 				* exp(-sum(abs(error_c))));
 		}
 
+
+		cout << "miex_prob" << mixed_prob << endl;
+
+
 		return mixed_prob;
 	}
 
