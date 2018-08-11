@@ -1820,7 +1820,7 @@ public:
 				* exp(-sum(abs(error_c))));
 		}
 
-
+		logging.record() << mixed_prob;
 		cout << "miex_prob" << mixed_prob << endl;
 
 
