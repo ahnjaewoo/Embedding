@@ -139,7 +139,7 @@ int main(int argc, char* argv[]){
 			if (train_model == 0) {
 				model = new TransE(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock, fs_log, precision);
 			} else if (train_model == 1) {
-				model = new TransG(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, n_cluster, crp, 10, false, true, true, worker_num, master_epoch, master_sock, fs_log, precision);
+				model = new TransG(FB15K, LinkPredictionTail, report_path, dim, alpha, training_threshold, n_cluster, crp, 10, true, true, true, worker_num, master_epoch, master_sock, fs_log, precision);
 			} else {
 				cout << "[error] embedding > training model mismatch, recieved : " << train_model << endl;
 				cout << "[error] embedding > return -1\n";
@@ -153,7 +153,7 @@ int main(int argc, char* argv[]){
                 if (train_model == 0) { 
                     model = new TransE(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock, fs_log, precision);
                 } else if (train_model == 1) {
-                    model = new TransG(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, n_cluster, crp, 10, false, true, true, worker_num, master_epoch, master_sock, fs_log, precision);
+                    model = new TransG(WN18, LinkPredictionTail, report_path, dim, alpha, training_threshold, n_cluster, crp, 10, true, true, true, worker_num, master_epoch, master_sock, fs_log, precision);
                 } else { 
 					cout << "[error] embedding > training model mismatch, recieved : " << train_model << endl;
 					cout << "[error] embedding > return -1\n";

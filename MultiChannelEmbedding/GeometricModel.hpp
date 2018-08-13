@@ -1822,6 +1822,8 @@ public:
 				* exp(-sum(abs(error_c))));
 		}
 
+		cout << "mixed_prob  " << mixed_prob << endl;
+
 		return mixed_prob;
 	}
 
@@ -1835,11 +1837,11 @@ public:
 			-1- embedding_entity[triplet.first.second];
 			mixed_prob += fabs(weights_clusters[triplet.second][c]) * exp(-sum(abs(error_c)));
 			
-			cout << "embedding_entity[triplet.first.first]  " << embedding_entity[triplet.first.first] << endl;
-			cout << "embedding_clusters[triplet.second][c]  " << embedding_clusters[triplet.second][c] << endl;
-			cout << "embedding_entity[triplet.first.second]  " << embedding_entity[triplet.first.second] << endl;
-			cout << "error_c  " << error_c << endl;
-			cout << "weights_clusters[triplet.second][c]  " << weights_clusters[triplet.second][c] << endl;
+			//cout << "embedding_entity[triplet.first.first]  " << embedding_entity[triplet.first.first] << endl;
+			//cout << "embedding_clusters[triplet.second][c]  " << embedding_clusters[triplet.second][c] << endl;
+			//cout << "embedding_entity[triplet.first.second]  " << embedding_entity[triplet.first.second] << endl;
+			//cout << "error_c  " << error_c << endl;
+			//cout << "weights_clusters[triplet.second][c]  " << weights_clusters[triplet.second][c] << endl;
 		}
 
 		return mixed_prob;
