@@ -1813,8 +1813,8 @@ public:
 			return training_prob_triplets(triplet);
 		}
 
-		cout << "triplet.second  " << triplet.second << endl;
-		cout << "size_clusters[triplet.second]  " << size_clusters[triplet.second] << endl;
+		//cout << "triplet.second  " << triplet.second << endl;
+		//cout << "size_clusters[triplet.second]  " << size_clusters[triplet.second] << endl;
 
 		double	mixed_prob = 1e-100;
 		for (int c = 0; c<size_clusters[triplet.second]; ++c)
@@ -1824,14 +1824,14 @@ public:
 			mixed_prob = max(mixed_prob, fabs(weights_clusters[triplet.second][c])
 				* exp(-sum(abs(error_c))));
 
-			cout << "embedding_entity[triplet.first.first]  " << embedding_entity[triplet.first.first] << endl;
-			cout << "embedding_clusters[triplet.second][c]  " << embedding_clusters[triplet.second][c] << endl;
-			cout << "embedding_entity[triplet.first.second]  " << embedding_entity[triplet.first.second] << endl;
-			cout << "error_c  " << error_c << endl;
-			cout << "weights_clusters[triplet.second][c]  " << weights_clusters[triplet.second][c] << endl;
+			//cout << "embedding_entity[triplet.first.first]  " << embedding_entity[triplet.first.first] << endl;
+			//cout << "embedding_clusters[triplet.second][c]  " << embedding_clusters[triplet.second][c] << endl;
+			//cout << "embedding_entity[triplet.first.second]  " << embedding_entity[triplet.first.second] << endl;
+			//cout << "error_c  " << error_c << endl;
+			//cout << "weights_clusters[triplet.second][c]  " << weights_clusters[triplet.second][c] << endl;
 		}
 
-		cout << "mixed_prob  " << mixed_prob << endl;
+		//cout << "mixed_prob  " << mixed_prob << endl;
 
 		return mixed_prob;
 	}
