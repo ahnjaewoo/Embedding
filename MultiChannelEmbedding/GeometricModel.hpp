@@ -1828,6 +1828,10 @@ public:
 	virtual double training_prob_triplets(const pair<pair<int, int>, int>& triplet)
 	{
 		double	mixed_prob = 1e-100;
+
+		cout << "triplet.second" << triplet.second << endl;
+		cout << "size_clusters[triplet.second]"  << size_clusters[triplet.second] << endl;
+
 		for (int c = 0; c<size_clusters[triplet.second]; ++c)
 		{
 			vec error_c = embedding_entity[triplet.first.first] + embedding_clusters[triplet.second][c]
@@ -1835,8 +1839,6 @@ public:
 			mixed_prob += fabs(weights_clusters[triplet.second][c]) * exp(-sum(abs(error_c)));
 			
 		}
-
-		cout << "mixed_prob" << mixed_prob << endl;
 
 		return mixed_prob;
 	}
