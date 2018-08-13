@@ -1808,8 +1808,11 @@ public:
 public:
 	virtual double prob_triplets(const pair<pair<int, int>, int>& triplet)
 	{
-		if (single_or_total == false)
+		if (single_or_total == false){
+
+			cout << "branch" << endl;
 			return training_prob_triplets(triplet);
+		}
 
 		double	mixed_prob = 1e-100;
 		for (int c = 0; c<size_clusters[triplet.second]; ++c)
@@ -1821,7 +1824,7 @@ public:
 		}
 
 		logging.record() << mixed_prob;
-		cout << "miex_prob" << mixed_prob << endl;
+		cout << "mixed_prob" << mixed_prob << endl;
 
 
 		return mixed_prob;
