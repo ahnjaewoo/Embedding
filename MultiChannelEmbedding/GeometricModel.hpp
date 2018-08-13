@@ -1810,7 +1810,6 @@ public:
 	{
 		if (single_or_total == false){
 
-			cout << "branch" << endl;
 			return training_prob_triplets(triplet);
 		}
 
@@ -1822,10 +1821,6 @@ public:
 			mixed_prob = max(mixed_prob, fabs(weights_clusters[triplet.second][c])
 				* exp(-sum(abs(error_c))));
 		}
-
-		logging.record() << mixed_prob;
-		cout << "mixed_prob" << mixed_prob << endl;
-
 
 		return mixed_prob;
 	}
@@ -1840,6 +1835,8 @@ public:
 			mixed_prob += fabs(weights_clusters[triplet.second][c]) * exp(-sum(abs(error_c)));
 			
 		}
+
+		cout << "mixed_prob" << mixed_prob << endl;
 
 		return mixed_prob;
 	}
