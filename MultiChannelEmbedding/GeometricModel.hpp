@@ -2461,8 +2461,6 @@ public:
 						for (int j = 0; j < 21; j++){
 							// n_cluster 를 생각하지 않고 그냥 21 개의 값을 전송
 							weights_clusters[relation_id](j) = vector_buff[j];
-							cout << "vector_buff[j]  " << vector_buff[j] << endl;
-							cout << "weights_clusters[relation_id](j)  " << weights_clusters[relation_id](j) << endl;
 						}
 
 						free(vector_buff);
@@ -2485,8 +2483,6 @@ public:
 						for (int j = 0; j < 21; j++){
 							// n_cluster 를 생각하지 않고 그냥 21 개의 값을 전송
 							weights_clusters[relation_id](j) = (float) vector_buff[j];
-							cout << "vector_buff[j]  " << (float)vector_buff[j] << endl;
-							cout << "weights_clusters[relation_id](j)  " << (float)weights_clusters[relation_id](j) << endl;
 						}
 
 						free(vector_buff);
