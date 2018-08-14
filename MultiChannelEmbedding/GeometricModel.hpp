@@ -1829,6 +1829,7 @@ public:
 			//cout << "embedding_entity[triplet.first.second]  " << embedding_entity[triplet.first.second] << endl;
 			cout << "error_c  " << error_c << endl;
 			cout << "exp(-sum(abs(error_c)))  " << exp(-sum(abs(error_c))) << endl;
+			cout << "fabs(weights_clusters[triplet.second][c])  " << fabs(weights_clusters[triplet.second][c]) << endl;
 			//cout << "weights_clusters[triplet.second][c]  " << weights_clusters[triplet.second][c] << endl;
 		}
 
