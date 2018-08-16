@@ -2697,6 +2697,8 @@ public:
 		vec& head = embedding_entity[triplet.first.first];
 		vec& tail = embedding_entity[triplet.first.second];
 
+		cout << "train_triplet" << endl;
+
 		if (!head.is_finite())
 			cout << "d";
 
@@ -2749,6 +2751,8 @@ public:
 	}
 
 	virtual void train_triplet_parts(const pair<pair<int, int>, int>& triplet) {
+
+		cout << "train_triplet_parts" << endl;
 
 		int head_id = triplet.first.first;
 		int tail_id = triplet.first.second;
