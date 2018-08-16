@@ -1808,17 +1808,11 @@ public:
 public:
 	virtual double prob_triplets(const pair<pair<int, int>, int>& triplet)
 	{
-		cout << "triplet.second  " << triplet.second << endl;
-		cout << "size_clusters[triplet.second]  " << size_clusters[triplet.second] << endl;
-		cout << "embedding_entity " << embedding_entity[triplet.first.first] << endl;
-		cout << "embedding clusters" << embedding_clusters[triplet.second][0] << endl;
 
 		if (single_or_total == false){
 
 			return training_prob_triplets(triplet);
 		}
-
-		
 
 		double	mixed_prob = 1e-100;
 		for (int c = 0; c<size_clusters[triplet.second]; ++c)
@@ -2579,6 +2573,10 @@ public:
 
 		double prob_local_true = exp(-sum(abs(head + relation - tail)));
 		double prob_local_false = exp(-sum(abs(head_f + relation_f - tail_f)));
+
+		cout << "head " << head << endl;
+		cout << "relation" << relation <<endl;
+		cout << "weights_clusters" << weights_clusters[triplet.second][cluster] << end;
 
 		weights_clusters[triplet.second][cluster] +=
 			factor / prob_true * prob_local_true * sign(weights_clusters[triplet.second][cluster]);
