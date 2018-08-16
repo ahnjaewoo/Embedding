@@ -1808,13 +1808,17 @@ public:
 public:
 	virtual double prob_triplets(const pair<pair<int, int>, int>& triplet)
 	{
+		cout << "triplet.second  " << triplet.second << endl;
+		cout << "size_clusters[triplet.second]  " << size_clusters[triplet.second] << endl;
+		cout << "embedding_entity " << embedding_entity[triplet.first.first] << endl;
+		cout << "embedding clusters" << embedding_clusters[triplet.second][0] << endl;
+
 		if (single_or_total == false){
 
 			return training_prob_triplets(triplet);
 		}
 
-		//cout << "triplet.second  " << triplet.second << endl;
-		//cout << "size_clusters[triplet.second]  " << size_clusters[triplet.second] << endl;
+		
 
 		double	mixed_prob = 1e-100;
 		for (int c = 0; c<size_clusters[triplet.second]; ++c)
