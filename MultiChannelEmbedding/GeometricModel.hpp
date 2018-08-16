@@ -1844,7 +1844,7 @@ public:
 		for (int c = 0; c<size_clusters[triplet.second]; ++c)
 		{
 			vec error_c = embedding_entity[triplet.first.first] + embedding_clusters[triplet.second][c]
-			-1- embedding_entity[triplet.first.second];
+			- embedding_entity[triplet.first.second];
 			mixed_prob += fabs(weights_clusters[triplet.second][c]) * exp(-sum(abs(error_c)));
 			
 			//cout << "embedding_entity[triplet.first.first]  " << embedding_entity[triplet.first.first] << endl;
@@ -2574,13 +2574,6 @@ public:
 		double prob_local_true = exp(-sum(abs(head + relation - tail)));
 		double prob_local_false = exp(-sum(abs(head_f + relation_f - tail_f)));
 
-		cout << "head" << endl;
-		cout << head << endl;
-		cout << "relation" << endl;
-		cout <<  relation << endl;
-		cout << "weights_clusters" << endl; 
-		cout << weights_clusters[triplet.second][cluster] << endl;
-
 		weights_clusters[triplet.second][cluster] +=
 			factor / prob_true * prob_local_true * sign(weights_clusters[triplet.second][cluster]);
 		weights_clusters[triplet_f.second][cluster] -=
@@ -2723,7 +2716,6 @@ public:
 		{
 #pragma omp critical
 			{
-				//cout<<"A";
 				weights_clusters[triplet.second][size_clusters[triplet.second]] = CRP_factor;
 				embedding_clusters[triplet.second][size_clusters[triplet.second]] = (2 * randu(dim, 1) - 1)*sqrt(6.0 / dim); //tail - head;
 				++size_clusters[triplet.second];
@@ -2766,12 +2758,8 @@ public:
 		double prob_true = training_prob_triplets(triplet);
 		double prob_false = training_prob_triplets(triplet_f);
 
-		cout << prob_true << " " << prob_false << endl;
-
 		if (prob_true / prob_false > exp(training_threshold))
 			return;
-
-		cout << "A" << endl;
 
 		for (int c = 0; c<size_clusters[triplet.second]; ++c)
 		{
