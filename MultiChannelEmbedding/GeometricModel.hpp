@@ -2698,8 +2698,6 @@ public:
 		vec& head = embedding_entity[triplet.first.first];
 		vec& tail = embedding_entity[triplet.first.second];
 
-		cout << "train_triplet" << endl;
-
 		if (!head.is_finite())
 			cout << "d";
 
@@ -2752,9 +2750,6 @@ public:
 	}
 
 	virtual void train_triplet_parts(const pair<pair<int, int>, int>& triplet) {
-
-		cout << "train_triplet_parts" << endl;
-
 		int head_id = triplet.first.first;
 		int tail_id = triplet.first.second;
 		int relation_id = triplet.second;
@@ -2771,8 +2766,12 @@ public:
 		double prob_true = training_prob_triplets(triplet);
 		double prob_false = training_prob_triplets(triplet_f);
 
+		cout << prob_true << " " << prob_false << endl;
+
 		if (prob_true / prob_false > exp(training_threshold))
 			return;
+
+		cout << "A" << endl;
 
 		for (int c = 0; c<size_clusters[triplet.second]; ++c)
 		{
