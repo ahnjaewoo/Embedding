@@ -2574,11 +2574,12 @@ public:
 		double prob_local_true = exp(-sum(abs(head + relation - tail)));
 		double prob_local_false = exp(-sum(abs(head_f + relation_f - tail_f)));
 
-		cout << "head " << endl;
+		cout << "head" << endl;
 		cout << head << endl;
 		cout << "relation" << endl;
-		cout <<  relation <<endl;
-		cout << "weights_clusters" << weights_clusters[triplet.second][cluster] << end;
+		cout <<  relation << endl;
+		cout << "weights_clusters" << endl; 
+		cout << weights_clusters[triplet.second][cluster] << endl;
 
 		weights_clusters[triplet.second][cluster] +=
 			factor / prob_true * prob_local_true * sign(weights_clusters[triplet.second][cluster]);
