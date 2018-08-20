@@ -2027,6 +2027,7 @@ public:
 			int checksum = 0;
 
 			while (checksum != 1){
+				count = 0;
 				//	- embedding_clusters 전송
 				//	- weights_clusters 전송
 				//	- size_clusters 전송
