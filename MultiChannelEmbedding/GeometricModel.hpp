@@ -2168,7 +2168,7 @@ public:
 
 					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
-						vector_buff[idx++] = htonl(size_clusters[i]);
+						vector_buff[idx] = htonl(size_clusters[i]);
 
 						idx++;
 					}
