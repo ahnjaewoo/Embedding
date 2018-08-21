@@ -2027,6 +2027,7 @@ public:
 			int checksum = 0;
 
 			while (checksum != 1){
+				count = 0;
 				//	- embedding_clusters 전송
 				//	- weights_clusters 전송
 				//	- size_clusters 전송
@@ -2167,7 +2168,9 @@ public:
 
 					if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
 
-						vector_buff[idx++] = htonl(size_clusters[i]);
+						vector_buff[idx] = htonl(size_clusters[i]);
+
+						idx++;
 					}
 				}
 
