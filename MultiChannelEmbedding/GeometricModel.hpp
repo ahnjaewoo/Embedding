@@ -2215,6 +2215,10 @@ public:
                 }
 			}
 		}
+
+
+		cout << "save-> embedding_clusters[1][2][3]  " << embedding_clusters[1][2](3) << endl;
+		cout << "save-> embedding_clusters[1][2][4]  " << embedding_clusters[1][2](4) << endl;
 	}
 
 	virtual void load(const string& filename, FILE * fs_log) override
@@ -2415,6 +2419,9 @@ public:
 				send(fd, &flag, sizeof(flag), 0);
 			}
 		}
+
+		cout << "load-> embedding_clusters[1][2][3]  " << embedding_clusters[1][2](3) << endl;
+		cout << "load-> embedding_clusters[1][2][4]  " << embedding_clusters[1][2](4) << endl;
 
 		//.....................
 
