@@ -16,6 +16,8 @@ int main(int argc, char* argv[])
 	double lr = 0.001;
 	int data_root_id = 0;
 	int train_model = 0;
+	int n_cluster = 10;
+	double crp = 0.1
 
 	getParams(argc, argv, data_root_id, dim, lr, train_model);
 
@@ -27,9 +29,9 @@ int main(int argc, char* argv[])
 		}
 	} else if(train_model == 1) {
 		if(data_root_id == 0){
-			model = new TransE(FB15K, LinkPredictionTail, report_path, dim, lr, 1);
+			model = new TransG(FB15K, LinkPredictionTail, report_path, dim, lr, 1, n_cluster, crp);
 		} else if(data_root_id == 1) {
-			model = new TransE(WN18, LinkPredictionTail, report_path, dim, lr, 1);
+			model = new TransG(WN18, LinkPredictionTail, report_path, dim, lr, 1, n_cluster, crp);
 		}
 	}
 

@@ -24,7 +24,7 @@ int main(int argc, char* argv[]){
 
 	int dim = 20;
 	double alpha = 0.01;
-	double training_threshold = 2;
+	double training_threshold = 1;
 	int worker_num = 0;
 	int master_epoch = 0;
 	int train_iter = 10;
