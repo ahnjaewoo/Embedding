@@ -15,13 +15,22 @@ int main(int argc, char* argv[])
 	int dim = 50;
 	double lr = 0.001;
 	int data_root_id = 0;
+	int train_model = 0;
 
-	getParams(argc, argv, data_root_id, dim, lr);
+	getParams(argc, argv, data_root_id, dim, lr, train_model);
 
-	if(data_root_id == 0){
-		model = new TransE(FB15K, LinkPredictionTail, report_path, dim, lr, 1);
-	} else if(data_root_id == 1) {
-		model = new TransE(WN18, LinkPredictionTail, report_path, dim, lr, 1);
+	if(train_model == 0){
+		if(data_root_id == 0){
+			model = new TransE(FB15K, LinkPredictionTail, report_path, dim, lr, 1);
+		} else if(data_root_id == 1) {
+			model = new TransE(WN18, LinkPredictionTail, report_path, dim, lr, 1);
+		}
+	} else if(train_model == 1) {
+		if(data_root_id == 0){
+			model = new TransE(FB15K, LinkPredictionTail, report_path, dim, lr, 1);
+		} else if(data_root_id == 1) {
+			model = new TransE(WN18, LinkPredictionTail, report_path, dim, lr, 1);
+		}
 	}
 
 	struct timeval after, before;
@@ -38,12 +47,14 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void getParams(int argc, char* argv[], int& data_root_id, int& dim, double& lr){
+void getParams(int argc, char* argv[], int& data_root_id, int& dim, double& lr, int& train_model){
 	if (argc == 2) {
 		data_root_id = atoi(argv[1]);
 	} else if (argc == 3){
 		dim = atoi(argv[2]);
 	} else if(argc == 4){
 		lr = atof(argv[3]);
+	} else if(argc == 5) {
+		train_model = argv[4];
 	}
 }
