@@ -517,11 +517,46 @@ trainTime = timeit.default_timer() - trainStart
 # test part
 # printt('master > test start')
 
+
+
+
+
+
+
+
+
 # load entity vector
 entities_initialized = r.mget([f'{entity}_v' for entity in entities])
 entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
-relations_initialized = r.mget([f'{relation}_v' for relation in relations])
-relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
+#relations_initialized = r.mget([f'{relation}_v' for relation in relations])
+#relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
+
+
+
+if train_model == 0:
+
+    relations_initialized = r.mget([f'{relation}_v' for relation in relations])
+    relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
+
+# transG 에 추가되는 분기
+elif train_model == 1:
+
+    embedding_clusters = r.mget([f'{relation}_cv' for relation in relations])
+    embedding_clusters = np.array([loads(decompress(v)) for v in embedding_clusters], dtype=np_dtype)
+    weights_clusters = r.mget([f'{relation}_wv' for relation in relations])
+    weights_clusters = np.array([loads(decompress(v)) for v in weights_clusters], dtype=np_dtype)
+    size_clusters = r.mget([f'{relation}_s' for relation in relations])
+    size_clusters = np.array([loads(decompress(v)) for v in size_clusters], dtype=np.int32)
+
+
+
+
+
+
+
+
+
+
 
 maxmin_sock.send(pack('!i', 1))
 maxmin_sock.close()
