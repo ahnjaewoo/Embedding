@@ -34,7 +34,7 @@ parser.add_argument('--ndim', type=int, default=20, help='dimension of embedding
 parser.add_argument('--lr', type=float, default=0.1, help='learning rate')
 parser.add_argument('--margin', type=int, default=2, help='margin')
 parser.add_argument('--n_cluster', type=int, default=10, help='number of initial clusters in TransG model')
-parser.add_argument('--crp', type=float, default=0.05, help='crp factor in TransG model')
+parser.add_argument('--crp', type=float, default=0.1, help='crp factor in TransG model')
 parser.add_argument('--anchor_num', type=int, default=5,
                     help='number of anchor during entity training')
 parser.add_argument('--anchor_interval', type=int, default=6,
