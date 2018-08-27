@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
 	int data_root_id = 0;
 	int train_model = 0;
 	int n_cluster = 10;
-	double crp = 0.1
+	double crp = 0.1;
 
 	getParams(argc, argv, data_root_id, dim, lr, train_model);
 
