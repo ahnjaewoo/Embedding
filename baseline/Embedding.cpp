@@ -55,6 +55,6 @@ void getParams(int argc, char* argv[], int& data_root_id, int& dim, double& lr, 
 	} else if(argc == 4){
 		lr = atof(argv[3]);
 	} else if(argc == 5) {
-		train_model = argv[4];
+		train_model = atoi(argv[4]);
 	}
 }
