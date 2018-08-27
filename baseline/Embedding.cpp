@@ -5,7 +5,7 @@
 #include <sys/time.h>
 
 
-void getParams(int argc, char* argv[], int& data_root_id, int& dim, double& lr);
+void getParams(int argc, char* argv[], int& data_root_id, int& dim, double& lr, int& train_model);
 int main(int argc, char* argv[])
 {
 	srand(time(nullptr));
