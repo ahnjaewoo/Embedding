@@ -20,12 +20,10 @@ int main(int argc, char* argv[])
 		{
 			DataModel* data_model =  new DataModel(WN18, false);
 		}
-		/*
 		else if (data_root_id == 2)
 		{
 			DataModel* data_model =  new DataModel(Dbpedia, false);
 		}
-		*/
 		else
 		{
 			printf("[error] recv data root id in preprocess.cpp\n");

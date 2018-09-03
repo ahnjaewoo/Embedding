@@ -162,10 +162,19 @@ int main(int argc, char* argv[]){
 					return -1;
                 }
         }
-	//else if (data_root_id == 2){
-	//
-	//	model = new TransE(Dbpedia, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock, fs_log);
-	//}
+	else if (data_root_id == 2){
+		if (train_model == 0) { 
+                    model = new TransE(Dbpedia, LinkPredictionTail, report_path, dim, alpha, training_threshold, true, worker_num, master_epoch, master_sock, fs_log, precision);
+                } else if (train_model == 1) {
+                    model = new TransG(Dbpedia, LinkPredictionTail, report_path, dim, alpha, training_threshold, n_cluster, crp, 10, true, true, true, worker_num, master_epoch, master_sock, fs_log, precision);
+                } else { 
+                                        cout << "[error] embedding > training model mismatch, recieved : " << train_model << endl;
+                                        cout << "[error] embedding > return -1\n";
+                                        fprintf(fs_log, "[error] embedding > training model mismatch, recieved : %d\n", train_model);
+                                        fprintf(fs_log, "[error] embedding > return -1\n");
+                                        return -1;
+                }
+	}
 	else{
 
 		cout << "[error] test.cpp > wrong data_root_id, recieved : " << data_root_id << endl;
