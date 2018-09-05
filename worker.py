@@ -5,6 +5,7 @@ from zlib import compress, decompress
 from pickle import dumps, loads, HIGHEST_PROTOCOL
 from struct import pack, unpack
 from timeit import default_timer
+from utils import sockRecv
 import logging
 import numpy as np
 import redis
@@ -55,23 +56,6 @@ if debugging == 'yes':
 elif debugging == 'no':
 
     printt = print
-
-
-def sockRecv(sock, length):
-
-    data = b''
-
-    while len(data) < length:
-
-        buff = sock.recv(length - len(data))
-
-        if not buff:
-
-            return None
-
-        data += buff
-
-    return data
 
 
 # embedding.cpp 와 socket 통신
