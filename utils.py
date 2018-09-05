@@ -22,6 +22,7 @@ def sockRecv(sock, length):
 
     return data
 
+
 def data2id(data_root):
 
     data_root_split = [x.lower() for x in data_root.split('/')]
@@ -43,6 +44,7 @@ def data2id(data_root):
         print("[error] master > data root mismatch")
         sys.exit(1)
 
+
 def model2id(train_model):
 
     if train_model == "transE":
@@ -58,6 +60,7 @@ def model2id(train_model):
         print("[error] master > train model mismatch")
         sys.exit(1)
 
+
 def install_libs():
 
     import os
@@ -69,6 +72,7 @@ def install_libs():
         os.system("pip install --upgrade redis")
     if 'hiredis' not in modules:
         os.system("pip install --upgrade hiredis")
+
 
 def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id,
          redis_ip, root_dir, debugging, precision, train_model, n_cluster, crp,
@@ -116,3 +120,30 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
             # worker_return 은 string 형태? byte 형태? 의 pickle 을 가지고 있음
             timeNow = timeit.default_timer()
             return (True, timeNow - workStart)
+
+
+def iter_mset(redis_client, data_items: dict, chunk_size=1e5):
+    data_items = data_items.items()
+    chunk_num = len(data_items) // chunk_size
+    
+    for i in range(chunk_num):
+        sub_data = {k: v for k, v in data_items[i * chunk_size: (i + 1) * chunk_size]}
+        redis_client.mset(sub_data)
+    
+    # 나머지
+    sub_data = {k: v for k, v in data_items[(i + 1) * chunk_size:]}
+    redis_client.mset(sub_data)
+
+
+def iter_mget(redis_client, data_keys: list, chunk_size=1e5):
+    results = {}
+    chunk_num = len(data_keys) // chunk_size
+
+    for i in range(chunk_num):
+        sub_keys = data_keys[i * chunk_size: (i + 1) * chunk_size]
+        results.update(redis_client.mget(sub_keys))
+
+    sub_keys = data_keys[(i + 1) * chunk_size:]
+    results.update(redis_client.mget(sub_keys))
+
+    return results

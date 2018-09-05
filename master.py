@@ -13,6 +13,8 @@ from utils import work
 from utils import sockRecv
 from utils import install_libs
 from utils import model2id
+from utils import iter_mget
+from utils import iter_mset
 import logging
 import numpy as np
 import redis
@@ -196,21 +198,21 @@ for c, (relation_list, num) in enumerate(allocated_relation_worker):
         g, protocol=HIGHEST_PROTOCOL), 9)
 
 r = redis.StrictRedis(host=args.redis_ip, port=6379, db=0)
-r.mset(sub_graphs)
+iter_mset(r, sub_graphs)
 
 del relation_each_num
 del relation_triples
 del allocated_relation_worker
 del sub_graphs
 
-r.mset(entity2id)
-r.mset(relation2id)
+iter_mset(r, entity2id)
+iter_mset(r, relation2id)
 
 r.set('entities', compress(dumps(entities, protocol=HIGHEST_PROTOCOL), 9))
 entity_ids = np.array(list(entity2id.values()), dtype=np.int32)
 entities_initialized = normalize(np.random.randn(len(entities), n_dim).astype(np_dtype))
 
-r.mset({f'{entity}_v': compress(dumps(vector,
+iter_mset(r, {f'{entity}_v': compress(dumps(vector,
         protocol=HIGHEST_PROTOCOL), 9) for vector, entity in zip(entities_initialized, entities)})
 
 r.set('relations', compress(dumps(relations, protocol=HIGHEST_PROTOCOL), 9))
@@ -219,24 +221,24 @@ if train_model == 0:
     
     relations_initialized = normalize(np.random.randn(len(relations), n_dim).astype(np.dtype))
 
-    r.mset({f'{relation}_v': compress(dumps(vector,
+    iter_mset(r, {f'{relation}_v': compress(dumps(vector,
             protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(relations_initialized, relations)})
     
 else:
     # xavier initialization
     embedding_clusters = np.random.random((len(relations), 21 * n_dim)).astype(np_dtype)
     embedding_clusters = (2 * embedding_clusters - 1) * np.sqrt(6 / n_dim)
-    r.mset({f'{relation}_cv': compress(dumps(vector,
+    iter_mset(r, {f'{relation}_cv': compress(dumps(vector,
             protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(embedding_clusters, relations)})
 
     weights_clusters = np.zeros((len(relations), 21)).astype(np_dtype)
     weights_clusters[:, :n_cluster] = 1
     normalize(weights_clusters, norm='l1', copy=False)
-    r.mset({f'{relation}_wv': compress(dumps(vector,
+    iter_mset(r, {f'{relation}_wv': compress(dumps(vector,
             protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(weights_clusters, relations)})
 
     size_clusters = np.full(len(relations), n_cluster, dtype=np.int32)
-    r.mset({f'{relation}_s': compress(dumps(vector,
+    iter_mset(r, {f'{relation}_s': compress(dumps(vector,
             protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(size_clusters, relations)})
 
 if args.use_scheduler_config_file == 'True':
@@ -314,9 +316,9 @@ trainStart = timeit.default_timer()
 while True:
 
     # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
-    entities_initialized_bak = r.mget([f'{entity}_v' for entity in entities])
+    entities_initialized_bak = iter_mget(r, [f'{entity}_v' for entity in entities])
     entities_initialized_bak = np.array([loads(decompress(v)) for v in entities_initialized_bak])
-    relations_initialized_bak = r.mget([f'{relation}_v' for relation in relations])
+    relations_initialized_bak = iter_mget(r, [f'{relation}_v' for relation in relations])
     relations_initialized_bak = np.array([loads(decompress(v)) for v in relations_initialized_bak])
 
     if cur_iter == niter:
@@ -392,10 +394,10 @@ while True:
         # redis 에 저장된 결과를 백업된 값으로 되돌림
         trial += 1
 
-        r.mset({
+        iter_mset(r, {
             f'{entity}_v' : compress(dumps(vector, protocol=HIGHEST_PROTOCOL))
             for vector, entity in zip(entities_initialized_bak, entities)})
-        r.mset({
+        iter_mset(r, {
             f'{relation}_v' : compress(dumps(vector, protocol=HIGHEST_PROTOCOL))
             for vector, relation in zip(relations_initialized_bak, relations)})
         printt('[error] master > iteration %d is failed, retry' % cur_iter)
@@ -418,26 +420,26 @@ trainTime = timeit.default_timer() - trainStart
 
 
 # load entity vector
-entities_initialized = r.mget([f'{entity}_v' for entity in entities])
+entities_initialized = iter_mget(r, [f'{entity}_v' for entity in entities])
 entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
-#relations_initialized = r.mget([f'{relation}_v' for relation in relations])
+#relations_initialized = iter_mget(r, [f'{relation}_v' for relation in relations])
 #relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
 
 
 
 if train_model == 0:
 
-    relations_initialized = r.mget([f'{relation}_v' for relation in relations])
+    relations_initialized = iter_mget(r, [f'{relation}_v' for relation in relations])
     relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
 
 # transG 에 추가되는 분기
 elif train_model == 1:
 
-    embedding_clusters = r.mget([f'{relation}_cv' for relation in relations])
+    embedding_clusters = iter_mget(r, [f'{relation}_cv' for relation in relations])
     embedding_clusters = np.array([loads(decompress(v)) for v in embedding_clusters], dtype=np_dtype)
-    weights_clusters = r.mget([f'{relation}_wv' for relation in relations])
+    weights_clusters = iter_mget(r, [f'{relation}_wv' for relation in relations])
     weights_clusters = np.array([loads(decompress(v)) for v in weights_clusters], dtype=np_dtype)
-    size_clusters = r.mget([f'{relation}_s' for relation in relations])
+    size_clusters = iter_mget(r, [f'{relation}_s' for relation in relations])
     size_clusters = np.array([loads(decompress(v)) for v in size_clusters], dtype=np.int32)
 
 maxmin_sock.send(pack('!i', 1))
@@ -651,7 +653,7 @@ totalTime = timeit.default_timer() - masterStart
 printt('master > Total elapsed time : %f' % (totalTime))
 
 workerLogKeys = [f'worker_{n}_{i}' for i in range(niter) for n in range(num_worker)]
-workerLogs = r.mget(workerLogKeys)
+workerLogs = iter_mget(r, workerLogKeys)
 
 redisConnTime = list()
 datamodelTime = list()

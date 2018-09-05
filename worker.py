@@ -82,29 +82,29 @@ workerStart = default_timer()
 # redis에서 embedding vector들 받아오기
 r = redis.StrictRedis(host=redis_ip_address, port=6379, db=0)
 entities = np.array(loads(decompress(r.get('entities'))))
-entity_ids = np.array([int(i) for i in r.mget(entities)], dtype=np.int32)
+entity_ids = np.array([int(i) for i in iter_mget(r, entities)], dtype=np.int32)
 entity_id = {e: i for e, i in zip(entities, entity_ids)}
-entities_initialized = r.mget([f'{entity}_v' for entity in entities])
+entities_initialized = iter_mget(r, [f'{entity}_v' for entity in entities])
 entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
 
 relations = np.array(loads(decompress(r.get('relations'))))
-relation_ids = np.array([int(i) for i in r.mget(relations)], dtype=np.int32)
+relation_ids = np.array([int(i) for i in iter_mget(r, relations)], dtype=np.int32)
 relation_id = {r: i for e, i in zip(relations, relation_ids)}
 
 # transE 에서는 embedding_relation 을 전송
 if train_model == 0:
 
-    relations_initialized = r.mget([f'{relation}_v' for relation in relations])
+    relations_initialized = iter_mget(r, [f'{relation}_v' for relation in relations])
     relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
 
 # transG 에 추가되는 분기
 elif train_model == 1:
 
-    embedding_clusters = r.mget([f'{relation}_cv' for relation in relations])
+    embedding_clusters = iter_mget(r, [f'{relation}_cv' for relation in relations])
     embedding_clusters = np.array([loads(decompress(v)) for v in embedding_clusters], dtype=np_dtype)
-    weights_clusters = r.mget([f'{relation}_wv' for relation in relations])
+    weights_clusters = iter_mget(r, [f'{relation}_wv' for relation in relations])
     weights_clusters = np.array([loads(decompress(v)) for v in weights_clusters], dtype=np_dtype)
-    size_clusters = r.mget([f'{relation}_s' for relation in relations])
+    size_clusters = iter_mget(r, [f'{relation}_s' for relation in relations])
     size_clusters = np.array([loads(decompress(v)) for v in size_clusters], dtype=np.int32)
 
 redisTime = default_timer() - workerStart
@@ -486,7 +486,7 @@ try:
         sockSaveTime = default_timer() - timeNow
         timeNow = default_timer()
 
-        r.mset(entity_vectors)
+        iter_mset(r, entity_vectors)
         #printt('[info] worker > entity_vectors updated - ' + worker_id)
         #printt('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
         #fsLog.write('[info] worker > entity_vectors updated - ' + worker_id + '\n')
@@ -587,13 +587,13 @@ try:
 
         if train_model == 0:
             # transE
-            r.mset(relation_vectors)
+            iter_mset(r, relation_vectors)
 
         elif train_model == 1:
             # transG
-            r.mset(cluster_vectors)
-            r.mset(weights_clusters)
-            r.mset(size_clusters)
+            iter_mset(r, cluster_vectors)
+            iter_mset(r, weights_clusters)
+            iter_mset(r, size_clusters)
 
         #printt('[info] worker > relation_vectors updated - ' + worker_id)
         #printt('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
