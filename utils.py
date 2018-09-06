@@ -131,6 +131,7 @@ def iter_mset(redis_client, data_items: dict, chunk_size=10_000):
         redis_client.mset(sub_data)
     
     # 나머지
+    data_items = list(data_items.items())
     sub_data = {k: v for k, v in data_items[chunk_num * chunk_size:]}
     redis_client.mset(sub_data)
 
@@ -143,6 +144,7 @@ def iter_mget(redis_client, data_keys: list, chunk_size=10_000):
         sub_keys = data_keys[i * chunk_size: (i + 1) * chunk_size]
         results.update(redis_client.mget(sub_keys))
 
+    data_items = list(data_items.items())
     sub_keys = data_keys[chunk_num * chunk_size:]
     results.update(redis_client.mget(sub_keys))
 
