@@ -123,7 +123,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
 
 
 def iter_mset(redis_client, data_items: dict, chunk_size=10_000):
-    data_items = data_items.items()
+    data_items = list(data_items.items())
     chunk_num = len(data_items) // chunk_size
     
     for i in range(chunk_num):
@@ -131,7 +131,6 @@ def iter_mset(redis_client, data_items: dict, chunk_size=10_000):
         redis_client.mset(sub_data)
     
     # 나머지
-    data_items = list(data_items).items()
     sub_data = {k: v for k, v in data_items[chunk_num * chunk_size:]}
     redis_client.mset(sub_data)
 
@@ -144,7 +143,6 @@ def iter_mget(redis_client, data_keys: list, chunk_size=10_000):
         sub_keys = data_keys[i * chunk_size: (i + 1) * chunk_size]
         results.update(redis_client.mget(sub_keys))
 
-    data_items = list(data_items).items()
     sub_keys = data_keys[chunk_num * chunk_size:]
     results.update(redis_client.mget(sub_keys))
 
