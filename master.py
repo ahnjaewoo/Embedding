@@ -244,10 +244,12 @@ else:
 if args.use_scheduler_config_file == 'True':
 
     client = Client(scheduler_file=f'{temp_folder_dir}/scheduler.json', name='Embedding')
+    client.upload_file('%s/utils.py' % args.root_dir)
 
 else:
 
     client = Client(args.scheduler_ip, name='Embedding')
+    client.upload_file('%s/utils.py' % args.root_dir)
 
 if args.install == 'True':
 
