@@ -80,7 +80,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     # socket_port = init_port + (cur_iter + 1) * int(worker_id.split('_')[1])
     socket_port = str(select_random())
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
-    log_dir = os.path.join(root_dir, f'logs/embedding_log_{}_iter_{}.txt'.format(worker_id, cur_iter))
+    log_dir = os.path.join(root_dir, f'logs/embedding_log_{worker_id}_iter_{cur_iter}.txt')
 
     workStart = timeit.default_timer()
 
