@@ -4,12 +4,26 @@ from random import randint
 from random import choice
 from collections import defaultdict
 from struct import pack, unpack
-from utils import sockRecv
 import nxmetis
 import sys
 import socket
 import logging
 
+def sockRecv(sock, length):
+    
+    data = b''
+
+    while len(data) < length:
+
+        buff = sock.recv(length - len(data))
+
+        if not buff:
+
+            return None
+
+        data = data + buff
+
+    return data
 
 partition_num = int(sys.argv[1])
 cur_iter = int(sys.argv[2])
