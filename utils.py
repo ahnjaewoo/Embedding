@@ -135,14 +135,14 @@ def iter_mset(redis_client, data_items: dict, chunk_size=10_000):
 
 
 def iter_mget(redis_client, data_keys: list, chunk_size=10_000):
-    results = {}
+    results = []
     chunk_num = len(data_keys) // chunk_size
 
     for i in range(chunk_num):
         sub_keys = data_keys[i * chunk_size: (i + 1) * chunk_size]
-        results.update(redis_client.mget(sub_keys))
+        results.extend(redis_client.mget(sub_keys))
 
     sub_keys = data_keys[chunk_num * chunk_size:]
-    results.update(redis_client.mget(sub_keys))
+    results.extend(redis_client.mget(sub_keys))
 
     return results
