@@ -337,11 +337,14 @@ while True:
     # 작업 배정
     iterStart = timeit.default_timer()
     
-    workers = [client.submit(work, f"{anchors}\n{chunks[i]}", f'worker_{i}', cur_iter,
-                             n_dim, lr, margin, train_iter, data_root_id,
-                             args.redis_ip, args.root_dir, args.debugging, args.precision,
-                             train_model, n_cluster, crp, train_code_dir, preprocess_folder_dir,
-                             worker_code_dir) for i in range(num_worker)]
+    workers = []
+    for i in range(num_worker):
+        chunk_data = client.scatter(f"{anchors}\n{chunks[i]}")
+        workers.append(client.submit(work, chunk_data, f'worker_{i}', cur_iter,
+                       n_dim, lr, margin, train_iter, data_root_id, args.redis_ip,
+                       args.root_dir, args.debugging, args.precision, train_model,
+                       n_cluster, crp, train_code_dir, preprocess_folder_dir,
+                       worker_code_dir))
 
     if cur_iter % 2 == 1:
         # entity partitioning: max-min cut 실행, anchor 등 재분배
