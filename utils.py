@@ -82,6 +82,9 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
     # print('master > work function called, cur_iter = ' + str(cur_iter) + ', port = ' + str(socket_port))
     log_dir = os.path.join(root_dir, f'logs/embedding_log_{worker_id}_iter_{cur_iter}.txt')
 
+    with open(f"{root_dir}/chunk_data_{worker_id}.txt", 'w') as f:
+        f.write(chunk_data)
+    
     workStart = timeit.default_timer()
 
     embedding_proc = Popen([train_code_dir, worker_id, str(cur_iter), str(n_dim), str(lr),
@@ -89,7 +92,8 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
                             log_dir, str(precision), str(train_model), str(n_cluster), str(crp)],
                             cwd=preprocess_folder_dir)
 
-    worker_proc = Popen(["python", worker_code_dir, chunk_data, worker_id, str(cur_iter), str(n_dim),
+
+    worker_proc = Popen(["python", worker_code_dir, worker_id, str(cur_iter), str(n_dim),
                          redis_ip, root_dir, socket_port, debugging, str(precision), str(train_model),
                          str(n_cluster), str(crp)])
 

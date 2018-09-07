@@ -6,6 +6,8 @@ from pickle import dumps, loads, HIGHEST_PROTOCOL
 from struct import pack, unpack
 from timeit import default_timer
 from utils import sockRecv
+from utils import iter_mset
+from utils import iter_mget
 import logging
 import numpy as np
 import redis
@@ -14,21 +16,24 @@ import sys
 import os
 import socket
 
-chunk_data = sys.argv[1]
-worker_id = sys.argv[2]
-cur_iter = int(sys.argv[3])
-embedding_dim = int(sys.argv[4])
-redis_ip_address = sys.argv[5]
-root_dir = sys.argv[6]
-socket_port = int(sys.argv[7])
-debugging = sys.argv[8]
-precision = int(sys.argv[9])
+
+worker_id = sys.argv[1]
+cur_iter = int(sys.argv[2])
+embedding_dim = int(sys.argv[3])
+redis_ip_address = sys.argv[4]
+root_dir = sys.argv[5]
+socket_port = int(sys.argv[6])
+debugging = sys.argv[7]
+precision = int(sys.argv[8])
 precision_string = 'f' if precision == 0 else 'e'
 precision_byte = 4 if precision == 0 else 2
 np_dtype = np.float32 if precision == 0 else np.float16
-train_model = int(sys.argv[10])
-n_cluster = int(sys.argv[11])
-crp = float(sys.argv[12])
+train_model = int(sys.argv[9])
+n_cluster = int(sys.argv[10])
+crp = float(sys.argv[11])
+
+with open(f"{root_dir}/chunk_data_{worker_id}.txt") as f:
+    chunk_data = f.read()
 
 if debugging == 'yes':
     logging.basicConfig(filename='%s/%s_%d.log' % (root_dir,
