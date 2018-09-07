@@ -134,7 +134,7 @@ masterStart = timeit.default_timer()
 # 여기서 전처리 C++ 프로그램 비동기 호출
 proc = Popen(["%spreprocess.out" % preprocess_folder_dir,
               str(data_root_id)], cwd=preprocess_folder_dir)
-# printt('master > Preprocessing started')
+printt('master > Preprocessing started')
 
 for file in data_files:
 
@@ -182,8 +182,8 @@ for i, (relation, num) in enumerate(relation_each_num):
     allocated_relation_worker[0][0].append(relation)
     allocated_relation_worker[0][1] += num
 
-# printt('master > # of relations per each partitions : [%s]' %
-#       " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
+printt('master > # of relations per each partitions : [%s]' %
+    " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
 
 sub_graphs = {}
 
@@ -285,7 +285,7 @@ while True:
         printt('[error] master > exception occured in master <-> maxmin')
         printt('[error] master > ' + str(e))
 
-# printt('master > socket connected (master <-> maxmin)')
+printt('master > socket connected (master <-> maxmin)')
 
 timeNow = timeit.default_timer()
 maxmin_sock.send(pack('!i', 0))
@@ -306,7 +306,7 @@ for _ in range(num_worker):
 
 maxminTimes.append(timeit.default_timer() - timeNow)
 
-# printt('master > maxmin finished')
+printt('master > maxmin finished')
 # printt('master > worker training iteration epoch : {}'.format(train_iter))
 
 cur_iter = 0
@@ -411,23 +411,13 @@ trainTime = timeit.default_timer() - trainStart
 ###############################################################################
 
 # test part
-# printt('master > test start')
-
-
-
-
-
-
-
-
+printt('master > test start')
 
 # load entity vector
 entities_initialized = iter_mget(r, [f'{entity}_v' for entity in entities])
 entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
 #relations_initialized = iter_mget(r, [f'{relation}_v' for relation in relations])
 #relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
-
-
 
 if train_model == 0:
 
@@ -484,7 +474,6 @@ while True:
 checksum = 0
 success = 0
 
-
 # entity_vector 전송 - GeometricModel load
 while success != 1:
 
@@ -512,7 +501,6 @@ while success != 1:
         success = 0
 
 # printt('master > entity_vector sent to GeometricModel load function (for test)')
-
 
 # transE 에서는 embedding_relation 을 전송
 if train_model == 0:
