@@ -150,7 +150,7 @@ try:
             sys.exit(0)
 
         cur_iter = (unpack('!i', sockRecv(master_sock, 4))[0] + 1) // 2
-        printt('[info] maxmin > start')
+        printt('[info] maxmin > start iteration ' + str(cur_iter))
 
         if cur_iter == 0:
 
