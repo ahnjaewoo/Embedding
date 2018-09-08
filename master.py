@@ -134,7 +134,7 @@ masterStart = timeit.default_timer()
 # 여기서 전처리 C++ 프로그램 비동기 호출
 proc = Popen(["%spreprocess.out" % preprocess_folder_dir,
               str(data_root_id)], cwd=preprocess_folder_dir)
-printt('master > Preprocessing started')
+printt('[info] master > Preprocessing started')
 
 for file in data_files:
 
@@ -258,7 +258,7 @@ if args.install == 'True':
 # 전처리 끝날때까지 대기
 proc.communicate()
 preprocessingTime = timeit.default_timer() - masterStart
-printt('master > preprocessing time : %f' % preprocessingTime)
+printt('[info] master > preprocessing time : %f' % preprocessingTime)
 
 maxminTimes = list()
 iterTimes = list()
@@ -285,7 +285,7 @@ while True:
         printt('[error] master > exception occured in master <-> maxmin')
         printt('[error] master > ' + str(e))
 
-printt('master > socket connected (master <-> maxmin)')
+printt('[info] master > socket connected (master <-> maxmin)')
 
 timeNow = timeit.default_timer()
 maxmin_sock.send(pack('!i', 0))
@@ -306,7 +306,7 @@ for _ in range(num_worker):
 
 maxminTimes.append(timeit.default_timer() - timeNow)
 
-printt('master > maxmin finished')
+printt('[info] master > maxmin finished')
 # printt('master > worker training iteration epoch : {}'.format(train_iter))
 
 cur_iter = 0
@@ -317,7 +317,7 @@ trainStart = timeit.default_timer()
 
 while True:
 
-    printt('[error] master > iteration ' + str(cur_iter) + ' started')
+    printt('[info] master > iteration ' + str(cur_iter) + ' started')
     # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
     entities_initialized_bak = iter_mget(r, [f'{entity}_v' for entity in entities])
     entities_initialized_bak = np.array([loads(decompress(v)) for v in entities_initialized_bak])
