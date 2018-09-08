@@ -317,7 +317,7 @@ trainStart = timeit.default_timer()
 
 while True:
 
-    printt('[error] master > iteration {} started' % str(cur_iter))
+    printt('[error] master > iteration ' + str(cur_iter) + ' started')
     # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
     entities_initialized_bak = iter_mget(r, [f'{entity}_v' for entity in entities])
     entities_initialized_bak = np.array([loads(decompress(v)) for v in entities_initialized_bak])
