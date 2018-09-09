@@ -146,7 +146,7 @@ try:
 
         if master_status == 1:
             # 연결을 끊음
-            # printt('[info] maxmin > received disconnect signal (master_status = 1)')
+            printt('[info] maxmin > finish due to disconnect signal')
             maxmin_sock.close()
             sys.exit(0)
 
@@ -207,8 +207,6 @@ try:
             non_anchor_edge_included_vertex.add(h)
             non_anchor_edge_included_vertex.add(t)
 
-        printt('[info] maxmin > line 209')
-
         # constructing nx.Graph and using metis in order to get min-cut partition
         G = nx.Graph()
         G.add_edges_from(non_anchor_edge_list)
@@ -225,8 +223,6 @@ try:
             contig=-1, compress=-1, ccorder=-1, pfactor=-1, ufactor=-1, dbglvl=-1)
 
         edgecuts, parts = nxmetis.partition(G, nparts=partition_num, node_weight='node_weight')
-
-        printt('[info] maxmin > line 228')
 
         # putting residue randomly into non anchor set
         residue = non_anchor_id.difference(non_anchor_edge_included_vertex)
@@ -257,5 +253,5 @@ except Exception as e:
 
 finally:
 
-    printt('[info] maxmin > finish')
+    printt('[info] maxmin > finish due to execption')
     master_sock.close()

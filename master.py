@@ -386,10 +386,7 @@ while True:
         success = True
         trial = 0
         cur_iter += 1
-
         workTimes = [e[1] for e in result_iter]
-
-        # embedding.cpp 에서 model->run() 실행 시간을 worker.py 로 전송해서 그걸 소켓으로 전송
 
         printt('[info] master > Total embedding times : ' + str(workTimes))
         # printt('[info] master > Average total embedding time : ' + str(np.mean(workTimes)))
@@ -417,13 +414,11 @@ del relations_initialized_bak
 ###############################################################################
 
 # test part
-printt('master > test start')
+printt('[info] master > test start')
 
 # load entity vector
 entities_initialized = iter_mget(r, [f'{entity}_v' for entity in entities])
 entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
-#relations_initialized = iter_mget(r, [f'{relation}_v' for relation in relations])
-#relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
 
 if train_model == 0:
 
