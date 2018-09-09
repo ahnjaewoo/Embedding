@@ -71,7 +71,7 @@ elif debugging == 'no':
 # max-min process 실행, socket 연결
 # maxmin.cpp 가 server
 # master.py 는 client
-# master 와 maxmin 은 같은 ip 상에서 작동, 포트를 임의로 7847 로 지정
+# master 와 maxmin 은 같은 ip 상에서 작동, 포트는 master 가 임의로 설정
 maxmin_addr = '127.0.0.1'
 maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 maxmin_sock.bind((maxmin_addr, maxmin_port))
