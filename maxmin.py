@@ -5,6 +5,7 @@ from random import choice
 from collections import defaultdict
 from struct import pack, unpack
 import nxmetis
+import os
 import sys
 import socket
 import logging
@@ -246,9 +247,13 @@ try:
             master_sock.send(pack('!i', len(nas)))
             master_sock.send(pack('!' + 'i' * len(nas), *nas))
 
-except:
+except Exception as e:
 
-    pass
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+
+    printt('[error] maxmin > ' + str(e))
+    printt('[error] maxmin > exception occured in line ' + str(exc_tb.tb_lineno))
 
 finally:
 
