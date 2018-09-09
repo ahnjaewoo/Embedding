@@ -234,7 +234,7 @@ try:
 
             parts[randint(0, partition_num - 1)].append(v)
 
-        printing the number of entities in each paritions
+        # printing the number of entities in each paritions
         printt('[info] maxmin > # of entities in each partitions : [%s]' % " ".join([str(len(p)) for p in parts]))
 
         # 원소 여러 개를 한 번에 전송
