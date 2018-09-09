@@ -508,8 +508,6 @@ while success != 1:
         printt('[error] master > unknown error in phase 2 (entity) (for test)')
         success = 0
 
-# printt('master > entity_vector sent to GeometricModel load function (for test)')
-
 # transE 에서는 embedding_relation 을 전송
 if train_model == 0:
     # relation_vector 전송 - GeometricModel load
@@ -541,8 +539,6 @@ if train_model == 0:
 
             printt('[error] master > unknown error in phase 2 (transE:relation) (for test)')
             success = 0
-
-    # printt('master > relation_vector sent to Geome tricModel load function (for test)')
 
 # transG 에 추가되는 분기
 elif train_model == 1:
@@ -576,8 +572,6 @@ elif train_model == 1:
             printt('[error] master > unknown error in phase 2 (transG:relation) (for test)')
             success = 0
 
-    # printt('master > relation_vector sent to Geome tricModel load function (for test)')
-
     # weights_clusters 전송 - GeometricModel load
     checksum = 0
     success = 0
@@ -609,8 +603,6 @@ elif train_model == 1:
             printt('[error] master > unknown error in phase 2 (transG:relation) (for test)')
             success = 0
 
-    # printt('master > relation_vector sent to Geome tricModel load function (for test)')
-
     # size_clusters 전송 - GeometricModel load
     checksum = 0
     success = 0
@@ -639,8 +631,6 @@ elif train_model == 1:
 
             printt('[error] master > unknown error in phase 2 (transG:relation) (for test)')
             success = 0
-
-    # printt('[info] master > relation_vector sent to Geome tricModel load function (for test)')
 
 test_return = proc.communicate()
 test_sock.close()
@@ -681,7 +671,7 @@ with open("logs/test_log.txt", 'a') as f:
     f.write("\n== preprocessing_time = {}\n".format(preprocessingTime))                             # master.py 의 preprocessTime
     f.write("\n== train_time = {}\n".format(trainTime))                                             # master.py 의 iteration while 문 안의 시간
     f.write("\n== avg_work_time = {}\n".format(str(np.mean(workTimes))))
-    f.write("\n== avg_worker_time = {}\n".format(str(np.mean(workerTotalTime))))                          # master.py 의 work 를 측정한 avg workTimes
+    f.write("\n== avg_worker_time = {}\n".format(str(np.mean(workerTotalTime))))                    # master.py 의 work 를 측정한 avg workTimes
     f.write("\n== avg_maxmin_time = {}\n".format(str(np.mean(maxminTimes))))                        # master.py 의 iteration while 에서 측정한 maxminTimes
     f.write("\n== avg_datamodel_sock_time = {}\n".format(str(np.mean(datamodelTime))))              # worker.py 에서 측정한 datamodelTime
     f.write("\n== avg_socket_load_time = {}\n".format(str(np.mean(sockLoadTime))))                  # worker.py 에서 측정한 sockLoadTime
