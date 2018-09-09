@@ -611,7 +611,7 @@ public:
                 else{
 
                 	cout << "[error] GeometricModel.hpp > unknown error of phase 3 (transE:relation)\n";
-                	cout << "[error] GeometricModel.hpp > flag = %d\n", flag;
+                	cout << "[error] GeometricModel.hpp > flag = " << flag << "\n";
                 	cout << "[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n";
                     fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (transE:relation)\n");
                     fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
@@ -2010,7 +2010,7 @@ public:
 	            else{
 
 	            	//cout << "[error] GeometricModel.hpp > unknown error of phase 3 (transG:entity)\n";
-	            	//cout << "[error] GeometricModel.hpp > flag = %d\n", flag;
+	            	//cout << "[error] GeometricModel.hpp > flag = " << flag << "\n";
 	            	//cout << "[error] GeometricModel.hpp > retry phase 3 (transG:entity)\n";
 	                //fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (transG:entity)\n");
 	                //fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
@@ -2209,7 +2209,7 @@ public:
                 else{
 
                 	//cout << "[error] GeometricModel.hpp > unknown error of phase 3 (transG:relation)\n";
-                	//cout << "[error] GeometricModel.hpp > flag = %d\n", flag;
+                	//cout << "[error] GeometricModel.hpp > flag = " << flag << "\n";
                 	//cout << "[error] GeometricModel.hpp > retry phase 3 (transG:relation)\n";
                     //fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (transG:relation)\n");
                     //fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
