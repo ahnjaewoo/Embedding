@@ -147,6 +147,7 @@ try:
             embedding_sock.send(pack('!' + 'i' * (len(chunk_anchor) + len(chunk_entity) + 2), *value_to_send))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
+            del value_to_send
 
             if checksum == 1234:
 
@@ -190,6 +191,8 @@ try:
             embedding_sock.send(pack('!' + 'i' * len(value_to_send), *value_to_send))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
+            del sub_graphs
+            del value_to_send
 
             if checksum == 1234:
 
@@ -232,6 +235,8 @@ try:
             embedding_sock.send(pack(precision_string * len(vector), *vector))
 
         checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
+        del entity_ids
+        del entities_initialized
 
         if checksum == 1234:
 
@@ -274,6 +279,7 @@ try:
                 embedding_sock.send(pack(precision_string * len(vector), *vector))
             
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
+            del relations_initialized
 
             if checksum == 1234:
 
@@ -312,9 +318,8 @@ try:
                 embedding_sock.send(pack('!i', id_))
                 embedding_sock.send(pack(precision_string * len(vector), *vector))
 
-            ################################ 여기서 vector 를 flatten 해주어야할 수 있음
-            
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
+            del embedding_clusters
 
             if checksum == 1234:
 
@@ -352,6 +357,7 @@ try:
                 embedding_sock.send(pack(precision_string * len(vector), *vector))
             
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
+            del weights_clusters
 
             if checksum == 1234:
 
@@ -386,6 +392,7 @@ try:
             embedding_sock.send(pack('!' + 'i' * len(size_clusters), *size_clusters))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
+            del size_clusters
 
             if checksum == 1234:
 
