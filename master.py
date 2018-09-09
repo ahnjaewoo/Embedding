@@ -305,7 +305,6 @@ for _ in range(num_worker):
     chunks.append(chunk)
 
 maxminTimes.append(timeit.default_timer() - timeNow)
-
 printt('[info] master > maxmin finished')
 # printt('master > worker training iteration epoch : {}'.format(train_iter))
 
@@ -370,6 +369,7 @@ while True:
             chunks.append(chunk)
 
         maxminTimes.append(timeit.default_timer() - maxminStart)
+        printt('[info] master > maxmin finished')
 
     else:
         # relation partitioning
