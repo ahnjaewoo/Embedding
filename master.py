@@ -408,8 +408,10 @@ while True:
             for vector, relation in zip(relations_initialized_bak, relations)})
         printt('[error] master > iteration %d is failed, retry' % cur_iter)
 
-
 trainTime = timeit.default_timer() - trainStart
+
+del entities_initialized_bak
+del relations_initialized_bak
 
 ###############################################################################
 ###############################################################################
@@ -488,6 +490,8 @@ while success != 1:
             test_sock.send(pack(precision_string * len(vector), * vector))
     
     checksum = unpack('!i', sockRecv(test_sock, 4))[0]
+    del entity_ids
+    del entities_initialized
 
     if checksum == 1234:
 
@@ -521,6 +525,7 @@ if train_model == 0:
                 test_sock.send(pack(precision_string * len(vector), *vector))
 
         checksum = unpack('!i', sockRecv(test_sock, 4))[0]
+        del relations_initialized
 
         if checksum == 1234:
 
@@ -553,9 +558,8 @@ elif train_model == 1:
             test_sock.send(pack('!i', id_))
             test_sock.send(pack(precision_string * len(vector), *vector))
 
-        ################################ 여기서 vector 를 flatten 해주어야할 수 있음
-
         checksum = unpack('!i', sockRecv(test_sock, 4))[0]
+        del embedding_clusters
 
         if checksum == 1234:
 
@@ -587,6 +591,8 @@ elif train_model == 1:
             test_sock.send(pack(precision_string * len(vector), *vector))
 
         checksum = unpack('!i', sockRecv(test_sock, 4))[0]
+        relation_ids
+        del weights_clusters
 
         if checksum == 1234:
 
@@ -617,6 +623,7 @@ elif train_model == 1:
             test_sock.send(pack('!i', vector))
 
         checksum = unpack('!i', sockRecv(test_sock, 4))[0]
+        del size_clusters
 
         if checksum == 1234:
 
@@ -633,7 +640,7 @@ elif train_model == 1:
             printt('[error] master > unknown error in phase 2 (transG:relation) (for test)')
             success = 0
 
-    # printt('master > relation_vector sent to Geome tricModel load function (for test)')
+    # printt('[info] master > relation_vector sent to Geome tricModel load function (for test)')
 
 test_return = proc.communicate()
 test_sock.close()
