@@ -382,7 +382,7 @@ while True:
     if all([e[0] for e in result_iter]):
 
         # 이터레이션 성공
-        printt('master > iter %d - time : %f' % (cur_iter, timeit.default_timer() - timeNow))
+        printt('[info] master > iter %d - time : %f' % (cur_iter, timeit.default_timer() - timeNow))
         success = True
         trial = 0
         cur_iter += 1
@@ -391,8 +391,8 @@ while True:
 
         # embedding.cpp 에서 model->run() 실행 시간을 worker.py 로 전송해서 그걸 소켓으로 전송
 
-        printt('master > Total embedding times : ' + str(workTimes))
-        # printt('master > Average total embedding time : ' + str(np.mean(workTimes)))
+        printt('[info] master > Total embedding times : ' + str(workTimes))
+        # printt('[info] master > Average total embedding time : ' + str(np.mean(workTimes)))
 
     else:
 
