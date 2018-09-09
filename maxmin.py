@@ -246,8 +246,6 @@ try:
             master_sock.send(pack('!i', len(nas)))
             master_sock.send(pack('!' + 'i' * len(nas), *nas))
 
-        printt('[info] maxmin > data sent to master')
-
 except:
 
     pass
