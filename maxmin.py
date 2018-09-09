@@ -206,6 +206,8 @@ try:
             non_anchor_edge_included_vertex.add(h)
             non_anchor_edge_included_vertex.add(t)
 
+        printt('[info] maxmin > line 209')
+
         # constructing nx.Graph and using metis in order to get min-cut partition
         G = nx.Graph()
         G.add_edges_from(non_anchor_edge_list)
@@ -222,6 +224,8 @@ try:
             contig=-1, compress=-1, ccorder=-1, pfactor=-1, ufactor=-1, dbglvl=-1)
 
         edgecuts, parts = nxmetis.partition(G, nparts=partition_num, node_weight='node_weight')
+
+        printt('[info] maxmin > line 228')
 
         # putting residue randomly into non anchor set
         residue = non_anchor_id.difference(non_anchor_edge_included_vertex)
@@ -241,7 +245,13 @@ try:
 
             master_sock.send(pack('!i', len(nas)))
             master_sock.send(pack('!' + 'i' * len(nas), *nas))
+
+        printt('[info] maxmin > data sent to master')
+
 except:
+
     pass
+
 finally:
+
     master_sock.close()
