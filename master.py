@@ -142,13 +142,7 @@ for file in data_files:
 
         for line in f:
 
-            try:
-
-                head, relation, tail = line[:-1].split("\t")
-
-            except:
-
-                head, relation, tail = line[:-1].split(" ")
+            head, relation, tail = line[:-1].split("\t")
 
             if head not in entity2id:
 
