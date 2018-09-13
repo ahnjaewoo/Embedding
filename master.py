@@ -142,13 +142,7 @@ for file in data_files:
 
         for line in f:
 
-            try:
-
-                head, relation, tail = line[:-1].split(" ")
-
-            except:
-
-                printt(line[:-1])
+            head, relation, tail = line[:-1].split(" ")
 
             if head not in entity2id:
 
@@ -174,7 +168,7 @@ with open(args.root_dir + data_files[0], 'r') as f:
 
     for line in f:
 
-        head, relation, tail = line[:-1].split("\t")
+        head, relation, tail = line[:-1].split(" ")
         head, relation, tail = entity2id[head], relation2id[relation], entity2id[tail]
         relation_triples[relation].append((head, tail))
 
