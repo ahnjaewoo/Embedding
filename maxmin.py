@@ -104,7 +104,7 @@ for file in data_files:
 
         for line in f:
 
-            head, relation, tail = line[:-1].split("\t")
+            head, relation, tail = line[:-1].split(" ")
             entities_add(head)
             entities_add(tail)
 
@@ -125,7 +125,7 @@ with open(root_dir + data_files[0], 'r') as f:
 
     for line in f:
 
-        head, relation, tail = line[:-1].split("\t")
+        head, relation, tail = line[:-1].split(" ")
         entity_graph_append((head, tail))
         connected_entity[entity2id[head]].add(entity2id[tail])
         connected_entity[entity2id[tail]].add(entity2id[head])
