@@ -79,7 +79,7 @@ maxmin_sock.listen(1)
 
 master_sock, master_addr = maxmin_sock.accept()
 
-# printt('[info] maxmin > socket connected (master <-> maxmin)')
+#printt('[info] maxmin > socket connected (master <-> maxmin)')
 data_files = ('%s/train.txt' % data_root, '%s/dev.txt' % data_root, '%s/test.txt' % data_root)
 anchor_dict = dict()
 old_anchor = set()
@@ -139,19 +139,19 @@ for (hd, tl) in entity_graph:
 try:
     while True:
 
-        printt('[info] maxmin > ready')
+        #printt('[info] maxmin > ready')
         non_anchor_edge_included_vertex = set()
 
         master_status = unpack('!i', sockRecv(master_sock, 4))[0]
 
         if master_status == 1:
             # 연결을 끊음
-            printt('[info] maxmin > finish due to disconnect signal')
+            #printt('[info] maxmin > finish due to disconnect signal')
             maxmin_sock.close()
             sys.exit(0)
 
         cur_iter = (unpack('!i', sockRecv(master_sock, 4))[0] + 1) // 2
-        printt('[info] maxmin > start')
+        #printt('[info] maxmin > start')
 
         if cur_iter == 0:
 
@@ -232,7 +232,7 @@ try:
             parts[randint(0, partition_num - 1)].append(v)
 
         # printing the number of entities in each paritions
-        printt('[info] maxmin > # of entities in each partitions : [%s]' % " ".join([str(len(p)) for p in parts]))
+        #printt('[info] maxmin > # of entities in each partitions : [%s]' % " ".join([str(len(p)) for p in parts]))
 
         # 원소 여러 개를 한 번에 전송
         master_sock.send(pack('!i', len(list(anchor))))

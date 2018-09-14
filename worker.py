@@ -460,20 +460,20 @@ try:
 
                 if tempcount < 3:
 
-                    #pass
-                    printt('[error] worker > retry phase 3 (entity) - ' + worker_id)
-                    printt('[error] worker > ' + str(e))
-                    printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
+                    pass
+                    #printt('[error] worker > retry phase 3 (entity) - ' + worker_id)
+                    #printt('[error] worker > ' + str(e))
+                    #printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
                     #fsLog.write('[error] worker > retry phase 3 (entity) - ' + worker_id + '\n')
                     #fsLog.write('[error] worker > ' + str(e) + '\n')
                     #fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
 
                 else:
 
-                    printt('[error] worker > failed phase 3 (entity) - ' + worker_id)
-                    printt('[error] worker > ' + str(e))
-                    printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
-                    printt('[error] worker > return -1')
+                    #printt('[error] worker > failed phase 3 (entity) - ' + worker_id)
+                    #printt('[error] worker > ' + str(e))
+                    #printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
+                    #printt('[error] worker > return -1')
                     #fsLog.write('[error] worker > retry phase 3 (entity) - ' + worker_id + '\n')
                     #fsLog.write('[error] worker > ' + str(e) + '\n')
                     #fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')

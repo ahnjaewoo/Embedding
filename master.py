@@ -136,7 +136,7 @@ masterStart = timeit.default_timer()
 # 여기서 전처리 C++ 프로그램 비동기 호출
 proc = Popen(["%spreprocess.out" % preprocess_folder_dir,
               str(data_root_id)], cwd=preprocess_folder_dir)
-printt('[info] master > Preprocessing started')
+#printt('[info] master > Preprocessing started')
 
 for file in data_files:
 
@@ -184,8 +184,8 @@ for i, (relation, num) in enumerate(relation_each_num):
     allocated_relation_worker[0][0].append(relation)
     allocated_relation_worker[0][1] += num
 
-printt('[info] master > # of relations per each partitions : [%s]' %
-    " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
+#printt('[info] master > # of relations per each partitions : [%s]' %
+#    " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
 
 sub_graphs = {}
 
@@ -260,7 +260,7 @@ if args.install == 'True':
 # 전처리 끝날때까지 대기
 proc.communicate()
 preprocessingTime = timeit.default_timer() - masterStart
-printt('[info] master > preprocessing time : %f' % preprocessingTime)
+#printt('[info] master > preprocessing time : %f' % preprocessingTime)
 
 maxminTimes = list()
 iterTimes = list()
@@ -287,7 +287,7 @@ while True:
         printt('[error] master > exception occured in master <-> maxmin')
         printt('[error] master > ' + str(e))
 
-printt('[info] master > socket connected (master <-> maxmin)')
+#printt('[info] master > socket connected (master <-> maxmin)')
 
 timeNow = timeit.default_timer()
 maxmin_sock.send(pack('!i', 0))
@@ -307,8 +307,8 @@ for _ in range(num_worker):
     chunks.append(chunk)
 
 maxminTimes.append(timeit.default_timer() - timeNow)
-printt('[info] master > maxmin finished')
-# printt('master > worker training iteration epoch : {}'.format(train_iter))
+#printt('[info] master > maxmin finished')
+#printt('master > worker training iteration epoch : {}'.format(train_iter))
 
 cur_iter = 0
 trial  = 0
@@ -371,7 +371,7 @@ while True:
             chunks.append(chunk)
 
         maxminTimes.append(timeit.default_timer() - maxminStart)
-        printt('[info] master > maxmin finished')
+        #printt('[info] master > maxmin finished')
 
     else:
         # relation partitioning
@@ -638,7 +638,7 @@ if test_return == -1:
     sys.exit(1)
 
 totalTime = timeit.default_timer() - masterStart
-printt('master > Total elapsed time : %f' % (totalTime))
+#printt('master > Total elapsed time : %f' % (totalTime))
 
 workerLogKeys = [f'worker_{n}_{i}' for i in range(niter) for n in range(num_worker)]
 workerLogs = iter_mget(r, workerLogKeys)
