@@ -34,7 +34,6 @@ root_dir = sys.argv[5]
 data_root = sys.argv[6]
 debugging = sys.argv[7]
 maxmin_port = int(sys.argv[8])
-sep = ' ' if 'dbpedia' in data_root else '\t'
 
 if debugging == 'yes':
     logging.basicConfig(filename='%s/master.log' % root_dir, filemode='w', level=logging.DEBUG)
@@ -105,7 +104,7 @@ for file in data_files:
 
         for line in f:
 
-            head, relation, tail = line[:-1].split(sep)
+            head, relation, tail = line[:-1].split()
             entities_add(head)
             entities_add(tail)
 
@@ -126,7 +125,7 @@ with open(root_dir + data_files[0], 'r') as f:
 
     for line in f:
 
-        head, relation, tail = line[:-1].split(sep)
+        head, relation, tail = line[:-1].split()
         entity_graph_append((head, tail))
         connected_entity[entity2id[head]].add(entity2id[tail])
         connected_entity[entity2id[tail]].add(entity2id[head])
