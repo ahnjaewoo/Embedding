@@ -104,6 +104,7 @@ preprocess_folder_dir = "%s/preprocess/" % args.root_dir
 train_code_dir = "%s/MultiChannelEmbedding/Embedding.out" % args.root_dir
 test_code_dir = "%s/MultiChannelEmbedding/Test.out" % args.root_dir
 worker_code_dir = "%s/worker.py" % args.root_dir
+sep = ' ' if 'dbpedia' in args.data_root else '\t'
 
 if args.temp_dir == '':
 
@@ -144,7 +145,7 @@ for file in data_files:
 
         for line in f:
 
-            head, relation, tail = line[:-1].split(" ")
+            head, relation, tail = line[:-1].split(sep)
 
             if head not in entity2id:
 
@@ -170,7 +171,7 @@ with open(args.root_dir + data_files[0], 'r') as f:
 
     for line in f:
 
-        head, relation, tail = line[:-1].split(" ")
+        head, relation, tail = line[:-1].split(sep)
         head, relation, tail = entity2id[head], relation2id[relation], entity2id[tail]
         relation_triples[relation].append((head, tail))
 
