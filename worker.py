@@ -434,11 +434,13 @@ try:
 
             try:
 
-                embeddingTime = default_timer() - timeNow
                 # 처리 결과를 받아옴 - GeometricModel save
                 
                 # 원소를 한 번에 받음
                 count_entity = unpack('!i', sockRecv(embedding_sock, 4))[0]
+                
+                embeddingTime = default_timer() - timeNow # 순수한 embedding 시간을 측정하기 위해서 여기 위치, cpp 가 send 하면 embedding 이 끝난 것
+                
                 entity_id_list = unpack('!' + 'i' * count_entity, sockRecv(embedding_sock, count_entity * 4))
                 entity_vector_list = unpack(precision_string * count_entity * embedding_dim,
                     sockRecv(embedding_sock, precision_byte * embedding_dim * count_entity))
