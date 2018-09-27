@@ -188,7 +188,7 @@ printt('[info] master > # of relations per each partitions : [%s]' %
     " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
 
 sub_graphs = {}
-
+len_triples = list()
 for c, (relation_list, num) in enumerate(allocated_relation_worker):
 
     g = []
@@ -196,11 +196,13 @@ for c, (relation_list, num) in enumerate(allocated_relation_worker):
     for relation in relation_list:
         for (head, tail) in relation_triples[relation]:
             g_append((head, relation, tail))
+
+    len_triples.append(len(g))
     sub_graphs['sub_g_worker_%d' % c] = compress(dumps(
         g, protocol=HIGHEST_PROTOCOL), 9)
 
 printt('[info] master > # of triples in each partitions : [%s]' %
-    " ".join([len(sub_graphs[v]) for v in sub_graphs]))
+    " ".join(len_triples))
 
 r = redis.StrictRedis(host=args.redis_ip, port=6379, db=0)
 iter_mset(r, sub_graphs)
