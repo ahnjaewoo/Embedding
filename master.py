@@ -184,8 +184,8 @@ for i, (relation, num) in enumerate(relation_each_num):
     allocated_relation_worker[0][0].append(relation)
     allocated_relation_worker[0][1] += num
 
-#printt('[info] master > # of relations per each partitions : [%s]' %
-#    " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
+printt('[info] master > # of relations per each partitions : [%s]' %
+    " ".join([str(len(relation_list)) for relation_list, num in allocated_relation_worker]))
 
 sub_graphs = {}
 
