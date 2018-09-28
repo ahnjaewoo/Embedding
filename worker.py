@@ -622,7 +622,7 @@ try:
         redisTime += default_timer() - timeNow
 
     fsLog.write('[info] worker > phase 3 finished\n')
-    fsLog.write('line 625 - sockLoadTime : ' + str(sockSaveTime) + '\n')
+    fsLog.write('line 625 - sockSaveTime : ' + str(sockSaveTime) + '\n')
     fsLog.write('line 626 - redisTime (cumulative) : ' + str(redisTime) + '\n')
 
 except Exception as e:
