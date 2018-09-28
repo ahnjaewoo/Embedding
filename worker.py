@@ -521,13 +521,16 @@ try:
 
             try:
 
-                embeddingTime = default_timer() - timeNow
                 # 처리 결과를 받아옴 - GeometricModel save
 
                 # transE 에서는 embedding_relation 을 전송
                 if train_model == 0:
                     # 원소를 한 번에 받음
                     count_relation = unpack('!i', sockRecv(embedding_sock, 4))[0]
+
+                    embeddingTime = default_timer() - timeNow # 순수한 embedding 시간을 측정하기 위해서 여기 위치, cpp 가 send 하면 embedding 이 끝난 것                
+                    fsLog.write('                line 531 - embeddingTime : ' + str(embeddingTime) + '\n')
+
                     relation_id_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, count_relation * 4))
                     relation_vector_list = unpack(precision_string * count_relation * embedding_dim,
                         sockRecv(embedding_sock, precision_byte * embedding_dim * count_relation))
@@ -540,6 +543,10 @@ try:
                 elif train_model == 1:
                     # 원소를 한 번에 받음
                     count_relation = unpack('!i', sockRecv(embedding_sock, 4))[0]
+
+                    embeddingTime = default_timer() - timeNow # 순수한 embedding 시간을 측정하기 위해서 여기 위치, cpp 가 send 하면 embedding 이 끝난 것                
+                    fsLog.write('                line 547 - embeddingTime : ' + str(embeddingTime) + '\n')
+
                     relation_id_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, count_relation * 4))
                     # embedding_clusters 전송
                     cluster_vector_list = unpack(precision_string * count_relation * embedding_dim * 21,
@@ -622,8 +629,8 @@ try:
         redisTime += default_timer() - timeNow
 
     fsLog.write('[info] worker > phase 3 finished\n')
-    fsLog.write('                line 625 - sockSaveTime : ' + str(sockSaveTime) + '\n')
-    fsLog.write('                line 626 - redisTime (cumulative) : ' + str(redisTime) + '\n')
+    fsLog.write('                line 632 - sockSaveTime : ' + str(sockSaveTime) + '\n')
+    fsLog.write('                line 623 - redisTime (cumulative) : ' + str(redisTime) + '\n')
 
 except Exception as e:
 
