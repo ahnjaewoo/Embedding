@@ -225,7 +225,7 @@ try:
     timeNow = default_timer()
 
     fsLog.write('[info] worker > phase 1 : relation sent to DataModel finished\n')
-    fsLog.write('line 228 - datamodelTime : ' + str(datamodelTime) + '\n')
+    fsLog.write('                line 228 - datamodelTime : ' + str(datamodelTime) + '\n')
 
     # entity_vector 전송 - GeometricModel load
     while checksum != 1:
@@ -424,7 +424,7 @@ try:
     timeNow = default_timer()
 
     fsLog.write('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
-    fsLog.write('line 427 - sockLoadTime : ' + str(sockLoadTime) + '\n')
+    fsLog.write('                line 427 - sockLoadTime : ' + str(sockLoadTime) + '\n')
 
     #printt('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function')
     #fsLog.write('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
@@ -445,7 +445,7 @@ try:
                 count_entity = unpack('!i', sockRecv(embedding_sock, 4))[0]
                 
                 embeddingTime = default_timer() - timeNow # 순수한 embedding 시간을 측정하기 위해서 여기 위치, cpp 가 send 하면 embedding 이 끝난 것                
-                fsLog.write('line 448 - embeddingTime : ' + str(embeddingTime) + '\n')
+                fsLog.write('                line 448 - embeddingTime : ' + str(embeddingTime) + '\n')
 
                 entity_id_list = unpack('!' + 'i' * count_entity, sockRecv(embedding_sock, count_entity * 4))
                 entity_vector_list = unpack(precision_string * count_entity * embedding_dim,
@@ -622,8 +622,8 @@ try:
         redisTime += default_timer() - timeNow
 
     fsLog.write('[info] worker > phase 3 finished\n')
-    fsLog.write('line 625 - sockSaveTime : ' + str(sockSaveTime) + '\n')
-    fsLog.write('line 626 - redisTime (cumulative) : ' + str(redisTime) + '\n')
+    fsLog.write('                line 625 - sockSaveTime : ' + str(sockSaveTime) + '\n')
+    fsLog.write('                line 626 - redisTime (cumulative) : ' + str(redisTime) + '\n')
 
 except Exception as e:
 
