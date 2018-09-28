@@ -510,7 +510,6 @@ try:
         #printt('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
         #fsLog.write('[info] worker > entity_vectors updated - ' + worker_id + '\n')
         #fsLog.write('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
-        fsLog.close()
         redisTime += default_timer() - timeNow
 
     else:
@@ -618,7 +617,6 @@ try:
         #printt('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id)
         #fsLog.write('[info] worker > relation_vectors updated - ' + worker_id + '\n')
         #fsLog.write('[info] worker > iteration ' + str(cur_iter) + ' finished - ' + worker_id + '\n')
-        fsLog.close()
 
         redisTime += default_timer() - timeNow
 
@@ -646,6 +644,7 @@ except Exception as e:
 workerTotalTime = default_timer() - workerStart
 modelRunTime = unpack('d', sockRecv(embedding_sock, 8))[0]
 embedding_sock.close()
+fsLog.close()
 
 output_times = dict()
 output_times["datamodel_sock"] = datamodelTime
