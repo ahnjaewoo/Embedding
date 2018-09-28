@@ -120,7 +120,6 @@ redisTime = default_timer() - workerStart
 
 # 파일로 로그를 저장하기 위한 부분
 fsLog = open(os.path.join(root_dir, f'logs/worker_log_{worker_id}_iter_{cur_iter}.txt'), 'w')
-# fsLog.write('line 143 start\n')
 
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 try:
@@ -224,6 +223,9 @@ try:
     datamodelTime = default_timer() - timeNow
     checksum = 0
     timeNow = default_timer()
+
+    fsLog.write('[info] worker > phase 1 : relation sent to DataModel finished\n')
+    fsLog.write('line 228 - datamodelTime : ' + str(datamodelTime) + '\n')
 
     # entity_vector 전송 - GeometricModel load
     while checksum != 1:
@@ -421,6 +423,9 @@ try:
     sockLoadTime = default_timer() - timeNow
     timeNow = default_timer()
 
+    fsLog.write('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
+    fsLog.write('line 427 - sockLoadTime : ' + str(sockLoadTime) + '\n')
+
     #printt('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function')
     #fsLog.write('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
 
@@ -617,6 +622,10 @@ try:
 
         redisTime += default_timer() - timeNow
 
+    fsLog.write('[info] worker > phase 3 finished\n')
+    fsLog.write('line 626 - sockLoadTime : ' + str(sockSaveTime) + '\n')
+    fsLog.write('line 627 - redisTime (cumulative) : ' + str(redisTime) + '\n')
+
 except Exception as e:
 
     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -633,7 +642,6 @@ except Exception as e:
     fsLog.close()
     embedding_sock.close()
     sys.exit(1)
-
 
 workerTotalTime = default_timer() - workerStart
 modelRunTime = unpack('d', sockRecv(embedding_sock, 8))[0]
