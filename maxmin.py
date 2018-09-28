@@ -253,5 +253,5 @@ except Exception as e:
 
 finally:
 
-    printt('[info] maxmin > finish due to execption')
+    printt('[info] maxmin > finish')
     master_sock.close()
