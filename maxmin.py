@@ -67,18 +67,6 @@ elif debugging == 'no':
     def printt(str_):
         print(str_)
 
-
-# max-min process 실행, socket 연결
-# maxmin.cpp 가 server
-# master.py 는 client
-# master 와 maxmin 은 같은 ip 상에서 작동, 포트는 master 가 임의로 설정
-maxmin_addr = '127.0.0.1'
-maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-maxmin_sock.bind((maxmin_addr, maxmin_port))
-maxmin_sock.listen(1)
-
-master_sock, master_addr = maxmin_sock.accept()
-
 #printt('[info] maxmin > socket connected (master <-> maxmin)')
 data_files = ('%s/train.txt' % data_root, '%s/dev.txt' % data_root, '%s/test.txt' % data_root)
 anchor_dict = dict()
@@ -135,6 +123,17 @@ entities_id = {entity2id[v] for v in entities}
 for (hd, tl) in entity_graph:
 
     edge_list_append((entity2id[hd], entity2id[tl]))
+
+# max-min process 실행, socket 연결
+# maxmin.cpp 가 server
+# master.py 는 client
+# master 와 maxmin 은 같은 ip 상에서 작동, 포트는 master 가 임의로 설정
+maxmin_addr = '127.0.0.1'
+maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+maxmin_sock.bind((maxmin_addr, maxmin_port))
+maxmin_sock.listen(1)
+
+master_sock, master_addr = maxmin_sock.accept()
 
 try:
     while True:

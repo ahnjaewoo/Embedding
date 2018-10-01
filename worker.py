@@ -31,6 +31,7 @@ np_dtype = np.float32 if precision == 0 else np.float16
 train_model = int(sys.argv[9])
 n_cluster = int(sys.argv[10])
 crp = float(sys.argv[11])
+unix_socket_path = float(sys.argv[12])
 
 with open(f"{root_dir}/chunk_data_{worker_id}.txt") as f:
     chunk_data = f.read()
@@ -85,7 +86,11 @@ temp_folder_dir = "%s/tmp" % root_dir
 
 workerStart = default_timer()
 # redis에서 embedding vector들 받아오기
-r = redis.StrictRedis(host=redis_ip_address, port=6379, db=0)
+if unix_socket_path == '':
+    r = redis.StrictRedis(host=redis_ip_address, port=6379, db=0)
+else:
+    r = redis.StrictRedis(unix_socket_path=unix_socket_path)
+
 entities = np.array(loads(decompress(r.get('entities'))))
 entity_ids = np.array([int(i) for i in iter_mget(r, entities)], dtype=np.int32)
 entity_id = {e: i for e, i in zip(entities, entity_ids)}

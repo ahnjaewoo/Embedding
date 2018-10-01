@@ -53,6 +53,7 @@ parser.add_argument('--pypy_dir', type=str,
                     default="/home/rudvlf0413/pypy2-v6.0.0-linux64/bin/pypy", help='pypy directory')
 parser.add_argument('--redis_ip', type=str,
                     default='163.152.29.73', help='redis ip address')
+parser.add_argument('--unix_socket_path', type=str, default='', help='redis unix socket path')
 parser.add_argument('--scheduler_ip', type=str,
                     default='163.152.29.73:8786', help='dask scheduler ip:port')
 parser.add_argument('--use_scheduler_config_file', default='False',
@@ -121,6 +122,7 @@ n_cluster = args.n_cluster
 crp = args.crp
 anchor_num = args.anchor_num
 anchor_interval = args.anchor_interval
+unix_socket_path = args.unix_socket_path
 
 entities = list()
 entities_append = entities.append
@@ -206,13 +208,25 @@ for c, (relation_list, num) in enumerate(allocated_relation_worker):
 
 printt('[info] master > # of triples in each partitions : ' + str(len_triples))
 
-r = redis.StrictRedis(host=args.redis_ip, port=6379, db=0)
+if unix_socket_path == '':
+    r = redis.StrictRedis(host=args.redis_ip, port=6379, db=0)
+else:
+    r = redis.StrictRedis(unix_socket_path=unix_socket_path)
+
 iter_mset(r, sub_graphs)
 
 del relation_each_num
 del relation_triples
 del allocated_relation_worker
 del sub_graphs
+
+# max-min process 실행, socket 연결
+# maxmin.cpp 가 server
+# master.py 는 client
+maxmin_port = select_random()
+proc = Popen([args.pypy_dir, 'maxmin.py', str(num_worker), '0', str(anchor_num),
+              str(anchor_interval), args.root_dir, args.data_root, args.debugging,
+              str(maxmin_port)])
 
 iter_mset(r, entity2id)
 iter_mset(r, relation2id)
@@ -272,14 +286,6 @@ preprocessingTime = timeit.default_timer() - masterStart
 
 maxminTimes = list()
 iterTimes = list()
-
-# max-min process 실행, socket 연결
-# maxmin.cpp 가 server
-# master.py 는 client
-maxmin_port = select_random()
-proc = Popen([args.pypy_dir, 'maxmin.py', str(num_worker), '0', str(anchor_num),
-              str(anchor_interval), args.root_dir, args.data_root, args.debugging,
-              str(maxmin_port)])
 
 while True:
 
@@ -354,7 +360,7 @@ while True:
                        n_dim, lr, margin, train_iter, data_root_id, args.redis_ip,
                        args.root_dir, args.debugging, args.precision, train_model,
                        n_cluster, crp, train_code_dir, preprocess_folder_dir,
-                       worker_code_dir))
+                       worker_code_dir, unix_socket_path))
 
     if cur_iter % 2 == 1:
         # entity partitioning: max-min cut 실행, anchor 등 재분배

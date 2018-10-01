@@ -75,7 +75,7 @@ def install_libs():
 
 def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_root_id,
          redis_ip, root_dir, debugging, precision, train_model, n_cluster, crp,
-         train_code_dir, preprocess_folder_dir, worker_code_dir):
+         train_code_dir, preprocess_folder_dir, worker_code_dir, unix_socket_path):
 
     # socket_port = init_port + (cur_iter + 1) * int(worker_id.split('_')[1])
     socket_port = str(select_random())
@@ -95,7 +95,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
 
     worker_proc = Popen(["python", worker_code_dir, worker_id, str(cur_iter), str(n_dim),
                          redis_ip, root_dir, socket_port, debugging, str(precision), str(train_model),
-                         str(n_cluster), str(crp)])
+                         str(n_cluster), str(crp), unix_socket_path])
 
     worker_proc.wait()
     worker_return = worker_proc.returncode
