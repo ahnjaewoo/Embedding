@@ -422,6 +422,7 @@ del relations_initialized_bak
 
 fsLog.write('[info] master > iterTimes : ' + str(iterTimes) + '\n')
 fsLog.write('[info] master > maxminTimes : ' + str(maxminTimes) + '\n')
+fsLog.close()
 
 ###############################################################################
 ###############################################################################
