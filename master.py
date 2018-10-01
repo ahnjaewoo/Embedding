@@ -281,7 +281,7 @@ if args.install == 'True':
 # 전처리 끝날때까지 대기
 proc.communicate()
 preprocessingTime = timeit.default_timer() - masterStart
-#printt('[info] master > preprocessing time : %f' % preprocessingTime)
+printt('[info] master > preprocessing time : %f' % preprocessingTime)
 #fsLog.write('[info] master > preprocessing time : %f\n' % preprocessingTime)
 
 maxminTimes = list()
@@ -301,7 +301,7 @@ while True:
         printt('[error] master > exception occured in master <-> maxmin')
         printt('[error] master > ' + str(e))
 
-#printt('[info] master > socket connected (master <-> maxmin)')
+printt('[info] master > socket connected (master <-> maxmin)')
 
 timeNow = timeit.default_timer()
 maxmin_sock.send(pack('!i', 0))
@@ -321,7 +321,7 @@ for _ in range(num_worker):
     chunks.append(chunk)
 
 maxminTimes.append(timeit.default_timer() - timeNow)
-#printt('[info] master > maxmin finished')
+printt('[info] master > maxmin finished')
 #printt('master > worker training iteration epoch : {}'.format(train_iter))
 
 cur_iter = 0
@@ -332,7 +332,7 @@ trainStart = timeit.default_timer()
 
 while True:
 
-    #printt('[info] master > iteration ' + str(cur_iter) + ' started')
+    printt('[info] master > iteration ' + str(cur_iter) + ' started')
     # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
     entities_initialized_bak = iter_mget(r, [f'{entity}_v' for entity in entities])
     entities_initialized_bak = np.array([loads(decompress(v)) for v in entities_initialized_bak])
@@ -385,7 +385,7 @@ while True:
             chunks.append(chunk)
 
         maxminTimes.append(timeit.default_timer() - maxminStart)
-        #printt('[info] master > maxmin finished')
+        printt('[info] master > maxmin finished')
 
     else:
         # relation partitioning
