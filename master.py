@@ -132,6 +132,9 @@ entity_cnt = 0
 relations_cnt = 0
 data_root_id = data2id(args.data_root)
 
+# 파일로 로그를 저장하기 위한 부분
+fsLog = open(os.path.join(root_dir, f'logs/master_log.txt'), 'w')
+
 masterStart = timeit.default_timer()
 # 여기서 전처리 C++ 프로그램 비동기 호출
 proc = Popen(["%spreprocess.out" % preprocess_folder_dir,
@@ -265,6 +268,7 @@ if args.install == 'True':
 proc.communicate()
 preprocessingTime = timeit.default_timer() - masterStart
 #printt('[info] master > preprocessing time : %f' % preprocessingTime)
+#fsLog.write('[info] master > preprocessing time : %f\n' % preprocessingTime)
 
 maxminTimes = list()
 iterTimes = list()
@@ -415,6 +419,9 @@ trainTime = timeit.default_timer() - trainStart
 
 del entities_initialized_bak
 del relations_initialized_bak
+
+fsLog.write('[info] master > iterTimes : ' + str(iterTimes) + '\n')
+fsLog.write('[info] master > maxminTimes : ' + str(maxminTimes) + '\n')
 
 ###############################################################################
 ###############################################################################
