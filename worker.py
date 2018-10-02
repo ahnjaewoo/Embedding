@@ -31,7 +31,7 @@ np_dtype = np.float32 if precision == 0 else np.float16
 train_model = int(sys.argv[9])
 n_cluster = int(sys.argv[10])
 crp = float(sys.argv[11])
-unix_socket_path = float(sys.argv[12])
+unix_socket_path = sys.argv[12]
 
 with open(f"{root_dir}/chunk_data_{worker_id}.txt") as f:
     chunk_data = f.read()
