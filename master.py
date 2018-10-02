@@ -139,7 +139,7 @@ fsLog = open(os.path.join(args.root_dir, f'logs/master_log.txt'), 'w')
 
 masterStart = timeit.default_timer()
 # 여기서 전처리 C++ 프로그램 비동기 호출
-proc = Popen(["%spreprocess.out" % preprocess_folder_dir,
+proc_preprocessing = Popen(["%spreprocess.out" % preprocess_folder_dir,
               str(data_root_id)], cwd=preprocess_folder_dir)
 #printt('[info] master > Preprocessing started')
 
@@ -224,7 +224,7 @@ del sub_graphs
 # maxmin.cpp 가 server
 # master.py 는 client
 maxmin_port = select_random()
-proc = Popen([args.pypy_dir, 'maxmin.py', str(num_worker), '0', str(anchor_num),
+proc_maxmin = Popen([args.pypy_dir, 'maxmin.py', str(num_worker), '0', str(anchor_num),
               str(anchor_interval), args.root_dir, args.data_root, args.debugging,
               str(maxmin_port)])
 
@@ -279,7 +279,7 @@ if args.install == 'True':
     client.run(install_libs)
 
 # 전처리 끝날때까지 대기
-proc.communicate()
+proc_preprocessing.communicate()
 preprocessingTime = timeit.default_timer() - masterStart
 printt('[info] master > preprocessing time : %f' % preprocessingTime)
 #fsLog.write('[info] master > preprocessing time : %f\n' % preprocessingTime)
