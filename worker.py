@@ -645,10 +645,10 @@ except Exception as e:
     exc_type, exc_obj, exc_tb = sys.exc_info()
     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 
-    #printt('[error] worker > exception occured in iteration - ' + worker_id)
-    #printt('[error] worker > ' + str(e))
-    #printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
-    #printt('[error] worker > return -1')
+    printt('[error] worker > exception occured in iteration - ' + worker_id)
+    printt('[error] worker > ' + str(e))
+    printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
+    printt('[error] worker > return -1')
     fsLog.write('[error] worker > exception occured in iteration - ' + str(worker_id) + '\n')
     fsLog.write('[error] worker > ' + str(e) + '\n')
     fsLog.write('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno) + '\n')
