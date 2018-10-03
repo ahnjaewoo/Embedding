@@ -124,7 +124,22 @@ redisTime = default_timer() - workerStart
 # printt('worker > socket connected (worker <-> embedding)')
 
 # 파일로 로그를 저장하기 위한 부분
-fsLog = open(os.path.join(root_dir, f'logs/worker_log_{worker_id}_iter_{cur_iter}.txt'), 'w')
+try:
+
+    fsLog = open(os.path.join(root_dir, f'logs/worker_log_{worker_id}_iter_{cur_iter}.txt'), 'w')
+
+except Exception as e:
+
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+
+    printt('[error] worker > exception occured in iteration - ' + worker_id)
+    printt('[error] worker > ' + str(e))
+    printt('[error] worker > exception occured in line ' + str(exc_tb.tb_lineno))
+    printt('[error] worker > return -1')
+    embedding_sock.close()
+    sys.exit(1)
+
 
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 try:
