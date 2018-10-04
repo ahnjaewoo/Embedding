@@ -238,9 +238,8 @@ public:
 	        output.close();
     	}
 
-        //cout << "[info] DataModel > DataModel constructor called\n";
-        //fprintf(fs_log, "[info] DataModel > DataModel constructor called\n");
-        //cout << "[info] DataModel > master_epoch = " << master_epoch << endl;
+        cout << "[info] DataModel > DataModel constructor called\n";
+        fprintf(fs_log, "[info] DataModel > DataModel constructor called\n");
         
         if (master_epoch >= 0){
 
@@ -348,10 +347,10 @@ public:
                     }
                     catch(std::exception& e){
 
-                        //cout << "[error] DataModel >  entity : exception occured\n";
-                        //cout << "%s\n" << e.what();
-                        //fprintf(fs_log, "[error] DataModel >  entity : exception occured\n");
-                        //fprintf(fs_log, "%s\n", e.what());
+                        cout << "[error] DataModel >  entity : exception occured\n";
+                        cout << "%s\n" << e.what();
+                        fprintf(fs_log, "[error] DataModel >  entity : exception occured\n");
+                        fprintf(fs_log, "%s\n", e.what());
                         success = 0;
                         flag = 9876;
                         flag = htonl(flag);
@@ -425,10 +424,10 @@ public:
                     }
                     catch(std::exception& e){
 
-                        //cout << "[error] DataModel > relation : exception occured\n";
-                        //cout << "%s\n" << e.what();
-                        //fprintf(fs_log, "[error] DataModel > relation : exception occured\n");
-                        //fprintf(fs_log, "%s\n", e.what());
+                        cout << "[error] DataModel > relation : exception occured\n";
+                        cout << "%s\n" << e.what();
+                        fprintf(fs_log, "[error] DataModel > relation : exception occured\n");
+                        fprintf(fs_log, "%s\n", e.what());
                         success = 0;
                         flag = 9876;
                         flag = htonl(flag);
@@ -440,10 +439,10 @@ public:
             vector_entity_parts.assign(set_entity_parts.begin(), set_entity_parts.end());
             vector_relation_parts.assign(set_relation_parts.begin(), set_relation_parts.end());
         }
-        //cout << "[info] DataModel > # of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << endl;
-        //cout << "[info] DataModel > # of test triples: " << data_test_true.size() << endl;
-        //fprintf(fs_log, "[info] DataModel > # of triples in worker_%d : %d/%d\n", worker_num, data_train_parts.size(), data_train.size());
-        //fprintf(fs_log, "[info] DataModel > # of test triples : %d\n", data_test_true.size());
+        cout << "[info] DataModel > # of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << endl;
+        cout << "[info] DataModel > # of test triples: " << data_test_true.size() << endl;
+        fprintf(fs_log, "[info] DataModel > # of triples in worker_%d : %d/%d\n", worker_num, data_train_parts.size(), data_train.size());
+        fprintf(fs_log, "[info] DataModel > # of test triples : %d\n", data_test_true.size());
     }
 
     DataModel(const Dataset& dataset, const string& file_zero_shot, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd, FILE * fs_log)
