@@ -282,7 +282,7 @@ if args.install == 'True':
 proc_preprocessing.communicate()
 preprocessingTime = timeit.default_timer() - masterStart
 printt('[info] master > preprocessing time : %f' % preprocessingTime)
-#fsLog.write('[info] master > preprocessing time : %f\n' % preprocessingTime)
+fsLog.write('[info] master > preprocessing time : %f\n' % preprocessingTime)
 
 maxminTimes = list()
 iterTimes = list()
@@ -343,7 +343,7 @@ while True:
 
         break
 
-    if trial == 5:
+    if trial == 2:
 
         printt('[error] master > training failed, exit')
         maxmin_sock.send(pack('!i', 1))
