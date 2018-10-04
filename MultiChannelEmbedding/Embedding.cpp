@@ -78,7 +78,13 @@ int main(int argc, char* argv[]){
 
 	sock_timeout.tv_sec = 1000;
 	sock_timeout.tv_usec = 0;
+	// set recv timeout
 	if (setsockopt(embedding_sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&sock_timeout, sizeof(sock_timeout)) < 0) {
+		cout << "[error] embedding > socket option (timeout) - worker_" << worker_num << endl;
+		return -1;
+	}
+	// set send timeout
+	if (setsockopt(embedding_sock, SOL_SOCKET, SO_SNDTIMEO, (char *)&sock_timeout, sizeof(sock_timeout)) < 0) {
 		cout << "[error] embedding > socket option (timeout) - worker_" << worker_num << endl;
 		return -1;
 	}
