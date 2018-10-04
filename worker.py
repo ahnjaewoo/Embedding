@@ -72,6 +72,7 @@ elif debugging == 'no':
 
 try:
     embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    embedding_sock.settimeout(None)
     embedding_sock.connect(('127.0.0.1', socket_port))
 
 except Exception as e:
