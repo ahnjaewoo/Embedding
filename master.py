@@ -292,9 +292,9 @@ while True:
     try:
 
         maxmin_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        embedding_sock.settimeout(30)
+        maxmin_sock.settimeout(30)
         maxmin_sock.connect(('127.0.0.1', maxmin_port))
-        embedding_sock.settimeout(None)
+        maxmin_sock.settimeout(None)
         break
     
     except Exception as e:
