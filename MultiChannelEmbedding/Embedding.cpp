@@ -61,6 +61,8 @@ int main(int argc, char* argv[]){
   		fs_log = fopen(argv[9], "w+");
 	}
 
+	fprintf(fs_log, "[info] embedding > process created\n");
+
 	// embedding.cpp is server
 	// worker.py is client
 	// IP addr / port are from master.py
@@ -168,7 +170,7 @@ int main(int argc, char* argv[]){
 	gettimeofday(&after, NULL);
 	run_time = after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0;
 	//cout << "embedding > model->run end, training time : " << run_time << "seconds" << endl;
-	fprintf(fs_log, "embedding > testing time : %lf seconds\n", run_time);
+	fprintf(fs_log, "[info] embedding > testing time : %lf seconds\n", run_time);
 	
 	model->save(to_string(worker_num), fs_log);
 	//cout << "embedding > model->save end" << endl;

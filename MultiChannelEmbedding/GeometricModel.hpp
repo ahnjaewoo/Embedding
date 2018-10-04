@@ -45,8 +45,8 @@ public:
 		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
 	{
 
-		// printf("[info] GeometricModel.hpp > TransE constructor called");
-		// fprintf(fs_log, "[info] GeometricModel.hpp > TransE constructor called");
+		printf("[info] GeometricModel.hpp > TransE constructor called");
+		fprintf(fs_log, "[info] GeometricModel.hpp > TransE constructor called");
 
 		// logging.record() << "\t[Name]\tTransE";
 		// logging.record() << "\t[Dimension]\t" << dim;
