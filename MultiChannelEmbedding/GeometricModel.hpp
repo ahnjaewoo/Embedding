@@ -693,6 +693,8 @@ public:
 					}
 				}
 
+				cout << "[info] GeometricModel.hpp > line 696\n";
+
 				flag = 1234;
 				flag = htonl(flag);
 				send(fd, &flag, sizeof(flag), 0);
@@ -779,6 +781,8 @@ public:
 						free(vector_buff);
 					}
 				}
+
+				cout << "[info] GeometricModel.hpp > line 785\n";
 
                 flag = 1234;
                 flag = htonl(flag);

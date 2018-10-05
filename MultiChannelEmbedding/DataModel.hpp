@@ -281,6 +281,9 @@ public:
                             fclose(fs_log);
                             return;
                         }
+
+                        cout << "[info] DataModel > line 285 - anchor_num : " << anchor_num << "\n";
+                        cout << "[info] DataModel > line 286 - entity_num : " << entity_num << "\n";
                         
                         int * anchor_buff = (int *)calloc(ntohl(anchor_num) + 1, sizeof(int));
                         if (recv(fd, anchor_buff, ntohl(anchor_num) * sizeof(int), MSG_WAITALL) < 0){
@@ -305,6 +308,8 @@ public:
                         
                         free(anchor_buff);
 
+                        cout << "[info] DataModel > line 311 - anchor_buff sent\n";
+
                         int * entity_buff = (int *)calloc(ntohl(entity_num) + 1, sizeof(int));
                         if (recv(fd, entity_buff, ntohl(entity_num) * sizeof(int), MSG_WAITALL) < 0){
 
@@ -326,6 +331,8 @@ public:
                         }
 
                         free(entity_buff);
+
+                        cout << "[info] DataModel > line 335 - entity_buff sent\n";
                         
                         //.....................
 
@@ -338,7 +345,9 @@ public:
                             
                                 data_train_parts.push_back(*i);
                             }
-                        }   
+                        }
+
+                        cout << "[info] DataModel > line 350\n";
 
                         flag = 1234;
                         flag = htonl(flag);
@@ -387,6 +396,8 @@ public:
                             return;
                         }
 
+                        cout << "[info] DataModel > line 399 - triplet_num : " << triplet_num << "\n";
+
                         // 원소 한 번에 받음 - 2 단계 (모두 한 번에)
                         
                         int * triplet_buff = (int *)calloc(ntohl(triplet_num) * 3 + 1, sizeof(int));
@@ -402,6 +413,8 @@ public:
                             return;
                         }
 
+                        cout << "[info] DataModel > line 416 - triplet_buff sent\n";
+
                         for (int idx = 0; idx < ntohl(triplet_num); idx++) {
 
                             set_entity_parts.insert(ntohl(triplet_buff[3 * idx]));
@@ -414,6 +427,8 @@ public:
                         }
 
                         free(triplet_buff);
+
+                        cout << "[info] DataModel > line 431\n";
                         
                         //.....................
 
@@ -527,7 +542,6 @@ public:
             }
         }
     }
-
 
     void load_training(const string& filename)
     {
