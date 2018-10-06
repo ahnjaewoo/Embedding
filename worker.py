@@ -163,8 +163,12 @@ try:
         while checksum != 1:
 
             # 원소 한 번에 전송 - 2 단계
-            value_to_send = (len(chunk_anchor), len(chunk_entity), *chunk_anchor, *chunk_entity)
-            embedding_sock.send(pack('!' + 'i' * (len(chunk_anchor) + len(chunk_entity) + 2), *value_to_send))
+
+            # overflow 때문에 전체 개수를 따로 보냄
+            value_to_send = (len(chunk_anchor), len(chunk_entity))
+            embedding_sock.send('qq', *value_to_send)
+            value_to_send = (*chunk_anchor, *chunk_entity)
+            embedding_sock.send(pack('!' + 'i' * (len(chunk_anchor) + len(chunk_entity)), *value_to_send))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
             del value_to_send
@@ -204,7 +208,7 @@ try:
         
         while checksum != 1:
 
-            embedding_sock.send(pack('!i', len(sub_graphs)))
+            embedding_sock.send(pack('q', len(sub_graphs)))
 
             # 원소 한 번에 전송 - 2 단계
             value_to_send = np.array(sub_graphs).flatten()
