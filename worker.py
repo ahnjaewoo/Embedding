@@ -168,6 +168,10 @@ try:
             value_to_send = (len(chunk_anchor), len(chunk_entity))
             embedding_sock.send(pack('qq', *value_to_send))
             value_to_send = (*chunk_anchor, *chunk_entity)
+
+            printt('worker > size of value_to_send in 172 : ' + str(len(value_to_send)))
+
+
             embedding_sock.send(pack('!' + 'i' * (len(chunk_anchor) + len(chunk_entity)), *value_to_send))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
