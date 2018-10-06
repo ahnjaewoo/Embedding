@@ -166,7 +166,7 @@ try:
 
             # overflow 때문에 전체 개수를 따로 보냄
             value_to_send = (len(chunk_anchor), len(chunk_entity))
-            embedding_sock.send('qq', *value_to_send)
+            embedding_sock.send(pack('qq', *value_to_send))
             value_to_send = (*chunk_anchor, *chunk_entity)
             embedding_sock.send(pack('!' + 'i' * (len(chunk_anchor) + len(chunk_entity)), *value_to_send))
 
