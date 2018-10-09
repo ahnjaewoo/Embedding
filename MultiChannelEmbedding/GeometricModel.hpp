@@ -639,7 +639,7 @@ public:
 
 	                if (recv(fd, &entity_id, sizeof(int), MSG_WAITALL) < 0){
 
-	                	cout << "[error] GeometricModel.hpp > recv entity_id\n";
+	                	cout << "[error] GeometricModel.hpp > recv entity_id" << endl;
 	                	fprintf(fs_log, "[error] GeometricModel.hpp > recv entity_id\n");
 	                    close(fd);
 	                    fclose(fs_log);
@@ -653,8 +653,8 @@ public:
 						float * vector_buff = (float *)calloc(dim + 1, sizeof(float));
 						if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
 
-							cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)\n";
-							cout << "[error] GeometricModel.hpp > return -1\n";
+							cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)" << endl;
+							cout << "[error] GeometricModel.hpp > return -1" << endl;
 							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)\n");
 							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
 							close(fd);
@@ -674,8 +674,8 @@ public:
 						half * vector_buff = (half *)calloc(dim + 1, sizeof(half));
 						if (recv(fd, vector_buff, dim * sizeof(half), MSG_WAITALL) < 0){
 
-							cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)\n";
-							cout << "[error] GeometricModel.hpp > return -1\n";
+							cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)" << endl;
+							cout << "[error] GeometricModel.hpp > return -1" << endl;
 							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)\n");
 							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
 							close(fd);
@@ -692,7 +692,7 @@ public:
 					}
 				}
 
-				cout << "[info] GeometricModel.hpp > line 695\n";
+				cout << "[info] GeometricModel.hpp > line 695" << endl;
 
 				flag = 1234;
 				flag = htonl(flag);
@@ -701,8 +701,8 @@ public:
 			}
         	catch (std::exception& e){
 
-                cout << "[error] GeometricModel.hpp > exception occured\n";
-                cout << "%s\n" << e.what();
+                cout << "[error] GeometricModel.hpp > exception occured" << endl;
+                cout << "%s\n" << e.what() << endl;
                 fprintf(fs_log, "[error] GeometricModel.hpp > exception occured\n");
                 fprintf(fs_log, "%s\n", e.what());
                 success = 0;
@@ -711,8 +711,8 @@ public:
                 send(fd, &flag, sizeof(flag), 0);
         	}
         }
-		// printf("[info] GeometricModel.hpp > load entity finish\n");
-		// fprintf(fs_log, "[info] GeometricModel.hpp > load entity finish\n");
+        cout << "[info] GeometricModel.hpp > load entity finish" << endl;
+		fprintf(fs_log, "[info] GeometricModel.hpp > load entity finish\n");
 
 		success = 0;
 		flag = 0;
@@ -726,7 +726,7 @@ public:
 					int relation_id;
 	                if (recv(fd, &relation_id, sizeof(int), MSG_WAITALL) < 0){
 
-	                	cout << "[error] GeometricModel.hpp > recv relation_id\n";
+	                	cout << "[error] GeometricModel.hpp > recv relation_id" << endl;
 	                	fprintf(fs_log, "[error] GeometricModel.hpp > recv relation_id\n");
 	                    close(fd);
 	                    fclose(fs_log);
@@ -741,8 +741,8 @@ public:
 						
 						if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
 
-							cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)\n";
-							cout << "[error] GeometricModel.hpp > return -1\n";
+							cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)" << endl;
+							cout << "[error] GeometricModel.hpp > return -1" << endl;
 							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)\n");
 							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
 							close(fd);
@@ -763,8 +763,8 @@ public:
 						
 						if (recv(fd, vector_buff, dim * sizeof(half), MSG_WAITALL) < 0){
 
-							cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)\n";
-							cout << "[error] GeometricModel.hpp > return -1\n";
+							cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)" << endl;
+							cout << "[error] GeometricModel.hpp > return -1" << endl;
 							fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)\n");
 							fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
 							close(fd);
@@ -781,7 +781,7 @@ public:
 					}
 				}
 
-				cout << "[info] GeometricModel.hpp > line 784\n";
+				cout << "[info] GeometricModel.hpp > line 784" << endl;
 
                 flag = 1234;
                 flag = htonl(flag);
@@ -790,8 +790,8 @@ public:
 			}
 			catch (std::exception& e){
 
-				cout << "[error] GeometricModel.hpp > exception occured\n";
-				cout << "%s\n" << e.what();
+				cout << "[error] GeometricModel.hpp > exception occured" << endl;
+				cout << "%s\n" << e.what() << endl;
 				fprintf(fs_log, "[error] GeometricModel.hpp > exception occured\n");
 				fprintf(fs_log, "%s\n", e.what());
 				success = 0;
@@ -800,11 +800,8 @@ public:
 				send(fd, &flag, sizeof(flag), 0);
 			}
 		}
-		//cout << "[info] GeometricModel.hpp > load relation finish\n";
-		//fprintf(fs_log, "[info] GeometricModel.hpp > load relation finish\n");
-		
-		//cout << "[info] GeometricModel.hpp > load function finish\n";
-		//fprintf(fs_log, "[info] GeometricModel.hpp > load function finish\n");
+		cout << "[info] GeometricModel.hpp > load relation finish" << endl;
+		fprintf(fs_log, "[info] GeometricModel.hpp > load relation finish\n");
 	}
 };
 

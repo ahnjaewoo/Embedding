@@ -238,7 +238,7 @@ public:
 	        output.close();
     	}
 
-        cout << "[info] DataModel > DataModel constructor called\n";
+        cout << "[info] DataModel > DataModel constructor called" << endl;
         fprintf(fs_log, "[info] DataModel > DataModel constructor called\n");
         
         if (master_epoch >= 0){
@@ -262,10 +262,10 @@ public:
 
                         if (recv(fd, &anchor_num, sizeof(anchor_num), MSG_WAITALL) < 0){
 
-                            //cout << "[error] DataModel > recv anchor_num\n";
-                            //cout << "[error] DataModel > return -1\n";
-                            //fprintf(fs_log, "[error] DataModel > recv anchor_num\n");
-                            //fprintf(fs_log,  "[error] DataModel > return -1\n");
+                            cout << "[error] DataModel > recv anchor_num\n";
+                            cout << "[error] DataModel > return -1\n";
+                            fprintf(fs_log, "[error] DataModel > recv anchor_num\n");
+                            fprintf(fs_log,  "[error] DataModel > return -1\n");
                             close(fd);
                             fclose(fs_log);
                             std::exit(-1);
@@ -276,10 +276,10 @@ public:
 
                         if (recv(fd, &entity_num, sizeof(entity_num), MSG_WAITALL) < 0){
 
-                            //cout << "[error] DataModel > recv entity_num\n";
-                            //cout << "[error] DataModel > return -1\n";
-                            //fprintf(fs_log, "[error] DataModel > recv entity_num\n");
-                            //fprintf(fs_log, "[error] DataModel > return -1\n");   
+                            cout << "[error] DataModel > recv entity_num\n";
+                            cout << "[error] DataModel > return -1\n";
+                            fprintf(fs_log, "[error] DataModel > recv entity_num\n");
+                            fprintf(fs_log, "[error] DataModel > return -1\n");   
                             std::exit(-1);
                             close(fd);
                             fclose(fs_log);
@@ -287,14 +287,14 @@ public:
                         }
 
                         cout << "[info] DataModel > line 289 - entity_num : " << entity_num << endl;
-                        
+
                         int * anchor_buff = (int *)calloc(anchor_num + 1, sizeof(int));
                         if (recv(fd, anchor_buff, anchor_num * (long long int)sizeof(int), MSG_WAITALL) < 0){
 
-                            //cout << "[error] DataModel > recv anchor_buff\n";
-                            //cout << "[error] DataModel > return -1\n";
-                            //fprintf(fs_log, "[error] DataModel > recv anchor_buff\n");
-                            //fprintf(fs_log, "[error] DataModel > return -1\n");
+                            cout << "[error] DataModel > recv anchor_buff\n";
+                            cout << "[error] DataModel > return -1\n";
+                            fprintf(fs_log, "[error] DataModel > recv anchor_buff\n");
+                            fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
                             fclose(fs_log);
                             std::exit(-1);
@@ -305,6 +305,14 @@ public:
 
                         for (long long int idx = 0; idx < anchor_num; idx++){
 
+                            ///////////////////////////////////////
+                            if (temp_value < 0) {
+
+                                cout << "[error] DataModel > temp_value = " << temp_value << endl;
+                                fprintf(fs_log, "[error] DataModel > temp_value = %d\n", temp_value);
+                            }
+                            //////////////////////////////////////
+
                             temp_value = ntohl(anchor_buff[idx]);
                             set_entity_parts.insert(temp_value);
                             check_anchor[temp_value] = true;
@@ -313,24 +321,32 @@ public:
                         
                         free(anchor_buff);
 
-                        cout << "[info] DataModel > line 316 - anchor_buff sent\n";
+                        cout << "[info] DataModel > line 324 - anchor_buff sent" << endl;
 
                         int * entity_buff = (int *)calloc(entity_num + 1, sizeof(int));
                         if (recv(fd, entity_buff, entity_num * (long long int)sizeof(int), MSG_WAITALL) < 0){
 
-                            //cout << "[error] DataModel > recv entity_buff\n";
-                            //cout << "[error] DataModel > return -1\n";
-                            //fprintf(fs_log, "[error] DataModel > recv entity_buff\n");
-                            //fprintf(fs_log, "[error] DataModel > return -1\n");
+                            cout << "[error] DataModel > recv entity_buff << endl";
+                            cout << "[error] DataModel > return -1" << endl;
+                            fprintf(fs_log, "[error] DataModel > recv entity_buff\n");
+                            fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
                             fclose(fs_log);
                             std::exit(-1);
                             return;
                         }
 
-                        cout << "[info] DataModel > line 331" << endl;
+                        cout << "[info] DataModel > line 339" << endl;
 
                         for (long long int idx = 0; idx < entity_num; idx++){
+
+                            ///////////////////////////////////////
+                            if (temp_value < 0) {
+
+                                cout << "[error] DataModel > temp_value = " << temp_value << endl;
+                                fprintf(fs_log, "[error] DataModel > temp_value = %d\n", temp_value);
+                            }
+                            //////////////////////////////////////
 
                             temp_value = ntohl(entity_buff[idx]);
                             set_entity_parts.insert(temp_value);
@@ -339,7 +355,7 @@ public:
 
                         free(entity_buff);
 
-                        cout << "[info] DataModel > line 342 - entity_buff sent" << endl;
+                        cout << "[info] DataModel > line 358 - entity_buff sent" << endl;
                         
                         //.....................
 
@@ -354,7 +370,7 @@ public:
                             }
                         }
 
-                        cout << "[info] DataModel > line 357" << endl;
+                        cout << "[info] DataModel > line 373" << endl;
 
                         flag = 1234;
                         flag = htonl(flag);
@@ -373,8 +389,6 @@ public:
                         send(fd, &flag, sizeof(flag), 0);
                     }
                 }
-                //cout << "[info] DataModel > entity preprocesing let's get it!" << endl;
-                //fprintf(fs_log, "[info] DataModel > entity preprocesing let's get it!\n");
             }
             else {
                 //relation
@@ -393,17 +407,17 @@ public:
 
                         if (recv(fd, &triplet_num, sizeof(triplet_num), MSG_WAITALL) < 0){
 
-                            //cout << "[error] DataModel > recv triplet_num" << endl;
-                            //cout << "[error] DataModel > return -1\n";
-                            //fprintf(fs_log, "[error] DataModel > recv triplet_num\n");
-                            //fprintf(fs_log, "[error] DataModel > return -1\n");
+                            cout << "[error] DataModel > recv triplet_num" << endl;
+                            cout << "[error] DataModel > return -1\n";
+                            fprintf(fs_log, "[error] DataModel > recv triplet_num\n");
+                            fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
                             fclose(fs_log);
                             std::exit(-1);
                             return;
                         }
 
-                        cout << "[info] DataModel > line 405 - triplet_num : " << triplet_num << endl;
+                        cout << "[info] DataModel > line 420 - triplet_num : " << triplet_num << endl;
 
                         // 원소 한 번에 받음 - 2 단계 (모두 한 번에)
                         
@@ -412,15 +426,15 @@ public:
 
                             cout << "[error] DataModel > recv triplet_buff" << endl;
                             cout << "[error] DataModel > return -1" << endl;
-                            //fprintf(fs_log, "[error] DataModel > recv triplet_buff\n");
-                            //fprintf(fs_log, "[error] DataModel > return -1\n");
+                            fprintf(fs_log, "[error] DataModel > recv triplet_buff\n");
+                            fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
                             fclose(fs_log);
                             std::exit(-1);
                             return;
                         }
 
-                        cout << "[info] DataModel > line 422 - triplet_buff sent" << endl;
+                        cout << "[info] DataModel > line 437 - triplet_buff sent" << endl;
 
                         for (long long int idx = 0; idx < triplet_num; idx++) {
 
@@ -435,7 +449,7 @@ public:
 
                         free(triplet_buff);
 
-                        cout << "[info] DataModel > line 437" << endl;
+                        cout << "[info] DataModel > line 452" << endl;
                         
                         //.....................
 
@@ -456,7 +470,6 @@ public:
                         send(fd, &flag, sizeof(flag), 0);
                     }
                 }
-                //cout << "[info] DataModel > relation preprocessing let's get it!" << endl;
             }
             vector_entity_parts.assign(set_entity_parts.begin(), set_entity_parts.end());
             vector_relation_parts.assign(set_relation_parts.begin(), set_relation_parts.end());
