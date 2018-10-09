@@ -45,7 +45,7 @@ public:
 		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
 	{
 
-		printf("[info] GeometricModel.hpp > TransE constructor called");
+		cout << "[info] GeometricModel.hpp > TransE constructor called" << endl;
 		fprintf(fs_log, "[info] GeometricModel.hpp > TransE constructor called");
 
 		// logging.record() << "\t[Name]\tTransE";
@@ -60,9 +60,6 @@ public:
 		{
 			for_each(embedding_entity.begin(), embedding_entity.end(), [=](vec& elem) {elem = vec(dim); });
 			for_each(embedding_relation.begin(), embedding_relation.end(), [=](vec& elem) {elem = vec(dim); });
-
-
-
 
 			// load 함수 부분이 소켓과 연동되어야 함, load 함수 자체에서 처리
 			load("", fs_log);
@@ -630,6 +627,8 @@ public:
 		int flag = 0;
   		int success = 0;
 
+  		cout << "[info] GeometricModel >> line 630 - load function called" << endl;
+
 		while (!success){
 
 			try{
@@ -693,7 +692,7 @@ public:
 					}
 				}
 
-				cout << "[info] GeometricModel.hpp > line 696\n";
+				cout << "[info] GeometricModel.hpp > line 695\n";
 
 				flag = 1234;
 				flag = htonl(flag);
@@ -782,7 +781,7 @@ public:
 					}
 				}
 
-				cout << "[info] GeometricModel.hpp > line 785\n";
+				cout << "[info] GeometricModel.hpp > line 784\n";
 
                 flag = 1234;
                 flag = htonl(flag);
