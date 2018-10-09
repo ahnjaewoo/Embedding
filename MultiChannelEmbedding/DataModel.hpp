@@ -259,7 +259,12 @@ public:
                         // 원소 한 번에 받음 - 2 단계
 
                         cout << "[info] DataModel > line 261" << endl;
+                        cout << "[info] DataModel > sizeof(anchor_num)" << sizeof(anchor_num) << endl;
 
+                        cout << "[info] DataModel < recv anchor_num : " << recv(fd, &anchor_num, sizeof(anchor_num), MSG_WAITALL) << endl;
+                        cout << "[info] DataModel < recv entity_num : " << recv(fd, &entity_num, sizeof(entity_num), MSG_WAITALL) << endl;
+
+                        /*
                         if (recv(fd, &anchor_num, sizeof(anchor_num), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv anchor_num\n";
@@ -271,9 +276,11 @@ public:
                             std::exit(-1);
                             return;
                         }
+                        */
 
                         cout << "[info] DataModel > line 275 - anchor_num : " << anchor_num << endl;
 
+                        /*
                         if (recv(fd, &entity_num, sizeof(entity_num), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv entity_num\n";
@@ -285,6 +292,7 @@ public:
                             fclose(fs_log);
                             return;
                         }
+                        */
 
                         cout << "[info] DataModel > line 289 - entity_num : " << entity_num << endl;
 
