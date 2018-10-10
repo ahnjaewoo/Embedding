@@ -169,7 +169,8 @@ try:
             embedding_sock.send(pack('qq', *value_to_send))
             value_to_send = (*chunk_anchor, *chunk_entity)
 
-            printt('worker > size of value_to_send in 172 : ' + str(len(value_to_send)))
+            printt('worker > (len(chunk_anchor), len(chunk_entity)) = ' + str(len(chunk_anchor)) + str(len(chunk_entity)))
+            printt('worker > size of value_to_send in 173 : ' + str(len(value_to_send)))
 
             embedding_sock.send(pack('!' + 'i' * (len(chunk_anchor) + len(chunk_entity)), *value_to_send))
 

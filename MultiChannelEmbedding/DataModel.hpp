@@ -259,7 +259,6 @@ public:
                         // 원소 한 번에 받음 - 2 단계
 
                         cout << "[info] DataModel > line 261" << endl;
-                        cout << "[info] DataModel > sizeof(anchor_num)" << sizeof(anchor_num) << endl;
 
                         cout << "[info] DataModel < recv anchor_num : " << recv(fd, &anchor_num, sizeof(anchor_num), MSG_WAITALL) << endl;
                         cout << "[info] DataModel < recv entity_num : " << recv(fd, &entity_num, sizeof(entity_num), MSG_WAITALL) << endl;
