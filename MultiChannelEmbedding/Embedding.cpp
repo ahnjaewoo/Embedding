@@ -39,6 +39,7 @@ int main(int argc, char* argv[]){
 	unsigned int len;
 	int nSockOpt;
 	int embedding_sock, worker_sock;
+	int flag;
 	struct sockaddr_in embedding_addr;
 	struct sockaddr_in worker_addr;
 	struct timeval sock_timeout;
@@ -190,7 +191,14 @@ int main(int argc, char* argv[]){
 	model->save(to_string(worker_num), fs_log);
 	//cout << "embedding > model->save end" << endl;
 	//fprintf(fs_log, "embedding > model->save end\n");
-	send(worker_sock, &run_time, sizeof(run_time), 0);
+
+	if (recv(worker_sock, &flag, sizeof(flag), MSG_WAITALL) < 0){
+		cout << "error 196" << endl;
+	}
+
+	if (flag == 1234){
+		send(worker_sock, &run_time, sizeof(run_time), 0);
+	}
 
 	delete model;
 	fclose(fs_log);

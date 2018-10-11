@@ -682,6 +682,7 @@ except Exception as e:
     sys.exit(1)
 
 workerTotalTime = default_timer() - workerStart
+embedding_sock.send(pack('!i', 1234))
 modelRunTime = unpack('d', sockRecv(embedding_sock, 8))[0]
 embedding_sock.close()
 fsLog.close()
