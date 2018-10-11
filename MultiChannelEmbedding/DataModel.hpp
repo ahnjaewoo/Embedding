@@ -245,8 +245,8 @@ public:
 
             if (master_epoch % 2 == 0) {
                 // entity
-                long long int anchor_num;
-                long long int entity_num;
+                int anchor_num;
+                int entity_num;
                 int temp_value;
                 int success = 0;
                 int flag = 0;
@@ -296,7 +296,7 @@ public:
                         cout << "[info] DataModel > line 289 - entity_num : " << entity_num << endl;
 
                         int * anchor_buff = (int *)calloc(anchor_num + 1, sizeof(int));
-                        if (recv(fd, anchor_buff, anchor_num * (long long int)sizeof(int), MSG_WAITALL) < 0){
+                        if (recv(fd, anchor_buff, anchor_num * sizeof(int), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv anchor_buff\n";
                             cout << "[error] DataModel > return -1\n";
@@ -310,7 +310,7 @@ public:
 
                         cout << "[info] DataModel > line 304" << endl;
 
-                        for (long long int idx = 0; idx < anchor_num; idx++){
+                        for (int idx = 0; idx < anchor_num; idx++){
 
                             ///////////////////////////////////////
                             if (temp_value < 0) {
@@ -331,7 +331,7 @@ public:
                         cout << "[info] DataModel > line 324 - anchor_buff sent" << endl;
 
                         int * entity_buff = (int *)calloc(entity_num + 1, sizeof(int));
-                        if (recv(fd, entity_buff, entity_num * (long long int)sizeof(int), MSG_WAITALL) < 0){
+                        if (recv(fd, entity_buff, entity_num * sizeof(int), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv entity_buff << endl";
                             cout << "[error] DataModel > return -1" << endl;
@@ -345,7 +345,7 @@ public:
 
                         cout << "[info] DataModel > line 339" << endl;
 
-                        for (long long int idx = 0; idx < entity_num; idx++){
+                        for (int idx = 0; idx < entity_num; idx++){
 
                             ///////////////////////////////////////
                             if (temp_value < 0) {
@@ -399,7 +399,7 @@ public:
             }
             else {
                 //relation
-                long long int triplet_num = 0;
+                int triplet_num = 0;
                 int temp_value_head;
                 int temp_value_relation;
                 int temp_value_tail;
@@ -429,7 +429,7 @@ public:
                         // 원소 한 번에 받음 - 2 단계 (모두 한 번에)
                         
                         int * triplet_buff = (int *)calloc(triplet_num * 3 + 1, sizeof(int));
-                        if (recv(fd, triplet_buff, triplet_num * 3 * (long long int)sizeof(int), MSG_WAITALL) < 0){
+                        if (recv(fd, triplet_buff, triplet_num * 3 * sizeof(int), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv triplet_buff" << endl;
                             cout << "[error] DataModel > return -1" << endl;
@@ -443,7 +443,7 @@ public:
 
                         cout << "[info] DataModel > line 437 - triplet_buff sent" << endl;
 
-                        for (long long int idx = 0; idx < triplet_num; idx++) {
+                        for (int idx = 0; idx < triplet_num; idx++) {
 
                             set_entity_parts.insert(ntohl(triplet_buff[3 * idx]));
                             set_entity_parts.insert(ntohl(triplet_buff[3 * idx + 2]));
