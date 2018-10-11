@@ -3,6 +3,7 @@
 import socket
 import struct
 import numpy as np
+from time import sleep
 
 
 def sockRecv(sock, length):
@@ -26,6 +27,8 @@ a = np.random.random((30, 40))
 
 embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 embedding_sock.connect(('127.0.0.1', 11555))
+
+sleep(10)
 
 test_val = sockRecv(embedding_sock, 8)
 print(len(test_val))
