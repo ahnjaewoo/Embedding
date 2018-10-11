@@ -501,7 +501,7 @@ public:
                 }
 			}
 
-			// printf("[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
+			printf("[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
 			// fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
 		}
 		else{
@@ -616,7 +616,7 @@ public:
                     checksum = 0;
                 }
 			}
-			// printf("[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
+			printf("[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
 			// fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
 		}
 	}
