@@ -196,7 +196,7 @@ int main(int argc, char* argv[]){
 		cout << "error 196" << endl;
 	}
 
-	if (flag == 1234){
+	if (ntohl(flag == 1234)){
 		send(worker_sock, &run_time, sizeof(run_time), 0);
 	}
 
