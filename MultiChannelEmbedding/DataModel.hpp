@@ -239,7 +239,6 @@ public:
     	}
 
         cout << "[info] DataModel > DataModel constructor called" << endl;
-        fprintf(fs_log, "[info] DataModel > DataModel constructor called\n");
         
         if (master_epoch >= 0){
 
@@ -258,10 +257,11 @@ public:
 
                         // 원소 한 번에 받음 - 2 단계
 
-                        cout << "[info] DataModel > line 261" << endl;
-
-                        cout << "[info] DataModel < recv anchor_num : " << recv(fd, &anchor_num, sizeof(anchor_num), MSG_WAITALL) << endl;
-                        cout << "[info] DataModel < recv entity_num : " << recv(fd, &entity_num, sizeof(entity_num), MSG_WAITALL) << endl;
+                        cout << "[info] DataModel > line 260" << endl;
+                        while (sizeof(anchor_num) != recv(fd, &anchor_num, sizeof(anchor_num), MSG_PEEK));
+                        cout << "[info] DataModel > recv anchor_num : " << recv(fd, &anchor_num, sizeof(anchor_num), MSG_WAITALL) << endl;
+                        while (sizeof(entity_num) != recv(fd, &entity_num, sizeof(entity_num), MSG_PEEK));
+                        cout << "[info] DataModel > recv entity_num : " << recv(fd, &entity_num, sizeof(entity_num), MSG_WAITALL) << endl;
 
                         /*
                         if (recv(fd, &anchor_num, sizeof(anchor_num), MSG_WAITALL) < 0){
@@ -277,7 +277,7 @@ public:
                         }
                         */
 
-                        cout << "[info] DataModel > line 275 - anchor_num : " << anchor_num << endl;
+                        cout << "[info] DataModel > line 280 - anchor_num : " << anchor_num << endl;
 
                         /*
                         if (recv(fd, &entity_num, sizeof(entity_num), MSG_WAITALL) < 0){
@@ -293,9 +293,10 @@ public:
                         }
                         */
 
-                        cout << "[info] DataModel > line 289 - entity_num : " << entity_num << endl;
+                        cout << "[info] DataModel > line 296 - entity_num : " << entity_num << endl;
 
                         int * anchor_buff = (int *)calloc(anchor_num + 1, sizeof(int));
+                        while (anchor_num * sizeof(int) != recv(fd, &anchor_buff, anchor_num * sizeof(int), MSG_PEEK));
                         if (recv(fd, anchor_buff, anchor_num * sizeof(int), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv anchor_buff\n";
@@ -308,7 +309,7 @@ public:
                             return;
                         }
 
-                        cout << "[info] DataModel > line 304" << endl;
+                        cout << "[info] DataModel > line 312" << endl;
 
                         for (int idx = 0; idx < anchor_num; idx++){
 
@@ -328,9 +329,10 @@ public:
                         
                         free(anchor_buff);
 
-                        cout << "[info] DataModel > line 324 - anchor_buff sent" << endl;
+                        cout << "[info] DataModel > line 332 - anchor_buff sent" << endl;
 
                         int * entity_buff = (int *)calloc(entity_num + 1, sizeof(int));
+                        while (entity_num * sizeof(int) != recv(fd, &entity_buff, entity_num * sizeof(int), MSG_PEEK));
                         if (recv(fd, entity_buff, entity_num * sizeof(int), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv entity_buff << endl";
@@ -343,7 +345,7 @@ public:
                             return;
                         }
 
-                        cout << "[info] DataModel > line 339" << endl;
+                        cout << "[info] DataModel > line 348" << endl;
 
                         for (int idx = 0; idx < entity_num; idx++){
 
@@ -362,7 +364,7 @@ public:
 
                         free(entity_buff);
 
-                        cout << "[info] DataModel > line 358 - entity_buff sent" << endl;
+                        cout << "[info] DataModel > line 367 - entity_buff sent" << endl;
                         
                         //.....................
 
@@ -377,7 +379,7 @@ public:
                             }
                         }
 
-                        cout << "[info] DataModel > line 373" << endl;
+                        cout << "[info] DataModel > line 382" << endl;
 
                         flag = 1234;
                         flag = htonl(flag);
@@ -412,10 +414,11 @@ public:
 
                     try{
 
+                        while (sizeof(triplet_num) != recv(fd, &triplet_num, sizeof(triplet_num), MSG_PEEK));
                         if (recv(fd, &triplet_num, sizeof(triplet_num), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv triplet_num" << endl;
-                            cout << "[error] DataModel > return -1\n";
+                            cout << "[error] DataModel > return -1" << endl;
                             fprintf(fs_log, "[error] DataModel > recv triplet_num\n");
                             fprintf(fs_log, "[error] DataModel > return -1\n");
                             close(fd);
@@ -424,11 +427,12 @@ public:
                             return;
                         }
 
-                        cout << "[info] DataModel > line 420 - triplet_num : " << triplet_num << endl;
+                        cout << "[info] DataModel > line 430 - triplet_num : " << triplet_num << endl;
 
                         // 원소 한 번에 받음 - 2 단계 (모두 한 번에)
                         
                         int * triplet_buff = (int *)calloc(triplet_num * 3 + 1, sizeof(int));
+                        while (triplet_num * 3 * sizeof(int) != recv(fd, &triplet_buff, triplet_num * 3 * sizeof(int), MSG_PEEK));
                         if (recv(fd, triplet_buff, triplet_num * 3 * sizeof(int), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv triplet_buff" << endl;
@@ -441,7 +445,7 @@ public:
                             return;
                         }
 
-                        cout << "[info] DataModel > line 437 - triplet_buff sent" << endl;
+                        cout << "[info] DataModel > line 448 - triplet_buff sent" << endl;
 
                         for (int idx = 0; idx < triplet_num; idx++) {
 
@@ -456,7 +460,7 @@ public:
 
                         free(triplet_buff);
 
-                        cout << "[info] DataModel > line 452" << endl;
+                        cout << "[info] DataModel > line 463" << endl;
                         
                         //.....................
 

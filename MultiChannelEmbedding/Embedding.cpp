@@ -192,6 +192,7 @@ int main(int argc, char* argv[]){
 	cout << "embedding > model->save end" << endl;
 	//fprintf(fs_log, "embedding > model->save end\n");
 
+	while (sizeof(flag) != recv(worker_sock, &flag, sizeof(flag), MSG_PEEK));
 	if (recv(worker_sock, &flag, sizeof(flag), MSG_WAITALL) < 0){
 		cout << "error 196" << endl;
 	}
