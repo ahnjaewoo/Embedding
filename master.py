@@ -53,6 +53,8 @@ parser.add_argument('--pypy_dir', type=str,
                     default="/home/rudvlf0413/pypy2-v6.0.0-linux64/bin/pypy", help='pypy directory')
 parser.add_argument('--redis_ip', type=str,
                     default='163.152.29.73', help='redis ip address')
+parser.add_argument('--redis_port', type=str,
+                    default='6379', help='redis port')
 parser.add_argument('--unix_socket_path', type=str, default='', help='redis unix socket path')
 parser.add_argument('--scheduler_ip', type=str,
                     default='163.152.29.73:8786', help='dask scheduler ip:port')
@@ -209,7 +211,7 @@ for c, (relation_list, num) in enumerate(allocated_relation_worker):
 printt('[info] master > # of triples in each partitions : ' + str(len_triples))
 
 if unix_socket_path == '':
-    r = redis.StrictRedis(host=args.redis_ip, port=6379, db=0)
+    r = redis.StrictRedis(host=args.redis_ip, port=int(args.redis_port), db=0)
 else:
     r = redis.StrictRedis(unix_socket_path=unix_socket_path)
 
