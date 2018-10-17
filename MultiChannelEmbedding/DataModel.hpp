@@ -296,7 +296,7 @@ public:
                         cout << "[info] DataModel > line 296 - entity_num : " << entity_num << endl;
 
                         int * anchor_buff = (int *)calloc(anchor_num + 1, sizeof(int));
-                        while (anchor_num * sizeof(int) > recv(fd, &anchor_buff, anchor_num * sizeof(int), MSG_PEEK));
+                        //while (anchor_num * sizeof(int) > recv(fd, &anchor_buff, anchor_num * sizeof(int), MSG_PEEK));
                         if (recv(fd, anchor_buff, anchor_num * sizeof(int), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv anchor_buff\n";
@@ -332,7 +332,7 @@ public:
                         cout << "[info] DataModel > line 332 - anchor_buff sent" << endl;
 
                         int * entity_buff = (int *)calloc(entity_num + 1, sizeof(int));
-                        while (entity_num * sizeof(int) > recv(fd, &entity_buff, entity_num * sizeof(int), MSG_PEEK));
+                        //while (entity_num * sizeof(int) > recv(fd, &entity_buff, entity_num * sizeof(int), MSG_PEEK));
                         if (recv(fd, entity_buff, entity_num * sizeof(int), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv entity_buff << endl";
@@ -414,7 +414,7 @@ public:
 
                     try{
 
-                        while (sizeof(triplet_num) > recv(fd, &triplet_num, sizeof(triplet_num), MSG_PEEK));
+                        //while (sizeof(triplet_num) > recv(fd, &triplet_num, sizeof(triplet_num), MSG_PEEK));
                         if (recv(fd, &triplet_num, sizeof(triplet_num), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv triplet_num" << endl;
@@ -432,7 +432,7 @@ public:
                         // 원소 한 번에 받음 - 2 단계 (모두 한 번에)
                         
                         int * triplet_buff = (int *)calloc(triplet_num * 3 + 1, sizeof(int));
-                        while (triplet_num * 3 * sizeof(int) > recv(fd, &triplet_buff, triplet_num * 3 * sizeof(int), MSG_PEEK));
+                        //while (triplet_num * 3 * sizeof(int) > recv(fd, &triplet_buff, triplet_num * 3 * sizeof(int), MSG_PEEK));
                         if (recv(fd, triplet_buff, triplet_num * 3 * sizeof(int), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv triplet_buff" << endl;
