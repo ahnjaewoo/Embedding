@@ -42,7 +42,7 @@ int main(int argc, char* argv[]){
 	int flag;
 	struct sockaddr_in embedding_addr;
 	struct sockaddr_in worker_addr;
-	struct timeval sock_timeout;
+	struct timeval sock_timeout = { 3000, 0 };
 	double run_time;
 
 	getParams(argc, argv, dim, alpha, training_threshold, worker_num, master_epoch, train_iter, data_root_id, socket_port, log_dir, precision, train_model, n_cluster, crp);
@@ -78,8 +78,7 @@ int main(int argc, char* argv[]){
 		return -1;
 	}
 
-	sock_timeout.tv_sec = 1000;
-	sock_timeout.tv_usec = 0;
+	
 	// set recv timeout
 	if (setsockopt(embedding_sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&sock_timeout, sizeof(sock_timeout)) < 0) {
 		cout << "[error] embedding > socket option (timeout) - worker_" << worker_num << endl;
