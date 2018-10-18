@@ -63,7 +63,6 @@ int main(int argc, char* argv[]){
   		fs_log = fopen(argv[9], "w+");
 	}
 
-	fprintf(fs_log, "[info] embedding > process created\n");
 	cout << "[info] embedding > process created" << endl;
 
 	// embedding.cpp is server
