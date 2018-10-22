@@ -47,7 +47,8 @@ const Dataset FB15K("FB15K", "./../fb15k/", "train.txt", "dev.txt", "test.txt", 
 const Dataset FB13("FB13", "/home/bookman/data/Knowledge Embedding/FB13/", "train.txt", "dev.txt", "test.txt", false);
 const Dataset WN11("WN11", "/home/bookman/data/Knowledge Embedding/WN11/", "train.txt", "dev.txt", "test.txt", false);
 const Dataset WN18("WN18", "./../wn18/", "train.txt", "dev.txt", "test.txt", true);
-const Dataset Dbpedia("Dbpedia", "./../dbpedia/", "train.txt", "dev.txt", "test.txt", true);
+//const Dataset Dbpedia("Dbpedia", "./../dbpedia/", "train.txt", "dev.txt", "test.txt", true);
+const Dataset Dbpedia("Dbpedia", "./../../dbpedia/data/preprocessed_data/nif_text_links_en/1m", "train.txt", "dev.txt", "test.txt", true);
 const Dataset Wordnet("Wordnet", "/home/bookman/data/Knowledge Embedding/Wordnet/", "train.txt", "dev.txt", "test.txt", false);
 const Dataset Freebase("Freebase", "/home/bookman/data/Knowledge Embedding/Freebase/", "train.txt", "dev.txt", "test.txt", false);
 const string report_path = "/home/rudvlf0413/distributedKGE/Embedding/Report/";
