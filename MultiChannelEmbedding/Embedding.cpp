@@ -183,20 +183,30 @@ int main(int argc, char* argv[]){
 
 	gettimeofday(&after, NULL);
 	run_time = after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0;
-	cout << "embedding > model->run end, training time : " << run_time << "seconds" << endl;
-	//fprintf(fs_log, "[info] embedding > testing time : %lf seconds\n", run_time);
+	cout << "[info] embedding > training time : " << run_time << "seconds" << endl;
+	fprintf(fs_log, "[info] embedding > training time : %lf seconds\n", run_time);
 	
 	model->save(to_string(worker_num), fs_log);
-	cout << "embedding > model->save end" << endl;
-	//fprintf(fs_log, "embedding > model->save end\n");
 
-	//while (sizeof(flag) > recv(worker_sock, &flag, sizeof(flag), MSG_PEEK));
 	if (recv(worker_sock, &flag, sizeof(flag), MSG_WAITALL) < 0){
-		cout << "error 196" << endl;
+
+		cout << "[error] embedding > receve finish flag - worker_" << worker_num << endl;
+		cout << "[error] embedding > return -1\n";
+		fprintf(fs_log, "[error] embedding > receve finish flag - worker_%d\n", worker_num);
+		fprintf(fs_log, "[error] embedding > return -1\n");
+		return -1;
 	}
-	cout << "flag = " << ntohl(flag) << endl;
+
 	if (ntohl(flag) == 1234){
+		
 		send(worker_sock, &run_time, sizeof(run_time), 0);
+	}
+	else{
+
+		cout << "[error] embedding > wrong flag, recieved : " << ntohl(flag) << endl;
+		cout << "[error] embedding > return -1\n";
+		fprintf(fs_log, "[error] embedding > wrong flag, recieved : %d\n", ntohl(flag));
+		fprintf(fs_log, "[error] embedding > return -1\n");
 	}
 
 	delete model;
