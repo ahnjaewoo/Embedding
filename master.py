@@ -185,6 +185,8 @@ relation_each_num = [(k, len(v)) for k, v in relation_triples.items()]
 relation_each_num = sorted(relation_each_num, key=lambda x: x[1], reverse=True)
 allocated_relation_worker = [[[], 0] for i in range(num_worker)]
 
+printt('[info] master > relation_each_num : [%s]' % relation_each_num)
+
 for i, (relation, num) in enumerate(relation_each_num):
 
     allocated_relation_worker = sorted(allocated_relation_worker, key=lambda x: x[1])
