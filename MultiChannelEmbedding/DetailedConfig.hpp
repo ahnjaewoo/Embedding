@@ -55,11 +55,11 @@ const Dataset WN18("WN18", "./../wn18/", "train.txt", "dev.txt", "test.txt", tru
 //const Dataset Dbpedia("Dbpedia", "./../../dbpedia/data/preprocessed_data/nif_text_links_en/11mill", "train.txt", "dev.txt", "test.txt", true);
 
 // 71 서버
-const Dataset Dbpedia("Dbpedia", "./home/data/dbpedia/1mill", "train.txt", "dev.txt", "test.txt", true);
-//const Dataset Dbpedia("Dbpedia", "./home/data/dbpedia/7.6mill", "train.txt", "dev.txt", "test.txt", true);
-//const Dataset Dbpedia("Dbpedia", "./home/data/dbpedia/11mill", "train.txt", "dev.txt", "test.txt", true);
-//const Dataset Dbpedia("Dbpedia", "./home/data/dbpedia/19mill", "train.txt", "dev.txt", "test.txt", true);
-//const Dataset Dbpedia("Dbpedia", "./home/data/dbpedia/38mill", "train.txt", "dev.txt", "test.txt", true);
+const Dataset Dbpedia("Dbpedia", "/home/data/dbpedia/1mill", "train.txt", "dev.txt", "test.txt", true);
+//const Dataset Dbpedia("Dbpedia", "/home/data/dbpedia/7.6mill", "train.txt", "dev.txt", "test.txt", true);
+//const Dataset Dbpedia("Dbpedia", "/home/data/dbpedia/11mill", "train.txt", "dev.txt", "test.txt", true);
+//const Dataset Dbpedia("Dbpedia", "/home/data/dbpedia/19mill", "train.txt", "dev.txt", "test.txt", true);
+//const Dataset Dbpedia("Dbpedia", "/home/data/dbpedia/38mill", "train.txt", "dev.txt", "test.txt", true);
 
 const Dataset Wordnet("Wordnet", "/home/bookman/data/Knowledge Embedding/Wordnet/", "train.txt", "dev.txt", "test.txt", false);
 const Dataset Freebase("Freebase", "/home/bookman/data/Knowledge Embedding/Freebase/", "train.txt", "dev.txt", "test.txt", false);
