@@ -339,11 +339,6 @@ trainStart = timeit.default_timer()
 while True:
 
     printt('[info] master > iteration ' + str(cur_iter) + ' started')
-    # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
-    entities_initialized_bak = iter_mget(r, [f'{entity}_v' for entity in entities])
-    entities_initialized_bak = np.array([loads(decompress(v)) for v in entities_initialized_bak])
-    relations_initialized_bak = iter_mget(r, [f'{relation}_v' for relation in relations])
-    relations_initialized_bak = np.array([loads(decompress(v)) for v in relations_initialized_bak])
 
     if cur_iter == niter:
 
@@ -397,6 +392,12 @@ while True:
         # relation partitioning
         chunk_data = ''
 
+    # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
+    #entities_initialized_bak = iter_mget(r, [f'{entity}_v' for entity in entities])
+    #entities_initialized_bak = np.array([loads(decompress(v)) for v in entities_initialized_bak])
+    #relations_initialized_bak = iter_mget(r, [f'{relation}_v' for relation in relations])
+    #relations_initialized_bak = np.array([loads(decompress(v)) for v in relations_initialized_bak])
+
     client.gather(workers)
     result_iter = [worker.result() for worker in workers]
     iterTimes.append(timeit.default_timer() - iterStart)
@@ -419,12 +420,12 @@ while True:
         # redis 에 저장된 결과를 백업된 값으로 되돌림
         trial += 1
 
-        iter_mset(r, {
-            f'{entity}_v' : compress(dumps(vector, protocol=HIGHEST_PROTOCOL))
-            for vector, entity in zip(entities_initialized_bak, entities)})
-        iter_mset(r, {
-            f'{relation}_v' : compress(dumps(vector, protocol=HIGHEST_PROTOCOL))
-            for vector, relation in zip(relations_initialized_bak, relations)})
+        #iter_mset(r, {
+        #    f'{entity}_v' : compress(dumps(vector, protocol=HIGHEST_PROTOCOL))
+        #    for vector, entity in zip(entities_initialized_bak, entities)})
+        #iter_mset(r, {
+        #    f'{relation}_v' : compress(dumps(vector, protocol=HIGHEST_PROTOCOL))
+        #    for vector, relation in zip(relations_initialized_bak, relations)})
         printt('[error] master > iteration %d is failed, retry' % cur_iter)
 
 trainTime = timeit.default_timer() - trainStart
