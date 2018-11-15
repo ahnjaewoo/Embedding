@@ -430,8 +430,8 @@ while True:
 
 trainTime = timeit.default_timer() - trainStart
 
-del entities_initialized_bak
-del relations_initialized_bak
+#del entities_initialized_bak
+#del relations_initialized_bak
 
 fsLog.write('[info] master > iterTimes : ' + str(iterTimes) + '\n')
 fsLog.write('[info] master > maxminTimes : ' + str(maxminTimes) + '\n')
