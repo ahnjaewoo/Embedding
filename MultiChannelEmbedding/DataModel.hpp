@@ -712,13 +712,14 @@ public:
         triplet = origin;
         while (true)
         {
-            if (rand() % 1000 < 1000 * prob)
+		int rand_num = rand();
+            if (rand_num % 1000 < 1000 * prob)
             {
-                triplet.first.second = rand() % set_entity.size();
+                triplet.first.second = rand_num % set_entity.size();
             }
             else
             {
-                triplet.first.first = rand() % set_entity.size();
+                triplet.first.first = rand_num % set_entity.size();
             }
 
             if (check_data_train.find(triplet) == check_data_train.end())
@@ -736,13 +737,14 @@ public:
         triplet = origin;
         while (true)
         {
-            if (rand() % 1000 < 1000 * prob)
+		int rand_num = rand();
+            if (rand_num % 1000 < 1000 * prob)
             {
-                triplet.first.second = vector_entity_parts[rand() % vector_entity_parts.size()];
+                triplet.first.second = vector_entity_parts[rand_num % vector_entity_parts.size()];
             }
             else
             {
-                triplet.first.first = vector_entity_parts[rand() % vector_entity_parts.size()];
+                triplet.first.first = vector_entity_parts[rand_num % vector_entity_parts.size()];
             }
 
             if (check_data_train.find(triplet) == check_data_train.end())
@@ -762,14 +764,14 @@ public:
         {
 	    int rand_num = rand();
             if (rand_num % 100 < 50)
-                triplet.second = rand() % set_relation.size();
+                triplet.second = rand_num % set_relation.size();
             else if (rand_num % 1000 < 1000 * prob)
             {
-                triplet.first.second = rand() % set_entity.size();
+                triplet.first.second = rand_num % set_entity.size();
             }
             else
             {
-                triplet.first.first = rand() % set_entity.size();
+                triplet.first.first = rand_num % set_entity.size();
             }
 
             if (check_data_train.find(triplet) == check_data_train.end())
@@ -789,14 +791,14 @@ public:
         {
 	    int rand_num = rand();
             if (rand_num % 100 < 50)
-                triplet.second = vector_relation_parts[rand() % vector_relation_parts.size()];
+                triplet.second = vector_relation_parts[rand_num % vector_relation_parts.size()];
             else if (rand_num % 1000 < 1000 * prob)
             {
-                triplet.first.second = vector_entity_parts[rand() % vector_entity_parts.size()];
+                triplet.first.second = vector_entity_parts[rand_num % vector_entity_parts.size()];
             }
             else
             {
-                triplet.first.first = vector_entity_parts[rand() % vector_entity_parts.size()];
+                triplet.first.first = vector_entity_parts[rand_num % vector_entity_parts.size()];
             }
 
             if (check_data_train.find(triplet) == check_data_train.end())
