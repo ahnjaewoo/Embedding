@@ -284,7 +284,6 @@ public:
 	{
 		int head_id = triplet.first.first;
 		int tail_id = triplet.first.second;
-		int relation_id = triplet.second;
 
 		vec& head = embedding_entity[triplet.first.first];
 		vec& tail = embedding_entity[triplet.first.second];
@@ -298,7 +297,6 @@ public:
 
 		int head_f_id = triplet_f.first.first;
 		int tail_f_id = triplet_f.first.second;
-		int relation_f_id = triplet_f.second;
 
 		vec& head_f = embedding_entity[triplet_f.first.first];
 		vec& tail_f = embedding_entity[triplet_f.first.second];
@@ -2609,10 +2607,8 @@ public:
 	{
 		int head_id = triplet.first.first;
 		int tail_id = triplet.first.second;
-		int relation_id = triplet.second;
 		int head_f_id = triplet_f.first.first;
 		int tail_f_id = triplet_f.first.second;
-		int relation_f_id = triplet_f.second;
 
 		vec& head = embedding_entity[triplet.first.first];
 		vec& tail = embedding_entity[triplet.first.second];
@@ -2657,10 +2653,8 @@ public:
 	{
 		int head_id = triplet.first.first;
 		int tail_id = triplet.first.second;
-		int relation_id = triplet.second;
 		int head_f_id = triplet_f.first.first;
 		int tail_f_id = triplet_f.first.second;
-		int relation_f_id = triplet_f.second;
 
 		vec& head = embedding_entity[triplet.first.first];
 		vec& tail = embedding_entity[triplet.first.second];
@@ -2747,7 +2741,6 @@ public:
 	virtual void train_triplet_parts(const pair<pair<int, int>, int>& triplet) {
 		int head_id = triplet.first.first;
 		int tail_id = triplet.first.second;
-		int relation_id = triplet.second;
 
 		vec& head = embedding_entity[head_id];
 		vec& tail = embedding_entity[tail_id];
@@ -2773,7 +2766,6 @@ public:
 	virtual void train_triplet_parts_relation(const pair<pair<int, int>, int>& triplet) {	
 		int head_id = triplet.first.first;
 		int tail_id = triplet.first.second;
-		int relation_id = triplet.second;
 
 		vec& head = embedding_entity[head_id];
 		vec& tail = embedding_entity[tail_id];
