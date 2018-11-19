@@ -2651,11 +2651,6 @@ public:
 		const pair<pair<int, int>, int>& triplet_f,
 		int cluster, double prob_true, double prob_false, double factor)
 	{
-		int head_id = triplet.first.first;
-		int tail_id = triplet.first.second;
-		int head_f_id = triplet_f.first.first;
-		int tail_f_id = triplet_f.first.second;
-
 		vec& head = embedding_entity[triplet.first.first];
 		vec& tail = embedding_entity[triplet.first.second];
 		vec& relation = embedding_clusters[triplet.second][cluster];
