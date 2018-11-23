@@ -631,6 +631,58 @@ public:
 
 			try{
 				
+                if (precision == 0){
+
+                    float * vector_buff = (float *)calloc(dim * count_entity() + 1, sizeof(float));
+                    if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
+
+                        cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)" << endl;
+                        cout << "[error] GeometricModel.hpp > return -1" << endl;
+                        fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)\n");
+                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+                        close(fd);
+                        fclose(fs_log);
+                        std::exit(-1);
+                    }
+
+                    // 더 최적화할 수 있을지도?
+                    for (int i = 0; i < count_entity(); i++){
+
+                        for (int j = 0; j < dim; j++){
+
+                            embedding_entity[i](j) = vector_buff[i * dim + j];                        
+                        }
+                    }
+
+                    free(vector_buff);
+                }
+                else{
+
+                    half * vector_buff = (half *)calloc(dim * count_entity() + 1, sizeof(half));
+                    if (recv(fd, vector_buff, dim * sizeof(half), MSG_WAITALL) < 0){
+
+                        cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)" << endl;
+                        cout << "[error] GeometricModel.hpp > return -1" << endl;
+                        fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)\n");
+                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+                        close(fd);
+                        fclose(fs_log);
+                        std::exit(-1);
+                    }
+
+                    // 더 최적화할수 있을지도?
+                    for (int i = 0; i < count_entity(); i++){
+                        
+                        for (int j = 0; j < dim; j++){
+
+                            embedding_entity[i](j) = (float) vector_buff[i * dim + j];                        
+                        }
+                    }
+
+                    free(vector_buff);
+                }
+
+                /*
 				for (int i = 0; i < count_entity(); i++) {
 					
 					int entity_id;
@@ -689,6 +741,7 @@ public:
 						free(vector_buff);
 					}
 				}
+                */
 
 				cout << "[info] GeometricModel.hpp > line 695" << endl;
 
@@ -719,6 +772,58 @@ public:
 
 			try{
 
+                if (precision == 0){
+
+                    float * vector_buff = (float *)calloc(dim * count_relation() + 1, sizeof(float));
+                    if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
+
+                        cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)" << endl;
+                        cout << "[error] GeometricModel.hpp > return -1" << endl;
+                        fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)\n");
+                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+                        close(fd);
+                        fclose(fs_log);
+                        std::exit(-1);
+                    }
+
+                    // 더 최적화할수 있을지도?
+                    for (int i = 0; i < count_relation(); i++){
+
+                        for (int j = 0; j < dim; j++){
+
+                            embedding_relation[i](j) = vector_buff[i * dim + j];
+                        }
+                    }
+
+                    free(vector_buff);
+                }
+                else{
+
+                    half * vector_buff = (half *)calloc(dim * count_relation() + 1, sizeof(half));
+                    if (recv(fd, vector_buff, dim * sizeof(half), MSG_WAITALL) < 0){
+
+                        cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)" << endl;
+                        cout << "[error] GeometricModel.hpp > return -1" << endl;
+                        fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)\n");
+                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+                        close(fd);
+                        fclose(fs_log);
+                        std::exit(-1);
+                    }
+
+                    // 더 최적화할수 있을지도?
+                    for (int i = 0; i < count_relation(); i++){
+
+                        for (int j = 0; j < dim; j++){
+
+                            embedding_relation[i](j) = (float) vector_buff[i * dim + j];
+                        }
+                    }
+
+                    free(vector_buff);
+                }
+
+                /*
 				for (int i = 0; i < count_relation(); i++) {
 					
 					int relation_id;
@@ -778,6 +883,7 @@ public:
 						free(vector_buff);
 					}
 				}
+                */
 
 				cout << "[info] GeometricModel.hpp > line 784" << endl;
 
