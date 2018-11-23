@@ -14,8 +14,7 @@ sys.path.insert(0, args.root_dir)
 
 
 data_roots = ['/1mil', '/7.6mil', '/11mil', '/19mil', '/38mil']
-workers = [2, 4, 6, 8]
-workers.extend(range(10, 41, 5))
+workers = range(2, 31, 2)
 
 
 for data_root in data_roots:

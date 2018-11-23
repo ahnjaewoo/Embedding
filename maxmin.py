@@ -68,7 +68,13 @@ elif debugging == 'no':
         print(str_)
 
 #printt('[info] maxmin > socket connected (master <-> maxmin)')
+
+# 73
 data_files = ('%s/train.txt' % data_root, '%s/dev.txt' % data_root, '%s/test.txt' % data_root)
+
+# 71
+#data_files = ('/home/data/dbpedia/1mill/train.ttl', '/home/data/dbpedia/1mill/dev.ttl', '/home/data/dbpedia/1mill/test.ttl')
+
 anchor_dict = dict()
 old_anchor = set()
 
@@ -88,7 +94,11 @@ edge_list_append = edge_list.append
 
 for file in data_files:
 
+    # 73
     with open(root_dir + file, 'r') as f:
+
+    # 71
+    #with open(file, 'r') as f:
 
         for line in f:
 
@@ -109,7 +119,11 @@ for file in data_files:
             entity_degree[entity2id[head]] += 1
             entity_degree[entity2id[tail]] += 1
 
+# 73
 with open(root_dir + data_files[0], 'r') as f:
+
+# 71
+#with open(data_files[0], 'r') as f:
 
     for line in f:
 

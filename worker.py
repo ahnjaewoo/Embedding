@@ -2,7 +2,7 @@
 from subprocess import Popen
 from time import sleep
 from zlib import compress, decompress
-from pickle import dumps, loads, HIGHEST_PROTOCOL
+from pickle import dumps, loads, load, HIGHEST_PROTOCOL
 from struct import pack, unpack
 from timeit import default_timer
 from utils import sockRecv
@@ -33,8 +33,10 @@ n_cluster = int(sys.argv[10])
 crp = float(sys.argv[11])
 unix_socket_path = sys.argv[12]
 
-with open(f"{root_dir}/chunk_data_{worker_id}.txt") as f:
-    chunk_data = f.read()
+if cur_iter % 2 == 0:
+    with open(f"{root_dir}/chunk_data_{worker_id}.txt", 'rb') as f:
+        #chunk_data = f.read()
+        chunk_anchor, chunk_entity = pickle.load(f)
 
 if debugging == 'yes':
     logging.basicConfig(filename='%s/%s_%d.log' % (root_dir,
@@ -96,8 +98,8 @@ entities = np.array(loads(decompress(r.get('entities'))))
 entity_ids = np.array([int(i) for i in iter_mget(r, entities)], dtype=np.int32)
 entity_id = {e: i for e, i in zip(entities, entity_ids)}
 entities_initialized = iter_mget(r, [f'{entity}_v' for entity in entities])
-entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
-
+#entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
+entities_initialized = np.stack([np.fromstring(v, dtype=np_dtype) for v in entities_initialized])
 relations = np.array(loads(decompress(r.get('relations'))))
 relation_ids = np.array([int(i) for i in iter_mget(r, relations)], dtype=np.int32)
 relation_id = {r: i for e, i in zip(relations, relation_ids)}
@@ -106,15 +108,17 @@ relation_id = {r: i for e, i in zip(relations, relation_ids)}
 if train_model == 0:
 
     relations_initialized = iter_mget(r, [f'{relation}_v' for relation in relations])
-    relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
-
+    #relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
+    relations_initialized = np.stack([np.fromstring(v, dtype=np_dtype) for v in relations_initialized])
 # transG 에 추가되는 분기
 elif train_model == 1:
 
     embedding_clusters = iter_mget(r, [f'{relation}_cv' for relation in relations])
-    embedding_clusters = np.array([loads(decompress(v)) for v in embedding_clusters], dtype=np_dtype)
+    #embedding_clusters = np.array([loads(decompress(v)) for v in embedding_clusters], dtype=np_dtype)
+    embedding_clusters = np.stack([np.fromstring(v, dtype=np_dtype) for v in embedding_clusters])
     weights_clusters = iter_mget(r, [f'{relation}_wv' for relation in relations])
-    weights_clusters = np.array([loads(decompress(v)) for v in weights_clusters], dtype=np_dtype)
+    #weights_clusters = np.array([loads(decompress(v)) for v in weights_clusters], dtype=np_dtype)
+    weights_clusters = np.stack([np.fromstring(v, dtype=np_dtype) for v in weights_clusters])
     size_clusters = iter_mget(r, [f'{relation}_s' for relation in relations])
     size_clusters = np.array([loads(decompress(v)) for v in size_clusters], dtype=np.int32)
 
@@ -150,15 +154,15 @@ try:
 
     if cur_iter % 2 == 0:
         # entity 전송 - DataModel 생성자
-        chunk_anchor, chunk_entity = chunk_data.split('\n')
-        chunk_anchor = chunk_anchor.split(' ')
-        chunk_anchor = [int(e) for e in chunk_anchor]
-        chunk_entity = chunk_entity.split(' ')
-        chunk_entity = [int(e) for e in chunk_entity]
+#         chunk_anchor, chunk_entity = chunk_data.split('\n')
+#         chunk_anchor = chunk_anchor.split(' ')
+#         chunk_anchor = [int(e) for e in chunk_anchor]
+#         chunk_entity = chunk_entity.split(' ')
+#         chunk_entity = [int(e) for e in chunk_entity]
 
-        if len(chunk_anchor) == 1 and chunk_anchor[0] == '':
+#         if len(chunk_anchor) == 1 and chunk_anchor[0] == '':
 
-            chunk_anchor = []
+#             chunk_anchor = []
 
         while checksum != 1:
 
@@ -168,14 +172,9 @@ try:
             value_to_send = (len(chunk_anchor), len(chunk_entity))
             embedding_sock.send(pack('ii', *value_to_send))
             value_to_send = (*chunk_anchor, *chunk_entity)
-
-            printt('worker > (len(chunk_anchor), len(chunk_entity)) = ' + str(len(chunk_anchor)) + ' ' + str(len(chunk_entity)))
-            printt('worker > size of value_to_send in 173 : ' + str(len(value_to_send)))
-
             embedding_sock.send(pack('!' + 'i' * (len(chunk_anchor) + len(chunk_entity)), *value_to_send))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
-            del value_to_send
 
             if checksum == 1234:
 
@@ -201,7 +200,7 @@ try:
                 embedding_sock.close()
                 sys.exit(1)
 
-        printt('[info] worker > phase 1 : entity sent to DataModel finished')
+        #printt('[info] worker > phase 1 : entity sent to DataModel finished')
         #fsLog.write('[info] worker > phase 1 : entity sent to DataModel finished\n')
 
     else:
@@ -219,8 +218,6 @@ try:
             embedding_sock.send(pack('!' + 'i' * len(value_to_send), *value_to_send))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
-            del sub_graphs
-            del value_to_send
 
             if checksum == 1234:
 
@@ -246,15 +243,15 @@ try:
                 embedding_sock.close()
                 sys.exit(1)
 
-        printt('[info] worker > phase 1 : relation sent to DataModel finished')
+        #printt('[info] worker > phase 1 : relation sent to DataModel finished')
         #fsLog.write('[info] worker > phase 1 : relation sent to DataModel finished\n')
 
     datamodelTime = default_timer() - timeNow
     checksum = 0
     timeNow = default_timer()
 
-    fsLog.write('[info] worker > phase 1 : relation sent to DataModel finished\n')
-    fsLog.write('                line 228 - datamodelTime : ' + str(datamodelTime) + '\n')
+    #fsLog.write('[info] worker > phase 1 : relation sent to DataModel finished\n')
+    #fsLog.write('                line 228 - datamodelTime : ' + str(datamodelTime) + '\n')
 
     # entity_vector 전송 - GeometricModel load
     while checksum != 1:
@@ -262,12 +259,10 @@ try:
         # 원소를 한 번에 전송 - 2 단계
         for id_, vector in zip(entity_ids, entities_initialized):
         
-            embedding_sock.send(pack('!i', id_))
-            embedding_sock.send(pack(precision_string * len(vector), *vector))
+            #embedding_sock.send(pack('!i', id_))
+            embedding_sock.send(pack(precision_string * embedding_dim, *vector))
 
         checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
-        del entity_ids
-        del entities_initialized
 
         if checksum == 1234:
 
@@ -293,7 +288,7 @@ try:
             embedding_sock.close()
             sys.exit(1)
 
-    printt('[info] worker > phase 2.1 : entity_vector sent to GeometricModel load function')
+    #printt('[info] worker > phase 2.1 : entity_vector sent to GeometricModel load function')
     #fsLog.write('[info] worker > phase 2.1 : entity_vector sent to GeometricModel load function\n')
 
     # transE 에서는 embedding_relation 을 전송
@@ -306,12 +301,11 @@ try:
             # 원소를 한 번에 전송
             for id_, vector in zip(relation_ids, relations_initialized):
                 
-                embedding_sock.send(pack('!i', id_))
-                embedding_sock.send(pack(precision_string * len(vector), *vector))
+                #embedding_sock.send(pack('!i', id_))
+                embedding_sock.send(pack(precision_string * embedding_dim, *vector))
             
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
             del relations_initialized
-
             if checksum == 1234:
 
                 #printt('[info] worker > phase 2 (transE:relation) finished - ' + worker_id)
@@ -347,10 +341,9 @@ try:
             for id_, vector in zip(relation_ids, embedding_clusters):
                 
                 embedding_sock.send(pack('!i', id_))
-                embedding_sock.send(pack(precision_string * len(vector), *vector))
+                embedding_sock.send(pack(precision_string * embedding_dim, *vector))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
-            del embedding_clusters
 
             if checksum == 1234:
 
@@ -385,11 +378,9 @@ try:
             for id_, vector in zip(relation_ids, weights_clusters):
                 
                 embedding_sock.send(pack('!i', id_))
-                embedding_sock.send(pack(precision_string * len(vector), *vector))
+                embedding_sock.send(pack(precision_string * embedding_dim, *vector))
             
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
-            del weights_clusters
-
             if checksum == 1234:
 
                 #printt('[info] worker > phase 2 (transG:relation) finished - ' + worker_id)
@@ -416,27 +407,22 @@ try:
 
         # size_clusters 전송 - GeometricModel load
         checksum = 0
-
         while checksum != 1:
 
             # 원소를 한 번에 전송
             embedding_sock.send(pack('!' + 'i' * len(size_clusters), *size_clusters))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
-            del size_clusters
-
             if checksum == 1234:
 
                 #printt('[info] worker > phase 2 (transG:relation) finished - ' + worker_id)
                 #fsLog.write('[info] worker > phase 2 (transG:relation) finished - ' + worker_id + '\n')
                 checksum = 1
-
             elif checksum == 9876:
 
                 #printt('[error] worker > retry phase 2 (transG:relation) - worker.py - ' + worker_id)
                 #fsLog.write('[error] worker > retry phase 2 (transG:relation) - ' + worker_id + '\n')
                 checksum = 0
-
             else:
 
                 printt('[error] worker > unknown error in phase 2 (transG:relation) - ' + worker_id)
@@ -450,12 +436,17 @@ try:
                 sys.exit(1)
 
     sockLoadTime = default_timer() - timeNow
+
+    del value_to_send
+    del entity_ids
+    del entities_initialized
+
     timeNow = default_timer()
 
-    fsLog.write('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
-    fsLog.write('                line 427 - sockLoadTime : ' + str(sockLoadTime) + '\n')
+    #fsLog.write('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
+    #fsLog.write('                line 427 - sockLoadTime : ' + str(sockLoadTime) + '\n')
 
-    printt('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function')
+    #printt('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function')
     #fsLog.write('[info] worker > phase 2.2 : relation_vector sent to GeometricModel load function\n')
 
     tempcount = 0
@@ -474,7 +465,7 @@ try:
                 count_entity = unpack('!i', sockRecv(embedding_sock, 4))[0]
                 
                 embeddingTime = default_timer() - timeNow # 순수한 embedding 시간을 측정하기 위해서 여기 위치, cpp 가 send 하면 embedding 이 끝난 것                
-                fsLog.write('                line 448 - embeddingTime : ' + str(embeddingTime) + '\n')
+                #fsLog.write('                line 448 - embeddingTime : ' + str(embeddingTime) + '\n')
                 timeNow = default_timer()
 
                 entity_id_list = unpack('!' + 'i' * count_entity, sockRecv(embedding_sock, count_entity * 4))
@@ -482,8 +473,9 @@ try:
                     sockRecv(embedding_sock, precision_byte * embedding_dim * count_entity))
                 
                 entity_vector_list = np.array(entity_vector_list, dtype=np_dtype).reshape(count_entity, embedding_dim)
-                entity_vectors = {f"{entities[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
-                    for vector, id_ in zip(entity_vector_list, entity_id_list)}
+                #entity_vectors = {f"{entities[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
+                #    for vector, id_ in zip(entity_vector_list, entity_id_list)}
+                entity_vectors = {f"{entities[id_]}_v": v.tostring() for v, id_ in zip(entity_vector_list, entity_id_list)}
 
                 # transG 에 추가되는 분기
                 # transG 의 짝수 이터레이션에선 추가로 전송할 게 없음
@@ -527,7 +519,7 @@ try:
 
             else:
 
-                printt('[info] worker > phase 3 (entity) finished - ' + worker_id)
+                #printt('[info] worker > phase 3 (entity) finished - ' + worker_id)
                 #fsLog.write('[info] worker > phase 3 (entity) finished - ' + worker_id + '\n')
                 flag = 1234
                 embedding_sock.send(pack('!i', flag))
@@ -559,7 +551,7 @@ try:
                     count_relation = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
                     embeddingTime = default_timer() - timeNow # 순수한 embedding 시간을 측정하기 위해서 여기 위치, cpp 가 send 하면 embedding 이 끝난 것                
-                    fsLog.write('                line 533 - embeddingTime : ' + str(embeddingTime) + '\n')
+                    #fsLog.write('                line 533 - embeddingTime : ' + str(embeddingTime) + '\n')
                     timeNow = default_timer()
 
                     relation_id_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, count_relation * 4))
@@ -567,8 +559,10 @@ try:
                         sockRecv(embedding_sock, precision_byte * embedding_dim * count_relation))
                     # relation_vectors 전송
                     relation_vector_list = np.array(relation_vector_list, dtype=np_dtype).reshape(count_relation, embedding_dim)
-                    relation_vectors = {f"{relations[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
-                        for vector, id_ in zip(relation_vector_list, relation_id_list)}
+                    #relation_vectors = {f"{relations[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
+                    #    for vector, id_ in zip(relation_vector_list, relation_id_list)}
+                    relation_vectors = {f"{relations[id_]}_v": v.tostring() for v, id_ in
+                            zip(relation_vector_list, relation_id_list)}
                 
                 # transG 에 추가되는 분기
                 elif train_model == 1:
@@ -576,7 +570,7 @@ try:
                     count_relation = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
                     embeddingTime = default_timer() - timeNow # 순수한 embedding 시간을 측정하기 위해서 여기 위치, cpp 가 send 하면 embedding 이 끝난 것                
-                    fsLog.write('                line 551 - embeddingTime : ' + str(embeddingTime) + '\n')
+                    #fsLog.write('                line 551 - embeddingTime : ' + str(embeddingTime) + '\n')
                     timeNow = default_timer()
 
                     relation_id_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, count_relation * 4))
@@ -584,14 +578,18 @@ try:
                     cluster_vector_list = unpack(precision_string * count_relation * embedding_dim * 21,
                         sockRecv(embedding_sock, 21 * precision_byte * embedding_dim * count_relation))
                     cluster_vector_list = np.array(cluster_vector_list, dtype=np_dtype).reshape(count_relation, 21 * embedding_dim)
-                    cluster_vectors = {f"{relations[id_]}_cv": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
-                        for vector, id_ in zip(cluster_vector_list, relation_id_list)}
+                    #cluster_vectors = {f"{relations[id_]}_cv": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
+                    #    for vector, id_ in zip(cluster_vector_list, relation_id_list)}
+                    cluster_vectors = {f"{relations[id_]}_cv": v.tostring() for v, id_ in
+                            zip(cluster_vector_list, relation_id_list)}
                     # weights_clusters 전송
                     weights_clusters_list = unpack(precision_string * count_relation * 21,
                         sockRecv(embedding_sock, precision_byte * 21 * count_relation))
                     weights_clusters_list = np.array(weights_clusters_list, dtype=np_dtype).reshape(count_relation, 21)
-                    weights_clusters = {f"{relations[id_]}_wv": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
-                        for vector, id_ in zip(weights_clusters_list, relation_id_list)}
+                    #weights_clusters = {f"{relations[id_]}_wv": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
+                    #    for vector, id_ in zip(weights_clusters_list, relation_id_list)}
+                    weights_clusters = {f"{relations[id_]}_wv": v.tostring() for v, id_ in
+                            zip(weights_clusters_list, relation_id_list)}
                     # size_clusters 전송
                     size_clusters_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, 4 * count_relation))
                     size_clusters_list = np.array(size_clusters_list, dtype=np.int32)
@@ -634,7 +632,7 @@ try:
 
             else:
 
-                printt('[info] worker > phase 3 (relation) finished - ' + worker_id)
+                #printt('[info] worker > phase 3 (relation) finished - ' + worker_id)
                 #fsLog.write('[info] worker > phase 3 (relation) finished - ' + worker_id + '\n')
                 flag = 1234
                 embedding_sock.send(pack('!i', flag))
@@ -660,9 +658,9 @@ try:
 
         redisTime += default_timer() - timeNow
 
-    fsLog.write('[info] worker > phase 3 finished\n')
-    fsLog.write('                line 635 - sockSaveTime : ' + str(sockSaveTime) + '\n')
-    fsLog.write('                line 636 - redisTime (cumulative) : ' + str(redisTime) + '\n')
+    #fsLog.write('[info] worker > phase 3 finished\n')
+    #fsLog.write('                line 635 - sockSaveTime : ' + str(sockSaveTime) + '\n')
+    #fsLog.write('                line 636 - redisTime (cumulative) : ' + str(redisTime) + '\n')
 
 except Exception as e:
 

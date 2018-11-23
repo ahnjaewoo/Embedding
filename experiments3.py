@@ -9,17 +9,17 @@ from subprocess import Popen, PIPE
 # dim: 50, 100
 
 #datasets = ('fb15k', 'wn18')
-datasets = ('dbpedia',)
+datasets = ('fb15k',)
 #num_workers = (2, 4, 6, 8)
-num_workers = (8,)
+num_workers = (4,)
 #master_worker_epochs = ((100, 5), (50, 10), (25, 20))
-master_worker_epochs = ((10, 50),)
+master_worker_epochs = ((20, 25),)
 lr = 0.01
 #ndims = (50, 100)
 ndims = (100,)
 #precisions = (0, 1)
 precisions = (0,)
-precision_names = ('single',)
+precision_names = ('single', )
 #precision_names = ('half',)
 
 key_list = ['dataset', 'num_worker', 'master_epoch', 'worker_iter', 'ndim', 'precision', 'lr',
@@ -74,7 +74,7 @@ key_list = ['dataset', 'train_iter', 'ndim', 'lr', 'Raw.BestMEANS', 'Raw.BestMRR
             'Accuracy', 'train_time']
 
 train_iter = 250
-"""
+
 print("baseline test")
 with open("baseline_result.csv", 'w') as result_file:
     result_file.write(", ".join(key_list))
@@ -102,4 +102,3 @@ with open("baseline_result.csv", 'w') as result_file:
                         result_file.write(f"{value}\n")
                     else:
                         result_file.write(f"{value}, ")
-"""

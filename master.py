@@ -1,5 +1,5 @@
 # coding: utf-8
-from distributed import Client
+from distributed import Client, as_completed
 from sklearn.preprocessing import normalize
 from subprocess import Popen
 from argparse import ArgumentParser
@@ -112,7 +112,11 @@ if args.temp_dir == '':
 
     temp_folder_dir = "%s/tmp" % args.root_dir
 
+# 73
 data_files = ('%s/train.txt' % args.data_root, '%s/dev.txt' % args.data_root, '%s/test.txt' % args.data_root)
+# 71 dbpedia
+#data_files = ('/home/data/dbpedia/1mill/train.ttl', '/home/data/dbpedia/1mill/dev.ttl', '/home/data/dbpedia/1mill/test.ttl') 
+
 num_worker = args.num_worker
 train_model = model2id(args.train_model)
 niter = args.niter
@@ -147,7 +151,11 @@ proc_preprocessing = Popen(["%spreprocess.out" % preprocess_folder_dir,
 
 for file in data_files:
 
+    # 73
     with open(args.root_dir + file, 'r') as f:
+
+    # 71
+    #with open(file,'r') as f:
 
         for line in f:
 
@@ -173,7 +181,11 @@ for file in data_files:
 
 relation_triples = defaultdict(list)
 
+# 73
 with open(args.root_dir + data_files[0], 'r') as f:
+
+# 71
+#with open(data_files[0], 'r') as f:
 
     for line in f:
 
@@ -185,11 +197,16 @@ relation_each_num = [(k, len(v)) for k, v in relation_triples.items()]
 relation_each_num = sorted(relation_each_num, key=lambda x: x[1], reverse=True)
 allocated_relation_worker = [[[], 0] for i in range(num_worker)]
 
-printt('[info] master > relation_each_num : [%s]' % relation_each_num)
-
 for i, (relation, num) in enumerate(relation_each_num):
 
     allocated_relation_worker = sorted(allocated_relation_worker, key=lambda x: x[1])
+
+    diff = allocated_relation_worker[-1][1] - allocated_relation_worker[0][1]
+    
+    if num > diff:
+
+        print(f'[info] master > {i}th relation : {num}, max-min : {diff}')
+
     allocated_relation_worker[0][0].append(relation)
     allocated_relation_worker[0][1] += num
 
@@ -239,35 +256,36 @@ r.set('entities', compress(dumps(entities, protocol=HIGHEST_PROTOCOL), 9))
 entity_ids = np.array(list(entity2id.values()), dtype=np.int32)
 entities_initialized = normalize(np.random.randn(len(entities), n_dim).astype(np_dtype))
 
-iter_mset(r, {f'{entity}_v': compress(dumps(vector,
-        protocol=HIGHEST_PROTOCOL), 9) for vector, entity in zip(entities_initialized, entities)})
-
+#iter_mset(r, {f'{entity}_v': compress(dumps(vector,
+#        protocol=HIGHEST_PROTOCOL), 9) for vector, entity in zip(entities_initialized, entities)})
+iter_mset(r, {f'{entity}_v': v.tostring() for v, entity in zip(entities_initialized, entities)})
 r.set('relations', compress(dumps(relations, protocol=HIGHEST_PROTOCOL), 9))
 relation_ids = np.array(list(relation2id.values()), dtype=np.int32)
 if train_model == 0:
     
-    relations_initialized = normalize(np.random.randn(len(relations), n_dim).astype(np.dtype))
-
-    iter_mset(r, {f'{relation}_v': compress(dumps(vector,
-            protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(relations_initialized, relations)})
-    
+    relations_initialized = normalize(np.random.randn(len(relations), n_dim).astype(np_dtype))
+    #iter_mset(r, {f'{relation}_v': compress(dumps(vector,
+    #        protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(relations_initialized, relations)})
+    iter_mset(r, {f'{relation}_v': v.tostring() for v, relation in zip(relations_initialized,
+        relations)})
 else:
     # xavier initialization
     embedding_clusters = np.random.random((len(relations), 21 * n_dim)).astype(np_dtype)
     embedding_clusters = (2 * embedding_clusters - 1) * np.sqrt(6 / n_dim)
-    iter_mset(r, {f'{relation}_cv': compress(dumps(vector,
-            protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(embedding_clusters, relations)})
-
+    #iter_mset(r, {f'{relation}_cv': compress(dumps(vector,
+    #        protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(embedding_clusters, relations)})
+    iter_mset(r, {f'{relation}_cv': v.tostring() for v, relation in zip(embedding_clusters,
+        relations)})
     weights_clusters = np.zeros((len(relations), 21)).astype(np_dtype)
     weights_clusters[:, :n_cluster] = 1
     normalize(weights_clusters, norm='l1', copy=False)
-    iter_mset(r, {f'{relation}_wv': compress(dumps(vector,
-            protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(weights_clusters, relations)})
-
+    #iter_mset(r, {f'{relation}_wv': compress(dumps(vector,
+    #        protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(weights_clusters, relations)})
+    iter_mset(r, {f'{relation}_wv': v.tostring() for v, relation in zip(weights_clusters,
+        relations)})
     size_clusters = np.full(len(relations), n_cluster, dtype=np.int32)
     iter_mset(r, {f'{relation}_s': compress(dumps(vector,
             protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(size_clusters, relations)})
-
 if args.use_scheduler_config_file == 'True':
 
     client = Client(scheduler_file=f'{temp_folder_dir}/scheduler.json', name='Embedding')
@@ -286,7 +304,7 @@ if args.install == 'True':
 proc_preprocessing.communicate()
 preprocessingTime = timeit.default_timer() - masterStart
 printt('[info] master > preprocessing time : %f' % preprocessingTime)
-fsLog.write('[info] master > preprocessing time : %f\n' % preprocessingTime)
+#fsLog.write('[info] master > preprocessing time : %f\n' % preprocessingTime)
 
 maxminTimes = list()
 iterTimes = list()
@@ -317,13 +335,13 @@ maxmin_sock.send(pack('!i', 0))
 chunks = list()
 anchor_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
 anchors = unpack('!' + 'i' * int(anchor_len), sockRecv(maxmin_sock, 4 * int(anchor_len)))
-anchors = ' '.join(str(e) for e in anchors)
+# anchors = ' '.join(str(e) for e in anchors)
 
 for _ in range(num_worker):
 
     chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
     chunk = unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len))
-    chunk = ' '.join(str(e) for e in chunk)
+    # chunk = ' '.join(str(e) for e in chunk)
     chunks.append(chunk)
 
 maxminTimes.append(timeit.default_timer() - timeNow)
@@ -335,11 +353,14 @@ trial  = 0
 success = False
 
 trainStart = timeit.default_timer()
-
+option = client.scatter([n_dim, lr, margin, train_iter, data_root_id,args.redis_ip,
+                         args.root_dir, args.debugging, args.precision, train_model,
+                         n_cluster, crp, train_code_dir, preprocess_folder_dir,
+                         worker_code_dir, unix_socket_path], broadcast=True)
 while True:
 
     printt('[info] master > iteration ' + str(cur_iter) + ' started')
-
+    
     if cur_iter == niter:
 
         break
@@ -354,16 +375,19 @@ while True:
     # 작업 배정
     iterStart = timeit.default_timer()
     
-    workers = []
-    for i in range(num_worker):
-        chunk_data = client.scatter(f"{anchors}\n{chunks[i]}")
-        workers.append(client.submit(work, chunk_data, f'worker_{i}', cur_iter,
-                       n_dim, lr, margin, train_iter, data_root_id, args.redis_ip,
-                       args.root_dir, args.debugging, args.precision, train_model,
-                       n_cluster, crp, train_code_dir, preprocess_folder_dir,
-                       worker_code_dir, unix_socket_path))
+#     for i in range(num_worker):
+#         chunk_data = client.scatter(f"{anchors}\n{chunks[i]}")
+#         workers.append(client.submit(work, chunk_data, f'worker_{i}', cur_iter,
+#                        n_dim, lr, margin, train_iter, data_root_id, args.redis_ip,
+#                        args.root_dir, args.debugging, args.precision, train_model,
+#                        n_cluster, crp, train_code_dir, preprocess_folder_dir,
+#                        worker_code_dir, unix_socket_path))
 
+    workers = []
     if cur_iter % 2 == 1:
+        for i in range(num_worker):
+            workers.append(client.submit(work, '', f'worker_{i}', cur_iter, *option))
+        
         # entity partitioning: max-min cut 실행, anchor 등 재분배
         
         maxminStart = timeit.default_timer()
@@ -376,30 +400,35 @@ while True:
         
         anchor_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
         anchors = unpack('!' + 'i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len))
-        anchors = ' '.join(str(e) for e in anchors)
+        #anchors = ' '.join(str(e) for e in anchors)
         
         for _ in range(num_worker):
         
             chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
             chunk = unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len))
-            chunk = ' '.join(str(e) for e in chunk)
+            #chunk = ' '.join(str(e) for e in chunk)
             chunks.append(chunk)
 
         maxminTimes.append(timeit.default_timer() - maxminStart)
         printt('[info] master > maxmin finished')
-
     else:
-        # relation partitioning
-        chunk_data = ''
-
+        for i in range(num_worker):
+            chunk_data = client.scatter([anchors, chunks[i]])
+            workers.append(client.submit(work, chunk_data, f'worker_{i}', cur_iter, *option))
+        
+        
     # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
     #entities_initialized_bak = iter_mget(r, [f'{entity}_v' for entity in entities])
     #entities_initialized_bak = np.array([loads(decompress(v)) for v in entities_initialized_bak])
     #relations_initialized_bak = iter_mget(r, [f'{relation}_v' for relation in relations])
     #relations_initialized_bak = np.array([loads(decompress(v)) for v in relations_initialized_bak])
 
-    client.gather(workers)
-    result_iter = [worker.result() for worker in workers]
+    # client.gather(workers)
+    # result_iter = [worker.result() for worker in workers]
+    result_iter = []
+    ac = as_completed(workers, with_results=True)
+    for future, result in ac:
+        result_iter.append(result)
     iterTimes.append(timeit.default_timer() - iterStart)
 
     if all([e[0] for e in result_iter]):
@@ -445,20 +474,23 @@ printt('[info] master > test start')
 
 # load entity vector
 entities_initialized = iter_mget(r, [f'{entity}_v' for entity in entities])
-entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
-
+#entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
+entities_initialized = np.stack([np.fromstring(v, dtype=np_dtype) for v in entities_initialized])
 if train_model == 0:
 
     relations_initialized = iter_mget(r, [f'{relation}_v' for relation in relations])
-    relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
-
+    #relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
+    relations_initialized = np.stack([np.fromstring(v, dtype=np_dtype) for v in
+        relations_initialized])
 # transG 에 추가되는 분기
 elif train_model == 1:
 
     embedding_clusters = iter_mget(r, [f'{relation}_cv' for relation in relations])
-    embedding_clusters = np.array([loads(decompress(v)) for v in embedding_clusters], dtype=np_dtype)
+    #embedding_clusters = np.array([loads(decompress(v)) for v in embedding_clusters], dtype=np_dtype)
+    embedding_clusters = np.stack([np.fromstring(v, dtype=np_dtype) for v in embeding_clusters])
     weights_clusters = iter_mget(r, [f'{relation}_wv' for relation in relations])
-    weights_clusters = np.array([loads(decompress(v)) for v in weights_clusters], dtype=np_dtype)
+    #weights_clusters = np.array([loads(decompress(v)) for v in weights_clusters], dtype=np_dtype)
+    weights_clusters = np.stack([np.fromstring(v, dtype=np_dtype) for v in weights_clusters])
     size_clusters = iter_mget(r, [f'{relation}_s' for relation in relations])
     size_clusters = np.array([loads(decompress(v)) for v in size_clusters], dtype=np.int32)
 
@@ -509,7 +541,7 @@ while success != 1:
     # 원소를 한 번에 전송 - 2 단계
     for id_, vector in zip(entity_ids, entities_initialized):
         
-            test_sock.send(pack('!i', id_))
+            #test_sock.send(pack('!i', id_))
             test_sock.send(pack(precision_string * len(vector), * vector))
     
     checksum = unpack('!i', sockRecv(test_sock, 4))[0]
@@ -542,7 +574,7 @@ if train_model == 0:
         # 원소를 한 번에 전송 - 2 단계
         for id_, vector in zip(relation_ids, relations_initialized):
             
-                test_sock.send(pack('!i', id_))
+                #test_sock.send(pack('!i', id_))
                 test_sock.send(pack(precision_string * len(vector), *vector))
 
         checksum = unpack('!i', sockRecv(test_sock, 4))[0]

@@ -1,0 +1,1 @@
+python master.py --redis_ip=localhost --redis_port=6379 --pypy_dir=/home/rudvlf0413/pypy2-v6.0.0-linux64/bin/pypy --scheduler_ip=localhost:8786 --num_worker 6 --niter 20 --train_iter 25 --lr=0.01 --ndim=100 --data_root=/dbpedia 
