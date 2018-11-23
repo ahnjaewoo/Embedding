@@ -47,7 +47,7 @@ parser.add_argument('--anchor_num', type=int, default=5,
 parser.add_argument('--anchor_interval', type=int, default=6,
                     help='number of epoch that anchors can rest as non-anchor')
 parser.add_argument('--root_dir', type=str,
-                    default="/home/rudvlf0413/distributedKGE/Embedding", help='project directory')
+                    default="/home/rudvlf0413/distributedKGE", help='project directory')
 parser.add_argument('--temp_dir', type=str, default='', help='temp directory')
 parser.add_argument('--pypy_dir', type=str,
                     default="/home/rudvlf0413/pypy2-v6.0.0-linux64/bin/pypy", help='pypy directory')
