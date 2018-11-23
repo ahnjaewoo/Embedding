@@ -47,3 +47,4 @@ chromedriver
 test/.ipynb_checkpoints/Untitled-checkpoint.ipynb
 test/test.out
 *.out
+*.out
