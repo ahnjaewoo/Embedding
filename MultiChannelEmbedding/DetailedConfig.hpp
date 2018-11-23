@@ -10,7 +10,7 @@ const Dataset WN18("WN18", "D:\\Data\\Knowledge Embedding\\WN18\\", "train.txt",
 const Dataset Wordnet("Wordnet", "D:\\Data\\Knowledge Embedding\\Wordnet\\", "train.txt", "dev.txt", "test.txt", false);
 const Dataset Freebase("Freebase", "D:\\Data\\Knowledge Embedding\\Freebase\\", "train.txt", "dev.txt", "test.txt", false);
 const Dataset FB15KT("FB15KT", "D:\\Data\\Joint Knowledge and Text\\Release\\", "train.txt", "valid.txt", "test.txt", true);
-const string report_path = "D:\\脢碌脩茅\\Report\\Experiment.Embedding\\";
+const string report_path = "D:\\实验\\Report\\Experiment.Embedding\\";
 const string semantic_vfile_FB15K = "D:\\Data\\Knowledge Embedding\\FB15K\\topics.bsd";
 const string semantic_tfile_FB15K = "D:\\Data\\Knowledge Embedding\\FB15K\\description.txt";
 const string semantic_vfile_WN18 = "D:\\Data\\Knowledge Embedding\\WN18\\topics.bsd";
@@ -30,7 +30,7 @@ const Dataset WN18("WN18", "C:\\Data\\Knowledge Embedding\\WN18\\", "train.txt",
 const Dataset Wordnet("Wordnet", "C:\\Data\\Knowledge Embedding\\Wordnet\\", "train.txt", "dev.txt", "test.txt", false);
 const Dataset Freebase("Freebase", "C:\\Data\\Knowledge Embedding\\Freebase\\", "train.txt", "dev.txt", "test.txt", false);
 const Dataset FB15KT("FB15KT", "C:\\Data\\Joint Knowledge and Text\\Release\\", "train.txt", "valid.txt", "test.txt", true);
-const string report_path = "D:\\脢碌脩茅\\Report\\Experiment.Embedding\\";
+const string report_path = "D:\\实验\\Report\\Experiment.Embedding\\";
 const string semantic_vfile_FB15K = "C:\\Data\\Knowledge Embedding\\FB15K\\topics.bsd";
 const string semantic_tfile_FB15K = "C:\\Data\\Knowledge Embedding\\FB15K\\description.txt";
 const string semantic_vfile_WN18 = "C:\\Data\\Knowledge Embedding\\WN18\\topics.bsd";
@@ -48,15 +48,15 @@ const Dataset FB13("FB13", "/home/bookman/data/Knowledge Embedding/FB13/", "trai
 const Dataset WN11("WN11", "/home/bookman/data/Knowledge Embedding/WN11/", "train.txt", "dev.txt", "test.txt", false);
 const Dataset WN18("WN18", "./../wn18/", "train.txt", "dev.txt", "test.txt", true);
 
-// 73 靹滊矂
+// 73 靠
 //const Dataset Dbpedia("Dbpedia", "./../dbpedia/", "train.txt", "dev.txt", "test.txt", true);
 //const Dataset Dbpedia("Dbpedia", "./../../dbpedia/data/preprocessed_data/nif_text_links_en/1m", "train.txt", "dev.txt", "test.txt", true);
 //const Dataset Dbpedia("Dbpedia", "./../../dbpedia/data/preprocessed_data/nif_text_links_en/7.6mill", "train.txt", "dev.txt", "test.txt", true);
 //const Dataset Dbpedia("Dbpedia", "./../../dbpedia/data/preprocessed_data/nif_text_links_en/11mill", "train.txt", "dev.txt", "test.txt", true);
 
-// 71 靹滊矂
-const Dataset Dbpedia("Dbpedia", "/home/data/dbpedia/1mill", "train.txt", "dev.txt", "test.txt", true);
-//const Dataset Dbpedia("Dbpedia", "/home/data/dbpedia/7.6mill", "train.txt", "dev.txt", "test.txt", true);
+// 71 靠
+//const Dataset Dbpedia("Dbpedia", "/home/data/dbpedia/1mill", "train.txt", "dev.txt", "test.txt", true);
+const Dataset Dbpedia("Dbpedia", "/home/data/dbpedia/7.6mill", "train.txt", "dev.txt", "test.txt", true);
 //const Dataset Dbpedia("Dbpedia", "/home/data/dbpedia/11mill", "train.txt", "dev.txt", "test.txt", true);
 //const Dataset Dbpedia("Dbpedia", "/home/data/dbpedia/19mill", "train.txt", "dev.txt", "test.txt", true);
 //const Dataset Dbpedia("Dbpedia", "/home/data/dbpedia/38mill", "train.txt", "dev.txt", "test.txt", true);

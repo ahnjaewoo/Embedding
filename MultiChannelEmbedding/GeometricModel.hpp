@@ -45,8 +45,8 @@ public:
 		dim(dim), alpha(alpha), training_threshold(training_threshold), master_epoch(master_epoch)
 	{
 
-		cout << "[info] GeometricModel.hpp > TransE constructor called" << endl;
-		fprintf(fs_log, "[info] GeometricModel.hpp > TransE constructor called");
+		//cout << "[info] GeometricModel.hpp > TransE constructor called" << endl;
+		//fprintf(fs_log, "[info] GeometricModel.hpp > TransE constructor called");
 
 		// logging.record() << "\t[Name]\tTransE";
 		// logging.record() << "\t[Dimension]\t" << dim;
@@ -336,7 +336,7 @@ public:
 	  if (prob_triplets(triplet) - prob_triplets(triplet_f) > training_threshold)
 			return;
 
-    vec& head_f = embedding_entity[triplet_f.first.first];
+	vec& head_f = embedding_entity[triplet_f.first.first];
 		vec& tail_f = embedding_entity[triplet_f.first.second];
 		vec& relation_f = embedding_relation[triplet_f.second];
 
@@ -464,43 +464,43 @@ public:
 
 				//.....................
 
-                if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
+				if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
 
-                	cout << "[error] GeometricModel.hpp > recv flag (phase 3)\n";
-                    cout << "[error] GeometricModel.hpp > return -1\n";
-                    fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
-                    fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                    close(fd);
-                    fclose(fs_log);
-                    std::exit(-1);
-                }
+					cout << "[error] GeometricModel.hpp > recv flag (phase 3)\n";
+					cout << "[error] GeometricModel.hpp > return -1\n";
+					fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
+					fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+					close(fd);
+					fclose(fs_log);
+					std::exit(-1);
+				}
 
-                flag = ntohl(flag);
+				flag = ntohl(flag);
 
-                if (flag == 1234){
+				if (flag == 1234){
 
-                	checksum = 1;
-                }
-                else if (flag == 9876){
+					checksum = 1;
+				}
+				else if (flag == 9876){
 
-                	cout << "[error] GeometricModel.hpp > retry phase 3 (transE:entity)\n";
-                	fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transE:entity)\n");
-                	checksum = 0;
-                }
-                else{
+					cout << "[error] GeometricModel.hpp > retry phase 3 (transE:entity)\n";
+					fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transE:entity)\n");
+					checksum = 0;
+				}
+				else{
 
-                	cout << "[error] GeometricModel.hpp > unknown error of phase 3 (transE:entity)\n";
-                	cout << "[error] GeometricModel.hpp > flag = " << flag << "\n";
-                	cout << "[error] GeometricModel.hpp > retry phase 3 (transE:entity)\n";
-                    fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (transE:entity)\n");
-                    fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
-                    fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transE:entity)\n");
-                    checksum = 0;
-                }
+					cout << "[error] GeometricModel.hpp > unknown error of phase 3 (transE:entity)\n";
+					cout << "[error] GeometricModel.hpp > flag = " << flag << "\n";
+					cout << "[error] GeometricModel.hpp > retry phase 3 (transE:entity)\n";
+					fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (transE:entity)\n");
+					fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
+					fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transE:entity)\n");
+					checksum = 0;
+				}
 			}
 
-			printf("[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
-			// fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
+			//printf("[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
+			//fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
 		}
 		else{
 			// master_epoch 이 홀수일 때, relation embedding
@@ -580,121 +580,121 @@ public:
 
 				//.....................
 
-                if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
+				if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
 
-                	cout << "[error] GeometricModel.hpp > recv flag (phase 3)\n";
-                    cout << "[error] GeometricModel.hpp > return -1\n";
-                    fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
-                    fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                    close(fd);
-                    fclose(fs_log);
-                    std::exit(-1);
-                }
+					cout << "[error] GeometricModel.hpp > recv flag (phase 3)\n";
+					cout << "[error] GeometricModel.hpp > return -1\n";
+					fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
+					fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+					close(fd);
+					fclose(fs_log);
+					std::exit(-1);
+				}
 
-                flag = ntohl(flag);
+				flag = ntohl(flag);
 
-                if (flag == 1234){
+				if (flag == 1234){
 
-                	checksum = 1;
-                }
-                else if (flag == 9876){
+					checksum = 1;
+				}
+				else if (flag == 9876){
 
-                	cout << "[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n";
-                	fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n");
-                	checksum = 0;
-                }
-                else{
+					cout << "[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n";
+					fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n");
+					checksum = 0;
+				}
+				else{
 
-                	cout << "[error] GeometricModel.hpp > unknown error of phase 3 (transE:relation)\n";
-                	cout << "[error] GeometricModel.hpp > flag = " << flag << "\n";
-                	cout << "[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n";
-                    fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (transE:relation)\n");
-                    fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
-                    fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n");
-                    checksum = 0;
-                }
+					cout << "[error] GeometricModel.hpp > unknown error of phase 3 (transE:relation)\n";
+					cout << "[error] GeometricModel.hpp > flag = " << flag << "\n";
+					cout << "[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n";
+					fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (transE:relation)\n");
+					fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
+					fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transE:relation)\n");
+					checksum = 0;
+				}
 			}
-			printf("[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
-			// fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
+			//printf("[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
+			//fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (relation save) finish\n");
 		}
 	}
 
-	virtual void load(const string& filename, FILE * fs_log) override
+virtual void load(const string& filename, FILE * fs_log) override
 	{
 		// filename 파라미터가 전혀 사용되지 않음을 참고
 		int flag = 0;
-  		int success = 0;
+		int success = 0;
 
-  		cout << "[info] GeometricModel >> line 630 - load function called" << endl;
+		cout << "[info] GeometricModel >> line 630 - load function called" << endl;
 
 		while (!success){
 
 			try{
 				
-                if (precision == 0){
+				if (precision == 0){
 
-                    float * vector_buff = (float *)calloc(dim * count_entity() + 1, sizeof(float));
-                    if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
+					float * vector_buff = (float *)calloc(dim * count_entity() + 1, sizeof(float));
+					if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
 
-                        cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)" << endl;
-                        cout << "[error] GeometricModel.hpp > return -1" << endl;
-                        fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)\n");
-                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                        close(fd);
-                        fclose(fs_log);
-                        std::exit(-1);
-                    }
+						cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)" << endl;
+						cout << "[error] GeometricModel.hpp > return -1" << endl;
+						fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						fclose(fs_log);
+						std::exit(-1);
+					}
 
-                    // 더 최적화할 수 있을지도?
-                    for (int i = 0; i < count_entity(); i++){
+					// 더 최적화할 수 있을지도?
+					for (int i = 0; i < count_entity(); i++){
 
-                        for (int j = 0; j < dim; j++){
+						for (int j = 0; j < dim; j++){
 
-                            embedding_entity[i](j) = vector_buff[i * dim + j];                        
-                        }
-                    }
+							embedding_entity[i](j) = vector_buff[i * dim + j];                        
+						}
+					}
 
-                    free(vector_buff);
-                }
-                else{
+					free(vector_buff);
+				}
+				else{
 
-                    half * vector_buff = (half *)calloc(dim * count_entity() + 1, sizeof(half));
-                    if (recv(fd, vector_buff, dim * sizeof(half), MSG_WAITALL) < 0){
+					half * vector_buff = (half *)calloc(dim * count_entity() + 1, sizeof(half));
+					if (recv(fd, vector_buff, dim * sizeof(half), MSG_WAITALL) < 0){
 
-                        cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)" << endl;
-                        cout << "[error] GeometricModel.hpp > return -1" << endl;
-                        fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)\n");
-                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                        close(fd);
-                        fclose(fs_log);
-                        std::exit(-1);
-                    }
+						cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)" << endl;
+						cout << "[error] GeometricModel.hpp > return -1" << endl;
+						fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						fclose(fs_log);
+						std::exit(-1);
+					}
 
-                    // 더 최적화할수 있을지도?
-                    for (int i = 0; i < count_entity(); i++){
-                        
-                        for (int j = 0; j < dim; j++){
+					// 더 최적화할수 있을지도?
+					for (int i = 0; i < count_entity(); i++){
+						
+						for (int j = 0; j < dim; j++){
 
-                            embedding_entity[i](j) = (float) vector_buff[i * dim + j];                        
-                        }
-                    }
+							embedding_entity[i](j) = (float) vector_buff[i * dim + j];                        
+						}
+					}
 
-                    free(vector_buff);
-                }
+					free(vector_buff);
+				}
 
-                /*
+				/*
 				for (int i = 0; i < count_entity(); i++) {
 					
 					int entity_id;
 
-	                if (recv(fd, &entity_id, sizeof(int), MSG_WAITALL) < 0){
+					if (recv(fd, &entity_id, sizeof(int), MSG_WAITALL) < 0){
 
-	                	cout << "[error] GeometricModel.hpp > recv entity_id" << endl;
-	                	fprintf(fs_log, "[error] GeometricModel.hpp > recv entity_id\n");
-	                    close(fd);
-	                    fclose(fs_log);
-	                    break;
-	                }
+						cout << "[error] GeometricModel.hpp > recv entity_id" << endl;
+						fprintf(fs_log, "[error] GeometricModel.hpp > recv entity_id\n");
+						close(fd);
+						fclose(fs_log);
+						break;
+					}
 
 					entity_id = ntohl(entity_id);
 
@@ -741,7 +741,7 @@ public:
 						free(vector_buff);
 					}
 				}
-                */
+				*/
 
 				cout << "[info] GeometricModel.hpp > line 695" << endl;
 
@@ -750,19 +750,19 @@ public:
 				send(fd, &flag, sizeof(flag), 0);
 				success = 1;
 			}
-        	catch (std::exception& e){
+			catch (std::exception& e){
 
-                cout << "[error] GeometricModel.hpp > exception occured" << endl;
-                cout << "%s\n" << e.what() << endl;
-                fprintf(fs_log, "[error] GeometricModel.hpp > exception occured\n");
-                fprintf(fs_log, "%s\n", e.what());
-                success = 0;
-                flag = 9876;
-                flag = htonl(flag);
-                send(fd, &flag, sizeof(flag), 0);
-        	}
-        }
-        cout << "[info] GeometricModel.hpp > load entity finish" << endl;
+				cout << "[error] GeometricModel.hpp > exception occured" << endl;
+				cout << "%s\n" << e.what() << endl;
+				fprintf(fs_log, "[error] GeometricModel.hpp > exception occured\n");
+				fprintf(fs_log, "%s\n", e.what());
+				success = 0;
+				flag = 9876;
+				flag = htonl(flag);
+				send(fd, &flag, sizeof(flag), 0);
+			}
+		}
+		cout << "[info] GeometricModel.hpp > load entity finish" << endl;
 		fprintf(fs_log, "[info] GeometricModel.hpp > load entity finish\n");
 
 		success = 0;
@@ -772,69 +772,69 @@ public:
 
 			try{
 
-                if (precision == 0){
+				if (precision == 0){
 
-                    float * vector_buff = (float *)calloc(dim * count_relation() + 1, sizeof(float));
-                    if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
+					float * vector_buff = (float *)calloc(dim * count_relation() + 1, sizeof(float));
+					if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
 
-                        cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)" << endl;
-                        cout << "[error] GeometricModel.hpp > return -1" << endl;
-                        fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)\n");
-                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                        close(fd);
-                        fclose(fs_log);
-                        std::exit(-1);
-                    }
+						cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)" << endl;
+						cout << "[error] GeometricModel.hpp > return -1" << endl;
+						fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						fclose(fs_log);
+						std::exit(-1);
+					}
 
-                    // 더 최적화할수 있을지도?
-                    for (int i = 0; i < count_relation(); i++){
+					// 더 최적화할수 있을지도?
+					for (int i = 0; i < count_relation(); i++){
 
-                        for (int j = 0; j < dim; j++){
+						for (int j = 0; j < dim; j++){
 
-                            embedding_relation[i](j) = vector_buff[i * dim + j];
-                        }
-                    }
+							embedding_relation[i](j) = vector_buff[i * dim + j];
+						}
+					}
 
-                    free(vector_buff);
-                }
-                else{
+					free(vector_buff);
+				}
+				else{
 
-                    half * vector_buff = (half *)calloc(dim * count_relation() + 1, sizeof(half));
-                    if (recv(fd, vector_buff, dim * sizeof(half), MSG_WAITALL) < 0){
+					half * vector_buff = (half *)calloc(dim * count_relation() + 1, sizeof(half));
+					if (recv(fd, vector_buff, dim * sizeof(half), MSG_WAITALL) < 0){
 
-                        cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)" << endl;
-                        cout << "[error] GeometricModel.hpp > return -1" << endl;
-                        fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)\n");
-                        fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                        close(fd);
-                        fclose(fs_log);
-                        std::exit(-1);
-                    }
+						cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)" << endl;
+						cout << "[error] GeometricModel.hpp > return -1" << endl;
+						fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)\n");
+						fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						fclose(fs_log);
+						std::exit(-1);
+					}
 
-                    // 더 최적화할수 있을지도?
-                    for (int i = 0; i < count_relation(); i++){
+					// 더 최적화할수 있을지도?
+					for (int i = 0; i < count_relation(); i++){
 
-                        for (int j = 0; j < dim; j++){
+						for (int j = 0; j < dim; j++){
 
-                            embedding_relation[i](j) = (float) vector_buff[i * dim + j];
-                        }
-                    }
+							embedding_relation[i](j) = (float) vector_buff[i * dim + j];
+						}
+					}
 
-                    free(vector_buff);
-                }
+					free(vector_buff);
+				}
 
-                /*
+				/*
 				for (int i = 0; i < count_relation(); i++) {
 					
 					int relation_id;
-	                if (recv(fd, &relation_id, sizeof(int), MSG_WAITALL) < 0){
+					if (recv(fd, &relation_id, sizeof(int), MSG_WAITALL) < 0){
 
-	                	cout << "[error] GeometricModel.hpp > recv relation_id" << endl;
-	                	fprintf(fs_log, "[error] GeometricModel.hpp > recv relation_id\n");
-	                    close(fd);
-	                    fclose(fs_log);
-	                    break;
-	                }
+						cout << "[error] GeometricModel.hpp > recv relation_id" << endl;
+						fprintf(fs_log, "[error] GeometricModel.hpp > recv relation_id\n");
+						close(fd);
+						fclose(fs_log);
+						break;
+					}
 
 					relation_id = ntohl(relation_id);
 					
@@ -883,14 +883,14 @@ public:
 						free(vector_buff);
 					}
 				}
-                */
+				*/
 
 				cout << "[info] GeometricModel.hpp > line 784" << endl;
 
-                flag = 1234;
-                flag = htonl(flag);
-                send(fd, &flag, sizeof(flag), 0);
-                success = 1;
+				flag = 1234;
+				flag = htonl(flag);
+				send(fd, &flag, sizeof(flag), 0);
+				success = 1;
 			}
 			catch (std::exception& e){
 
@@ -2088,39 +2088,39 @@ public:
 
 				//.....................
 
-	            if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
+				if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
 
-	            	//cout << "[error] GeometricModel.hpp > recv flag (phase 3)\n";
-	                //cout << "[error] GeometricModel.hpp > return -1\n";
-	                //fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
-	                //fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-	                close(fd);
-	                fclose(fs_log);
-	                std::exit(-1);
-	            }
+					//cout << "[error] GeometricModel.hpp > recv flag (phase 3)\n";
+					//cout << "[error] GeometricModel.hpp > return -1\n";
+					//fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
+					//fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+					close(fd);
+					fclose(fs_log);
+					std::exit(-1);
+				}
 
-	            flag = ntohl(flag);
+				flag = ntohl(flag);
 
-	            if (flag == 1234){
+				if (flag == 1234){
 
-	            	checksum = 1;
-	            }
-	            else if (flag == 9876){
+					checksum = 1;
+				}
+				else if (flag == 9876){
 
-	            	//cout << "[error] GeometricModel.hpp > retry phase 3 (transG:entity)\n";
-	            	//fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transG:entity)\n");
-	            	checksum = 0;
-	            }
-	            else{
+					//cout << "[error] GeometricModel.hpp > retry phase 3 (transG:entity)\n";
+					//fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transG:entity)\n");
+					checksum = 0;
+				}
+				else{
 
-	            	//cout << "[error] GeometricModel.hpp > unknown error of phase 3 (transG:entity)\n";
-	            	//cout << "[error] GeometricModel.hpp > flag = " << flag << "\n";
-	            	//cout << "[error] GeometricModel.hpp > retry phase 3 (transG:entity)\n";
-	                //fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (transG:entity)\n");
-	                //fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
-	                //fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transG:entity)\n");
-	                checksum = 0;
-	            }
+					//cout << "[error] GeometricModel.hpp > unknown error of phase 3 (transG:entity)\n";
+					//cout << "[error] GeometricModel.hpp > flag = " << flag << "\n";
+					//cout << "[error] GeometricModel.hpp > retry phase 3 (transG:entity)\n";
+					//fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (transG:entity)\n");
+					//fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
+					//fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transG:entity)\n");
+					checksum = 0;
+				}
 			}
 		}
 		else{
@@ -2287,39 +2287,39 @@ public:
 
 				//.....................
 
-                if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
+				if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
 
-                	//cout << "[error] GeometricModel.hpp > recv flag (phase 3)\n";
-                    //cout << "[error] GeometricModel.hpp > return -1\n";
-                    //fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
-                    //fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
-                    close(fd);
-                    fclose(fs_log);
-                    std::exit(-1);
-                }
+					//cout << "[error] GeometricModel.hpp > recv flag (phase 3)\n";
+					//cout << "[error] GeometricModel.hpp > return -1\n";
+					//fprintf(fs_log, "[error] GeometricModel.hpp > recv flag (phase 3)\n");
+					//fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+					close(fd);
+					fclose(fs_log);
+					std::exit(-1);
+				}
 
-                flag = ntohl(flag);
+				flag = ntohl(flag);
 
-                if (flag == 1234){
+				if (flag == 1234){
 
-                	checksum = 1;
-                }
-                else if (flag == 9876){
+					checksum = 1;
+				}
+				else if (flag == 9876){
 
-                	//cout << "[error] GeometricModel.hpp > retry phase 3 (transG:relation)\n";
-                	//fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transG:relation)\n");
-                	checksum = 0;
-                }
-                else{
+					//cout << "[error] GeometricModel.hpp > retry phase 3 (transG:relation)\n";
+					//fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transG:relation)\n");
+					checksum = 0;
+				}
+				else{
 
-                	//cout << "[error] GeometricModel.hpp > unknown error of phase 3 (transG:relation)\n";
-                	//cout << "[error] GeometricModel.hpp > flag = " << flag << "\n";
-                	//cout << "[error] GeometricModel.hpp > retry phase 3 (transG:relation)\n";
-                    //fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (transG:relation)\n");
-                    //fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
-                    //fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transG:relation)\n");
-                    checksum = 0;
-                }
+					//cout << "[error] GeometricModel.hpp > unknown error of phase 3 (transG:relation)\n";
+					//cout << "[error] GeometricModel.hpp > flag = " << flag << "\n";
+					//cout << "[error] GeometricModel.hpp > retry phase 3 (transG:relation)\n";
+					//fprintf(fs_log, "[error] GeometricModel.hpp > unknown error of phase 3 (transG:relation)\n");
+					//fprintf(fs_log, "[error] GeometricModel.hpp > flag = %d\n", flag);
+					//fprintf(fs_log, "[error] GeometricModel.hpp > retry phase 3 (transG:relation)\n");
+					checksum = 0;
+				}
 			}
 		}
 	}
@@ -2345,7 +2345,7 @@ public:
 		// embedding_entity 전송
 
 		int flag = 0;
-  		int success = 0;
+		int success = 0;
 
 		while (!success){
 
@@ -2355,14 +2355,14 @@ public:
 					
 					int entity_id;
 
-	                if (recv(fd, &entity_id, sizeof(int), MSG_WAITALL) < 0){
+					if (recv(fd, &entity_id, sizeof(int), MSG_WAITALL) < 0){
 
-	                	//cout << "[error] GeometricModel.hpp > recv entity_id\n";
-	                	//fprintf(fs_log, "[error] GeometricModel.hpp > recv entity_id\n");
-	                    close(fd);
-	                    fclose(fs_log);
-	                    break;
-	                }
+						//cout << "[error] GeometricModel.hpp > recv entity_id\n";
+						//fprintf(fs_log, "[error] GeometricModel.hpp > recv entity_id\n");
+						close(fd);
+						fclose(fs_log);
+						break;
+					}
 
 					entity_id = ntohl(entity_id);
 
@@ -2415,22 +2415,22 @@ public:
 				send(fd, &flag, sizeof(flag), 0);
 				success = 1;
 			}
-        	catch (std::exception& e){
+			catch (std::exception& e){
 
-                //cout << "[error] GeometricModel.hpp > exception occured\n";
-                //cout << "%s\n" << e.what();
-                //fprintf(fs_log, "[error] GeometricModel.hpp > exception occured\n");
-                //fprintf(fs_log, "%s\n", e.what());
-                success = 0;
-                flag = 9876;
-                flag = htonl(flag);
-                send(fd, &flag, sizeof(flag), 0);
-        	}
-        }
+				//cout << "[error] GeometricModel.hpp > exception occured\n";
+				//cout << "%s\n" << e.what();
+				//fprintf(fs_log, "[error] GeometricModel.hpp > exception occured\n");
+				//fprintf(fs_log, "%s\n", e.what());
+				success = 0;
+				flag = 9876;
+				flag = htonl(flag);
+				send(fd, &flag, sizeof(flag), 0);
+			}
+		}
 
-        //.....................
+		//.....................
 
-        // embedding_clusters 전송
+		// embedding_clusters 전송
 
 		success = 0;
 		flag = 0;
@@ -2442,14 +2442,14 @@ public:
 				for (int i = 0; i < count_relation(); i++) {
 					
 					int relation_id;
-	                if (recv(fd, &relation_id, sizeof(int), MSG_WAITALL) < 0){
+					if (recv(fd, &relation_id, sizeof(int), MSG_WAITALL) < 0){
 
-	                	//cout << "[error] GeometricModel.hpp > recv relation_id\n";
-	                	//fprintf(fs_log, "[error] GeometricModel.hpp > recv relation_id\n");
-	                    close(fd);
-	                    fclose(fs_log);
-	                    break;
-	                }
+						//cout << "[error] GeometricModel.hpp > recv relation_id\n";
+						//fprintf(fs_log, "[error] GeometricModel.hpp > recv relation_id\n");
+						close(fd);
+						fclose(fs_log);
+						break;
+					}
 
 					relation_id = ntohl(relation_id);
 					
@@ -2505,10 +2505,10 @@ public:
 					}
 				}
 
-                flag = 1234;
-                flag = htonl(flag);
-                send(fd, &flag, sizeof(flag), 0);
-                success = 1;
+				flag = 1234;
+				flag = htonl(flag);
+				send(fd, &flag, sizeof(flag), 0);
+				success = 1;
 			}
 			catch (std::exception& e){
 
@@ -2537,14 +2537,14 @@ public:
 				for (int i = 0; i < count_relation(); i++) {
 					
 					int relation_id;
-	                if (recv(fd, &relation_id, sizeof(int), MSG_WAITALL) < 0){
+					if (recv(fd, &relation_id, sizeof(int), MSG_WAITALL) < 0){
 
-	                	//cout << "[error] GeometricModel.hpp > recv relation_id\n";
-	                	//fprintf(fs_log, "[error] GeometricModel.hpp > recv relation_id\n");
-	                    close(fd);
-	                    fclose(fs_log);
-	                    break;
-	                }
+						//cout << "[error] GeometricModel.hpp > recv relation_id\n";
+						//fprintf(fs_log, "[error] GeometricModel.hpp > recv relation_id\n");
+						close(fd);
+						fclose(fs_log);
+						break;
+					}
 
 					relation_id = ntohl(relation_id);
 					
@@ -2594,10 +2594,10 @@ public:
 					}
 				}
 
-                flag = 1234;
-                flag = htonl(flag);
-                send(fd, &flag, sizeof(flag), 0);
-                success = 1;
+				flag = 1234;
+				flag = htonl(flag);
+				send(fd, &flag, sizeof(flag), 0);
+				success = 1;
 			}
 			catch (std::exception& e){
 
@@ -2643,10 +2643,10 @@ public:
 				
 				free(vector_buff);
 					
-                flag = 1234;
-                flag = htonl(flag);
-                send(fd, &flag, sizeof(flag), 0);
-                success = 1;
+				flag = 1234;
+				flag = htonl(flag);
+				send(fd, &flag, sizeof(flag), 0);
+				success = 1;
 			}
 			catch (std::exception& e){
 
@@ -2757,6 +2757,11 @@ public:
 		const pair<pair<int, int>, int>& triplet_f,
 		int cluster, double prob_true, double prob_false, double factor)
 	{
+		int head_id = triplet.first.first;
+		int tail_id = triplet.first.second;
+		int head_f_id = triplet_f.first.first;
+		int tail_f_id = triplet_f.first.second;
+
 		vec& head = embedding_entity[triplet.first.first];
 		vec& tail = embedding_entity[triplet.first.second];
 		vec& relation = embedding_clusters[triplet.second][cluster];

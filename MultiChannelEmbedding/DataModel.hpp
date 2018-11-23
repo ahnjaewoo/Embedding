@@ -237,8 +237,6 @@ public:
 
 	        output.close();
     	}
-
-        cout << "[info] DataModel > DataModel constructor called" << endl;
         
         if (master_epoch >= 0){
 
@@ -268,8 +266,6 @@ public:
                             std::exit(-1);
                             return;
                         }
-                        
-                        cout << "[info] DataModel > line 272 - anchor_num : " << anchor_num << endl;
 
                         if (recv(fd, &entity_num, sizeof(entity_num), MSG_WAITALL) < 0){
 
@@ -283,9 +279,7 @@ public:
                             return;
                         }
                         
-                        cout << "[info] DataModel > line 286 - entity_num : " << entity_num << endl;
-
-                        int * anchor_buff = (int *)calloc(anchor_num + 1, sizeof(int));
+			int * anchor_buff = (int *)calloc(anchor_num + 1, sizeof(int));
                         if (recv(fd, anchor_buff, anchor_num * sizeof(int), MSG_WAITALL) < 0){
 
                             cout << "[error] DataModel > recv anchor_buff\n";
@@ -298,8 +292,6 @@ public:
                             return;
                         }
 
-                        cout << "[info] DataModel > line 312" << endl;
-
                         for (int idx = 0; idx < anchor_num; idx++){
 
                             temp_value = ntohl(anchor_buff[idx]);
@@ -309,8 +301,6 @@ public:
                         }
                         
                         free(anchor_buff);
-
-                        cout << "[info] DataModel > line 332 - anchor_buff sent" << endl;
 
                         int * entity_buff = (int *)calloc(entity_num + 1, sizeof(int));
                         if (recv(fd, entity_buff, entity_num * sizeof(int), MSG_WAITALL) < 0){
@@ -325,8 +315,6 @@ public:
                             return;
                         }
 
-                        cout << "[info] DataModel > line 348" << endl;
-
                         for (int idx = 0; idx < entity_num; idx++){
 
                             temp_value = ntohl(entity_buff[idx]);
@@ -335,8 +323,6 @@ public:
                         }
 
                         free(entity_buff);
-
-                        cout << "[info] DataModel > line 367 - entity_buff sent" << endl;
                         
                         //.....................
 
@@ -350,8 +336,6 @@ public:
                                 data_train_parts.push_back(*i);
                             }
                         }
-
-                        cout << "[info] DataModel > line 382" << endl;
 
                         flag = 1234;
                         flag = htonl(flag);
@@ -398,8 +382,6 @@ public:
                             return;
                         }
 
-                        cout << "[info] DataModel > line 430 - triplet_num : " << triplet_num << endl;
-
                         // 원소 한 번에 받음 - 2 단계 (모두 한 번에)
                         
                         int * triplet_buff = (int *)calloc(triplet_num * 3 + 1, sizeof(int));
@@ -415,8 +397,6 @@ public:
                             return;
                         }
 
-                        cout << "[info] DataModel > line 448 - triplet_buff sent" << endl;
-
                         for (int idx = 0; idx < triplet_num; idx++) {
 
                             set_entity_parts.insert(ntohl(triplet_buff[3 * idx]));
@@ -429,8 +409,6 @@ public:
                         }
 
                         free(triplet_buff);
-
-                        cout << "[info] DataModel > line 463" << endl;
                         
                         //.....................
 

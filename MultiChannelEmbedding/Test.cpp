@@ -21,7 +21,7 @@ void getParams(int argc, char* argv[], int& test_port, int& dim, double& alpha, 
 int main(int argc, char* argv[]){
 	
 	srand(time(nullptr));
-	omp_set_num_threads(1);
+	omp_set_num_threads(8);
 
 	Model* model = nullptr;
 
