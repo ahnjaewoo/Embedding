@@ -380,6 +380,8 @@ public:
 
 	virtual void save(const string& filename, FILE * fs_log) override{
 
+		cout << "[info] GeometricModel > load called" << endl;
+
 		if (master_epoch % 2 == 0){
 			// master_epoch이 짝수일 때, entity embedding
 			int flag = 0;
@@ -402,6 +404,8 @@ public:
 				count = htonl(count);
 				send(fd, &count, sizeof(count), 0);
 				count = ntohl(count);
+
+				cout << "[info] GeometricModel >> count = " << count << endl;
 				
 				// 원소 한 번에 보냄 (엔티티 한 번에)
 
@@ -464,6 +468,8 @@ public:
 
 				//.....................
 
+				cout << "[info] GeometricModel > before flag" << endl;
+
 				if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
 
 					cout << "[error] GeometricModel.hpp > recv flag (phase 3)\n";
@@ -499,8 +505,8 @@ public:
 				}
 			}
 
-			//printf("[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
-			//fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
+			printf("[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
+			fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
 		}
 		else{
 			// master_epoch 이 홀수일 때, relation embedding

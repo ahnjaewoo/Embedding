@@ -183,11 +183,9 @@ int main(int argc, char* argv[]){
 
 	gettimeofday(&after, NULL);
 	run_time = after.tv_sec + after.tv_usec/1000000.0 - before.tv_sec - before.tv_usec/1000000.0;
-	//cout << "embedding > model->run end, training time : " << run_time << "seconds" << endl;
-	//fprintf(fs_log, "[info] embedding > testing time : %lf seconds\n", run_time);
+	cout << "embedding > model->run end, training time : " << run_time << "seconds" << endl;
 	
 	model->save(to_string(worker_num), fs_log);
-	//fprintf(fs_log, "embedding > model->save end\n");
 
 	//while (sizeof(flag) > recv(worker_sock, &flag, sizeof(flag), MSG_PEEK));
 	if (recv(worker_sock, &flag, sizeof(flag), MSG_WAITALL) < 0){
