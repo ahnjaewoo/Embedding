@@ -256,11 +256,14 @@ try:
     # entity_vector 전송 - GeometricModel load
     while checksum != 1:
 
-        # 원소를 한 번에 전송 - 2 단계
-        for id_, vector in zip(entity_ids, entities_initialized):
-        
-            #embedding_sock.send(pack('!i', id_))
-            embedding_sock.send(pack(precision_string * embedding_dim, *vector))
+        # 원소를 한 번에 전송
+        #for id_, vector in zip(entity_ids, entities_initialized):
+        #
+        #    embedding_sock.send(pack(precision_string * embedding_dim, *vector))
+
+        # 모든 벡터를 한 번에 전송
+        value_to_send = np.array(entities_initialized).flatten()
+        embedding_sock.send(pack(precision_string * len(value_to_send), *value_to_send))
 
         checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
@@ -299,13 +302,17 @@ try:
         while checksum != 1:
 
             # 원소를 한 번에 전송
-            for id_, vector in zip(relation_ids, relations_initialized):
-                
-                #embedding_sock.send(pack('!i', id_))
-                embedding_sock.send(pack(precision_string * embedding_dim, *vector))
+            #for id_, vector in zip(relation_ids, relations_initialized):
+            #    
+            #    embedding_sock.send(pack(precision_string * embedding_dim, *vector))
             
+            #  모든 벡터를 한 번에 전송
+            value_to_send = np.array(relations_initialized).flatten()
+            embedding_sock.send(pack(precision_string * len(value_to_send), *value_to_send))
+
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
             del relations_initialized
+            
             if checksum == 1234:
 
                 #printt('[info] worker > phase 2 (transE:relation) finished - ' + worker_id)

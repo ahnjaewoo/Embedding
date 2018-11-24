@@ -380,8 +380,6 @@ public:
 
 	virtual void save(const string& filename, FILE * fs_log) override{
 
-		cout << "[info] GeometricModel > load called" << endl;
-
 		if (master_epoch % 2 == 0){
 			// master_epoch이 짝수일 때, entity embedding
 			int flag = 0;
@@ -405,8 +403,6 @@ public:
 				send(fd, &count, sizeof(count), 0);
 				count = ntohl(count);
 
-				cout << "[info] GeometricModel >> count = " << count << endl;
-				
 				// 원소 한 번에 보냄 (엔티티 한 번에)
 
 				if (precision == 0){
@@ -467,9 +463,7 @@ public:
 				}
 
 				//.....................
-
-				cout << "[info] GeometricModel > before flag" << endl;
-
+				
 				if (recv(fd, &flag, sizeof(flag), MSG_WAITALL) < 0){
 
 					cout << "[error] GeometricModel.hpp > recv flag (phase 3)\n";
@@ -505,8 +499,8 @@ public:
 				}
 			}
 
-			printf("[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
-			fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
+			//printf("[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
+			//fprintf(fs_log, "[info] GeometricModel.hpp > phase 3 (entity save) finish\n");
 		}
 		else{
 			// master_epoch 이 홀수일 때, relation embedding
@@ -631,8 +625,6 @@ virtual void load(const string& filename, FILE * fs_log) override
 		int flag = 0;
 		int success = 0;
 
-		cout << "[info] GeometricModel >> line 630 - load function called" << endl;
-
 		while (!success){
 
 			try{
@@ -640,7 +632,7 @@ virtual void load(const string& filename, FILE * fs_log) override
 				if (precision == 0){
 
 					float * vector_buff = (float *)calloc(dim * count_entity() + 1, sizeof(float));
-					if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
+					if (recv(fd, vector_buff, dim * count_entity() * sizeof(float), MSG_WAITALL) < 0){
 
 						cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)" << endl;
 						cout << "[error] GeometricModel.hpp > return -1" << endl;
@@ -665,7 +657,7 @@ virtual void load(const string& filename, FILE * fs_log) override
 				else{
 
 					half * vector_buff = (half *)calloc(dim * count_entity() + 1, sizeof(half));
-					if (recv(fd, vector_buff, dim * sizeof(half), MSG_WAITALL) < 0){
+					if (recv(fd, vector_buff, dim * count_entity() * sizeof(half), MSG_WAITALL) < 0){
 
 						cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)" << endl;
 						cout << "[error] GeometricModel.hpp > return -1" << endl;
@@ -749,8 +741,6 @@ virtual void load(const string& filename, FILE * fs_log) override
 				}
 				*/
 
-				cout << "[info] GeometricModel.hpp > line 695" << endl;
-
 				flag = 1234;
 				flag = htonl(flag);
 				send(fd, &flag, sizeof(flag), 0);
@@ -768,8 +758,8 @@ virtual void load(const string& filename, FILE * fs_log) override
 				send(fd, &flag, sizeof(flag), 0);
 			}
 		}
-		cout << "[info] GeometricModel.hpp > load entity finish" << endl;
-		fprintf(fs_log, "[info] GeometricModel.hpp > load entity finish\n");
+		//cout << "[info] GeometricModel.hpp > load entity finish" << endl;
+		//fprintf(fs_log, "[info] GeometricModel.hpp > load entity finish\n");
 
 		success = 0;
 		flag = 0;
@@ -781,7 +771,7 @@ virtual void load(const string& filename, FILE * fs_log) override
 				if (precision == 0){
 
 					float * vector_buff = (float *)calloc(dim * count_relation() + 1, sizeof(float));
-					if (recv(fd, vector_buff, dim * sizeof(float), MSG_WAITALL) < 0){
+					if (recv(fd, vector_buff, dim * count_relation() * sizeof(float), MSG_WAITALL) < 0){
 
 						cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)" << endl;
 						cout << "[error] GeometricModel.hpp > return -1" << endl;
@@ -806,7 +796,7 @@ virtual void load(const string& filename, FILE * fs_log) override
 				else{
 
 					half * vector_buff = (half *)calloc(dim * count_relation() + 1, sizeof(half));
-					if (recv(fd, vector_buff, dim * sizeof(half), MSG_WAITALL) < 0){
+					if (recv(fd, vector_buff, dim * count_relation() * sizeof(half), MSG_WAITALL) < 0){
 
 						cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)" << endl;
 						cout << "[error] GeometricModel.hpp > return -1" << endl;
@@ -891,8 +881,6 @@ virtual void load(const string& filename, FILE * fs_log) override
 				}
 				*/
 
-				cout << "[info] GeometricModel.hpp > line 784" << endl;
-
 				flag = 1234;
 				flag = htonl(flag);
 				send(fd, &flag, sizeof(flag), 0);
@@ -910,8 +898,8 @@ virtual void load(const string& filename, FILE * fs_log) override
 				send(fd, &flag, sizeof(flag), 0);
 			}
 		}
-		cout << "[info] GeometricModel.hpp > load relation finish" << endl;
-		fprintf(fs_log, "[info] GeometricModel.hpp > load relation finish\n");
+		//cout << "[info] GeometricModel.hpp > load relation finish" << endl;
+		//fprintf(fs_log, "[info] GeometricModel.hpp > load relation finish\n");
 	}
 };
 
