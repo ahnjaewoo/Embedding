@@ -62,43 +62,10 @@ with open("result.csv", 'w') as result_file:
                             for line in f:
                                 line = line[:-1]
                                 if line[:3] == '== ':
+                                    print(line)
                                     key, value = line[3:].split(" = ")
 
                                     if key == key_list[-1]:
                                         result_file.write(f"{value}\n")
                                     else:
                                         result_file.write(f"{value}, ")
-
-key_list = ['dataset', 'train_iter', 'ndim', 'lr', 'Raw.BestMEANS', 'Raw.BestMRR',
-            'Raw.BestHITS', 'Filter.BestMEANS', 'Filter.BestMRR', 'Filter.BestHITS',
-            'Accuracy', 'train_time']
-
-train_iter = 250
-
-print("baseline test")
-with open("baseline_result.csv", 'w') as result_file:
-    result_file.write(", ".join(key_list))
-    result_file.write("\n")
-
-    for dataset_id, dataset in enumerate(datasets):
-        for ndim in ndims:
-            process = Popen(['./Embedding.out', str(dataset_id), str(ndim), str(lr)],
-                            stdout=PIPE, stderr=PIPE, cwd='./baseline/')
-            out, _ = process.communicate()
-            lines = out.decode('utf-8').split("\n")
-
-            print(f"dataset: {dataset}")
-            print(f"train_iter: {train_iter}")
-            print(f"ndim: {ndim}")
-            print(f"lr: {lr}")
-            result_file.write(f"{dataset}, {train_iter}, {ndim}, {lr}, ")
-
-            for line in lines:
-                line = line[:-1]
-                if line[:3] == '== ':
-                    key, value = line[3:].split(" = ")
-
-                    if key == key_list[-1]:
-                        result_file.write(f"{value}\n")
-                    else:
-                        result_file.write(f"{value}, ")
