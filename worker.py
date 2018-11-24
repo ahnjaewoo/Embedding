@@ -1,7 +1,6 @@
 # coding: utf-8
 from subprocess import Popen
 from time import sleep
-from zlib import compress, decompress
 from pickle import dumps, loads, load, HIGHEST_PROTOCOL
 from struct import pack, unpack
 from timeit import default_timer
@@ -94,13 +93,12 @@ if unix_socket_path == '':
 else:
     r = redis.StrictRedis(unix_socket_path=unix_socket_path)
 
-entities = np.array(loads(decompress(r.get('entities'))))
+entities = np.array(loads(r.get('entities')))
 entity_ids = np.array([int(i) for i in iter_mget(r, entities)], dtype=np.int32)
 entity_id = {e: i for e, i in zip(entities, entity_ids)}
 entities_initialized = iter_mget(r, [f'{entity}_v' for entity in entities])
-#entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
 entities_initialized = np.stack([np.fromstring(v, dtype=np_dtype) for v in entities_initialized])
-relations = np.array(loads(decompress(r.get('relations'))))
+relations = np.array(loads(r.get('relations')))
 relation_ids = np.array([int(i) for i in iter_mget(r, relations)], dtype=np.int32)
 relation_id = {r: i for e, i in zip(relations, relation_ids)}
 
@@ -108,19 +106,17 @@ relation_id = {r: i for e, i in zip(relations, relation_ids)}
 if train_model == 0:
 
     relations_initialized = iter_mget(r, [f'{relation}_v' for relation in relations])
-    #relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
     relations_initialized = np.stack([np.fromstring(v, dtype=np_dtype) for v in relations_initialized])
+
 # transG 에 추가되는 분기
 elif train_model == 1:
 
     embedding_clusters = iter_mget(r, [f'{relation}_cv' for relation in relations])
-    #embedding_clusters = np.array([loads(decompress(v)) for v in embedding_clusters], dtype=np_dtype)
     embedding_clusters = np.stack([np.fromstring(v, dtype=np_dtype) for v in embedding_clusters])
     weights_clusters = iter_mget(r, [f'{relation}_wv' for relation in relations])
-    #weights_clusters = np.array([loads(decompress(v)) for v in weights_clusters], dtype=np_dtype)
     weights_clusters = np.stack([np.fromstring(v, dtype=np_dtype) for v in weights_clusters])
     size_clusters = iter_mget(r, [f'{relation}_s' for relation in relations])
-    size_clusters = np.array([loads(decompress(v)) for v in size_clusters], dtype=np.int32)
+    size_clusters = np.stack([np.fromstring(v, dtype=np.int32) for v in size_clusters])
 
 redisTime = default_timer() - workerStart
 # printt('worker > redis server connection time : %f' % (redisTime))
@@ -153,16 +149,6 @@ try:
     timeNow = default_timer()
 
     if cur_iter % 2 == 0:
-        # entity 전송 - DataModel 생성자
-#         chunk_anchor, chunk_entity = chunk_data.split('\n')
-#         chunk_anchor = chunk_anchor.split(' ')
-#         chunk_anchor = [int(e) for e in chunk_anchor]
-#         chunk_entity = chunk_entity.split(' ')
-#         chunk_entity = [int(e) for e in chunk_entity]
-
-#         if len(chunk_anchor) == 1 and chunk_anchor[0] == '':
-
-#             chunk_anchor = []
 
         while checksum != 1:
 
@@ -206,7 +192,7 @@ try:
     else:
         # relation 전송 - DataModel 생성자
         timeNow = default_timer()
-        sub_graphs = loads(decompress(r.get(f'sub_g_{worker_id}')))
+        sub_graphs = loads(r.get(f'sub_g_{worker_id}'))
         redisTime += default_timer() - timeNow
         
         while checksum != 1:
@@ -480,8 +466,6 @@ try:
                     sockRecv(embedding_sock, precision_byte * embedding_dim * count_entity))
                 
                 entity_vector_list = np.array(entity_vector_list, dtype=np_dtype).reshape(count_entity, embedding_dim)
-                #entity_vectors = {f"{entities[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
-                #    for vector, id_ in zip(entity_vector_list, entity_id_list)}
                 entity_vectors = {f"{entities[id_]}_v": v.tostring() for v, id_ in zip(entity_vector_list, entity_id_list)}
 
                 # transG 에 추가되는 분기
@@ -566,8 +550,6 @@ try:
                         sockRecv(embedding_sock, precision_byte * embedding_dim * count_relation))
                     # relation_vectors 전송
                     relation_vector_list = np.array(relation_vector_list, dtype=np_dtype).reshape(count_relation, embedding_dim)
-                    #relation_vectors = {f"{relations[id_]}_v": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
-                    #    for vector, id_ in zip(relation_vector_list, relation_id_list)}
                     relation_vectors = {f"{relations[id_]}_v": v.tostring() for v, id_ in
                             zip(relation_vector_list, relation_id_list)}
                 
@@ -585,23 +567,18 @@ try:
                     cluster_vector_list = unpack(precision_string * count_relation * embedding_dim * 21,
                         sockRecv(embedding_sock, 21 * precision_byte * embedding_dim * count_relation))
                     cluster_vector_list = np.array(cluster_vector_list, dtype=np_dtype).reshape(count_relation, 21 * embedding_dim)
-                    #cluster_vectors = {f"{relations[id_]}_cv": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
-                    #    for vector, id_ in zip(cluster_vector_list, relation_id_list)}
                     cluster_vectors = {f"{relations[id_]}_cv": v.tostring() for v, id_ in
                             zip(cluster_vector_list, relation_id_list)}
                     # weights_clusters 전송
                     weights_clusters_list = unpack(precision_string * count_relation * 21,
                         sockRecv(embedding_sock, precision_byte * 21 * count_relation))
                     weights_clusters_list = np.array(weights_clusters_list, dtype=np_dtype).reshape(count_relation, 21)
-                    #weights_clusters = {f"{relations[id_]}_wv": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
-                    #    for vector, id_ in zip(weights_clusters_list, relation_id_list)}
                     weights_clusters = {f"{relations[id_]}_wv": v.tostring() for v, id_ in
                             zip(weights_clusters_list, relation_id_list)}
                     # size_clusters 전송
                     size_clusters_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, 4 * count_relation))
                     size_clusters_list = np.array(size_clusters_list, dtype=np.int32)
-                    size_clusters = {f"{relations[id_]}_s": compress(dumps(vector, protocol=HIGHEST_PROTOCOL), 9)
-                        for vector, id_ in zip(size_clusters_list, relation_id_list)}
+                    size_clusters = {f"{relations[id_]}_s": v.tostring() for v, id_ in zip(size_clusters_list, relation_id_list)}
 
             except Exception as e:
 
@@ -700,7 +677,7 @@ output_times["model_run"] = modelRunTime
 output_times["socket_save"] = sockSaveTime
 output_times["redis"] = redisTime
 output_times["worker_total"] = workerTotalTime
-output_times = compress(dumps(output_times, protocol=HIGHEST_PROTOCOL), 9)
+output_times = dumps(output_times, protocol=HIGHEST_PROTOCOL)
 r.set("%s_%d" % (worker_id, cur_iter), output_times)
 
 sys.exit(0)

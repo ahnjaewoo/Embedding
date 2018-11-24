@@ -4,7 +4,6 @@ from sklearn.preprocessing import normalize
 from subprocess import Popen
 from argparse import ArgumentParser
 from collections import defaultdict
-from zlib import compress, decompress
 from pickle import dumps, loads, HIGHEST_PROTOCOL
 from struct import pack, unpack
 from port_for import select_random
@@ -224,8 +223,7 @@ for c, (relation_list, num) in enumerate(allocated_relation_worker):
             g_append((head, relation, tail))
 
     len_triples.append(len(g))
-    sub_graphs['sub_g_worker_%d' % c] = compress(dumps(
-        g, protocol=HIGHEST_PROTOCOL), 9)
+    sub_graphs['sub_g_worker_%d' % c] = dumps(g, protocol=HIGHEST_PROTOCOL)
 
 printt('[info] master > # of triples in each partitions : ' + str(len_triples))
 
@@ -252,40 +250,34 @@ proc_maxmin = Popen([args.pypy_dir, 'maxmin.py', str(num_worker), '0', str(ancho
 iter_mset(r, entity2id)
 iter_mset(r, relation2id)
 
-r.set('entities', compress(dumps(entities, protocol=HIGHEST_PROTOCOL), 9))
+r.set('entities', dumps(entities, protocol=HIGHEST_PROTOCOL))
 entity_ids = np.array(list(entity2id.values()), dtype=np.int32)
 entities_initialized = normalize(np.random.randn(len(entities), n_dim).astype(np_dtype))
 
-#iter_mset(r, {f'{entity}_v': compress(dumps(vector,
-#        protocol=HIGHEST_PROTOCOL), 9) for vector, entity in zip(entities_initialized, entities)})
 iter_mset(r, {f'{entity}_v': v.tostring() for v, entity in zip(entities_initialized, entities)})
-r.set('relations', compress(dumps(relations, protocol=HIGHEST_PROTOCOL), 9))
+r.set('relations', dumps(relations, protocol=HIGHEST_PROTOCOL))
 relation_ids = np.array(list(relation2id.values()), dtype=np.int32)
 if train_model == 0:
     
     relations_initialized = normalize(np.random.randn(len(relations), n_dim).astype(np_dtype))
-    #iter_mset(r, {f'{relation}_v': compress(dumps(vector,
-    #        protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(relations_initialized, relations)})
     iter_mset(r, {f'{relation}_v': v.tostring() for v, relation in zip(relations_initialized,
         relations)})
 else:
     # xavier initialization
     embedding_clusters = np.random.random((len(relations), 21 * n_dim)).astype(np_dtype)
     embedding_clusters = (2 * embedding_clusters - 1) * np.sqrt(6 / n_dim)
-    #iter_mset(r, {f'{relation}_cv': compress(dumps(vector,
-    #        protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(embedding_clusters, relations)})
     iter_mset(r, {f'{relation}_cv': v.tostring() for v, relation in zip(embedding_clusters,
         relations)})
+
     weights_clusters = np.zeros((len(relations), 21)).astype(np_dtype)
     weights_clusters[:, :n_cluster] = 1
     normalize(weights_clusters, norm='l1', copy=False)
-    #iter_mset(r, {f'{relation}_wv': compress(dumps(vector,
-    #        protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(weights_clusters, relations)})
     iter_mset(r, {f'{relation}_wv': v.tostring() for v, relation in zip(weights_clusters,
         relations)})
+
     size_clusters = np.full(len(relations), n_cluster, dtype=np.int32)
-    iter_mset(r, {f'{relation}_s': compress(dumps(vector,
-            protocol=HIGHEST_PROTOCOL), 9) for vector, relation in zip(size_clusters, relations)})
+    iter_mset(r, {f'{relation}_s': v.tostring() for v, relation in zip(size_clusters, relations)})
+
 if args.use_scheduler_config_file == 'True':
 
     client = Client(scheduler_file=f'{temp_folder_dir}/scheduler.json', name='Embedding')
@@ -374,14 +366,6 @@ while True:
 
     # 작업 배정
     iterStart = timeit.default_timer()
-    
-#     for i in range(num_worker):
-#         chunk_data = client.scatter(f"{anchors}\n{chunks[i]}")
-#         workers.append(client.submit(work, chunk_data, f'worker_{i}', cur_iter,
-#                        n_dim, lr, margin, train_iter, data_root_id, args.redis_ip,
-#                        args.root_dir, args.debugging, args.precision, train_model,
-#                        n_cluster, crp, train_code_dir, preprocess_folder_dir,
-#                        worker_code_dir, unix_socket_path))
 
     workers = []
     if cur_iter % 2 == 1:
@@ -474,25 +458,21 @@ printt('[info] master > test start')
 
 # load entity vector
 entities_initialized = iter_mget(r, [f'{entity}_v' for entity in entities])
-#entities_initialized = np.array([loads(decompress(v)) for v in entities_initialized], dtype=np_dtype)
 entities_initialized = np.stack([np.fromstring(v, dtype=np_dtype) for v in entities_initialized])
 if train_model == 0:
 
     relations_initialized = iter_mget(r, [f'{relation}_v' for relation in relations])
-    #relations_initialized = np.array([loads(decompress(v)) for v in relations_initialized], dtype=np_dtype)
     relations_initialized = np.stack([np.fromstring(v, dtype=np_dtype) for v in
         relations_initialized])
 # transG 에 추가되는 분기
 elif train_model == 1:
 
     embedding_clusters = iter_mget(r, [f'{relation}_cv' for relation in relations])
-    #embedding_clusters = np.array([loads(decompress(v)) for v in embedding_clusters], dtype=np_dtype)
     embedding_clusters = np.stack([np.fromstring(v, dtype=np_dtype) for v in embeding_clusters])
     weights_clusters = iter_mget(r, [f'{relation}_wv' for relation in relations])
-    #weights_clusters = np.array([loads(decompress(v)) for v in weights_clusters], dtype=np_dtype)
     weights_clusters = np.stack([np.fromstring(v, dtype=np_dtype) for v in weights_clusters])
     size_clusters = iter_mget(r, [f'{relation}_s' for relation in relations])
-    size_clusters = np.array([loads(decompress(v)) for v in size_clusters], dtype=np.int32)
+    size_clusters = np.stack([np.fromstring(v, dtype=np.int32) for v in size_clusters])
 
 maxmin_sock.send(pack('!i', 1))
 maxmin_sock.close()
@@ -712,7 +692,7 @@ workerTotalTime = list()
 
 for worker_times in workerLogs:
 
-    worker_times = loads(decompress(worker_times))
+    worker_times = loads(worker_times)
     datamodelTime.append(worker_times["datamodel_sock"])
     sockLoadTime.append(worker_times["socket_load"])
     embeddingTime.append(worker_times["embedding"])
