@@ -126,7 +126,7 @@ def work(chunk_data, worker_id, cur_iter, n_dim, lr, margin, train_iter, data_ro
             return (True, timeNow - workStart)
 
 
-def iter_mset(redis_client, data_items: dict, chunk_size=500_000):
+def iter_mset(redis_client, data_items: dict, chunk_size=1_000_000):
     data_items = list(data_items.items())
     chunk_num = len(data_items) // chunk_size
     
@@ -139,7 +139,7 @@ def iter_mset(redis_client, data_items: dict, chunk_size=500_000):
     redis_client.mset(sub_data)
 
 
-def iter_mget(redis_client, data_keys: list, chunk_size=500_000):
+def iter_mget(redis_client, data_keys: list, chunk_size=1_000_000):
     results = []
     chunk_num = len(data_keys) // chunk_size
 
