@@ -11,7 +11,7 @@ from subprocess import Popen, PIPE
 #datasets = ('fb15k', 'wn18')
 datasets = ('fb15k',)
 #num_workers = (2, 4, 6, 8)
-num_workers = (4,)
+num_workers = (8,)
 #master_worker_epochs = ((100, 5), (50, 10), (25, 20))
 master_worker_epochs = ((20, 25),)
 lr = 0.01
