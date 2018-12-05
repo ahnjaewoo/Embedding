@@ -2345,6 +2345,56 @@ public:
 
 			try{
 				
+				if (precision == 0){
+
+					float * vector_buff = (float *)calloc(dim * count_entity() + 1, sizeof(float));
+					if (recv(fd, vector_buff, dim * count_entity() * sizeof(float), MSG_WAITALL) < 0){
+
+						//cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:entity)\n";
+						//cout << "[error] GeometricModel.hpp > return -1\n";
+						//fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:entity)\n");
+						//fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						fclose(fs_log);
+						std::exit(-1);
+					}
+
+					for (int i = 0; i < count_entity(); i++){
+
+						for (int j = 0; j < dim; j++){
+
+							embedding_entity[i](j) = vector_buff[i * dim + j];						
+						}
+					}
+
+					free(vector_buff);
+				}
+				else{
+
+					half * vector_buff = (half *)calloc(dim * count_entity() + 1, sizeof(half));
+					if (recv(fd, vector_buff, dim * count_entity() * sizeof(half), MSG_WAITALL) < 0){
+
+						//cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:entity)\n";
+						//cout << "[error] GeometricModel.hpp > return -1\n";
+						//fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:entity)\n");
+						//fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						fclose(fs_log);
+						std::exit(-1);
+					}
+
+					for (int i = 0; i < count_entity(); i++){
+
+						for (int j = 0; j < dim; j++){
+
+							embedding_entity[i](j) = (float) vector_buff[i * dim + j];						
+						}
+					}
+
+					free(vector_buff);
+				}
+
+				/*
 				for (int i = 0; i < count_entity(); i++) {
 					
 					int entity_id;
@@ -2403,6 +2453,7 @@ public:
 						free(vector_buff);
 					}
 				}
+				*/
 
 				flag = 1234;
 				flag = htonl(flag);
@@ -2433,6 +2484,62 @@ public:
 
 			try{
 
+				if (precision == 0){
+
+					float * vector_buff = (float *)calloc(21 * count_relation() * dim + 1, sizeof(float));
+					if (recv(fd, vector_buff, 21 * count_relation() * dim * sizeof(float), MSG_WAITALL) < 0){
+
+						//cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n";
+						//cout << "[error] GeometricModel.hpp > return -1\n";
+						//fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n");
+						//fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						fclose(fs_log);
+						std::exit(-1);
+					}
+
+					for (int i = 0; i < count_relation(); i++){
+						
+						for (int j = 0; j < 21; j++){
+
+							for (int k = 0; k < dim; k++){
+								// 인덱싱에 에러가 있을 수 있음
+								embedding_clusters[i][j](k) = vector_buff[21 * i * dim + dim * j + k];
+							}
+						}
+					}
+
+					free(vector_buff);
+				}
+				else{
+
+					half * vector_buff = (half *)calloc(21 * count_relation() * dim + 1, sizeof(half));
+					if (recv(fd, vector_buff, 21 * count_relation() * dim * sizeof(half), MSG_WAITALL) < 0){
+
+						//cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n";
+						//cout << "[error] GeometricModel.hpp > return -1\n";
+						//fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n");
+						//fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						fclose(fs_log);
+						std::exit(-1);
+					}
+
+					for (int i = 0; i < count_relation(); i++){
+						
+						for (int j = 0; j < 21; j++){
+
+							for (int k = 0; k < dim; k++){
+								// 인덱싱에 에러가 있을 수 있음
+								embedding_clusters[i][j](k) = (float) vector_buff[21 * i * dim + dim * j + k];
+							}
+						}
+					}
+
+					free(vector_buff);
+				}
+
+				/*
 				for (int i = 0; i < count_relation(); i++) {
 					
 					int relation_id;
@@ -2450,7 +2557,6 @@ public:
 					if (precision == 0){
 						
 						float * vector_buff = (float *)calloc(21 * dim + 1, sizeof(float));
-						
 						if (recv(fd, vector_buff, 21 * dim * sizeof(float), MSG_WAITALL) < 0){
 
 							//cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n";
@@ -2475,7 +2581,6 @@ public:
 					else{
 
 						half * vector_buff = (half *)calloc(21 * dim + 1, sizeof(half));
-						
 						if (recv(fd, vector_buff, 21 * dim * sizeof(half), MSG_WAITALL) < 0){
 
 							//cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n";
@@ -2498,6 +2603,7 @@ public:
 						free(vector_buff);
 					}
 				}
+				*/
 
 				flag = 1234;
 				flag = htonl(flag);
@@ -2528,6 +2634,54 @@ public:
 
 			try{
 
+				if (precision == 0){
+
+					float * vector_buff = (float *)calloc(21 * count_relation() + 1, sizeof(float));
+					if (recv(fd, vector_buff, 21 * count_relation() * sizeof(float), MSG_WAITALL) < 0){
+
+						//cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n";
+						//cout << "[error] GeometricModel.hpp > return -1\n";
+						//fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n");
+						//fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						fclose(fs_log);
+						std::exit(-1);
+					}
+
+					for (int i = 0; i < count_relation(); i++){
+
+						for (int j = 0; j < 21; j++){
+							// n_cluster 를 생각하지 않고 그냥 21 개의 값을 전송
+							weights_clusters[i](j) = vector_buff[21 * i + j];
+						}
+					}
+					free(vector_buff);
+				}
+				else{
+
+					half * vector_buff = (half *)calloc(21 * count_relation() + 1, sizeof(half));
+					if (recv(fd, vector_buff, 21 * count_relation() * sizeof(half), MSG_WAITALL) < 0){
+
+						//cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n";
+						//cout << "[error] GeometricModel.hpp > return -1\n";
+						//fprintf(fs_log, "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n");
+						//fprintf(fs_log, "[error] GeometricModel.hpp > return -1\n");
+						close(fd);
+						fclose(fs_log);
+						std::exit(-1);
+					}
+
+					for (int i = 0; i < count_relation(); i++){
+
+						for (int j = 0; j < 21; j++){
+							// n_cluster 를 생각하지 않고 그냥 21 개의 값을 전송
+							weights_clusters[i](j) = (float) vector_buff[21 * i + j];
+						}
+					}
+					free(vector_buff);
+				}
+
+				/*
 				for (int i = 0; i < count_relation(); i++) {
 					
 					int relation_id;
@@ -2545,7 +2699,6 @@ public:
 					if (precision == 0){
 						
 						float * vector_buff = (float *)calloc(21 + 1, sizeof(float));
-						
 						if (recv(fd, vector_buff, 21 * sizeof(float), MSG_WAITALL) < 0){
 
 							//cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n";
@@ -2567,7 +2720,6 @@ public:
 					else{
 
 						half * vector_buff = (half *)calloc(21 + 1, sizeof(half));
-						
 						if (recv(fd, vector_buff, 21 * sizeof(half), MSG_WAITALL) < 0){
 
 							//cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n";
@@ -2587,6 +2739,7 @@ public:
 						free(vector_buff);
 					}
 				}
+				*/
 
 				flag = 1234;
 				flag = htonl(flag);

@@ -521,7 +521,6 @@ while success != 1:
     # 원소를 한 번에 전송 - 2 단계
     for id_, vector in zip(entity_ids, entities_initialized):
         
-            #test_sock.send(pack('!i', id_))
             test_sock.send(pack(precision_string * len(vector), * vector))
     
     checksum = unpack('!i', sockRecv(test_sock, 4))[0]
@@ -554,7 +553,6 @@ if train_model == 0:
         # 원소를 한 번에 전송 - 2 단계
         for id_, vector in zip(relation_ids, relations_initialized):
             
-                #test_sock.send(pack('!i', id_))
                 test_sock.send(pack(precision_string * len(vector), *vector))
 
         checksum = unpack('!i', sockRecv(test_sock, 4))[0]
@@ -586,7 +584,6 @@ elif train_model == 1:
         # 원소를 한 번에 전송 - 2 단계
         for id_, vector in zip(relation_ids, embedding_clusters):
             
-            test_sock.send(pack('!i', id_))
             test_sock.send(pack(precision_string * len(vector), *vector))
 
         checksum = unpack('!i', sockRecv(test_sock, 4))[0]
@@ -615,12 +612,12 @@ elif train_model == 1:
 
         # 원소를 한 번에 전송 - 2 단계
         for id_, vector in zip(relation_ids, weights_clusters):
-            
-            test_sock.send(pack('!i', id_))
+
             test_sock.send(pack(precision_string * len(vector), *vector))
 
         checksum = unpack('!i', sockRecv(test_sock, 4))[0]
-        relation_ids
+        
+        del relation_ids
         del weights_clusters
 
         if checksum == 1234:
@@ -645,9 +642,7 @@ elif train_model == 1:
     while success != 1:
 
         # 원소를 한 번에 전송 - 2 단계
-        for vector in size_clusters:
-            
-            test_sock.send(pack('!i', vector))
+        test_sock.send(pack('!' + 'i' * len(size_clusters), *size_clusters))
 
         checksum = unpack('!i', sockRecv(test_sock, 4))[0]
         del size_clusters
