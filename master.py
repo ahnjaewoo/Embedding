@@ -642,6 +642,7 @@ elif train_model == 1:
     while success != 1:
 
         # 원소를 한 번에 전송 - 2 단계
+        size_clusters = size_clusters.reshape(-1)
         test_sock.send(pack('!' + 'i' * len(size_clusters), *size_clusters))
 
         checksum = unpack('!i', sockRecv(test_sock, 4))[0]
