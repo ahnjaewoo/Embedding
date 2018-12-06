@@ -468,7 +468,7 @@ if train_model == 0:
 elif train_model == 1:
 
     embedding_clusters = iter_mget(r, [f'{relation}_cv' for relation in relations])
-    embedding_clusters = np.stack([np.fromstring(v, dtype=np_dtype) for v in embeding_clusters])
+    embedding_clusters = np.stack([np.fromstring(v, dtype=np_dtype) for v in embedding_clusters])
     weights_clusters = iter_mget(r, [f'{relation}_wv' for relation in relations])
     weights_clusters = np.stack([np.fromstring(v, dtype=np_dtype) for v in weights_clusters])
     size_clusters = iter_mget(r, [f'{relation}_s' for relation in relations])
