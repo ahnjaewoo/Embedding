@@ -21,6 +21,7 @@ ndims = (100,)
 precisions = (0,)
 precision_names = ('single',)
 #precision_names = ('half',)
+train_model = 'transG'
 
 key_list = ['dataset', 'num_worker', 'master_epoch', 'worker_iter', 'ndim', 'precision', 'lr',
             'Raw.BestMEANS', 'Raw.BestMRR', 'Raw.BestHITS', 'Filter.BestMEANS',
@@ -46,7 +47,8 @@ with open("result.csv", 'w') as result_file:
                                         '--precision', str(precision),
                                         '--redis_ip', 'localhost', '--redis_port', '6379',
                                         '--pypy_dir', '/home/rudvlf0413/pypy2-v6.0.0-linux64/bin/pypy',
-                                        '--scheduler_ip', 'localhost:8786'])
+                                        '--scheduler_ip', 'localhost:8786',
+                                        '--train_model', str(train_model)])
                         process.communicate()
 
                         print(f"dataset: {dataset}")
