@@ -325,7 +325,7 @@ try:
             # 원소를 한 번에 전송
             for id_, vector in zip(relation_ids, embedding_clusters):
 
-                embedding_sock.send(pack(precision_string * embedding_dim, *vector))
+                embedding_sock.send(pack(21 * precision_string * embedding_dim, *vector))
 
             checksum = unpack('!i', sockRecv(embedding_sock, 4))[0]
 
