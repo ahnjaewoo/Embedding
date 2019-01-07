@@ -9,6 +9,7 @@ import os
 import sys
 import socket
 import logging
+import random
 
 def sockRecv(sock, length):
     
