@@ -11,9 +11,9 @@ from subprocess import Popen, PIPE
 #datasets = ('fb15k', 'wn18')
 datasets = ('dbpedia',)
 #num_workers = (2, 4, 6, 8)
-num_workers = (8,)
+num_workers = (16,)
 #master_worker_epochs = ((100, 5), (50, 10), (25, 20))
-master_worker_epochs = ((10, 50),)
+master_worker_epochs = ((10, 50),(10, 100),(20, 25), (20, 50))
 lr = 0.01
 #ndims = (50, 100)
 ndims = (100,)

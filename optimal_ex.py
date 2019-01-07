@@ -7,14 +7,14 @@ import sys
 # argument parse
 parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
 parser.add_argument('--root_dir', type=str,
-                    default="/home/rudvlf0413/distributedKGE/Embedding", help='project directory')
+                    default="/home/rudvlf0413/distributedKGE/", help='project directory')
 args = parser.parse_args()
 
 sys.path.insert(0, args.root_dir)
 
 
-data_roots = ['/1mil', '/7.6mil', '/11mil', '/19mil', '/38mil']
-workers = range(2, 31, 2)
+data_roots = ['/fb15k', '/wn18', '/1mill', '/7.6mill', '/11mill', '/19mill', '/38mill']
+workers = range(2, 41)
 
 
 for data_root in data_roots:
@@ -65,6 +65,7 @@ for data_root in data_roots:
             head, relation, tail = entity2id[head], relation2id[relation], entity2id[tail]
             relation_triples[relation].append((head, tail))
 
+        min_optimal_worker = 100
         for num_worker in workers:
 
             relation_each_num = [(k, len(v)) for k, v in relation_triples.items()]
@@ -83,4 +84,13 @@ for data_root in data_roots:
                 allocated_relation_worker[0][0].append(relation)
                 allocated_relation_worker[0][1] += num
 
-            print(f"{data_root}, {num_worker} - {is_optimal}")
+            if is_optimal and min_optimal_worker > num_worker:
+                min_optimal_worker = num_worker
+                break
+
+        allocated_relation_worker = sorted(allocated_relation_worker, key=lambda x: x[1])
+        max_num = allocated_relation_worker[-1][1]
+        min_num = allocated_relation_worker[0][1]
+        mean = sum([a[1] for a in allocated_relation_worker])/len(allocated_relation_worker)
+        print(f"{data_root}, {min_optimal_worker}, {max_num}, {min_num}, {max_num-min_num}, {mean:.4f}")
+
