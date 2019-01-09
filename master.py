@@ -61,6 +61,7 @@ parser.add_argument('--use_scheduler_config_file', default='False',
                     help='wheter to use scheduler config file or use scheduler ip directly')
 parser.add_argument('--debugging', type=str, default='yes', help='debugging mode or not')
 parser.add_argument('--precision', type=int, default=0, help='single:0, half: 1')
+parser.add_argument('--graph_split', type=str, default='maxmin', help='type of graph splitting algorithm')
 args = parser.parse_args()
 
 sys.path.insert(0, args.root_dir)
@@ -76,14 +77,14 @@ if args.debugging == 'yes':
     logger = logging.getLogger()
     handler = logging.StreamHandler(stream=sys.stdout)
     logger.addHandler(handler)
-    
+
     def printt(str):
 
         print(str)
         logger.warning(str + '\n')
 
     def handle_exception(exc_type, exc_value, exc_traceback):
-    
+
         if issubclass(exc_type, KeyboardInterrupt):
 
             sys.__excepthook__(exc_type, exc_value, exc_traceback)
@@ -94,7 +95,7 @@ if args.debugging == 'yes':
     sys.excepthook = handle_exception
 
 elif args.debugging == 'no':
-    
+
     printt = print
 
 if args.data_root[0] != '/':
@@ -114,7 +115,7 @@ if args.temp_dir == '':
 # 73
 data_files = ('%s/train.txt' % args.data_root, '%s/dev.txt' % args.data_root, '%s/test.txt' % args.data_root)
 # 71 dbpedia
-#data_files = ('/home/data/dbpedia/1mill/train.ttl', '/home/data/dbpedia/1mill/dev.ttl', '/home/data/dbpedia/1mill/test.ttl') 
+#data_files = ('/home/data/dbpedia/1mill/train.ttl', '/home/data/dbpedia/1mill/dev.ttl', '/home/data/dbpedia/1mill/test.ttl')
 
 num_worker = args.num_worker
 train_model = model2id(args.train_model)
@@ -201,7 +202,7 @@ for i, (relation, num) in enumerate(relation_each_num):
     allocated_relation_worker = sorted(allocated_relation_worker, key=lambda x: x[1])
 
     diff = allocated_relation_worker[-1][1] - allocated_relation_worker[0][1]
-    
+
     if num > diff:
 
         print(f'[info] master > {i}th relation : {num}, max-min : {diff}')
@@ -243,9 +244,21 @@ del sub_graphs
 # maxmin.cpp 가 server
 # master.py 는 client
 maxmin_port = select_random()
-proc_maxmin = Popen([args.pypy_dir, 'maxmin.py', str(num_worker), '0', str(anchor_num),
-              str(anchor_interval), args.root_dir, args.data_root, args.debugging,
-              str(maxmin_port)])
+if args.graph_split == 'maxmin':
+    proc_maxmin = Popen([args.pypy_dir, 'maxmin.py', str(num_worker), '0', str(anchor_num),
+                  str(anchor_interval), args.root_dir, args.data_root, args.debugging,
+                  str(maxmin_port)])
+elif args.graph_split == 'randmin':
+    proc_maxmin = Popen([args.pypy_dir, 'randmin.py', str(num_worker), '0', str(anchor_num),
+                  str(anchor_interval), args.root_dir, args.data_root, args.debugging,
+                  str(maxmin_port)])
+elif args.graph_split == 'degmin':
+    proc_maxmin = Popen([args.pypy_dir, 'degmin.py', str(num_worker), '0', str(anchor_num),
+                  str(anchor_interval), args.root_dir, args.data_root, args.debugging,
+                  str(maxmin_port)])
+else:
+    printt("[error] master > graph splitting algorithm selection error")
+    sys.exit(1)
 
 iter_mset(r, entity2id)
 iter_mset(r, relation2id)
@@ -258,7 +271,7 @@ iter_mset(r, {f'{entity}_v': v.tostring() for v, entity in zip(entities_initiali
 r.set('relations', dumps(relations, protocol=HIGHEST_PROTOCOL))
 relation_ids = np.array(list(relation2id.values()), dtype=np.int32)
 if train_model == 0:
-    
+
     relations_initialized = normalize(np.random.randn(len(relations), n_dim).astype(np_dtype))
     iter_mset(r, {f'{relation}_v': v.tostring() for v, relation in zip(relations_initialized,
         relations)})
@@ -310,9 +323,9 @@ while True:
         maxmin_sock.connect(('127.0.0.1', maxmin_port))
         maxmin_sock.settimeout(None)
         break
-    
+
     except Exception as e:
-    
+
         sleep(0.5)
         printt('[error] master > exception occured in master <-> maxmin')
         printt('[error] master > ' + str(e))
@@ -352,7 +365,7 @@ option = client.scatter([n_dim, lr, margin, train_iter, data_root_id,args.redis_
 while True:
 
     printt('[info] master > iteration ' + str(cur_iter) + ' started')
-    
+
     if cur_iter == niter:
 
         break
@@ -371,9 +384,9 @@ while True:
     if cur_iter % 2 == 1:
         for i in range(num_worker):
             workers.append(client.submit(work, '', f'worker_{i}', cur_iter, *option))
-        
+
         # entity partitioning: max-min cut 실행, anchor 등 재분배
-        
+
         maxminStart = timeit.default_timer()
 
         maxmin_sock.send(pack('!i', 0))
@@ -381,13 +394,13 @@ while True:
 
         # 원소를 한 번에 받음
         chunks = list()
-        
+
         anchor_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
         anchors = unpack('!' + 'i' * anchor_len, sockRecv(maxmin_sock, 4 * anchor_len))
         #anchors = ' '.join(str(e) for e in anchors)
-        
+
         for _ in range(num_worker):
-        
+
             chunk_len = unpack('!i', sockRecv(maxmin_sock, 4))[0]
             chunk = unpack('!' + 'i' * chunk_len, sockRecv(maxmin_sock, 4 * chunk_len))
             #chunk = ' '.join(str(e) for e in chunk)
@@ -399,8 +412,8 @@ while True:
         for i in range(num_worker):
             chunk_data = client.scatter([anchors, chunks[i]])
             workers.append(client.submit(work, chunk_data, f'worker_{i}', cur_iter, *option))
-        
-        
+
+
     # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
     #entities_initialized_bak = iter_mget(r, [f'{entity}_v' for entity in entities])
     #entities_initialized_bak = np.array([loads(decompress(v)) for v in entities_initialized_bak])
@@ -520,9 +533,9 @@ while success != 1:
 
     # 원소를 한 번에 전송 - 2 단계
     for id_, vector in zip(entity_ids, entities_initialized):
-        
+
             test_sock.send(pack(precision_string * len(vector), * vector))
-    
+
     checksum = unpack('!i', sockRecv(test_sock, 4))[0]
     del entity_ids
     del entities_initialized
@@ -552,7 +565,7 @@ if train_model == 0:
 
         # 원소를 한 번에 전송 - 2 단계
         for id_, vector in zip(relation_ids, relations_initialized):
-            
+
                 test_sock.send(pack(precision_string * len(vector), *vector))
 
         checksum = unpack('!i', sockRecv(test_sock, 4))[0]
@@ -583,7 +596,7 @@ elif train_model == 1:
 
         # 원소를 한 번에 전송 - 2 단계
         for id_, vector in zip(relation_ids, embedding_clusters):
-            
+
             test_sock.send(pack(precision_string * len(vector), *vector))
 
         checksum = unpack('!i', sockRecv(test_sock, 4))[0]
@@ -616,7 +629,7 @@ elif train_model == 1:
             test_sock.send(pack(precision_string * len(vector), *vector))
 
         checksum = unpack('!i', sockRecv(test_sock, 4))[0]
-        
+
         del relation_ids
         del weights_clusters
 
@@ -698,7 +711,7 @@ for worker_times in workerLogs:
     workerTotalTime.append(worker_times["worker_total"])
 
 with open("logs/test_log.txt", 'a') as f:
-    
+
     f.write("\n== preprocessing_time = {}\n".format(preprocessingTime))                             # master.py 의 preprocessTime
     f.write("\n== train_time = {}\n".format(trainTime))                                             # master.py 의 iteration while 문 안의 시간
     f.write("\n== avg_work_time = {}\n".format(str(np.mean(workTimes))))
@@ -709,6 +722,6 @@ with open("logs/test_log.txt", 'a') as f:
     f.write("\n== avg_embedding_time = {}\n".format(str(np.mean(embeddingTime))))                   # worker.py 에서 측정한 embeddingTime
     f.write("\n== avg_model_run_time = {}\n".format(str(np.mean(modelRunTime))))                    # embedding.cpp 에서 측정한 modelRunTime
     f.write("\n== avg_socket_save_time = {}\n".format(str(np.mean(sockSaveTime))))                  # worker.py 에서 측정한 sockSaveTime
-    f.write("\n== avg_redis_time = {}\n".format(str(np.mean(redisTime))))                           # worker.py 에서 측정한 redisTime   
+    f.write("\n== avg_redis_time = {}\n".format(str(np.mean(redisTime))))                           # worker.py 에서 측정한 redisTime
 
 sys.exit(0)
