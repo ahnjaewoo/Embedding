@@ -256,7 +256,7 @@ try:
             master_sock.send(pack('!i', len(nas)))
             master_sock.send(pack('!' + 'i' * len(nas), *nas))
 
-        # subgraph 시각화를 위한 부분
+        # subgraph 시각화를 위해 데이터 추출
         # 평소에는 주석처리
         with open('maxmin_result.txt', 'w') as fs:
 
