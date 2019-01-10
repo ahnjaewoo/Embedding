@@ -256,6 +256,15 @@ try:
             master_sock.send(pack('!i', len(nas)))
             master_sock.send(pack('!' + 'i' * len(nas), *nas))
 
+        # subgraph 시각화를 위한 부분
+        # 평소에는 주석처리
+        with open('maxmin_result.txt', 'w') as fs:
+
+            for nas in parts:
+
+                temp = [entities_id[n] for n in nas]
+                fs.write(str(temp) + '\n')
+
 except Exception as e:
 
     exc_type, exc_obj, exc_tb = sys.exc_info()
