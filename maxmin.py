@@ -133,7 +133,7 @@ with open(root_dir + data_files[0], 'r') as f:
         connected_entity[entity2id[tail]].add(entity2id[head])
 
 entities_id = {entity2id[v] for v in entities}
-entities2id = {v:entity2id[v] for v in entities}
+entities2id = {entity2id[v]:v for v in entities}
 
 for (hd, tl) in entity_graph:
 
