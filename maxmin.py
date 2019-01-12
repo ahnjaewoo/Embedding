@@ -258,6 +258,8 @@ try:
 
         # subgraph 시각화를 위해 데이터 추출
         # 평소에는 주석처리
+
+        print(type(entities_id))
         with open('/home/rudvlf0413/distributedKGE/maxmin_result.txt', 'w') as fs:
 
             for nas in parts:
