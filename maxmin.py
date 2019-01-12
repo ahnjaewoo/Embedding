@@ -133,6 +133,7 @@ with open(root_dir + data_files[0], 'r') as f:
         connected_entity[entity2id[tail]].add(entity2id[head])
 
 entities_id = {entity2id[v] for v in entities}
+entities2id = {v:entity2id[v] for v in entities}
 
 for (hd, tl) in entity_graph:
 
@@ -259,12 +260,11 @@ try:
         # subgraph 시각화를 위해 데이터 추출
         # 평소에는 주석처리
 
-        print(type(entities_id))
         with open('/home/rudvlf0413/distributedKGE/maxmin_result.txt', 'w') as fs:
 
             for nas in parts:
 
-                temp = [entities_id[n] for n in nas]
+                temp = [entities2id[n] for n in nas]
                 fs.write(str(temp) + '\n')
 
 except Exception as e:
