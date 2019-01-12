@@ -188,7 +188,7 @@ try:
             
             sorted_entity_degree[vertex] = entity_degree[vertex]
         
-        sorted_entity_degree = sorted(sorted_anchor_entity_degree.iteritems(), key=lambda (k,v):v,reverse=True)
+        sorted_entity_degree = sorted(sorted_entity_degree.iteritems(), key=lambda (k,v):v,reverse=True)
 
         if len(sorted_entity_degree) < anchor_num:
 

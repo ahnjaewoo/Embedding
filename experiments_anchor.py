@@ -11,7 +11,7 @@ from subprocess import Popen, PIPE
 #datasets = ('fb15k', 'wn18')
 datasets = ('dbpedia',)
 #num_workers = (2, 4, 6, 8)
-num_workers = (8,)
+num_workers = (12,)
 #master_worker_epochs = ((100, 5), (50, 10), (25, 20))
 master_worker_epochs = ((10, 50),)
 lr = 0.0015
@@ -25,8 +25,8 @@ train_model = 'transG'
 anchor_nums = (10, 100, 1000)
 margin = 3
 crp = 0.05
-graph_split_methods = ('degmin', 'randmin',)
-#graph_split_methods = ('maxmin',)
+#graph_split_methods = ('degmin', 'randmin',)
+graph_split_methods = ('degmin',)
 
 key_list = ['dataset', 'num_worker', 'master_epoch', 'worker_iter', 'ndim', 'precision', 'lr', 'anchor_num', 'graph_split', 
             'Raw.BestMEANS', 'Raw.BestMRR', 'Raw.BestHITS', 'Filter.BestMEANS',
