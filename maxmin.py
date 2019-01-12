@@ -260,12 +260,12 @@ try:
         # subgraph 시각화를 위해 데이터 추출
         # 평소에는 주석처리
 
-        with open('/home/rudvlf0413/distributedKGE/maxmin_result.txt', 'w') as fs:
-
-            for nas in parts:
-
-                temp = [entities2id[n] for n in nas]
-                fs.write(str(temp) + '\n')
+        #with open('/home/rudvlf0413/distributedKGE/maxmin_result.txt', 'w') as fs:
+        #
+        #    for nas in parts:
+        #
+        #        temp = [entities2id[n] for n in nas]
+        #        fs.write(str(temp) + '\n')
 
 except Exception as e:
 
