@@ -71,15 +71,30 @@ elif debugging == 'no':
 # worker.py 가 client
 # 첫 iteration 에서눈 Embedding.cpp 의 실행, 소켓 생성을 기다림
 
-try:
-    embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    embedding_sock.settimeout(None)
-    embedding_sock.connect(('127.0.0.1', socket_port))
+connection_trial = 0
 
-except Exception as e:
-    printt(f'[error] worker > exception occured when connecting socket <-> embedding, {worker_id}, {cur_iter}th iter')
-    printt('[error] worker > ' + str(e))
-    sys.exit(1)
+while True:
+
+    try:
+        printt(f'[info] worker > connecting socket <-> embedding, {worker_id}, {cur_iter}th iter')
+        embedding_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        embedding_sock.settimeout(None)
+        embedding_sock.connect(('127.0.0.1', socket_port))
+
+    except Exception as e:
+        printt(f'[error] worker > exception occured when connecting socket <-> embedding, {worker_id}, {cur_iter}th iter')
+        printt('[error] worker > ' + str(e))
+        connection_trial = connection_trial + 1
+        #sys.exit(1)
+
+        if connection_trial > 5:
+
+            printt('[error] worker > cannot connect socket <-> embeding, exit')
+            sys.exit(1)
+
+    else:
+
+        break
 
 
 preprocess_folder_dir = "%s/preprocess/" % root_dir
