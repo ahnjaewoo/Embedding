@@ -8,27 +8,27 @@ from subprocess import Popen, PIPE
 # lr : 0.001
 # dim: 50, 100
 
-datasets = ('fb15k',)
-#datasets = ('dbpedia',)
+#datasets = ('fb15k',)
+datasets = ('dbpedia',)
 #num_workers = (2, 4, 6, 8)
-num_workers = (8,)
+num_workers = (4,8,)
 #master_worker_epochs = ((100, 5), (50, 10), (25, 20))
 #master_worker_epochs = ((25,40),(20,50),(10, 100),(5,200),(5,100))
-master_worker_epochs = ((10,100),)
+master_worker_epochs = ((20,50),(10,100),)
 lr = 0.0015
 #ndims = (50, 100)
-ndims = (50,)
+ndims = (100,)
 #precisions = (0, 1)
 precisions = (0,)
 precision_names = ('single',)
 #precision_names = ('half',)
-train_models = ('transE','transG',)
-#train_models = ('transE',)
-anchor_nums = (1000,)
+#train_models = ('transE','transG',)
+train_models = ('transG',)
+anchor_nums = (10000,)
 margin = 3
 crp = 0.05
-graph_split_methods = ('degmin', 'randmin',)
-#graph_split_methods = ('maxmin',)
+#graph_split_methods = ('degmin', 'randmin',)
+graph_split_methods = ('maxmin',)
 
 key_list = ['train_model', 'dataset', 'num_worker', 'master_epoch', 'worker_iter', 'ndim', 'precision', 'lr', 'anchor_num', 'graph_split', 
             'Raw.BestMEANS', 'Raw.BestMRR', 'Raw.BestHITS', 'Filter.BestMEANS',
