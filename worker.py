@@ -85,6 +85,7 @@ while True:
         printt(f'[error] worker > exception occured when connecting socket <-> embedding, {worker_id}, {cur_iter}th iter')
         printt('[error] worker > ' + str(e))
         connection_trial = connection_trial + 1
+        sleep(5)
         #sys.exit(1)
 
         if connection_trial > 5:
