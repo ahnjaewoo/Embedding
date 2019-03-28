@@ -168,6 +168,15 @@ try:
 
         while checksum != 1:
 
+
+            # 분산 딥러닝 알고리즘을 구현할 때에는 이 부분이 필요 없을듯?
+
+
+
+
+
+
+
             # 원소 한 번에 전송 - 2 단계
 
             # overflow 때문에 전체 개수를 따로 보냄
@@ -213,6 +222,20 @@ try:
         
         while checksum != 1:
 
+            # 분산 딥러닝 알고리즘을 구현할 때에는 이 부분이 필요 없을듯?
+
+
+
+
+
+
+
+
+
+
+
+
+
             embedding_sock.send(pack('i', len(sub_graphs)))
 
             # 원소 한 번에 전송 - 2 단계
@@ -257,6 +280,17 @@ try:
 
     # entity_vector 전송 - GeometricModel load
     while checksum != 1:
+
+
+        # 분산 딥러닝 알고리즘을 구현할 때에는 아래 처럼 id 를 구분해서 보낼 필요 없음
+        # 그냥 모든 값을 전송하면 됨
+
+
+
+
+
+
+
 
         # 원소를 한 번에 전송
         for id_, vector in zip(entity_ids, entities_initialized):
@@ -461,6 +495,16 @@ try:
 
                 # 처리 결과를 받아옴 - GeometricModel save
                 
+
+                # 분산 딥러닝 알고리즘을 구현할 때에는 아래 처럼 id 를 구분해서 보낼 필요 없음
+                # 그냥 모든 값을 전송하면 됨
+
+
+
+
+
+
+
                 # 원소를 한 번에 받음
                 count_entity = unpack('!i', sockRecv(embedding_sock, 4))[0]
                 
@@ -542,6 +586,17 @@ try:
             try:
 
                 # 처리 결과를 받아옴 - GeometricModel save
+
+
+
+                # 분산 딥러닝 알고리즘을 구현할 때에는 아래 처럼 id 를 구분해서 보낼 필요 없음
+                # 그냥 모든 값을 전송하면 됨
+
+
+
+
+
+                
 
                 # transE 에서는 embedding_relation 을 전송
                 if train_model == 0:

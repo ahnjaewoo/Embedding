@@ -413,7 +413,6 @@ while True:
             chunk_data = client.scatter([anchors, chunks[i]])
             workers.append(client.submit(work, chunk_data, f'worker_{i}', cur_iter, *option))
 
-
     # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
     #entities_initialized_bak = iter_mget(r, [f'{entity}_v' for entity in entities])
     #entities_initialized_bak = np.array([loads(decompress(v)) for v in entities_initialized_bak])
@@ -440,6 +439,23 @@ while True:
         printt('[info] master > Total embedding times : ' + str(workTimes))
         # printt('[info] master > Average total embedding time : ' + str(np.mean(workTimes)))
 
+        # 분산 딥러닝 알고리즘을 구현할 때에는 아래 부분에 parameter consensus 부분이 필요함
+        # consensus 는 parameter 를 averaging 하는 방식으로 진행 (가장 간단한 방법)
+        # 대신 maxmin 이 필요하지 않아서, 위의 부분 (maxmin 통신) 이 제거되어야 함
+        #
+        #
+        #
+        #
+        #
+        #
+
+        # parameter consensus 가 끝나면, 그 결과를 각 워커에 나눠줌
+        #
+        #
+        #
+        #
+        #
+
     else:
 
         # 이터레이션 실패
@@ -453,6 +469,7 @@ while True:
         #    f'{relation}_v' : compress(dumps(vector, protocol=HIGHEST_PROTOCOL))
         #    for vector, relation in zip(relations_initialized_bak, relations)})
         printt('[error] master > iteration %d is failed, retry' % cur_iter)
+
 
 trainTime = timeit.default_timer() - trainStart
 
