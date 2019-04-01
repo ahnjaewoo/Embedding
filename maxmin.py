@@ -221,6 +221,7 @@ try:
             else:
 
                 anchor.add(best)
+                # anchor_bf.add(best)
 
         anchor_dict[cur_iter % anchor_interval] = anchor
         old_anchor_dict = anchor_dict
