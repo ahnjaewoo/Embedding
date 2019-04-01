@@ -9,6 +9,8 @@ import os
 import sys
 import socket
 import logging
+# from pybloom import BloomFilter
+# import math
 
 def sockRecv(sock, length):
     
@@ -118,6 +120,8 @@ for file in data_files:
 
             entity_degree[entity2id[head]] += 1
             entity_degree[entity2id[tail]] += 1
+# bf_error_rate = 0.001
+# connected_entity_bf = defaultdict(lambda: BloomFilter(entity_cnt, bf_error_rate))
 
 # 73
 with open(root_dir + data_files[0], 'r') as f:
@@ -131,6 +135,8 @@ with open(root_dir + data_files[0], 'r') as f:
         entity_graph_append((head, tail))
         connected_entity[entity2id[head]].add(entity2id[tail])
         connected_entity[entity2id[tail]].add(entity2id[head])
+        # connected_entity_bf[entity2id[head]].add(entity2id[tail])
+        # connected_entity_bf[entity2id[tail]].add(entity2id[head])
 
 entities_id = {entity2id[v] for v in entities}
 entities2id = {entity2id[v]:v for v in entities}
@@ -176,6 +182,7 @@ try:
             anchor_dict = old_anchor_dict
             anchor = set()
             old_anchor = set()
+            # anchor_bf = BloomFilter(entity_cnt, bf_error_rate)
 
             for it in range(anchor_interval):
 
@@ -195,6 +202,12 @@ try:
                     continue
 
                 score = len(connected_entity[vertex].difference(anchor))
+                # ints_bf = connected_entity_bf[vertex].intersection(anchor_bf)
+                # m = len(ints_bf.bitarray)
+                # n = int(ints_bf.bitarray.count(1))
+                # k = ints_bf.num_slices
+                # num_ints_bf = round(-m / float(k) * (math.log(1 - n / float(m))))
+                # score = len(connected_entity_bf[vertex]) - num_ints_bf
 
                 if score > best_score or (score == best_score and choice((True, False))):
 
