@@ -413,7 +413,6 @@ while True:
             chunk_data = client.scatter([anchors, chunks[i]])
             workers.append(client.submit(work, chunk_data, f'worker_{i}', cur_iter, *option))
 
-
     # 이터레이션이 실패할 경우를 대비해 redis 의 값을 백업
     #entities_initialized_bak = iter_mget(r, [f'{entity}_v' for entity in entities])
     #entities_initialized_bak = np.array([loads(decompress(v)) for v in entities_initialized_bak])
@@ -440,6 +439,23 @@ while True:
         printt('[info] master > Total embedding times : ' + str(workTimes))
         # printt('[info] master > Average total embedding time : ' + str(np.mean(workTimes)))
 
+        # 분산 딥러닝 알고리즘을 구현할 때에는 아래 부분에 parameter consensus 부분이 필요함
+        # consensus 는 parameter 를 averaging 하는 방식으로 진행 (가장 간단한 방법)
+        # 대신 maxmin 이 필요하지 않아서, 위의 부분 (maxmin 통신) 이 제거되어야 함
+        #
+        #
+        #
+        #
+        #
+        #
+
+        # parameter consensus 가 끝나면, 그 결과를 각 워커에 나눠줌
+        #
+        #
+        #
+        #
+        #
+
     else:
 
         # 이터레이션 실패
@@ -453,6 +469,7 @@ while True:
         #    f'{relation}_v' : compress(dumps(vector, protocol=HIGHEST_PROTOCOL))
         #    for vector, relation in zip(relations_initialized_bak, relations)})
         printt('[error] master > iteration %d is failed, retry' % cur_iter)
+
 
 trainTime = timeit.default_timer() - trainStart
 
@@ -525,156 +542,83 @@ while True:
         printt('[error] master > ' + str(e))
 
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
-checksum = 0
-success = 0
 
 # entity_vector 전송 - GeometricModel load
-while success != 1:
+try:
 
-    # 원소를 한 번에 전송 - 2 단계
     for id_, vector in zip(entity_ids, entities_initialized):
 
-            test_sock.send(pack(precision_string * len(vector), * vector))
+        test_sock.send(pack(precision_string * len(vector), * vector))
 
-    checksum = unpack('!i', sockRecv(test_sock, 4))[0]
     del entity_ids
     del entities_initialized
 
-    if checksum == 1234:
-
-        # printt('master > phase 2 (entity) finished (for test)')
-        success = 1
-
-    elif checksum == 9876:
-
-        printt('[error] master > retry phase 2 (entity) (for test)')
-        success = 0
-
-    else:
-
-        printt('[error] master > unknown error in phase 2 (entity) (for test)')
-        success = 0
+except:
+    
+    printt('[error] master > error in phase 2 (entity) (for test)')
+    sys.exit(1)
 
 # transE 에서는 embedding_relation 을 전송
 if train_model == 0:
+    
     # relation_vector 전송 - GeometricModel load
-    checksum = 0
-    success = 0
-
-    while success != 1:
-
-        # 원소를 한 번에 전송 - 2 단계
+    try:
+        
         for id_, vector in zip(relation_ids, relations_initialized):
 
-                test_sock.send(pack(precision_string * len(vector), *vector))
+            test_sock.send(pack(precision_string * len(vector), *vector))
 
-        checksum = unpack('!i', sockRecv(test_sock, 4))[0]
         del relations_initialized
 
-        if checksum == 1234:
-
-            # printt('master > phase 2 (transE:relation) finished (for test)')
-            success = 1
-
-        elif checksum == 9876:
-
-            printt('[error] master > retry phase 2 (transE:relation) (for test)')
-            success = 0
-
-        else:
-
-            printt('[error] master > unknown error in phase 2 (transE:relation) (for test)')
-            success = 0
+    except:
+        
+        printt('[error] master > error in phase 2 (transE:relation) (for test)')
+        sys.exit(1)
 
 # transG 에 추가되는 분기
 elif train_model == 1:
+
     # embedding_clusters 전송 - GeometricModel load
-    checksum = 0
-    success = 0
-
-    while success != 1:
-
-        # 원소를 한 번에 전송 - 2 단계
+    try:
+    
         for id_, vector in zip(relation_ids, embedding_clusters):
 
             test_sock.send(pack(precision_string * len(vector), *vector))
 
-        checksum = unpack('!i', sockRecv(test_sock, 4))[0]
         del embedding_clusters
 
-        if checksum == 1234:
-
-            # printt('master > phase 2 (transG:relation) finished (for test)')
-            success = 1
-
-        elif checksum == 9876:
-
-            printt('[error] master > retry phase 2 (transG:relation) (for test)')
-            success = 0
-
-        else:
-
-            printt('[error] master > unknown error in phase 2 (transG:relation) (for test)')
-            success = 0
+    except:
+            
+        printt('[error] master > error in phase 2 (transG:relation) (for test)')
+        sys.exit(1)
 
     # weights_clusters 전송 - GeometricModel load
-    checksum = 0
-    success = 0
+    try:
 
-    while success != 1:
-
-        # 원소를 한 번에 전송 - 2 단계
         for id_, vector in zip(relation_ids, weights_clusters):
 
             test_sock.send(pack(precision_string * len(vector), *vector))
 
-        checksum = unpack('!i', sockRecv(test_sock, 4))[0]
-
         del relation_ids
         del weights_clusters
 
-        if checksum == 1234:
+    except:
 
-            # printt('master > phase 2 (transG:relation) finished (for test)')
-            success = 1
-
-        elif checksum == 9876:
-
-            printt('[error] master > retry phase 2 (transG:relation) (for test)')
-            success = 0
-
-        else:
-
-            printt('[error] master > unknown error in phase 2 (transG:relation) (for test)')
-            success = 0
+        printt('[error] master > error in phase 2 (transG:relation) (for test)')
+        sys.exit(1)
 
     # size_clusters 전송 - GeometricModel load
-    checksum = 0
-    success = 0
+    try:
 
-    while success != 1:
-
-        # 원소를 한 번에 전송 - 2 단계
         size_clusters = size_clusters.reshape(-1)
         test_sock.send(pack('!' + 'i' * len(size_clusters), *size_clusters))
 
-        checksum = unpack('!i', sockRecv(test_sock, 4))[0]
         del size_clusters
 
-        if checksum == 1234:
+    except:
 
-            # printt('master > phase 2 (transG:relation) finished (for test)')
-            success = 1
-
-        elif checksum == 9876:
-
-            printt('[error] master > retry phase 2 (transG:relation) (for test)')
-            success = 0
-
-        else:
-
-            printt('[error] master > unknown error in phase 2 (transG:relation) (for test)')
-            success = 0
+        printt('[error] master > error in phase 2 (transG:relation) (for test)')
+        sys.exit(1)
 
 test_return = proc.communicate()
 test_sock.close()
