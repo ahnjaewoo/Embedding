@@ -245,114 +245,83 @@ public:
                 int anchor_num;
                 int entity_num;
                 int temp_value;
-                int success = 0;
-                int flag = 0;
 
-                // try catch 에서 exception 발생시 이 구간을 반복
-                while(!success){
+                try{
 
-                    try{
+                    // 원소 한 번에 받음 - 2 단계
 
-                        // 원소 한 번에 받음 - 2 단계
+                    if (recv(fd, &anchor_num, sizeof(anchor_num), MSG_WAITALL) < 0){
 
-                        if (recv(fd, &anchor_num, sizeof(anchor_num), MSG_WAITALL) < 0){
-
-                            cout << "[error] DataModel > recv anchor_num\n";
-                            cout << "[error] DataModel > return -1\n";
-                            fprintf(fs_log, "[error] DataModel > recv anchor_num\n");
-                            fprintf(fs_log,  "[error] DataModel > return -1\n");
-                            close(fd);
-                            fclose(fs_log);
-                            std::exit(-1);
-                            return;
-                        }
-
-                        if (recv(fd, &entity_num, sizeof(entity_num), MSG_WAITALL) < 0){
-
-                            cout << "[error] DataModel > recv entity_num\n";
-                            cout << "[error] DataModel > return -1\n";
-                            fprintf(fs_log, "[error] DataModel > recv entity_num\n");
-                            fprintf(fs_log, "[error] DataModel > return -1\n");   
-                            std::exit(-1);
-                            close(fd);
-                            fclose(fs_log);
-                            return;
-                        }
-                        
-			int * anchor_buff = (int *)calloc(anchor_num + 1, sizeof(int));
-                        if (recv(fd, anchor_buff, anchor_num * sizeof(int), MSG_WAITALL) < 0){
-
-                            cout << "[error] DataModel > recv anchor_buff\n";
-                            cout << "[error] DataModel > return -1\n";
-                            fprintf(fs_log, "[error] DataModel > recv anchor_buff\n");
-                            fprintf(fs_log, "[error] DataModel > return -1\n");
-                            close(fd);
-                            fclose(fs_log);
-                            std::exit(-1);
-                            return;
-                        }
-
-                        for (int idx = 0; idx < anchor_num; idx++){
-
-                            temp_value = ntohl(anchor_buff[idx]);
-                            set_entity_parts.insert(temp_value);
-                            check_anchor[temp_value] = true;
-                            check_parts[temp_value] = true;
-                        }
-                        
-                        free(anchor_buff);
-
-                        int * entity_buff = (int *)calloc(entity_num + 1, sizeof(int));
-                        if (recv(fd, entity_buff, entity_num * sizeof(int), MSG_WAITALL) < 0){
-
-                            cout << "[error] DataModel > recv entity_buff << endl";
-                            cout << "[error] DataModel > return -1" << endl;
-                            fprintf(fs_log, "[error] DataModel > recv entity_buff\n");
-                            fprintf(fs_log, "[error] DataModel > return -1\n");
-                            close(fd);
-                            fclose(fs_log);
-                            std::exit(-1);
-                            return;
-                        }
-
-                        for (int idx = 0; idx < entity_num; idx++){
-
-                            temp_value = ntohl(entity_buff[idx]);
-                            set_entity_parts.insert(temp_value);
-                            check_parts[temp_value] = true;
-                        }
-
-                        free(entity_buff);
-                        
-                        //.....................
-
-                        for (auto i = data_train.begin(); i != data_train.end(); ++i) {
-                        
-                            int head = (*i).first.first;
-                            int tail = (*i).first.second;
-                            
-                            if (check_parts.find(head) != check_parts.end() && check_parts.find(tail) != check_parts.end()){
-                            
-                                data_train_parts.push_back(*i);
-                            }
-                        }
-
-                        flag = 1234;
-                        flag = htonl(flag);
-                        send(fd, &flag, sizeof(flag), 0);
-                        success = 1;
+                        cout << "[error] DataModel > recv anchor_num\n";
+                        cout << "[error] DataModel > return -1\n";
+                        close(fd);
+                        std::exit(-1);
                     }
-                    catch(std::exception& e){
 
-                        cout << "[error] DataModel >  entity : exception occured" << endl;
-                        cout << "%s\n" << e.what() << endl;
-                        fprintf(fs_log, "[error] DataModel >  entity : exception occured\n");
-                        fprintf(fs_log, "%s\n", e.what());
-                        success = 0;
-                        flag = 9876;
-                        flag = htonl(flag);
-                        send(fd, &flag, sizeof(flag), 0);
+                    if (recv(fd, &entity_num, sizeof(entity_num), MSG_WAITALL) < 0){
+
+                        cout << "[error] DataModel > recv entity_num\n";
+                        cout << "[error] DataModel > return -1\n";
+                        std::exit(-1);
+                        close(fd);
                     }
+                    
+		            int * anchor_buff = (int *)calloc(anchor_num + 1, sizeof(int));
+                    if (recv(fd, anchor_buff, anchor_num * sizeof(int), MSG_WAITALL) < 0){
+
+                        cout << "[error] DataModel > recv anchor_buff\n";
+                        cout << "[error] DataModel > return -1\n";
+                        close(fd);
+                        std::exit(-1);
+                    }
+
+                    for (int idx = 0; idx < anchor_num; idx++){
+
+                        temp_value = ntohl(anchor_buff[idx]);
+                        set_entity_parts.insert(temp_value);
+                        check_anchor[temp_value] = true;
+                        check_parts[temp_value] = true;
+                    }
+                    
+                    free(anchor_buff);
+
+                    int * entity_buff = (int *)calloc(entity_num + 1, sizeof(int));
+                    if (recv(fd, entity_buff, entity_num * sizeof(int), MSG_WAITALL) < 0){
+
+                        cout << "[error] DataModel > recv entity_buff << endl";
+                        cout << "[error] DataModel > return -1" << endl;
+                        close(fd);
+                        std::exit(-1);
+                    }
+
+                    for (int idx = 0; idx < entity_num; idx++){
+
+                        temp_value = ntohl(entity_buff[idx]);
+                        set_entity_parts.insert(temp_value);
+                        check_parts[temp_value] = true;
+                    }
+
+                    free(entity_buff);
+                    
+                    //.....................
+
+                    for (auto i = data_train.begin(); i != data_train.end(); ++i) {
+                    
+                        int head = (*i).first.first;
+                        int tail = (*i).first.second;
+                        
+                        if (check_parts.find(head) != check_parts.end() && check_parts.find(tail) != check_parts.end()){
+                        
+                            data_train_parts.push_back(*i);
+                        }
+                    }
+                }
+                catch(std::exception& e){
+
+                    cout << "[error] DataModel >  entity : exception occured" << endl;
+                    cout << "%s\n" << e.what() << endl;
+                    close(fd);
+                    std::exit(-1);
                 }
             }
             else {
@@ -361,82 +330,56 @@ public:
                 int temp_value_head;
                 int temp_value_relation;
                 int temp_value_tail;
-                int success = 0;
-                int flag = 0;
 
-                while(!success){
+                pair<pair<int,int>, int> tmp;
 
-                    pair<pair<int,int>, int> tmp;
+                try{
 
-                    try{
+                    if (recv(fd, &triplet_num, sizeof(triplet_num), MSG_WAITALL) < 0){
 
-                        if (recv(fd, &triplet_num, sizeof(triplet_num), MSG_WAITALL) < 0){
-
-                            cout << "[error] DataModel > recv triplet_num" << endl;
-                            cout << "[error] DataModel > return -1" << endl;
-                            fprintf(fs_log, "[error] DataModel > recv triplet_num\n");
-                            fprintf(fs_log, "[error] DataModel > return -1\n");
-                            close(fd);
-                            fclose(fs_log);
-                            std::exit(-1);
-                            return;
-                        }
-
-                        // 원소 한 번에 받음 - 2 단계 (모두 한 번에)
-                        
-                        int * triplet_buff = (int *)calloc(triplet_num * 3 + 1, sizeof(int));
-                        if (recv(fd, triplet_buff, triplet_num * 3 * sizeof(int), MSG_WAITALL) < 0){
-
-                            cout << "[error] DataModel > recv triplet_buff" << endl;
-                            cout << "[error] DataModel > return -1" << endl;
-                            fprintf(fs_log, "[error] DataModel > recv triplet_buff\n");
-                            fprintf(fs_log, "[error] DataModel > return -1\n");
-                            close(fd);
-                            fclose(fs_log);
-                            std::exit(-1);
-                            return;
-                        }
-
-                        for (int idx = 0; idx < triplet_num; idx++) {
-
-                            set_entity_parts.insert(ntohl(triplet_buff[3 * idx]));
-                            set_entity_parts.insert(ntohl(triplet_buff[3 * idx + 2]));
-                            set_relation_parts.insert(ntohl(triplet_buff[3 * idx + 1]));
-                            tmp.first.first = ntohl(triplet_buff[3 * idx]);
-                            tmp.second = ntohl(triplet_buff[3 * idx + 1]);
-                            tmp.first.second = ntohl(triplet_buff[3 * idx + 2]);
-                            data_train_parts.push_back(tmp);
-                        }
-
-                        free(triplet_buff);
-                        
-                        //.....................
-
-                        flag = 1234;
-                        flag = htonl(flag);
-                        send(fd, &flag, sizeof(flag), 0);
-                        success = 1;
+                        cout << "[error] DataModel > recv triplet_num" << endl;
+                        cout << "[error] DataModel > return -1" << endl;
+                        close(fd);
+                        std::exit(-1);
                     }
-                    catch(std::exception& e){
 
-                        cout << "[error] DataModel > relation : exception occured" << endl;
-                        cout << "%s\n" << e.what() << endl;
-                        fprintf(fs_log, "[error] DataModel > relation : exception occured\n");
-                        fprintf(fs_log, "%s\n", e.what());
-                        success = 0;
-                        flag = 9876;
-                        flag = htonl(flag);
-                        send(fd, &flag, sizeof(flag), 0);
+                    // 원소 한 번에 받음 - 2 단계 (모두 한 번에)
+                    
+                    int * triplet_buff = (int *)calloc(triplet_num * 3 + 1, sizeof(int));
+                    if (recv(fd, triplet_buff, triplet_num * 3 * sizeof(int), MSG_WAITALL) < 0){
+
+                        cout << "[error] DataModel > recv triplet_buff" << endl;
+                        cout << "[error] DataModel > return -1" << endl;
+                        close(fd);
+                        std::exit(-1);
                     }
+
+                    for (int idx = 0; idx < triplet_num; idx++) {
+
+                        set_entity_parts.insert(ntohl(triplet_buff[3 * idx]));
+                        set_entity_parts.insert(ntohl(triplet_buff[3 * idx + 2]));
+                        set_relation_parts.insert(ntohl(triplet_buff[3 * idx + 1]));
+                        tmp.first.first = ntohl(triplet_buff[3 * idx]);
+                        tmp.second = ntohl(triplet_buff[3 * idx + 1]);
+                        tmp.first.second = ntohl(triplet_buff[3 * idx + 2]);
+                        data_train_parts.push_back(tmp);
+                    }
+
+                    free(triplet_buff);
+                    
+                    //.....................
+                }
+                catch(std::exception& e){
+
+                    cout << "[error] DataModel > relation : exception occured" << endl;
+                    cout << "%s\n" << e.what() << endl;
+                    close(fd);
+                    std::exit(-1);
                 }
             }
             vector_entity_parts.assign(set_entity_parts.begin(), set_entity_parts.end());
             vector_relation_parts.assign(set_relation_parts.begin(), set_relation_parts.end());
         }
-        // cout << "[info] DataModel > # of triples in worker" << worker_num << ": " << data_train_parts.size() << "/" << data_train.size() << endl;
-        // cout << "[info] DataModel > # of test triples: " << data_test_true.size() << endl;
-        // fprintf(fs_log, "[info] DataModel > # of triples in worker_%d : %d/%d\n", worker_num, data_train_parts.size(), data_train.size());
-        // fprintf(fs_log, "[info] DataModel > # of test triples : %d\n", data_test_true.size());
     }
 
     DataModel(const Dataset& dataset, const string& file_zero_shot, const bool is_preprocessed, const int worker_num, const int master_epoch, const int fd, FILE * fs_log)
