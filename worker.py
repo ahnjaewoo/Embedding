@@ -4,9 +4,9 @@ from time import sleep
 from pickle import dumps, loads, load, HIGHEST_PROTOCOL
 from struct import pack, unpack
 from timeit import default_timer
-from utils import sockRecv
-from utils import iter_mset
-from utils import iter_mget
+from .utils import sockRecv
+from .utils import iter_mset
+from .utils import iter_mget
 import logging
 import numpy as np
 import redis
@@ -113,6 +113,9 @@ else:
 entities = np.array(loads(r.get('entities')))
 entity_ids = np.array([int(i) for i in iter_mget(r, entities)], dtype=np.int32)
 entity_id = {e: i for e, i in zip(entities, entity_ids)}
+
+
+########## TODO: INTERFACE ##########
 entities_initialized = iter_mget(r, [f'{entity}_v' for entity in entities])
 entities_initialized = np.stack([np.fromstring(v, dtype=np_dtype) for v in entities_initialized])
 relations = np.array(loads(r.get('relations')))
@@ -178,6 +181,9 @@ try:
     # 분산 딥러닝 알고리즘을 구현할 때에는 아래 처럼 id 를 구분해서 보낼 필요 없음
     # 그냥 모든 값을 전송하면 됨
     #
+
+
+    ########## TODO: INTERFACE ##########
     for id_, vector in zip(entity_ids, entities_initialized):
     
         embedding_sock.send(pack(precision_string * embedding_dim, *vector))
@@ -223,6 +229,9 @@ try:
         # 분산 딥러닝 알고리즘을 구현할 때에는 아래 처럼 id 를 구분해서 보낼 필요 없음
         # 그냥 모든 값을 전송하면 됨
         #
+
+
+        ########## TODO: INTERFACE ##########
         count_entity = unpack('!i', sockRecv(embedding_sock, 4))[0]
         
         # 순수한 embedding 시간을 측정하기 위해서 여기 위치, cpp 가 send 하면 embedding 이 끝난 것                
@@ -255,6 +264,7 @@ try:
         # 그냥 모든 값을 전송하면 됨
         #
 
+        ########## TODO: INTERFACE ##########
         # transE 에서는 embedding_relation 을 전송
         if train_model == 0:
 

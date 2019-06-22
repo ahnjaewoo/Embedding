@@ -7,13 +7,13 @@ from collections import defaultdict
 from pickle import dumps, loads, HIGHEST_PROTOCOL
 from struct import pack, unpack
 from port_for import select_random
-from utils import data2id
-from utils import work
-from utils import sockRecv
-from utils import install_libs
-from utils import model2id
-from utils import iter_mget
-from utils import iter_mset
+from .utils import data2id
+from .utils import work
+from .utils import sockRecv
+from .utils import install_libs
+from .utils import model2id
+from .utils import iter_mget
+from .utils import iter_mset
 import logging
 import numpy as np
 import redis
@@ -263,6 +263,8 @@ else:
 iter_mset(r, entity2id)
 iter_mset(r, relation2id)
 
+
+########## TODO: INTERFACE ##########
 r.set('entities', dumps(entities, protocol=HIGHEST_PROTOCOL))
 entity_ids = np.array(list(entity2id.values()), dtype=np.int32)
 entities_initialized = normalize(np.random.randn(len(entities), n_dim).astype(np_dtype))
@@ -486,6 +488,8 @@ fsLog.close()
 # test part
 printt('[info] master > test start')
 
+
+########## TODO: INTERFACE ##########
 # load entity vector
 entities_initialized = iter_mget(r, [f'{entity}_v' for entity in entities])
 entities_initialized = np.stack([np.fromstring(v, dtype=np_dtype) for v in entities_initialized])
@@ -558,6 +562,8 @@ except:
     printt('[error] master > error in phase 2 (entity) (for test)')
     sys.exit(1)
 
+
+########## TODO: INTERFACE ##########
 # transE 에서는 embedding_relation 을 전송
 if train_model == 0:
     
