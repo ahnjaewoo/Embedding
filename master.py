@@ -266,12 +266,10 @@ iter_mset(r, relation2id)
 
 ########## TODO: INTERFACE ##########
 r.set('entities', dumps(entities, protocol=HIGHEST_PROTOCOL))
-entity_ids = np.array(list(entity2id.values()), dtype=np.int32)
 entities_initialized = normalize(np.random.randn(len(entities), n_dim).astype(np_dtype))
 
 iter_mset(r, {f'{entity}_v': v.tostring() for v, entity in zip(entities_initialized, entities)})
 r.set('relations', dumps(relations, protocol=HIGHEST_PROTOCOL))
-relation_ids = np.array(list(relation2id.values()), dtype=np.int32)
 if train_model == 0:
 
     relations_initialized = normalize(np.random.randn(len(relations), n_dim).astype(np_dtype))
@@ -550,11 +548,10 @@ while True:
 # entity_vector 전송 - GeometricModel load
 try:
 
-    for id_, vector in zip(entity_ids, entities_initialized):
+    for vector in entities_initialized:
 
         test_sock.send(pack(precision_string * len(vector), * vector))
 
-    del entity_ids
     del entities_initialized
 
 except:
@@ -563,14 +560,13 @@ except:
     sys.exit(1)
 
 
-########## TODO: INTERFACE ##########
 # transE 에서는 embedding_relation 을 전송
 if train_model == 0:
     
     # relation_vector 전송 - GeometricModel load
     try:
         
-        for id_, vector in zip(relation_ids, relations_initialized):
+        for vector in relations_initialized:
 
             test_sock.send(pack(precision_string * len(vector), *vector))
 
@@ -587,7 +583,7 @@ elif train_model == 1:
     # embedding_clusters 전송 - GeometricModel load
     try:
     
-        for id_, vector in zip(relation_ids, embedding_clusters):
+        for vector in embedding_clusters:
 
             test_sock.send(pack(precision_string * len(vector), *vector))
 
@@ -601,11 +597,10 @@ elif train_model == 1:
     # weights_clusters 전송 - GeometricModel load
     try:
 
-        for id_, vector in zip(relation_ids, weights_clusters):
+        for vector in weights_clusters:
 
             test_sock.send(pack(precision_string * len(vector), *vector))
 
-        del relation_ids
         del weights_clusters
 
     except:
