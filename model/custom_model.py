@@ -3,8 +3,12 @@ from pickle import HIGHEST_PROTOCOL, dumps
 import numpy as np
 from sklearn.preprocessing import normalize
 
-from abstract import BaseMaster, BaseWorker
+from .abstract import BaseMaster, BaseWorker
 from struct import pack, unpack
+
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import iter_mget, iter_mset, sockRecv, loads
 
 
