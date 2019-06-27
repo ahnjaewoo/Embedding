@@ -5,8 +5,7 @@ from sklearn.preprocessing import normalize
 
 from abstract import BaseMaster, BaseWorker
 from struct import pack, unpack
-from utils import iter_mget
-from utils import iter_mset
+from utils import iter_mget, iter_mset, sockRecv, loads
 
 
 class TransEMaster(BaseMaster):
@@ -92,46 +91,136 @@ class TransGMaster(BaseMaster):
 
 
 class TransEWorker(BaseWorker):
-    def __init__(self):
-        super(TransEWorker, self).__init__()
+    def __init__(self, redis_con, embedding_sock, embedding_dim):
+        super(TransEWorker, self).__init__(redis_con, embedding_sock, embedding_dim)
 
     def load_initialized_vectors(self):
-        pass
+        self.entities = np.array(loads(self.redis_con.get('entities')))
+        entity_vectors = iter_mget(self.redis_con, [f'{entity}_v' for entity in self.entities])
+        self.entity_vectors = np.stack([np.fromstring(v, dtype=self.np_dtype) for v in entity_vectors])
+
+        self.relations = np.array(loads(self.redis_con.get('relations')))
+        relation_vectors = iter_mget(self.redis_con, [f'{relation}_v' for relation in self.relations])
+        self.relation_vectors = np.stack([np.fromstring(v, dtype=self.np_dtype) for v in relation_vectors])
 
     def send_entities(self):
-        pass
+        for vector in self.entity_vectors:
+            self.embedding_sock.send(pack(self.precision_string * self.embedding_dim, *vector))
+
+        self.entity_vectors = None
 
     def send_relations(self):
-        pass
+        for vector in self.relation_vectors:
+            self.embedding_sock.send(pack(self.precision_string * self.embedding_dim, *vector))
+
+        self.relation_vectors = None
 
     def get_entities(self):
-        pass
+        count_entity = unpack('!i', sockRecv(self.embedding_sock, 4))[0]
+        entity_id_list = unpack('!' + 'i' * count_entity, sockRecv(self.embedding_sock, count_entity * 4))
+        
+        entity_vector_list = unpack(self.precision_string * count_entity * self.embedding_dim,
+            sockRecv(self.embedding_sock, self.precision_byte * self.embedding_dim * count_entity))
+        
+        entity_vector_list = np.array(entity_vector_list, dtype=self.np_dtype).reshape(count_entity, self.embedding_dim)
+        self.entity_vectors = {f"{self.entities[id_]}_v": v.tostring() for v, id_ in zip(entity_vector_list, entity_id_list)}
 
     def get_relations(self):
-        pass
+        count_relation = unpack('!i', sockRecv(self.embedding_sock, 4))[0]
 
-    def update_vectors(self):
-        pass
+        relation_id_list = unpack('!' + 'i' * count_relation, sockRecv(self.embedding_sock, count_relation * 4))
+        relation_vector_list = unpack(self.precision_string * count_relation * self.embedding_dim,
+            sockRecv(self.embedding_sock, self.precision_byte * self.embedding_dim * count_relation))
+        
+        # relation_vectors 전송
+        relation_vector_list = np.array(relation_vector_list, dtype=self.np_dtype).reshape(count_relation, self.embedding_dim)
+        self.relation_vectors = {f"{self.relations[id_]}_v": v.tostring() for v, id_ in zip(relation_vector_list, relation_id_list)}
+        
+    def update_entities(self):
+        iter_mset(self.redis_con, self.entity_vectors)
+    
+    def update_relations(self):
+        iter_mset(self.redis_con, self.relation_vectors)
 
 
 class TransGWorker(BaseWorker):
-    def __init__(self):
-        super(TransGWorker, self).__init__()
+    def __init__(self, redis_con, embedding_sock, embedding_dim):
+        super(TransGWorker, self).__init__(redis_con, embedding_sock, embedding_dim)
 
     def load_initialized_vectors(self):
-        pass
+        self.entities = np.array(loads(self.redis_con.get('entities')))
+        entity_vectors = iter_mget(self.redis_con, [f'{entity}_v' for entity in self.entities])
+        self.entity_vectors = np.stack([np.fromstring(v, dtype=self.np_dtype) for v in entity_vectors])
 
+        self.relations = np.array(loads(self.redis_con.get('relations')))
+        embedding_clusters = iter_mget(self.redis_con, [f'{relation}_cv' for relation in self.relations])
+        self.embedding_clusters = np.stack([np.fromstring(v, dtype=self.np_dtype) for v in embedding_clusters])
+        weights_clusters = iter_mget(self.redis_con, [f'{relation}_wv' for relation in self.relations])
+        self.weights_clusters = np.stack([np.fromstring(v, dtype=self.np_dtype) for v in weights_clusters])
+        size_clusters = iter_mget(self.redis_con, [f'{relation}_s' for relation in self.relations])
+        self.size_clusters = np.stack([np.fromstring(v, dtype=np.int32) for v in size_clusters])
+        
     def send_entities(self):
-        pass
+        for vector in self.entity_vectors:
+            self.embedding_sock.send(pack(self.precision_string * self.embedding_dim, *vector))
+
+        self.entity_vectors = None
 
     def send_relations(self):
-        pass
+        # embedding_clusters 전송 - GeometricModel load    
+        for vector in self.embedding_clusters:
+
+            self.embedding_sock.send(pack(self.precision_string * len(vector), *vector))
+
+        # weights_clusters 전송 - GeometricModel load
+        for vector in self.weights_clusters:
+
+            self.embedding_sock.send(pack(self.precision_string * len(vector), *vector))
+
+        # size_clusters 전송 - GeometricModel load
+        size_clusters = self.size_clusters.reshape(-1)
+        self.embedding_sock.send(pack('!' + 'i' * len(size_clusters), *size_clusters))
+
+        self.embedding_clusters = None
+        self.weights_clusters = None
+        self.size_clusters = None
 
     def get_entities(self):
-        pass
+        count_entity = unpack('!i', sockRecv(self.embedding_sock, 4))[0]
+
+        entity_id_list = unpack('!' + 'i' * count_entity, sockRecv(self.embedding_sock, count_entity * 4))
+        entity_vector_list = unpack(self.precision_string * count_entity * self.embedding_dim,
+            sockRecv(self.embedding_sock, self.precision_byte * self.embedding_dim * count_entity))
+        
+        entity_vector_list = np.array(entity_vector_list, dtype=self.np_dtype).reshape(count_entity, self.embedding_dim)
+        self.entity_vectors = {f"{self.entities[id_]}_v": v.tostring() for v, id_ in zip(entity_vector_list, entity_id_list)}
 
     def get_relations(self):
-        pass
+        count_relation = unpack('!i', sockRecv(self.embedding_sock, 4))[0]
+        relation_id_list = unpack('!' + 'i' * count_relation, sockRecv(self.embedding_sock, count_relation * 4))
+        
+        # embedding_clusters 전송
+        cluster_vector_list = unpack(self.precision_string * count_relation * self.embedding_dim * 21,
+            sockRecv(self.embedding_sock, 21 * self.precision_byte * self.embedding_dim * count_relation))
+        cluster_vector_list = np.array(cluster_vector_list, dtype=self.np_dtype).reshape(count_relation, 21 * self.embedding_dim)
+        self.cluster_vectors = {f"{self.relations[id_]}_cv": v.tostring() for v, id_ in
+                zip(cluster_vector_list, relation_id_list)}
+        
+        # weights_clusters 전송
+        weights_clusters_list = unpack(self.precision_string * count_relation * 21,
+            sockRecv(self.embedding_sock, self.precision_byte * 21 * count_relation))
+        weights_clusters_list = np.array(weights_clusters_list, dtype=self.np_dtype).reshape(count_relation, 21)
+        self.weights_clusters = {f"{self.relations[id_]}_wv": v.tostring() for v, id_ in zip(weights_clusters_list, relation_id_list)}
+        
+        # size_clusters 전송
+        size_clusters_list = unpack('!' + 'i' * count_relation, sockRecv(self.embedding_sock, 4 * count_relation))
+        size_clusters_list = np.array(size_clusters_list, dtype=np.int32)
+        self.size_clusters = {f"{self.relations[id_]}_s": v.tostring() for v, id_ in zip(size_clusters_list, relation_id_list)}
 
-    def update_vectors(self):
-        pass
+    def update_entities(self):
+        iter_mset(self.redis_con, self.entity_vectors)
+    
+    def update_relations(self):
+        iter_mset(self.redis_con, self.cluster_vectors)
+        iter_mset(self.redis_con, self.weights_clusters)
+        iter_mset(self.redis_con, self.size_clusters)

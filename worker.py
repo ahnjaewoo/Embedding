@@ -111,16 +111,11 @@ else:
     r = redis.StrictRedis(unix_socket_path=unix_socket_path)
 
 entities = np.array(loads(r.get('entities')))
-entity_ids = np.array([int(i) for i in iter_mget(r, entities)], dtype=np.int32)
-entity_id = {e: i for e, i in zip(entities, entity_ids)}
-
 
 ########## TODO: INTERFACE ##########
 entities_initialized = iter_mget(r, [f'{entity}_v' for entity in entities])
 entities_initialized = np.stack([np.fromstring(v, dtype=np_dtype) for v in entities_initialized])
 relations = np.array(loads(r.get('relations')))
-relation_ids = np.array([int(i) for i in iter_mget(r, relations)], dtype=np.int32)
-relation_id = {r: i for e, i in zip(relations, relation_ids)}
 
 # transE 에서는 embedding_relation 을 전송
 if train_model == 0:
@@ -184,7 +179,7 @@ try:
 
 
     ########## TODO: INTERFACE ##########
-    for id_, vector in zip(entity_ids, entities_initialized):
+    for vector in entities_initialized:
     
         embedding_sock.send(pack(precision_string * embedding_dim, *vector))
 
@@ -192,7 +187,7 @@ try:
     if train_model == 0:
         
         # relation_vector 전송 - GeometricModel load
-        for id_, vector in zip(relation_ids, relations_initialized):
+        for vector in relations_initialized:
             
             embedding_sock.send(pack(precision_string * embedding_dim, *vector))
 
@@ -202,12 +197,12 @@ try:
     elif train_model == 1:
         
         # embedding_clusters 전송 - GeometricModel load    
-        for id_, vector in zip(relation_ids, embedding_clusters):
+        for vector in embedding_clusters:
 
             embedding_sock.send(pack(precision_string * len(vector), *vector))
 
         # weights_clusters 전송 - GeometricModel load
-        for id_, vector in zip(relation_ids, weights_clusters):
+        for vector in weights_clusters:
 
             embedding_sock.send(pack(precision_string * len(vector), *vector))
 
@@ -218,7 +213,6 @@ try:
     sockLoadTime = default_timer() - timeNow
 
     del value_to_send
-    del entity_ids
     del entities_initialized
 
     timeNow = default_timer()
