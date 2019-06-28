@@ -1,29 +1,24 @@
 # coding: utf-8
-from distributed import Client, as_completed
-from sklearn.preprocessing import normalize
-from subprocess import Popen
+import logging
+import os
+import socket
+import sys
+import timeit
 from argparse import ArgumentParser
 from collections import defaultdict
-from pickle import dumps, loads, HIGHEST_PROTOCOL
+from pickle import HIGHEST_PROTOCOL, dumps, loads
 from struct import pack, unpack
-from port_for import select_random
-from .utils import data2id
-from .utils import work
-from .utils import sockRecv
-from .utils import install_libs
-from .utils import model2id
-from .utils import iter_mget
-from .utils import iter_mset
-from .model.custom_model import TransEMaster, TransGMaster
-import logging
+from subprocess import Popen
+from time import sleep
+
 import numpy as np
 import redis
-from time import sleep
-import socket
-import timeit
-import sys
-import os
+from distributed import Client, as_completed
+from port_for import select_random
+from sklearn.preprocessing import normalize
 
+from .model.custom_model import TransEMaster, TransGMaster
+from .utils import data2id, install_libs, iter_mget, iter_mset, model2id, sockRecv, work
 
 # argument parse
 parser = ArgumentParser(description='Distributed Knowledge Graph Embedding')
@@ -265,32 +260,14 @@ iter_mset(r, entity2id)
 iter_mset(r, relation2id)
 
 
-########## TODO: INTERFACE ##########
-r.set('entities', dumps(entities, protocol=HIGHEST_PROTOCOL))
-entities_initialized = normalize(np.random.randn(len(entities), n_dim).astype(np_dtype))
-
-iter_mset(r, {f'{entity}_v': v.tostring() for v, entity in zip(entities_initialized, entities)})
-r.set('relations', dumps(relations, protocol=HIGHEST_PROTOCOL))
+########## INTERFACE ##########
 if train_model == 0:
-
-    relations_initialized = normalize(np.random.randn(len(relations), n_dim).astype(np_dtype))
-    iter_mset(r, {f'{relation}_v': v.tostring() for v, relation in zip(relations_initialized,
-        relations)})
+    master = TransEMaster(r, entities, relations, n_dim)
 else:
-    # xavier initialization
-    embedding_clusters = np.random.random((len(relations), 21 * n_dim)).astype(np_dtype)
-    embedding_clusters = (2 * embedding_clusters - 1) * np.sqrt(6 / n_dim)
-    iter_mset(r, {f'{relation}_cv': v.tostring() for v, relation in zip(embedding_clusters,
-        relations)})
+    master = TransGMaster(r, entities, relations, n_cluster, n_dim)
 
-    weights_clusters = np.zeros((len(relations), 21)).astype(np_dtype)
-    weights_clusters[:, :n_cluster] = 1
-    normalize(weights_clusters, norm='l1', copy=False)
-    iter_mset(r, {f'{relation}_wv': v.tostring() for v, relation in zip(weights_clusters,
-        relations)})
+master.initialize_vectors()
 
-    size_clusters = np.full(len(relations), n_cluster, dtype=np.int32)
-    iter_mset(r, {f'{relation}_s': v.tostring() for v, relation in zip(size_clusters, relations)})
 
 if args.use_scheduler_config_file == 'True':
 
@@ -488,24 +465,8 @@ fsLog.close()
 printt('[info] master > test start')
 
 
-########## TODO: INTERFACE ##########
-# load entity vector
-entities_initialized = iter_mget(r, [f'{entity}_v' for entity in entities])
-entities_initialized = np.stack([np.fromstring(v, dtype=np_dtype) for v in entities_initialized])
-if train_model == 0:
-
-    relations_initialized = iter_mget(r, [f'{relation}_v' for relation in relations])
-    relations_initialized = np.stack([np.fromstring(v, dtype=np_dtype) for v in
-        relations_initialized])
-# transG 에 추가되는 분기
-elif train_model == 1:
-
-    embedding_clusters = iter_mget(r, [f'{relation}_cv' for relation in relations])
-    embedding_clusters = np.stack([np.fromstring(v, dtype=np_dtype) for v in embedding_clusters])
-    weights_clusters = iter_mget(r, [f'{relation}_wv' for relation in relations])
-    weights_clusters = np.stack([np.fromstring(v, dtype=np_dtype) for v in weights_clusters])
-    size_clusters = iter_mget(r, [f'{relation}_s' for relation in relations])
-    size_clusters = np.stack([np.fromstring(v, dtype=np.int32) for v in size_clusters])
+########## INTERFACE ##########
+master.load_trained_vectors()
 
 maxmin_sock.send(pack('!i', 1))
 maxmin_sock.close()
@@ -546,81 +507,10 @@ while True:
 
 # DataModel 생성자 -> GeometricModel load 메소드 -> GeometricModel save 메소드 순서로 통신
 
-# entity_vector 전송 - GeometricModel load
-try:
 
-    for vector in entities_initialized:
+########## Interface ##########
+master.send_vectors_for_test(test_sock)
 
-        test_sock.send(pack(precision_string * len(vector), * vector))
-
-    del entities_initialized
-
-except:
-    
-    printt('[error] master > error in phase 2 (entity) (for test)')
-    sys.exit(1)
-
-
-# transE 에서는 embedding_relation 을 전송
-if train_model == 0:
-    
-    # relation_vector 전송 - GeometricModel load
-    try:
-        
-        for vector in relations_initialized:
-
-            test_sock.send(pack(precision_string * len(vector), *vector))
-
-        del relations_initialized
-
-    except:
-        
-        printt('[error] master > error in phase 2 (transE:relation) (for test)')
-        sys.exit(1)
-
-# transG 에 추가되는 분기
-elif train_model == 1:
-
-    # embedding_clusters 전송 - GeometricModel load
-    try:
-    
-        for vector in embedding_clusters:
-
-            test_sock.send(pack(precision_string * len(vector), *vector))
-
-        del embedding_clusters
-
-    except:
-            
-        printt('[error] master > error in phase 2 (transG:relation) (for test)')
-        sys.exit(1)
-
-    # weights_clusters 전송 - GeometricModel load
-    try:
-
-        for vector in weights_clusters:
-
-            test_sock.send(pack(precision_string * len(vector), *vector))
-
-        del weights_clusters
-
-    except:
-
-        printt('[error] master > error in phase 2 (transG:relation) (for test)')
-        sys.exit(1)
-
-    # size_clusters 전송 - GeometricModel load
-    try:
-
-        size_clusters = size_clusters.reshape(-1)
-        test_sock.send(pack('!' + 'i' * len(size_clusters), *size_clusters))
-
-        del size_clusters
-
-    except:
-
-        printt('[error] master > error in phase 2 (transG:relation) (for test)')
-        sys.exit(1)
 
 test_return = proc.communicate()
 test_sock.close()

@@ -13,8 +13,8 @@ from utils import iter_mget, iter_mset, sockRecv, loads
 
 
 class TransEMaster(BaseMaster):
-    def __init__(self, redis_con, test_sock, entities, relations, n_dim=50):
-        super(TransEMaster, self).__init__(redis_con, test_sock, entities, relations, n_dim)
+    def __init__(self, redis_con, entities, relations, n_dim=50):
+        super(TransEMaster, self).__init__(redis_con, entities, relations, n_dim)
 
     def initialize_vectors(self):
         self.redis_con.set('entities', dumps(self.entities, protocol=HIGHEST_PROTOCOL))
@@ -33,17 +33,16 @@ class TransEMaster(BaseMaster):
         self.relation_vectors = iter_mget(self.redis_con, [f'{relation}_v' for relation in self.relations])
         self.relation_vectors = np.stack([np.fromstring(v, dtype=self.np_dtype) for v in self.relation_vectors])
 
-    def send_vectors_for_test(self):
+    def send_vectors_for_test(self, test_sock):
         for vector in self.entity_vectors:
-            self.test_sock.send(pack(self.precision_string * len(vector), * vector))
+            test_sock.send(pack(self.precision_string * len(vector), * vector))
 
         for vector in self.relation_vectors:
-            self.test_sock.send(pack(self.precision_string * len(vector), *vector))
+            test_sock.send(pack(self.precision_string * len(vector), *vector))
 
 
 class TransGMaster(BaseMaster):
-    def __init__(self, redis_con, entities, relations, n_cluster,
-                 n_dim=50):
+    def __init__(self, redis_con, entities, relations, n_cluster, n_dim=50):
         super(TransGMaster, self).__init__(redis_con, entities, relations, n_dim)
         self.n_cluster = n_cluster
 
@@ -80,18 +79,18 @@ class TransGMaster(BaseMaster):
         self.size_clusters = iter_mget(self.redis_con, [f'{relation}_s' for relation in self.relations])
         self.size_clusters = np.stack([np.fromstring(v, dtype=np.int32) for v in self.size_clusters])
 
-    def send_vectors_for_test(self):
+    def send_vectors_for_test(self, test_sock):
         for vector in self.entity_vectors:
-            self.test_sock.send(pack(self.precision_string * len(vector), * vector))
+            test_sock.send(pack(self.precision_string * len(vector), * vector))
         
         for vector in self.embedding_clusters:
-            self.test_sock.send(pack(self.precision_string * len(vector), *vector))
+            test_sock.send(pack(self.precision_string * len(vector), *vector))
 
         for vector in self.weights_clusters:
-            self.test_sock.send(pack(self.precision_string * len(vector), *vector))
+            test_sock.send(pack(self.precision_string * len(vector), *vector))
 
         size_clusters = self.size_clusters.reshape(-1)
-        self.test_sock.send(pack('!' + 'i' * len(size_clusters), *size_clusters))
+        test_sock.send(pack('!' + 'i' * len(size_clusters), *size_clusters))
 
 
 class TransEWorker(BaseWorker):

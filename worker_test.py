@@ -1,20 +1,20 @@
 # coding: utf-8
+import logging
+import os
+import pickle
+import socket
+import sys
+from pickle import HIGHEST_PROTOCOL, dumps, load, loads
+from struct import pack, unpack
 from subprocess import Popen
 from time import sleep
-from pickle import dumps, loads, load, HIGHEST_PROTOCOL
-from struct import pack, unpack
 from timeit import default_timer
-from .utils import sockRecv
-from .utils import iter_mset
-from .utils import iter_mget
-import logging
+
 import numpy as np
 import redis
-import pickle
-import sys
-import os
-import socket
 
+from .model.custom_model import TransEWorker, TransGWorker
+from .utils import iter_mget, iter_mset, sockRecv
 
 worker_id = sys.argv[1]
 cur_iter = int(sys.argv[2])
@@ -112,26 +112,13 @@ else:
 
 entities = np.array(loads(r.get('entities')))
 
-########## TODO: INTERFACE ##########
-entities_initialized = iter_mget(r, [f'{entity}_v' for entity in entities])
-entities_initialized = np.stack([np.fromstring(v, dtype=np_dtype) for v in entities_initialized])
-relations = np.array(loads(r.get('relations')))
-
-# transE 에서는 embedding_relation 을 전송
+########## INTERFACE ##########
 if train_model == 0:
+    worker = TransEWorker(r, embedding_sock, embedding_dim)
+else:
+    worker = TransGWorker(r, embedding_sock, embedding_dim)
 
-    relations_initialized = iter_mget(r, [f'{relation}_v' for relation in relations])
-    relations_initialized = np.stack([np.fromstring(v, dtype=np_dtype) for v in relations_initialized])
-
-# transG 에 추가되는 분기
-elif train_model == 1:
-
-    embedding_clusters = iter_mget(r, [f'{relation}_cv' for relation in relations])
-    embedding_clusters = np.stack([np.fromstring(v, dtype=np_dtype) for v in embedding_clusters])
-    weights_clusters = iter_mget(r, [f'{relation}_wv' for relation in relations])
-    weights_clusters = np.stack([np.fromstring(v, dtype=np_dtype) for v in weights_clusters])
-    size_clusters = iter_mget(r, [f'{relation}_s' for relation in relations])
-    size_clusters = np.stack([np.fromstring(v, dtype=np.int32) for v in size_clusters])
+worker.load_initialized_vectors()
 
 redisTime = default_timer() - workerStart
 #printt('worker > redis server connection time : %f' % (redisTime))
@@ -178,43 +165,12 @@ try:
     #
 
 
-    ########## TODO: INTERFACE ##########
-    for vector in entities_initialized:
-    
-        embedding_sock.send(pack(precision_string * embedding_dim, *vector))
-
-    # transE 에서는 embedding_relation 을 전송
-    if train_model == 0:
-        
-        # relation_vector 전송 - GeometricModel load
-        for vector in relations_initialized:
-            
-            embedding_sock.send(pack(precision_string * embedding_dim, *vector))
-
-        del relations_initialized
-    
-    # transG 에 추가되는 분기
-    elif train_model == 1:
-        
-        # embedding_clusters 전송 - GeometricModel load    
-        for vector in embedding_clusters:
-
-            embedding_sock.send(pack(precision_string * len(vector), *vector))
-
-        # weights_clusters 전송 - GeometricModel load
-        for vector in weights_clusters:
-
-            embedding_sock.send(pack(precision_string * len(vector), *vector))
-
-        # size_clusters 전송 - GeometricModel load
-        size_clusters = size_clusters.reshape(-1)
-        embedding_sock.send(pack('!' + 'i' * len(size_clusters), *size_clusters))
+    ########## INTERFACE ##########
+    worker.get_entities()
+    worker.get_relations()
 
     sockLoadTime = default_timer() - timeNow
-
-    del value_to_send
-    del entities_initialized
-
+    
     timeNow = default_timer()
 
     if cur_iter % 2 == 0:
@@ -225,19 +181,12 @@ try:
         #
 
 
-        ########## TODO: INTERFACE ##########
-        count_entity = unpack('!i', sockRecv(embedding_sock, 4))[0]
-        
+        ########## INTERFACE ##########
         # 순수한 embedding 시간을 측정하기 위해서 여기 위치, cpp 가 send 하면 embedding 이 끝난 것                
         embeddingTime = default_timer() - timeNow
         timeNow = default_timer()
 
-        entity_id_list = unpack('!' + 'i' * count_entity, sockRecv(embedding_sock, count_entity * 4))
-        entity_vector_list = unpack(precision_string * count_entity * embedding_dim,
-            sockRecv(embedding_sock, precision_byte * embedding_dim * count_entity))
-        
-        entity_vector_list = np.array(entity_vector_list, dtype=np_dtype).reshape(count_entity, embedding_dim)
-        entity_vectors = {f"{entities[id_]}_v": v.tostring() for v, id_ in zip(entity_vector_list, entity_id_list)}
+        worker.get_entities()
 
         # transG 에 추가되는 분기
         # transG 의 짝수 이터레이션에선 추가로 전송할 게 없음
@@ -248,7 +197,7 @@ try:
         sockSaveTime = default_timer() - timeNow
         timeNow = default_timer()
 
-        iter_mset(r, entity_vectors)
+        worker.update_entities()
         redisTime += default_timer() - timeNow
 
     else:
@@ -258,64 +207,17 @@ try:
         # 그냥 모든 값을 전송하면 됨
         #
 
-        ########## TODO: INTERFACE ##########
+        ########## INTERFACE ##########
         # transE 에서는 embedding_relation 을 전송
-        if train_model == 0:
+        embeddingTime = default_timer() - timeNow
+        timeNow = default_timer()
 
-            count_relation = unpack('!i', sockRecv(embedding_sock, 4))[0]
-
-            # 순수한 embedding 시간을 측정하기 위해서 여기 위치, cpp 가 send 하면 embedding 이 끝난 것                
-            embeddingTime = default_timer() - timeNow
-            timeNow = default_timer()
-
-            relation_id_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, count_relation * 4))
-            relation_vector_list = unpack(precision_string * count_relation * embedding_dim,
-                sockRecv(embedding_sock, precision_byte * embedding_dim * count_relation))
-            # relation_vectors 전송
-            relation_vector_list = np.array(relation_vector_list, dtype=np_dtype).reshape(count_relation, embedding_dim)
-            relation_vectors = {f"{relations[id_]}_v": v.tostring() for v, id_ in
-                    zip(relation_vector_list, relation_id_list)}
-        
-        # transG 에 추가되는 분기
-        elif train_model == 1:
-
-            count_relation = unpack('!i', sockRecv(embedding_sock, 4))[0]
-
-            embeddingTime = default_timer() - timeNow # 순수한 embedding 시간을 측정하기 위해서 여기 위치, cpp 가 send 하면 embedding 이 끝난 것                
-            timeNow = default_timer()
-
-            relation_id_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, count_relation * 4))
-            # embedding_clusters 전송
-            cluster_vector_list = unpack(precision_string * count_relation * embedding_dim * 21,
-                sockRecv(embedding_sock, 21 * precision_byte * embedding_dim * count_relation))
-            cluster_vector_list = np.array(cluster_vector_list, dtype=np_dtype).reshape(count_relation, 21 * embedding_dim)
-            cluster_vectors = {f"{relations[id_]}_cv": v.tostring() for v, id_ in
-                    zip(cluster_vector_list, relation_id_list)}
-            # weights_clusters 전송
-            weights_clusters_list = unpack(precision_string * count_relation * 21,
-                sockRecv(embedding_sock, precision_byte * 21 * count_relation))
-            weights_clusters_list = np.array(weights_clusters_list, dtype=np_dtype).reshape(count_relation, 21)
-            weights_clusters = {f"{relations[id_]}_wv": v.tostring() for v, id_ in
-                    zip(weights_clusters_list, relation_id_list)}
-            # size_clusters 전송
-            size_clusters_list = unpack('!' + 'i' * count_relation, sockRecv(embedding_sock, 4 * count_relation))
-            size_clusters_list = np.array(size_clusters_list, dtype=np.int32)
-            size_clusters = {f"{relations[id_]}_s": v.tostring() for v, id_ in zip(size_clusters_list, relation_id_list)}
+        worker.get_relations()        
 
         sockSaveTime = default_timer() - timeNow
         timeNow = default_timer()
 
-        # transE
-        if train_model == 0:
-            
-            iter_mset(r, relation_vectors)
-
-        # transG
-        elif train_model == 1:
-            
-            iter_mset(r, cluster_vectors)
-            iter_mset(r, weights_clusters)
-            iter_mset(r, size_clusters)
+        worker.update_relations()
 
         redisTime += default_timer() - timeNow
 

@@ -2,9 +2,8 @@
 import numpy as np
 
 class BaseMaster():
-    def __init__(self, redis_con, test_sock, entities, relations, n_dim, precision=0):
+    def __init__(self, redis_con, entities, relations, n_dim, precision=0):
         self.redis_con = redis_con
-        self.test_sock = test_sock
 
         self.entities = entities
         self.relations = relations
