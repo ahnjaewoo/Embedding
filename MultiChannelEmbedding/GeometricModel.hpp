@@ -381,13 +381,91 @@ public:
 	// distributed KGE interface
 	virtual void send_entities() override {
 
+		int count = 0;
 
+		for (int i = 0; i < count_entity(); i++){
+
+			if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+			&& data_model.check_parts.find(i) != data_model.check_parts.end()){
+
+				count++;
+			}
+		}
+
+		count = htonl(count);
+		send(fd, &count, sizeof(count), 0);
+		count = ntohl(count);
+
+		// 원소 한 번에 보냄 (엔티티 한 번에)
+		int buff_idx = 0;
+		int * idx_buff = (int *)calloc(count + 1, sizeof(int));
+		float * vector_buff = (float *)calloc(count * dim + 1, sizeof(float));
+
+		for (int i = 0; i < count_entity(); i++){
+
+			if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+			&& data_model.check_parts.find(i) != data_model.check_parts.end()){						
+
+				idx_buff[buff_idx] = htonl(i);
+
+				for (int j = 0; j < dim; j++){
+
+					vector_buff[dim * buff_idx + j] = embedding_entity[i](j);
+				}
+
+				buff_idx++;
+			}
+		}
+
+		send(fd, idx_buff, count * sizeof(int), 0);
+		send(fd, vector_buff, count * dim * sizeof(float), 0);
+
+		free(idx_buff);
+		free(vector_buff);
 	}
 
 	// distributed KGE interface
 	virtual void send_relations() override {
 
+		int count = 0;
 
+		for (int i = 0; i < count_relation(); i++){
+
+			if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
+
+				count++;
+			}
+		}
+
+		count = htonl(count);
+		send(fd, &count, sizeof(count), 0);
+		count = ntohl(count);
+
+		// 원소 한 번에 보냄 (릴레이션 한 번에)
+
+		int buff_idx = 0;
+		int * idx_buff = (int *)calloc(count + 1, sizeof(int));
+		float * vector_buff = (float *)calloc(count * dim + 1, sizeof(float));
+
+		for (int i = 0; i < count_relation(); i++){
+
+			if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
+
+				idx_buff[buff_idx] = htonl(i);
+				for (int j = 0; j < dim; j++){
+
+					vector_buff[dim * buff_idx + j] = embedding_relation[i](j);
+				}
+
+				buff_idx++;
+			}
+		}
+
+		send(fd, idx_buff, count * sizeof(int), 0);
+		send(fd, vector_buff, count * dim * sizeof(float), 0);
+
+		free(idx_buff);
+		free(vector_buff);
 	}
 
 	virtual void save(const string& filename, FILE * fs_log) override{
@@ -399,6 +477,8 @@ public:
 		// master_epoch 이 홀수일 때, relation embedding
 		if (master_epoch % 2 == 0){
 			
+			send_entities();
+			/*
 			int count = 0;
 
 			for (int i = 0; i < count_entity(); i++){
@@ -440,9 +520,12 @@ public:
 
 			free(idx_buff);
 			free(vector_buff);
+			*/
 		}
 		else{
 
+			send_relations();
+			/*
 			int count = 0;
 
 			for (int i = 0; i < count_relation(); i++){
@@ -482,25 +565,12 @@ public:
 
 			free(idx_buff);
 			free(vector_buff);
+			*/
 		}
 	}
 
 	// distributed KGE interface
 	virtual void receive_entities() override {
-
-
-	}
-
-	// distributed KGE interface
-	virtual void receive_relations() override {
-
-	
-	}
-
-	virtual void load(const string& filename, FILE * fs_log) override
-	{
-		// filename, *fs_log 파라미터를 전혀 사용하고 있지 않음을 참고
-		// precision 변수의 삭제 필요
 
 		try{
 			
@@ -532,6 +602,10 @@ public:
 			close(fd);
 			std::exit(-1);
 		}
+	}
+
+	// distributed KGE interface
+	virtual void receive_relations() override {
 
 		try{
 
@@ -563,6 +637,81 @@ public:
 			close(fd);
 			std::exit(-1);
 		}
+	}
+
+	virtual void load(const string& filename, FILE * fs_log) override
+	{
+		// filename, *fs_log 파라미터를 전혀 사용하고 있지 않음을 참고
+		// precision 변수의 삭제 필요
+
+		receive_entities();
+		receive_relations();
+
+		/*
+		try{
+			
+			float * vector_buff = (float *)calloc(dim * count_entity() + 1, sizeof(float));
+			if (recv(fd, vector_buff, dim * count_entity() * sizeof(float), MSG_WAITALL) < 0){
+
+				cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:entity)" << endl;
+				cout << "[error] GeometricModel.hpp > return -1" << endl;
+				close(fd);
+				std::exit(-1);
+			}
+
+			// 더 최적화할 수 있을지도?
+			// 잘하면 memcpy 로 구현 가능
+			for (int i = 0; i < count_entity(); i++){
+
+				for (int j = 0; j < dim; j++){
+
+					embedding_entity[i](j) = vector_buff[i * dim + j];                        
+				}
+			}
+
+			free(vector_buff);
+		}
+		catch (std::exception& e){
+
+			cout << "[error] GeometricModel.hpp > exception occured" << endl;
+			cout << "%s\n" << e.what() << endl;
+			close(fd);
+			std::exit(-1);
+		}
+		*/
+
+		/*
+		try{
+
+			float * vector_buff = (float *)calloc(dim * count_relation() + 1, sizeof(float));
+			if (recv(fd, vector_buff, dim * count_relation() * sizeof(float), MSG_WAITALL) < 0){
+
+				cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transE:relation)" << endl;
+				cout << "[error] GeometricModel.hpp > return -1" << endl;
+				close(fd);
+				std::exit(-1);
+			}
+
+			// 더 최적화할수 있을지도?
+			// 잘하면 memcpy 로 구현 가능
+			for (int i = 0; i < count_relation(); i++){
+
+				for (int j = 0; j < dim; j++){
+
+					embedding_relation[i](j) = vector_buff[i * dim + j];
+				}
+			}
+
+			free(vector_buff);
+		}
+		catch (std::exception& e){
+
+			cout << "[error] GeometricModel.hpp > exception occured" << endl;
+			cout << "%s\n" << e.what() << endl;
+			close(fd);
+			std::exit(-1);
+		}
+		*/
 	}
 };
 
@@ -1646,13 +1795,158 @@ public:
 	// distributed KGE interface
 	virtual void send_entities() override {
 
+		int count = 0;
 
+		for (int i = 0; i < count_entity(); i++){
+
+			if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+			&& data_model.check_parts.find(i) != data_model.check_parts.end()){
+
+				count++;
+			}
+		}
+
+		count = htonl(count);
+		send(fd, &count, sizeof(count), 0);
+		count = ntohl(count);
+
+		int buff_idx = 0;
+		int * idx_buff = (int *)calloc(count + 1, sizeof(int));
+		float * vector_buff = (float *)calloc(count * dim + 1, sizeof(float));
+
+		// embedding_entity 전송
+
+		for (int i = 0; i < count_entity(); i++){
+
+			if (data_model.check_anchor.find(i) == data_model.check_anchor.end()
+			&& data_model.check_parts.find(i) != data_model.check_parts.end()){						
+
+				idx_buff[buff_idx] = htonl(i);
+
+				for (int j = 0; j < dim; j++){
+
+					vector_buff[dim * buff_idx + j] = embedding_entity[i](j);
+				}
+
+				buff_idx++;
+			}
+		}
+
+		send(fd, idx_buff, count * sizeof(int), 0);
+		send(fd, vector_buff, count * dim * sizeof(float), 0);
+
+		free(idx_buff);
+		free(vector_buff);
+
+		//.....................
+
+		// CRP_factor 전송은 필요없음
+
+		//.....................
 	}
 
 	// distributed KGE interface
 	virtual void send_relations() override {
 
+		int count = 0;
 
+		for (int i = 0; i < count_relation(); i++){
+
+			if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
+
+				count ++;
+			}
+		}
+
+		int buff_idx = 0;
+		int * idx_buff = (int *)calloc(count + 1, sizeof(int));
+
+		for (int i = 0; i < count_relation(); i++){
+
+			if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
+
+				idx_buff[buff_idx] = htonl(i);
+				buff_idx++;
+			}
+		}
+
+		count = htonl(count);
+		send(fd, &count, sizeof(count), 0);
+		count = ntohl(count);
+
+		send(fd, idx_buff, count * sizeof(int), 0);
+		free(idx_buff);
+
+		float * vector_buff = NULL;
+
+		// embedding_clusters 전송
+
+		vector_buff = (float *)calloc(count * 21 * dim + 1, sizeof(float));
+		buff_idx = 0;
+		for (int i = 0; i < count_relation(); i++){
+
+			if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
+
+				for (int j = 0; j < 21; j++){
+
+					for (int k = 0; k < dim; k++){
+						// 인덱싱에 에러가 있을 수 있음
+						vector_buff[dim * 21 * buff_idx + dim * j + k] = embedding_clusters[i][j](k);
+					}
+				}
+				buff_idx++;
+			}
+		}
+
+		send(fd, vector_buff, count * 21 * dim * sizeof(float), 0);
+		free(vector_buff);
+
+		//.....................
+
+		// weights_clusters 전송
+
+		vector_buff = (float *)calloc(count * 21 + 1, sizeof(float));
+		buff_idx = 0;
+		for (int i = 0; i < count_relation(); i++){
+
+			if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
+
+				for (int j = 0; j < 21; j++){
+					// n_cluster 를 생각하지 않고 그냥 21 개의 값을 전송
+					vector_buff[21 * buff_idx + j] = weights_clusters[i](j);
+				}
+				buff_idx++;
+			}
+		}
+
+		send(fd, vector_buff, count * 21 * sizeof(float), 0);
+		free(vector_buff);
+
+		//.....................
+
+		// size_clusters 전송
+
+		int idx = 0;
+		int * vector_buff = (int *)calloc(count + 1, sizeof(int));
+
+		for (int i = 0; i < count_relation(); i++){
+
+			if (data_model.set_relation_parts.find(i) != data_model.set_relation_parts.end()){
+
+				vector_buff[idx] = htonl(size_clusters[i]);
+
+				idx++;
+			}
+		}
+
+		send(fd, vector_buff, count * sizeof(int), 0);
+		free(vector_buff);
+
+		//.....................
+
+		// CRP_factor 전송은 필요없음
+
+		//.....................
 	}
 
 	virtual void save(const string& filename, FILE * fs_log) override
@@ -1672,6 +1966,8 @@ public:
 		// master_epoch 가 홀수일 때, relation 관련 변수 전송
 		if (master_epoch % 2 == 0){
 
+			send_entities();
+			/*
 			int count = 0;
 
 			for (int i = 0; i < count_entity(); i++){
@@ -1720,9 +2016,12 @@ public:
 			// CRP_factor 전송은 필요없음
 
 			//.....................
+			*/
 		}
 		else{
 
+			send_relations();
+			/*
 			int count = 0;
 
 			//	- embedding_clusters 전송
@@ -1827,41 +2126,12 @@ public:
 			// CRP_factor 전송은 필요없음
 
 			//.....................
+			*/
 		}
 	}
 
 	// distributed KGE interface
 	virtual void receive_entities() override {
-
-
-	}
-
-	// distributed KGE interface
-	virtual void receive_relations() override {
-
-
-	}
-
-	virtual void load(const string& filename, FILE * fs_log) override
-	{
-		// filename, *fs_log 파라미터를 전혀 사용하고 있지 않음을 참고
-		// precision 변수의 삭제 필요		
-
-		// 1. vector<vec> embedding_entity는 TransE랑 똑같이 로드함
-		//	- count_entity()만큼 for문 돌림
-		//		- 그 안에 dim만큼 double 변수 로드
-		// 2. vector<vector<vec>> embedding_clusters
-		// 	- count_relation()만큼 for문 돌림
-		//		- 그 안에 30번의 for문 돌림
-		//			- 그 안에 dim만큼 double 변수 로드
-		// 3. vector<vec> weights_clusters
-		//	- count_relation()만큼 for문 돌림
-		//		- vec의 디멘션은 dim 변수가 아니라 21로 고정되어 있음
-		//		- 21개의 double 중, n_cluster(int 값)만큼만 double 변수 로드
-		//		- 나머지 21 - #n_cluster는 0으로 채움(이미 초기화되어있으니 굳이 구현할 필요는 없음)
-		// 4. vector<int> size_clusters
-		//	- count_relation()만큼 for문 돌림
-		//		- int 변수 로드
 
 		// embedding_entity 전송
 		try{
@@ -1894,6 +2164,10 @@ public:
 		}
 
 		//.....................
+	}
+
+	// distributed KGE interface
+	virtual void receive_relations() override {
 
 		// embedding_clusters 전송
 		try{
@@ -1992,6 +2266,164 @@ public:
 		//.....................
 
 		// CRP_factor 전송은 필요없음
+	}
+
+	virtual void load(const string& filename, FILE * fs_log) override
+	{
+		// filename, *fs_log 파라미터를 전혀 사용하고 있지 않음을 참고
+		// precision 변수의 삭제 필요		
+
+		// 1. vector<vec> embedding_entity는 TransE랑 똑같이 로드함
+		//	- count_entity()만큼 for문 돌림
+		//		- 그 안에 dim만큼 double 변수 로드
+		// 2. vector<vector<vec>> embedding_clusters
+		// 	- count_relation()만큼 for문 돌림
+		//		- 그 안에 30번의 for문 돌림
+		//			- 그 안에 dim만큼 double 변수 로드
+		// 3. vector<vec> weights_clusters
+		//	- count_relation()만큼 for문 돌림
+		//		- vec의 디멘션은 dim 변수가 아니라 21로 고정되어 있음
+		//		- 21개의 double 중, n_cluster(int 값)만큼만 double 변수 로드
+		//		- 나머지 21 - #n_cluster는 0으로 채움(이미 초기화되어있으니 굳이 구현할 필요는 없음)
+		// 4. vector<int> size_clusters
+		//	- count_relation()만큼 for문 돌림
+		//		- int 변수 로드
+
+		receive_entities();
+		/*
+		// embedding_entity 전송
+		try{
+			
+			float * vector_buff = (float *)calloc(dim * count_entity() + 1, sizeof(float));
+			if (recv(fd, vector_buff, dim * count_entity() * sizeof(float), MSG_WAITALL) < 0){
+
+				cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:entity)\n";
+				cout << "[error] GeometricModel.hpp > return -1\n";
+				close(fd);
+				std::exit(-1);
+			}
+
+			for (int i = 0; i < count_entity(); i++){
+
+				for (int j = 0; j < dim; j++){
+
+					embedding_entity[i](j) = vector_buff[i * dim + j];						
+				}
+			}
+
+			free(vector_buff);
+		}
+		catch (std::exception& e){
+
+			cout << "[error] GeometricModel.hpp > exception occured\n";
+			cout << "%s\n" << e.what();
+			close(fd);
+			std::exit(-1);
+		}
+
+		//.....................
+		*/
+
+		receive_relations();
+		/*
+		// embedding_clusters 전송
+		try{
+
+			float * vector_buff = (float *)calloc(21 * count_relation() * dim + 1, sizeof(float));
+			if (recv(fd, vector_buff, 21 * count_relation() * dim * sizeof(float), MSG_WAITALL) < 0){
+
+				cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n";
+				cout << "[error] GeometricModel.hpp > return -1\n";
+				close(fd);
+				std::exit(-1);
+			}
+
+			for (int i = 0; i < count_relation(); i++){
+				
+				for (int j = 0; j < 21; j++){
+
+					for (int k = 0; k < dim; k++){
+						// 인덱싱에 에러가 있을 수 있음
+						embedding_clusters[i][j](k) = vector_buff[21 * i * dim + dim * j + k];
+					}
+				}
+			}
+
+			free(vector_buff);
+		}
+		catch (std::exception& e){
+
+			cout << "[error] GeometricModel.hpp > exception occured\n";
+			cout << "%s\n" << e.what();
+			close(fd);
+			std::exit(-1);
+		}
+
+		//.....................
+
+		// weights_clusters 전송
+		try{
+
+			float * vector_buff = (float *)calloc(21 * count_relation() + 1, sizeof(float));
+			if (recv(fd, vector_buff, 21 * count_relation() * sizeof(float), MSG_WAITALL) < 0){
+
+				cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n";
+				cout << "[error] GeometricModel.hpp > return -1\n";
+				close(fd);
+				std::exit(-1);
+			}
+
+			for (int i = 0; i < count_relation(); i++){
+
+				for (int j = 0; j < 21; j++){
+					// n_cluster 를 생각하지 않고 그냥 21 개의 값을 전송
+					weights_clusters[i](j) = vector_buff[21 * i + j];
+				}
+			}
+			free(vector_buff);
+		}
+		catch (std::exception& e){
+
+			cout << "[error] GeometricModel.hpp > exception occured\n";
+			cout << "%s\n" << e.what();
+			close(fd);
+			std::exit(-1);
+		}
+
+		//.....................
+
+		// size_clusters 전송
+		try{
+
+			int * vector_buff = (int *)calloc(count_relation() + 1, sizeof(int));
+
+			if (recv(fd, vector_buff, count_relation() * sizeof(int), MSG_WAITALL) < 0){
+
+				cout << "[error] GeometricModel.hpp > recv vector_buff for loop of dim (transG:relation)\n";
+				cout << "[error] GeometricModel.hpp > return -1\n";
+				close(fd);
+				std::exit(-1);
+			}
+
+			for (int i = 0; i < count_relation(); i++) {
+					
+				size_clusters[i] = ntohl(vector_buff[i]);
+			}
+			
+			free(vector_buff);
+		}
+		catch (std::exception& e){
+
+			cout << "[error] GeometricModel.hpp > exception occured\n";
+			cout << "%s\n" << e.what();
+			close(fd);
+			std::exit(-1);
+		}
+
+		//.....................
+
+		// CRP_factor 전송은 필요없음
+		*/
 	}
 
 	virtual void train_cluster_once(
