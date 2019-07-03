@@ -638,4 +638,35 @@ public:
 		cout << "BAD";
 		return NULL;
 	}
-}; 
+
+// distributed KGE interface
+public:
+
+	virtual void send_entities() {
+
+		cout << "BAD!" << endl;
+		
+		return;
+	}
+
+	virtual void send_relations() {
+
+		cout << "BAD!" << endl;
+		
+		return;
+	}
+
+	virtual void receive_entities() {
+
+		cout << "BAD!" << endl;
+		
+		return;
+	}
+
+	virtual void receive_relations() {
+
+		cout << "BAD!" << endl;
+
+		return;
+	}
+};

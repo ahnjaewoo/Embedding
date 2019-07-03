@@ -378,6 +378,18 @@ public:
 		return embedding_relation[relation_id];
 	}
 
+	// distributed KGE interface
+	virtual void send_entities() override {
+
+
+	}
+
+	// distributed KGE interface
+	virtual void send_relations() override {
+
+
+	}
+
 	virtual void save(const string& filename, FILE * fs_log) override{
 
 		// filename, *fs_log 파라미터를 전혀 사용하고 있지 않음을 참고
@@ -473,7 +485,19 @@ public:
 		}
 	}
 
-virtual void load(const string& filename, FILE * fs_log) override
+	// distributed KGE interface
+	virtual void receive_entities() override {
+
+
+	}
+
+	// distributed KGE interface
+	virtual void receive_relations() override {
+
+	
+	}
+
+	virtual void load(const string& filename, FILE * fs_log) override
 	{
 		// filename, *fs_log 파라미터를 전혀 사용하고 있지 않음을 참고
 		// precision 변수의 삭제 필요
@@ -1619,6 +1643,18 @@ public:
 		record.save(filename + replace_all(relation_name, "/", "_") + ".ppm", pgm_binary);
 	}
 
+	// distributed KGE interface
+	virtual void send_entities() override {
+
+
+	}
+
+	// distributed KGE interface
+	virtual void send_relations() override {
+
+
+	}
+
 	virtual void save(const string& filename, FILE * fs_log) override
 	{
 		
@@ -1792,6 +1828,18 @@ public:
 
 			//.....................
 		}
+	}
+
+	// distributed KGE interface
+	virtual void receive_entities() override {
+
+
+	}
+
+	// distributed KGE interface
+	virtual void receive_relations() override {
+
+
 	}
 
 	virtual void load(const string& filename, FILE * fs_log) override
